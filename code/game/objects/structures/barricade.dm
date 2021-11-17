@@ -18,6 +18,7 @@
 	pass_flags_self = PASSGLASS
 	var/busy = 0 //Oh god fucking do_after's
 	var/materialtype = /obj/item/stack/sheet/wood
+	var/pryable = TRUE //Some OOP friendly thing
 
 	fire_temp_threshold = 100 //Wooden barricades REALLY don't like fire
 	fire_volume_mod = 10 //They REALLY DON'T
@@ -69,7 +70,7 @@
 
 /obj/structure/window/barricade/attackby(obj/item/weapon/W as obj, mob/user as mob)
 
-	if(iscrowbar(W) && user.a_intent == I_HURT && !busy) //Only way to deconstruct, needs harm intent
+	if(iscrowbar(W) && user.a_intent == I_HURT && !busy && pryable) //Only way to deconstruct, needs harm intent
 		W.playtoolsound(loc, 75)
 		user.visible_message("<span class='warning'>[user] starts struggling to pry \the [src] back into planks.</span>", \
 		"<span class='notice'>You start struggling to pry \the [src] back into planks.</span>")
