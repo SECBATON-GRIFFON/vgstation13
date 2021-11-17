@@ -1,6 +1,7 @@
 /obj/structure/window/barricade/drywall
     name = "wall"
     desc = "A huge chunk of metal used to separate rooms."
+    icon = "icons/obj/structures.dmi"
     icon_state = "drywall"
     anchored = 1
     opacity = 1 //Not transparent
@@ -14,7 +15,7 @@
     fire_volume_mod = 500
 
 /obj/structure/window/barricade/drywall/attackby(obj/item/weapon/W as obj, mob/user as mob)
-    if(isweldingtool(W) && !busy) //Only way to deconstruct
+    if(iswelder(W) && !busy) //Only way to deconstruct
         W.playtoolsound(loc, 75)
         user.visible_message("<span class='warning'>[user] begins slicing through \the [src].</span>", \
         "<span class='notice'>You begin slicing through \the [src].</span>", \
