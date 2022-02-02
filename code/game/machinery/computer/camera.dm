@@ -25,6 +25,8 @@ var/list/obj/machinery/camera/cyborg_cams = list(
 	/// All the plane masters that need to be applied.
 	var/list/cam_plane_masters
 	var/obj/abstract/screen/background/cam_background
+	// Allows AI to view it, for subtypes
+	var/allow_ai = FALSE
 
 /obj/machinery/computer/security/initialize()
 	tv_monitors += src
@@ -70,15 +72,11 @@ var/list/obj/machinery/camera/cyborg_cams = list(
 	return output
 
 /obj/machinery/computer/security/attack_ai(var/mob/user)
-	if(istype(user, /mob/living/silicon/robot) || isMoMMI(user))
-		if(Adjacent(user))
-			src.add_hiddenprint(user)
-			return attack_hand(user)
-		else
-			to_chat(user, "You need to get closer to the computer first.")
+	if(Adjacent(user) || !isrobot(user))
+		src.add_hiddenprint(user)
+		return attack_hand(user)
 	else
-		to_chat(user, "You have your built-in camera systems for this!") //currently too buggy to allow AI to use camera computers
-	return //attack_hand(user)
+		to_chat(user, "You need to get closer to the computer first.")
 
 
 /obj/machinery/computer/security/attack_hand(var/mob/user)
