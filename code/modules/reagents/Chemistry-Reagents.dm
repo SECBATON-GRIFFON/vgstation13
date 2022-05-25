@@ -1160,7 +1160,7 @@
 			M.eye_blurry = max(M.eye_blurry, 10) //Eyes get blurry immediately
 		if(5 to INFINITY)
 			M.drowsyness  = max(M.drowsyness, 10) //Drowsiness even outside of the sleeper
-				
+
 	//This handles sleeper/cryo vs out of sleeper/cryo behaviors
 	if (istype(M.loc,/obj/machinery/sleeper) || M.bodytemperature < 170)
 		//If the patient is in a sleeper/cryo and it's been at least 20 seconds...
@@ -2313,15 +2313,6 @@
 	specheatcap = 0.68
 	glass_icon_state = "dr_gibb_glass"
 	glass_desc = "Unless you are an industrial tool, this is probably not safe for consumption."
-
-/datum/reagent/fuel/reaction_obj(var/obj/O, var/volume)
-
-	var/datum/reagent/self = src
-	if(..())
-		return 1
-	if(isturf(O.loc))
-		var/turf/T = get_turf(O)
-		self.reaction_turf(T, volume)
 
 /datum/reagent/fuel/on_mob_life(var/mob/living/M)
 
