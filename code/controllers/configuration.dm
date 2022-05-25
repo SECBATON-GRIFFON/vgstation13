@@ -175,6 +175,10 @@
 	var/emag_recharge_rate = 0
 	var/emag_recharge_ticks = 0
 
+	var/puddle_spreading = 0 //If puddles can spread
+	var/puddle_reactions = 0 //If puddles can react chemicals in them
+
+	var/map_voting = 0
 	var/renders_url = ""
 
 	var/grue_egglaying = 1 //Whether or not grues can lay eggs to reproduce
@@ -584,6 +588,10 @@
 				if("bsql_thread_limit")
 					bsql_thread_limit = text2num(value)
 
+				if("enable_puddle_spread")
+					config.puddle_spreading = 1
+				if("enable_puddle_react")
+					config.puddle_reactions = 1
 
 				if("media_base_url")
 					media_base_url = value

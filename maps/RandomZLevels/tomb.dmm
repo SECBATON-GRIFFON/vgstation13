@@ -1436,7 +1436,7 @@
 	},
 /area/awaymission/tomb/tomb_of_rafid)
 "eJ" = (
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor{
 	icon_state = "yellow_tint"
 	},
@@ -1848,7 +1848,7 @@
 /area/awaymission/tomb/outside/pyramid_outside)
 "fV" = (
 /obj/structure/wooden_support,
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor{
 	icon_state = "yellow_tint"
 	},
@@ -2082,9 +2082,7 @@
 	},
 /area/awaymission/tomb/tomb_of_rafid)
 "gv" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /obj/structure/grille/invulnerable,
 /turf/simulated/floor/plating,
 /area/awaymission/tomb/tomb_of_rafid)
@@ -2134,15 +2132,11 @@
 	},
 /area/awaymission/tomb/sewers)
 "gC" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor/mineral/gold,
 /area/awaymission/tomb/tomb_of_rafid)
 "gD" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor{
 	icon_state = "yellow_tint"
 	},
@@ -2215,9 +2209,7 @@
 	},
 /area/awaymission/tomb/tomb_of_rafid)
 "gN" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/unsimulated/wall/rock,
 /area/awaymission/tomb/tomb_of_rafid)
 "gO" = (
@@ -2235,9 +2227,7 @@
 /area/awaymission/tomb/sewers)
 "gQ" = (
 /obj/machinery/door/mineral/gold,
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor/mineral/gold,
 /area/awaymission/tomb/tomb_of_rafid)
 "gR" = (
@@ -2333,9 +2323,7 @@
 /turf/simulated/floor/mineral/gold,
 /area/awaymission/tomb/tomb_of_rafid)
 "hg" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/overlay/puddle/mapping/fuel,
 /obj/structure/button{
 	name = "entrance button (1)";
 	one_time = 1;
@@ -2783,7 +2771,7 @@
 /turf/simulated/floor,
 /area/awaymission/tomb/tomb_of_rafid)
 "iw" = (
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/simulated/floor,
 /area/awaymission/tomb/tomb_of_rafid)
 "ix" = (
@@ -3111,7 +3099,7 @@
 	},
 /area/awaymission/tomb/tomb_of_rafid)
 "ju" = (
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/unsimulated/floor{
 	icon_state = "asteroid";
 	name = "sand"
@@ -3174,7 +3162,7 @@
 /area/awaymission/tomb/tomb_of_rafid)
 "jC" = (
 /obj/item/weapon/skull/rigged,
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/overlay/puddle/mapping/fuel,
 /turf/unsimulated/floor{
 	icon_state = "asteroid";
 	name = "sand"

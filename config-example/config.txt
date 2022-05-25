@@ -372,3 +372,9 @@ BSQL_THREAD_LIMIT 50
 
 ## Uncomment to enable verbose BSQL communication logs
 #BSQL_DEBUG
+
+## Comment to disable puddles spreading
+ENABLE_PUDDLE_SPREAD
+
+## Comment to disable puddles reacting
+ENABLE_PUDDLE_REACT

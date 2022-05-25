@@ -181,7 +181,8 @@ text("<A href='?src=\ref[src];operation=oddbutton'>[src.oddbutton ? "Yes" : "No"
 	if (screwloose && prob(5))
 		if (istype(loc, /turf/simulated))
 			var/turf/simulated/T = loc
-			T.wet(800)
+			if(T.reagents)
+				T.reagents.add_reagent(WATER,5)
 
 	if(oddbutton && prob(5))
 		visible_message("<span class='warning'>Something flies out of \the [src]! He seems to be acting oddly.</span>")
