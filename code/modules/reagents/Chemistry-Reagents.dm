@@ -152,6 +152,8 @@
 		return 1
 	if(!istype(O))
 		return 1
+	if(istype(O,/obj/effect/overlay/puddle)) // Go interact with the turf instead, please
+		return 1
 
 	src = null
 
@@ -813,7 +815,7 @@
 		if(!locate(/obj/effect/decal/cleanable/molten_item) in T)
 			var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(T)
 			I.desc = "A bit of gel left over from sodium polyacrylate absorbing liquid."
-		T.reagents.remove_reagent(LUBE, T.reagents.get_reagent_amount(LUBE)) //Absorbs water or lube
+		T.reagents.del_reagents(SLIPPABLES) //Absorbs water or lube
 
 /datum/reagent/anti_toxin
 	name = "Dylovene"
@@ -2390,7 +2392,7 @@
 				H.adjustToxLoss(rand(5, 10)/10)
 
 		if(T.reagents && T.reagents.has_any_reagents(CLEANABLES))
-			T.reagents.remove_reagents(CLEANABLES)
+			T.reagents.del_reagents(CLEANABLES)
 
 	T.color = ""
 
