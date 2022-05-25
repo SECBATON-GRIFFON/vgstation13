@@ -4,9 +4,19 @@
 
 var/list/obj/effect/overlay/puddle/puddles = list()
 var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
+var/puddle_text = FALSE
 
 /turf
 	var/obj/effect/overlay/puddle/current_puddle = null
+
+/client/proc/toggle_puddle_values()
+	set name = "Toggle Puddle Values"
+	set category = "Debug"
+
+	if(!check_rights(R_DEBUG))
+		return
+	puddle_text = !puddle_text
+	to_chat(usr,"<span class='notice'>Puddle volume value text [puddle_text ? "enabled" : "disabled"]</span>")
 
 /obj/effect/overlay/puddle
 	icon = 'icons/effects/puddle.dmi'
@@ -17,6 +27,7 @@ var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 	anchored = TRUE
 	mouse_opacity = FALSE
 	var/turf/turf_on
+	var/image/debug_text
 
 /obj/effect/overlay/puddle/New()
 	..()
@@ -28,6 +39,8 @@ var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 	if(turf_on.current_puddle)
 		qdel(turf_on.current_puddle)
 	turf_on.current_puddle = src
+	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
+	debug_text.plane = ABOVE_LIGHTING_PLANE
 	processing_objects.Add(src)
 	update_icon()
 
@@ -44,45 +57,37 @@ var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 
 /obj/effect/overlay/puddle/proc/spread()
 	var/excess_volume = turf_on.reagents.total_volume - MAX_PUDDLE_VOLUME
-	var/list/spread_directions = cardinal.Copy()
-	for(var/direction in spread_directions)
+	var/list/turf/spread_turfs = list()
+	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
 		if(!T)
-			spread_directions.Remove(direction)
 			log_debug("Puddle reached map edge.")
 			continue
 		if(!T.reagents && !T.clears_reagents)
-			spread_directions.Remove(direction)
 			continue
 		if(!turf_on.can_leave_liquid(direction)) //Check if this liquid can leave the tile in the direction
-			spread_directions.Remove(direction)
 			continue
 		if(!T.can_accept_liquid(turn(direction,180))) //Check if this liquid can enter the tile
-			spread_directions.Remove(direction)
 			continue
+		spread_turfs += T
 
-	if(!spread_directions.len)
+	if(!spread_turfs.len)
 		return
 
-	var/average_volume = excess_volume / spread_directions.len //How much would be taken from our tile to fill each
+	var/average_volume = excess_volume / spread_turfs.len //How much would be taken from our tile to fill each
 	for(var/datum/reagent/R in turf_on.reagents.reagent_list)
 		average_volume = min(R.viscosity, average_volume) //Capped by viscosity
-	if(average_volume <= (spread_directions.len * PUDDLE_TRANSFER_THRESHOLD))
+	if(average_volume <= (spread_turfs.len * PUDDLE_TRANSFER_THRESHOLD))
 		return //If this is lower than the transfer threshold, break out
 
-	for(var/direction in spread_directions)
-		var/turf/T = get_step(src,direction)
+	for(var/turf/T in spread_turfs)
 		if(!T)
 			log_debug("Puddle reached map edge.")
 			continue
 		if(T.clears_reagents)
 			turf_on.reagents.remove_all(average_volume)
-			return
+			continue
 		turf_on.reagents.trans_to(T, average_volume)
-		T.reagents.reaction(T, volume_multiplier = 0) //Already transferred it here, don't go making it.
-		if(T.current_puddle)
-			T.current_puddle.update_icon()
-	update_icon()
 
 /obj/effect/overlay/puddle/getFireFuel() // Copied over from old fuel overlay system and adjusted
 	var/total_fuel = 0
@@ -130,22 +135,38 @@ var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 				return ..()
 
 /obj/effect/overlay/puddle/Destroy()
+	for(var/client/C in admins)
+		C.images -= debug_text
 	if(turf_on && turf_on.reagents)
 		turf_on.reagents.clear_reagents()
 	processing_objects.Remove(src)
+	turf_on.maptext = ""
 	turf_on.current_puddle = null
 	..()
 
 /obj/effect/overlay/puddle/update_icon()
+	for(var/client/C in admins)
+		C.images -= debug_text
 	if(turf_on && turf_on.reagents && turf_on.reagents.reagent_list.len)
 		color = mix_color_from_reagents(turf_on.reagents.reagent_list,TRUE)
 		alpha = mix_alpha_from_reagents(turf_on.reagents.reagent_list,TRUE)
+		var/puddle_volume = turf_on.reagents.total_volume
 		// Absolute scaling with volume, Scale() would give relative.
-		transform = matrix(clamp(turf_on.reagents.total_volume / CIRCLE_PUDDLE_VOLUME, 0.1, 1), 0, 0, 0, clamp(turf_on.reagents.total_volume / CIRCLE_PUDDLE_VOLUME, 0.1, 1), 0)
+		transform = matrix(min(1, puddle_volume / CIRCLE_PUDDLE_VOLUME), 0, 0, 0, min(1, puddle_volume / CIRCLE_PUDDLE_VOLUME), 0)
+		if(puddle_text)
+			var/round = 1
+			if(puddle_volume < 1000)
+				round = 0.1
+			if(puddle_volume < 100)
+				round = 0.01
+			if(puddle_volume < 10)
+				round = 0.001
+			debug_text.maptext = "<span class = 'center maptext black_outline'>[round(puddle_volume, round)]</span>"
+			for(var/client/C in admins)
+				C.images += debug_text
+		relativewall()
 	else // Sanity
 		qdel(src)
-
-	relativewall()
 
 /obj/effect/overlay/puddle/relativewall()
 	// Circle value as to have some breathing room
