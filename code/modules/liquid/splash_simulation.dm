@@ -104,17 +104,27 @@ var/puddle_text = FALSE
 
 /obj/effect/overlay/puddle/Crossed(atom/movable/AM)
 	if(turf_on.reagents && (isobj(AM) || ismob(AM))) // Only for reaction_obj and reaction_mob, no misc types.
-		//Only targeting feet here, TODO: Uncomment when a non-gunk system for this is devised.
-		/*
-		turf_on.reagents.remove_all(turf_on.reagents.total_volume/10)
-		turf_on.reagents.reaction(AM, volume_multiplier = 0.1)
-		*/
 		if(isliving(AM))
 			var/mob/living/L = AM
 			if(turf_on.reagents.has_reagent(LUBE))
 				L.ApplySlip(TURF_WET_LUBE, turf_on.reagents.get_reagent_amount(LUBE))
 			else if(turf_on.reagents.has_any_reagents(MILDSLIPPABLES))
 				L.ApplySlip(TURF_WET_WATER, turf_on.reagents.get_reagent_amounts(MILDSLIPPABLES))
+			var/list/limbs_to_hit = list(LIMB_LEFT_FOOT,LIMB_RIGHT_FOOT) // Only targeting feet here.
+			if(L.lying) // Unless lying down.
+				switch(L.dir)
+					if(SOUTH) // On their back, no mouth or eyes, everything else.
+						limbs_to_hit = ALL_NORMAL_LIMBS
+					if(NORTH) // On their front, everything.
+						limbs_to_hit = ALL_LIMBS
+					if(EAST) // On their side, left limbs.
+						limbs_to_hit = LEFT_LIMBS
+					if(WEST) // On their side, right limbs.
+						limbs_to_hit = RIGHT_LIMBS
+			turf_on.reagents.reaction(L, volume_multiplier = 0.1, zone_sels = limbs_to_hit)
+		else
+			turf_on.reagents.reaction(AM, volume_multiplier = 0.1)
+		turf_on.reagents.remove_all(turf_on.reagents.total_volume/10)
 
 	else
 		return ..()
