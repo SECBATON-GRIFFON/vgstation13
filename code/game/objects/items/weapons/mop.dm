@@ -57,7 +57,7 @@
 /turf/mop_act(obj/item/weapon/mop/M, mob/user as mob)
 	if(reagents && M.reagents)
 		if(M.reagents.total_volume < 1)
-			if(reagents && reagents.total_volume)
+			if(reagents.total_volume)
 				user.visible_message("<span class='notice'>[user] soaks up \the [src.current_puddle].</span>", "<span class='notice'>You soak \the [src.current_puddle].</span>")
 				reagents.trans_to(M, 25 - M.reagents.total_volume)
 			else
