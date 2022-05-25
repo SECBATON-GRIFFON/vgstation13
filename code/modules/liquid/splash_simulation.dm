@@ -2,7 +2,6 @@
 #define MAX_PUDDLE_VOLUME 50
 #define CIRCLE_PUDDLE_VOLUME 40 //39.26899 technically but this is close enough
 
-var/list/obj/effect/overlay/puddle/puddles = list()
 var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 var/puddle_text = FALSE
 
@@ -41,10 +40,11 @@ var/puddle_text = FALSE
 	turf_on.current_puddle = src
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
-	processing_objects.Add(src)
+	puddles.Add(src)
 	update_icon()
 
 /obj/effect/overlay/puddle/process()
+	set waitfor = FALSE
 	if(!turf_on || (turf_on.reagents && turf_on.reagents.total_volume < PUDDLE_TRANSFER_THRESHOLD))
 		qdel(src)
 		return
@@ -149,7 +149,7 @@ var/puddle_text = FALSE
 		C.images -= debug_text
 	if(turf_on && turf_on.reagents)
 		turf_on.reagents.clear_reagents()
-	processing_objects.Remove(src)
+	puddles.Remove(src)
 	turf_on.maptext = ""
 	turf_on.current_puddle = null
 	..()

@@ -45,7 +45,8 @@
 #define SS_PRIORITY_OBJECTS        100
 #define SS_PRIORITY_POWER          95
 #define SS_PRIORITY_MACHINERY      90
-#define SS_PRIORITY_ENGINES		   89
+#define SS_PRIORITY_LIQUID         89
+#define SS_PRIORITY_ENGINES        88
 #define SS_PRIORITY_PIPENET        85
 #define SS_PRIORITY_AIR            70
 #define SS_PRIORITY_EVENT          65
@@ -63,6 +64,7 @@
 
 #define SS_WAIT_WEATHER         	2 SECONDS
 #define SS_WAIT_MACHINERY           2 SECONDS //TODO move the rest of these to defines
+#define SS_WAIT_LIQUID				2 SECONDS
 #define SS_WAIT_BOTS           		1 SECONDS
 #define SS_WAIT_FAST_MACHINERY      0.7 SECONDS
 #define SS_WAIT_FAST_OBJECTS        0.5 SECONDS
@@ -77,6 +79,7 @@
 #define SS_DISPLAY_COMPONENT      -69
 #define SS_DISPLAY_FAST_OBJECTS   -65
 #define SS_DISPLAY_OBJECTS        -60
+#define SS_DISPLAY_LIQUID         -55
 #define SS_DISPLAY_MACHINERY      -50
 #define SS_DISPLAY_BOTS           -45
 #define SS_DISPLAY_PIPENET        -40
