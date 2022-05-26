@@ -8,6 +8,76 @@ var/puddle_text = FALSE
 /turf
 	var/obj/effect/overlay/puddle/current_puddle = null
 
+var/list/datum/liquid/puddles = list()
+
+/datum/liquid
+	var/list/obj/effect/overlay/puddle/liquid_objects = list()
+	var/list/obj/effect/overlay/puddle/edge_objects = list()
+	var/datum/reagents/reagents = null
+
+/datum/liquid/proc/process()
+	for(var/obj/effect/overlay/puddle/L in edge_objects)
+		L.spread()
+
+	if(liquid_objects.len == 0)
+		qdel(src)
+
+	if(reagents && reagents.volume < PUDDLE_TRANSFER_THRESHOLD)
+		qdel(src)
+
+/datum/liquid/New(var/turf/T)
+	..()
+	puddles += src
+	reagents = new(1000)
+	reagents.my_liquid = src
+	var/obj/effect/overlay/puddle/P = new(T)
+	P.controller = src
+	liquid_objects += P
+	edge_objects += P
+
+/datum/liquid/Destroy()
+	puddles -= src
+	for(var/obj/O in liquid_objects)
+		qdel(O)
+		O = null
+	qdel(reagents)
+	reagents = null
+	..()
+
+/client/proc/splash()
+	set name = "Create Liquids"
+	set category = "Debug"
+
+	if(!usr.client || !usr.client.holder)
+		to_chat(usr, "<span class='warning'>You need to be an administrator to access this.</span>")
+		return
+
+	var/reagentDatum = input(usr,"Reagent","Insert Reagent","") as text|null
+	if(reagentDatum)
+		var/reagentAmount = input(usr, "Amount", "Insert Amount", 0) as num
+		if(!isnum(reagentAmount))
+			return
+		if(reagentAmount <= LIQUID_TRANSFER_THRESHOLD)
+			return
+		var/reagentTemp = input(usr, "Temperature", "Insert Temperature (As Kelvin)", T0C+20) as num
+		if(.reagents.add_reagent(reagentDatum, reagentAmount, reagtemp = reagentTemp))
+			to_chat(usr, "<span class='warning'>[reagentDatum] doesn't exist.</span>")
+			return
+		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [A] at [reagentTemp]K temperature.")
+		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [A] at [reagentTemp]K temperature.")
+
+	var/turf/T = get_turf(src.mob)
+	if(!isturf(T))
+		return
+	trigger_splash(T, volume)
+
+/turf/proc/create_liquid(reagent_id,volume,temp)
+	if(volume <= LIQUID_TRANSFER_THRESHOLD)
+		return
+
+	var/datum/liquid/L = new/datum/liquid(src)
+	L.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
+
 /client/proc/toggle_puddle_values()
 	set name = "Toggle Puddle Values"
 	set category = "Debug"
@@ -27,6 +97,7 @@ var/puddle_text = FALSE
 	mouse_opacity = FALSE
 	var/turf/turf_on
 	var/image/debug_text
+	var/datum/liquid/controller
 
 /obj/effect/overlay/puddle/New()
 	..()

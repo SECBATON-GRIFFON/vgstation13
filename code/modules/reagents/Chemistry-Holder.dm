@@ -15,6 +15,7 @@ var/const/INGEST = 2
 	var/total_volume = 0
 	var/maximum_volume = 100
 	var/atom/my_atom = null
+	var/datum/liquid/my_liquid = null
 	var/last_ckey_transferred_to_this = ""	//The ckey of the last player who transferred reagents into this reagent datum.
 	var/chem_temp = T20C
 	var/obscured = FALSE
