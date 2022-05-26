@@ -16,14 +16,23 @@ var/list/datum/liquid/puddles = list()
 	var/datum/reagents/reagents = null
 
 /datum/liquid/proc/process()
-	for(var/obj/effect/overlay/puddle/L in edge_objects)
-		L.spread()
+	set waitfor = FALSE
 
 	if(liquid_objects.len == 0)
 		qdel(src)
+		return
 
 	if(reagents && reagents.volume < PUDDLE_TRANSFER_THRESHOLD)
 		qdel(src)
+		return
+
+	for(var/datum/reagent/R in reagents.reagents.reagent_list)
+		if(R.evaporation_rate)
+			reagents.remove_reagent(R.id, R.evaporation_rate)
+
+	if(config.puddle_spreading && reagents.total_volume > MAX_PUDDLE_VOLUME*liquid_objects.len)
+		for(var/obj/effect/overlay/puddle/L in edge_objects)
+			L.spread()
 
 /datum/liquid/New(var/turf/T)
 	..()
@@ -127,6 +136,9 @@ var/list/datum/liquid/puddles = list()
 			spread()
 
 /obj/effect/overlay/puddle/proc/spread()
+	if(!turf_on)
+		qdel(src)
+		return
 	var/excess_volume = turf_on.reagents.total_volume - MAX_PUDDLE_VOLUME
 	var/list/turf/spread_turfs = list()
 	for(var/direction in cardinal)
@@ -143,6 +155,8 @@ var/list/datum/liquid/puddles = list()
 		spread_turfs += T
 
 	if(!spread_turfs.len)
+		if(controller && (src in controller.edge_objects))
+			controller.edge_objects -= src
 		return
 
 	var/average_volume = excess_volume / spread_turfs.len //How much would be taken from our tile to fill each
