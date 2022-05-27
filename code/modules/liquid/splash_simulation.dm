@@ -129,6 +129,8 @@ var/puddle_text = FALSE
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
 	turf_on.liquid.liquid_objects += src
+	if(turf_on.current_puddle)
+		qdel(turf_on.current_puddle)
 	turf_on.current_puddle = src
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
