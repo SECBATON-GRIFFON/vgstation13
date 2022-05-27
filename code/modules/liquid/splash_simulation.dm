@@ -7,6 +7,7 @@ var/puddle_text = FALSE
 
 /turf
 	var/datum/liquid/liquid = null
+	var/obj/effect/overlay/puddle/current_puddle = null
 
 /datum/liquid
 	var/list/obj/effect/overlay/puddle/liquid_objects = list()
@@ -32,6 +33,8 @@ var/puddle_text = FALSE
 		for(var/obj/effect/overlay/puddle/L in edge_objects)
 			L.spread()
 
+	reagents.maximum_volume = 1000 * liquid_objects.len
+
 /datum/liquid/proc/merge(var/datum/liquid/other)
 	other.reagents.trans_to_holder(src.reagents)
 	liquid_objects += other.liquid_objects
@@ -43,7 +46,8 @@ var/puddle_text = FALSE
 	puddles += src
 	reagents = new(1000)
 	reagents.my_atom = src
-	var/obj/effect/overlay/puddle/P = new(T)
+	if(!T.current_puddle)
+		new /obj/effect/overlay/puddle(T)
 
 /datum/liquid/Destroy()
 	puddles -= src
@@ -92,7 +96,7 @@ var/puddle_text = FALSE
 		return
 
 	if(!liquid)
-		liquid = new(src)
+		liquid = istype(from.my_atom,/datum/liquid) ? from.my_atom : new(src)
 	return from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
 
 /client/proc/toggle_puddle_values()
@@ -125,12 +129,30 @@ var/puddle_text = FALSE
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
 	turf_on.liquid.liquid_objects += src
+	turf_on.current_puddle = src
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
-		if(!locate(src.type) in T)
+		if(!T.current_puddle)
 			turf_on.liquid.edge_objects += src
 			break
 	update_icon()
+
+/obj/effect/overlay/puddle/Destroy()
+	for(var/client/C in admins)
+		C.images -= debug_text
+	if(turf_on.liquid && turf_on.liquid.reagents)
+		turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
+		turf_on.liquid.liquid_objects -= src
+		if(src in turf_on.liquid.edge_objects)
+			turf_on.liquid.edge_objects -= src
+	for(var/direction in cardinal)
+		var/turf/T = get_step(src,direction)
+		if(T.current_puddle)
+			T.liquid.edge_objects += T.current_puddle
+			break
+	turf_on.maptext = ""
+	turf_on.current_puddle = null
+	..()
 
 /obj/effect/overlay/puddle/proc/spread()
 	if(!turf_on || !turf_on.liquid)
@@ -176,6 +198,7 @@ var/puddle_text = FALSE
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
 		T.trans_from_source(turf_on.liquid.reagents, average_volume)
+		T.liquid = turf_on.liquid
 		if(T.liquid && T.liquid != turf_on.liquid &&\
 			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects)\
 			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects))\
@@ -224,23 +247,6 @@ var/puddle_text = FALSE
 
 /obj/effect/overlay/puddle/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
 	return
-
-/obj/effect/overlay/puddle/Destroy()
-	for(var/client/C in admins)
-		C.images -= debug_text
-	if(turf_on.liquid && turf_on.liquid.reagents)
-		turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
-		turf_on.liquid.liquid_objects -= src
-		if(src in turf_on.liquid.edge_objects)
-			turf_on.liquid.edge_objects -= src
-	for(var/direction in cardinal)
-		var/turf/T = get_step(src,direction)
-		var/obj/effect/overlay/puddle/P = locate() in T
-		if(P)
-			T.liquid.edge_objects += P
-			break
-	turf_on.maptext = ""
-	..()
 
 /obj/effect/overlay/puddle/update_icon()
 	for(var/client/C in admins)

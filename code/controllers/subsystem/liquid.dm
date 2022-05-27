@@ -36,7 +36,7 @@ var/list/datum/liquid/puddles = list()
 		var/obj/effect/overlay/puddle/P = currentrun[currentrun.len]
 		currentrun.len--
 
-		if (!P || P.gcDestroyed || P.timestopped)
+		if (!P || P.gcDestroyed)
 			continue
 
 		P.process()
