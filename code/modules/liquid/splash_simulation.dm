@@ -281,13 +281,9 @@ var/puddle_text = FALSE
 	return smoothables
 
 /obj/effect/overlay/puddle/isSmoothableNeighbor(atom/A)
-	if(istype(A,/obj/effect/overlay/puddle))
-		var/obj/effect/overlay/puddle/P = A
-		if(P.turf_on && P.turf_on.liquid && P.turf_on.liquid.reagents && P.turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
-			return ..()
-	else if(isturf(A))
+	if(isturf(A))
 		var/turf/T = A
-		if(!T.can_accept_liquid() || !T.can_leave_liquid())
+		if(!T.can_accept_liquid() || !T.can_leave_liquid() || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
 			return ..()
 	else if(isobj(A))
 		var/obj/O = A
