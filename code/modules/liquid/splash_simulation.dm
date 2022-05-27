@@ -65,6 +65,8 @@ var/puddle_text = FALSE
 	puddles += src
 	reagents = new/datum/reagents(1000) // For an entire cubic space, 1000 units
 	reagents.my_atom = src
+	if(!T.liquid)
+		T.liquid = src
 	if(!T.current_puddle)
 		new /obj/effect/liquid(T)
 
@@ -118,7 +120,7 @@ var/puddle_text = FALSE
 		return
 
 	if(!liquid)
-		liquid = istype(from.my_atom,/datum/liquid) ? from.my_atom : new(src)
+		liquid = new(src)
 	var/result = from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
 	if(result && current_puddle)
 		current_puddle.update_icon()
@@ -147,7 +149,8 @@ var/puddle_text = FALSE
 /obj/effect/liquid/New()
 	..()
 	turf_on = get_turf(src)
-	if(!turf_on || !turf_on.liquid)
+	if(!turf_on || !turf_on.liquid || !turf_on.liquid.reagents)
+		log_debug("Puddle attempted creation at [turf_on ? "[turf_on] ([turf_on.x],[turf_on.y],[turf_on.z])" : "unknown turf"] and failed[turf_on && turf_on.liquid ? " at reagent creation" : " at liquid creation"].")
 		qdel(src)
 		return
 
@@ -167,8 +170,9 @@ var/puddle_text = FALSE
 /obj/effect/liquid/Destroy()
 	for(var/client/C in admins)
 		C.images -= debug_text
-	if(turf_on.liquid && turf_on.liquid.reagents)
-		turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
+	if(turf_on.liquid)
+		if(turf_on.liquid.reagents && turf_on.liquid.reagents.total_volume)
+			turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
 		turf_on.liquid.liquid_objects -= src
 		if(src in turf_on.liquid.edge_objects)
 			turf_on.liquid.edge_objects -= src
@@ -182,19 +186,20 @@ var/puddle_text = FALSE
 	..()
 
 /obj/effect/liquid/proc/spread()
-	if(!turf_on || !turf_on.liquid)
+	if(!turf_on || !turf_on.liquid || !turf_on.liquid.reagents)
+		log_debug("Puddle attempted spread begin at [turf_on ? "[turf_on] ([turf_on.x],[turf_on.y],[turf_on.z])" : "unknown turf"] and failed.")
 		qdel(src)
 		return
-	var/excess_volume = turf_on.reagents.total_volume - MAX_PUDDLE_VOLUME
+	var/excess_volume = turf_on.liquid.reagents.total_volume - MAX_PUDDLE_VOLUME
 	var/list/turf/spread_turfs = list()
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
 		if(!T)
-			log_debug("Puddle reached map edge.")
+			log_debug("Puddle reached map edge at [turf_on]. ([turf_on.x],[turf_on.y],[turf_on.z])")
 			continue
 		if(!turf_on.can_leave_liquid(direction)) //Check if this liquid can leave the tile in the direction
 			continue
-		if(!T.can_accept_liquid(turn(direction,180))) //Check if this liquid can enter the tile
+		if(!T.can_accept_liquid(opposite_dirs[direction])) //Check if this liquid can enter the tile
 			continue
 		if(T.liquid && T.liquid == src.turf_on.liquid)
 			continue
@@ -223,7 +228,6 @@ var/puddle_text = FALSE
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
 		T.trans_from_source(turf_on.liquid.reagents, average_volume)
-		T.liquid = turf_on.liquid
 		if(T.liquid && T.liquid != turf_on.liquid &&\
 			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects.len)\
 			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects.len))\
@@ -276,7 +280,7 @@ var/puddle_text = FALSE
 /obj/effect/liquid/update_icon()
 	for(var/client/C in admins)
 		C.images -= debug_text
-	if(turf_on.liquid && turf_on.liquid.reagents)
+	if(turf_on && turf_on.liquid && turf_on.liquid.reagents)
 		if(turf_on.liquid.reagents.reagent_list.len)
 			color = mix_color_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
 			alpha = mix_alpha_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
@@ -296,6 +300,7 @@ var/puddle_text = FALSE
 				C.images += debug_text
 		relativewall()
 	else // Sanity
+		log_debug("Puddle attempted icon update at [turf_on ? "[turf_on] ([turf_on.x],[turf_on.y],[turf_on.z])" : "unknown turf"] and failed.")
 		qdel(src)
 
 /obj/effect/liquid/relativewall()
@@ -308,18 +313,18 @@ var/puddle_text = FALSE
 
 /obj/effect/liquid/canSmoothWith()
 	var/static/list/smoothables = list(
-		/atom
+		/turf,/obj
 	)
 	return smoothables
 
 /obj/effect/liquid/isSmoothableNeighbor(atom/A)
 	if(isturf(A))
 		var/turf/T = A
-		if(!T.can_accept_liquid() || !T.can_leave_liquid() || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
+		if(!T.can_accept_liquid(get_dir(A,src)) || !T.can_leave_liquid(get_dir(src,A)) || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
 			return ..()
-	else if(isobj(A))
-		var/obj/O = A
-		if(!O.liquid_pass())
+	else if(ismovable(A))
+		var/atom/movable/AM = A
+		if(!AM.liquid_pass())
 			return ..()
 
 /turf/proc/can_accept_liquid(from_direction)
@@ -338,8 +343,8 @@ var/puddle_text = FALSE
 			return 0
 		if(W.dir & from_direction)
 			return 0
-	for(var/obj/O in src)
-		if(!O.liquid_pass())
+	for(var/atom/movable/AM in src)
+		if(!AM.liquid_pass())
 			return 0
 	return 1
 
@@ -349,8 +354,8 @@ var/puddle_text = FALSE
 			return 0
 		if(W.dir & to_direction)
 			return 0
-	for(var/obj/O in src)
-		if(!O.liquid_pass())
+	for(var/atom/movable/AM in src)
+		if(!AM.liquid_pass())
 			return 0
 	return 1
 
@@ -359,7 +364,7 @@ var/puddle_text = FALSE
 /turf/simulated/wall/can_leave_liquid(from_direction)
 	return 0
 
-/obj/proc/liquid_pass()
+/atom/movable/proc/liquid_pass()
 	return 1
 
 /obj/machinery/door/liquid_pass()
