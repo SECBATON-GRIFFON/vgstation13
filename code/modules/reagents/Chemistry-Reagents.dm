@@ -168,13 +168,8 @@
 	var/datum/reagent/self = src
 	src = null
 
-	if(T.reagents && T.can_accept_liquid(0) && self.reagent_state == REAGENT_STATE_LIQUID && self.creates_puddle)
-		if(volume)
-			T.reagents.add_reagent(self.id, volume)
-		if(T.current_puddle)
-			T.current_puddle.update_icon()
-		else
-			new /obj/effect/overlay/puddle(T)
+	if(T.can_accept_liquid(0) && self.reagent_state == REAGENT_STATE_LIQUID && self.creates_puddle && volume)
+		T.add_to_liquid(self.id, volume)
 
 /datum/reagent/proc/metabolize(var/mob/living/M)
 	tick++
