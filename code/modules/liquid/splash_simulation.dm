@@ -96,7 +96,7 @@ var/puddle_text = FALSE
 		var/turf/T = get_turf(src.mob)
 		if(!isturf(T))
 			return
-		if(!T.add_to_liquid(reagentDatum, reagentAmount, reagentTemp))
+		if(T.add_to_liquid(reagentDatum, reagentAmount, reagentTemp))
 			to_chat(usr, "<span class='warning'>[reagentDatum] doesn't exist.</span>")
 			return
 		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
@@ -111,7 +111,7 @@ var/puddle_text = FALSE
 	var/result = liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
 	if(!result && current_puddle) // Was a success
 		current_puddle.update_icon()
-	return !result
+	return result
 
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
