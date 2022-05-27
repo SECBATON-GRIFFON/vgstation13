@@ -470,8 +470,8 @@
 		if (FISH_WALL)
 			amount_added = 450
 	var/turf/T = get_turf(src)
-	if(T && T.reagents)
-		T.reagents.add_reagent(WATER,amount_added)
+	if(T)
+		T.add_to_liquid(WATER,amount_added)
 
 
 //////////////////////////////			Note from FalseIncarnate:

@@ -59,7 +59,7 @@ var/puddle_text = FALSE
 /datum/liquid/New(var/turf/T)
 	..()
 	puddles += src
-	reagents = new/datum/reagents(1000)
+	reagents = new/datum/reagents(1000) // For an entire cubic space, 1000 units
 	reagents.my_atom = src
 	if(!T.current_puddle)
 		new /obj/effect/overlay/puddle(T)

@@ -52,8 +52,8 @@
 		var/atom/A = L[1]
 		unlock_atom(A)
 	var/turf/simulated/T = get_turf(src)
-	if(istype(T) && T.reagents)
-		T.reagents.add_reagent(WATER,50)
+	if(istype(T))
+		T.add_to_liquid(WATER,50)
 	qdel(src)
 
 /datum/locking_category/ice_block

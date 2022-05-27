@@ -193,8 +193,7 @@ var/list/snowsound = list('sound/misc/snow1.ogg', 'sound/misc/snow2.ogg', 'sound
 	var/turf/simulated/TS = get_turf(src)
 	if(!istype(TS))
 		return
-	if(TS.reagents)
-		TS.reagents.add_reagent(WATER,15)
+	TS.add_to_liquid(WATER,15)
 	snow_tiles--
 	qdel(src)
 	return
