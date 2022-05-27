@@ -89,7 +89,10 @@ var/puddle_text = FALSE
 
 	if(!liquid)
 		liquid = new(src)
-	return liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
+	var/result = liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
+	if(!result && current_puddle) // Was a success
+		current_puddle.update_icon()
+	return result
 
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
@@ -97,7 +100,10 @@ var/puddle_text = FALSE
 
 	if(!liquid)
 		liquid = istype(from.my_atom,/datum/liquid) ? from.my_atom : new(src)
-	return from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
+	var/result = from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
+	if(result && current_puddle)
+		current_puddle.update_icon()
+	return result
 
 /client/proc/toggle_puddle_values()
 	set name = "Toggle Puddle Values"
