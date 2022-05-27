@@ -56,6 +56,10 @@ var/puddle_text = FALSE
 		reagents.trans_to_holder(LO.turf_on.liquid.reagents, MAX_PUDDLE_VOLUME)
 	qdel(src)
 
+/datum/liquid/on_reagent_change()
+	if(config.puddle_reactions)
+		reagents.reaction(src, volume_multiplier = 0)
+
 /datum/liquid/New(var/turf/T)
 	..()
 	puddles += src

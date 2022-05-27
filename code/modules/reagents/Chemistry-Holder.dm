@@ -500,9 +500,7 @@ var/const/INGEST = 2
 			del_reagent(R.id,update_totals=0)
 	// Only call ONCE. -- N3X
 	update_total()
-	if(isatom(my_atom))
-		var/atom/A = my_atom
-		A.on_reagent_change()
+	my_atom.on_reagent_change()
 
 /datum/reagents/proc/isolate_any_reagent(var/list/protected_reagents)
 	for(var/A in reagent_list)
@@ -514,9 +512,7 @@ var/const/INGEST = 2
 		if (protected == FALSE)
 			del_reagent(R.id,update_totals=0)
 	update_total()
-	if(isatom(my_atom))
-		var/atom/A = my_atom
-		A.on_reagent_change()
+	my_atom.on_reagent_change()
 
 /datum/reagents/proc/del_reagent(var/reagent, var/update_totals=1)
 	var/total_dirty=0
@@ -531,9 +527,7 @@ var/const/INGEST = 2
 
 	if(total_dirty && update_totals)
 		update_total()
-		if(isatom(my_atom))
-			var/atom/A = my_atom
-			A.on_reagent_change()
+		my_atom.on_reagent_change()
 	return total_dirty
 
 /datum/reagents/proc/del_reagents(var/list/reagents, var/update_totals=1)
@@ -544,9 +538,7 @@ var/const/INGEST = 2
 
 	if(total_dirty && update_totals)
 		update_total()
-		if(isatom(my_atom))
-			var/atom/A = my_atom
-			A.on_reagent_change()
+		my_atom.on_reagent_change()
 	return total_dirty
 
 /datum/reagents/proc/update_total()
@@ -569,9 +561,7 @@ var/const/INGEST = 2
 		del_reagent(R.id,update_totals=0)
 	// Only call ONCE. -- N3X
 	update_total()
-	if(isatom(my_atom))
-		var/atom/A = my_atom
-		A.on_reagent_change()
+	my_atom.on_reagent_change()
 	return 0
 
 /datum/reagents/proc/reaction(var/atom/A, var/method=TOUCH, var/volume_modifier=0, var/amount_override = 0, var/volume_multiplier = 1, var/list/zone_sels = ALL_LIMBS)
@@ -614,9 +604,7 @@ var/const/INGEST = 2
 		if (R.id == reagent)
 			R.volume += amount
 			update_total()
-			if(isatom(my_atom))
-				var/atom/A = my_atom
-				A.on_reagent_change()
+			my_atom.on_reagent_change()
 
 			if(!isnull(data))
 				if (reagent == BLOOD)
@@ -657,9 +645,7 @@ var/const/INGEST = 2
 		R.on_introduced()
 
 		update_total()
-		if(isatom(my_atom))
-			var/atom/A = my_atom
-			A.on_reagent_change()
+		my_atom.on_reagent_change()
 		handle_reactions()
 		return 0
 	else
@@ -724,9 +710,7 @@ var/const/INGEST = 2
 	update_total()
 	if(!safety)//So it does not handle reactions when it need not to
 		handle_reactions()
-	if(isatom(my_atom))
-		var/atom/A = my_atom
-		A.on_reagent_change()
+	my_atom.on_reagent_change()
 	return 0
 
 

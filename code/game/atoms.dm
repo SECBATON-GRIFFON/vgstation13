@@ -207,7 +207,7 @@ var/global/list/ghdel_profiling = list()
 		return 1
 	return
 
-/atom/proc/on_reagent_change()
+/datum/proc/on_reagent_change()
 	return
 
 // This proc is intended to be called by `to_bump` whenever a movable
