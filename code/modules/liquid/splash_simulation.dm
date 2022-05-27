@@ -22,11 +22,11 @@ var/list/datum/liquid/puddles = list()
 		qdel(src)
 		return
 
-	if(reagents && reagents.volume < PUDDLE_TRANSFER_THRESHOLD)
+	if(reagents && reagents.total_volume < PUDDLE_TRANSFER_THRESHOLD)
 		qdel(src)
 		return
 
-	for(var/datum/reagent/R in reagents.reagents.reagent_list)
+	for(var/datum/reagent/R in reagents.reagent_list)
 		if(R.evaporation_rate)
 			reagents.remove_reagent(R.id, R.evaporation_rate)
 
@@ -69,23 +69,20 @@ var/list/datum/liquid/puddles = list()
 		if(reagentAmount <= LIQUID_TRANSFER_THRESHOLD)
 			return
 		var/reagentTemp = input(usr, "Temperature", "Insert Temperature (As Kelvin)", T0C+20) as num
-		if(.reagents.add_reagent(reagentDatum, reagentAmount, reagtemp = reagentTemp))
+		if(!T.create_liquid(reagentDatum, reagentAmount, reagentTemp))
 			to_chat(usr, "<span class='warning'>[reagentDatum] doesn't exist.</span>")
 			return
-		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [A] at [reagentTemp]K temperature.")
-		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [A] at [reagentTemp]K temperature.")
+		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
+		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
 
-	var/turf/T = get_turf(src.mob)
-	if(!isturf(T))
-		return
-	trigger_splash(T, volume)
+
 
 /turf/proc/create_liquid(reagent_id,volume,temp)
-	if(volume <= LIQUID_TRANSFER_THRESHOLD)
+	if(volume <= PUDDLE_TRANSFER_THRESHOLD)
 		return
 
 	var/datum/liquid/L = new/datum/liquid(src)
-	L.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
+	return L.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
 
 /client/proc/toggle_puddle_values()
 	set name = "Toggle Puddle Values"
