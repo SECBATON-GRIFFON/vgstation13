@@ -33,13 +33,13 @@ var/list/datum/liquid/puddles = list()
 		currentrun = get_currenrun()
 
 	while (currentrun.len)
-		var/obj/effect/overlay/puddle/P = currentrun[currentrun.len]
+		var/datum/liquid/L = currentrun[currentrun.len]
 		currentrun.len--
 
-		if (!P || P.gcDestroyed)
+		if (!L || L.gcDestroyed)
 			continue
 
-		P.process()
+		L.process()
 
 		if (MC_TICK_CHECK)
 			return

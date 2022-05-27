@@ -7,11 +7,11 @@ var/puddle_text = FALSE
 
 /turf
 	var/datum/liquid/liquid = null
-	var/obj/effect/overlay/puddle/current_puddle = null
+	var/obj/effect/liquid/current_puddle = null
 
 /datum/liquid
-	var/list/obj/effect/overlay/puddle/liquid_objects = list()
-	var/list/obj/effect/overlay/puddle/edge_objects = list()
+	var/list/obj/effect/liquid/liquid_objects = list()
+	var/list/obj/effect/liquid/edge_objects = list()
 	var/datum/reagents/reagents = null
 
 /datum/liquid/proc/process()
@@ -33,7 +33,7 @@ var/puddle_text = FALSE
 			reagents.remove_reagent(R.id, R.evaporation_rate/SS_WAIT_LIQUID)
 
 	if(config.puddle_spreading && reagents.total_volume > MAX_PUDDLE_VOLUME*liquid_objects.len)
-		for(var/obj/effect/overlay/puddle/L in edge_objects)
+		for(var/obj/effect/liquid/L in edge_objects)
 			L.spread()
 
 	reagents.maximum_volume = 1000 * liquid_objects.len
@@ -50,14 +50,14 @@ var/puddle_text = FALSE
 /datum/liquid/proc/split()
 	if(reagents.total_volume >= MAX_PUDDLE_VOLUME * liquid_objects.len)
 		return
-	for(var/obj/effect/overlay/puddle/LO in liquid_objects)
+	for(var/obj/effect/liquid/LO in liquid_objects)
 		LO.turf_on.liquid = new(LO.turf_on)
 		reagents.trans_to_holder(LO.turf_on.liquid.reagents, MAX_PUDDLE_VOLUME)
 	qdel(src)
 
 /datum/liquid/on_reagent_change()
 	if(config.puddle_reactions)
-		for(var/obj/effect/overlay/puddle/P in liquid_objects)
+		for(var/obj/effect/liquid/P in liquid_objects)
 			reagents.reaction(P.turf_on, volume_multiplier = 0)
 
 /datum/liquid/New(var/turf/T)
@@ -66,7 +66,7 @@ var/puddle_text = FALSE
 	reagents = new/datum/reagents(1000) // For an entire cubic space, 1000 units
 	reagents.my_atom = src
 	if(!T.current_puddle)
-		new /obj/effect/overlay/puddle(T)
+		new /obj/effect/liquid(T)
 
 /datum/liquid/Destroy()
 	puddles -= src
@@ -133,7 +133,7 @@ var/puddle_text = FALSE
 	puddle_text = !puddle_text
 	to_chat(usr,"<span class='notice'>Puddle volume value text [puddle_text ? "enabled" : "disabled"]</span>")
 
-/obj/effect/overlay/puddle
+/obj/effect/liquid
 	icon = 'icons/effects/puddle.dmi'
 	icon_state = "puddle0"
 	name = "puddle"
@@ -144,7 +144,7 @@ var/puddle_text = FALSE
 	var/turf/turf_on
 	var/image/debug_text
 
-/obj/effect/overlay/puddle/New()
+/obj/effect/liquid/New()
 	..()
 	turf_on = get_turf(src)
 	if(!turf_on || !turf_on.liquid)
@@ -164,7 +164,7 @@ var/puddle_text = FALSE
 			break
 	update_icon()
 
-/obj/effect/overlay/puddle/Destroy()
+/obj/effect/liquid/Destroy()
 	for(var/client/C in admins)
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents)
@@ -181,7 +181,7 @@ var/puddle_text = FALSE
 	turf_on.current_puddle = null
 	..()
 
-/obj/effect/overlay/puddle/proc/spread()
+/obj/effect/liquid/proc/spread()
 	if(!turf_on || !turf_on.liquid)
 		qdel(src)
 		return
@@ -232,20 +232,20 @@ var/puddle_text = FALSE
 			< PUDDLE_TRANSFER_THRESHOLD)
 			turf_on.liquid.merge(T.liquid)
 
-/obj/effect/overlay/puddle/getFireFuel() // Copied over from old fuel overlay system and adjusted
+/obj/effect/liquid/getFireFuel() // Copied over from old fuel overlay system and adjusted
 	var/total_fuel = 0
 	if(turf_on.liquid && turf_on.liquid.reagents)
 		for(var/id in burnable_reagents)
 			total_fuel += turf_on.liquid.reagents.get_reagent_amount(id)
 	return total_fuel
 
-/obj/effect/overlay/puddle/burnFireFuel(var/used_fuel_ratio, var/used_reactants_ratio)
+/obj/effect/liquid/burnFireFuel(var/used_fuel_ratio, var/used_reactants_ratio)
 	if(turf_on.liquid && turf_on.liquid.reagents)
 		for(var/id in burnable_reagents)
 			// liquid fuel burns 5 times as quick
 			turf_on.liquid.reagents.remove_reagent(id, turf_on.liquid.reagents.get_reagent_amount(id) * used_fuel_ratio * used_reactants_ratio * 5)
 
-/obj/effect/overlay/puddle/Crossed(atom/movable/AM)
+/obj/effect/liquid/Crossed(atom/movable/AM)
 	if(turf_on.liquid.reagents && (isobj(AM) || ismob(AM))) // Only for reaction_obj and reaction_mob, no misc types.
 		if(isliving(AM))
 			var/mob/living/L = AM
@@ -272,10 +272,10 @@ var/puddle_text = FALSE
 	else
 		return ..()
 
-/obj/effect/overlay/puddle/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
+/obj/effect/liquid/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
 	return
 
-/obj/effect/overlay/puddle/update_icon()
+/obj/effect/liquid/update_icon()
 	for(var/client/C in admins)
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents && turf_on.liquid.reagents.reagent_list.len)
@@ -299,7 +299,7 @@ var/puddle_text = FALSE
 	else // Sanity
 		qdel(src)
 
-/obj/effect/overlay/puddle/relativewall()
+/obj/effect/liquid/relativewall()
 	// Circle value as to have some breathing room
 	if(turf_on.liquid && turf_on.liquid.reagents && turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
 		var/junction=findSmoothingNeighbors()
@@ -307,13 +307,13 @@ var/puddle_text = FALSE
 	else
 		icon_state = "puddle0"
 
-/obj/effect/overlay/puddle/canSmoothWith()
+/obj/effect/liquid/canSmoothWith()
 	var/static/list/smoothables = list(
 		/atom
 	)
 	return smoothables
 
-/obj/effect/overlay/puddle/isSmoothableNeighbor(atom/A)
+/obj/effect/liquid/isSmoothableNeighbor(atom/A)
 	if(isturf(A))
 		var/turf/T = A
 		if(!T.can_accept_liquid() || !T.can_leave_liquid() || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
@@ -366,20 +366,20 @@ var/puddle_text = FALSE
 /obj/machinery/door/liquid_pass()
 	return !density
 
-/obj/effect/overlay/puddle/mapping
+/obj/effect/liquid/mapping
 	var/reagent_type = ""
 	var/volume = 50
 
-/obj/effect/overlay/puddle/mapping/New()
+/obj/effect/liquid/mapping/New()
 	var/turf/T = get_turf(src)
 	T.liquid = new(T)
 	..()
 
-/obj/effect/overlay/puddle/mapping/initialize()
+/obj/effect/liquid/mapping/initialize()
 	turf_on.add_to_liquid(reagent_type,volume)
 
-/obj/effect/overlay/puddle/mapping/water
+/obj/effect/liquid/mapping/water
 	reagent_type = WATER
 
-/obj/effect/overlay/puddle/mapping/fuel
+/obj/effect/liquid/mapping/fuel
 	reagent_type = FUEL
