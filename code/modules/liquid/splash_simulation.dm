@@ -58,7 +58,8 @@ var/puddle_text = FALSE
 
 /datum/liquid/on_reagent_change()
 	if(config.puddle_reactions)
-		reagents.reaction(src, volume_multiplier = 0)
+		for(var/obj/effect/overlay/puddle/P in liquid_objects)
+			reagents.reaction(P.turf_on, volume_multiplier = 0)
 
 /datum/liquid/New(var/turf/T)
 	..()
