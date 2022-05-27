@@ -152,7 +152,7 @@ var/puddle_text = FALSE
 		if(T.liquid && T.liquid == src.turf_on.liquid)
 			continue
 		spread_turfs += T
-		if(!(src in turf_on.liquid.edge_objects)))
+		if(!(src in turf_on.liquid.edge_objects))
 			turf_on.liquid.edge_objects += src
 
 	if(!spread_turfs.len)
@@ -170,13 +170,15 @@ var/puddle_text = FALSE
 		if(!T)
 			log_debug("Puddle reached map edge.")
 			continue
+		if(T.liquid && T.liquid == src.turf_on.liquid)
+			continue
 		if(T.clears_reagents)
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
 		T.trans_from_source(turf_on.liquid.reagents, average_volume)
 		if(T.liquid && T.liquid != turf_on.liquid &&\
 			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects)\
-			- (turf_on.liquid.total_volume*turf_on.liquid.liquid_objects))\
+			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects))\
 			< PUDDLE_TRANSFER_THRESHOLD)
 			turf_on.liquid.merge(T.liquid)
 
@@ -227,7 +229,7 @@ var/puddle_text = FALSE
 	for(var/client/C in admins)
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents)
-		turf_on.liquid.reagents.remove_reagents(turf_on.liquid.reagents.reagent_list, min(turf_on.liquid.reagents.total_volume,50))
+		turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
 		turf_on.liquid.liquid_objects -= src
 		if(src in turf_on.liquid.edge_objects)
 			turf_on.liquid.edge_objects -= src
@@ -283,8 +285,14 @@ var/puddle_text = FALSE
 		var/obj/effect/overlay/puddle/P = A
 		if(P.turf_on && P.turf_on.liquid && P.turf_on.liquid.reagents && P.turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
 			return ..()
-	else if(!A.can_accept_liquid() || !A.can_leave_liquid() || !A.liquid_pass())
-		return ..()
+	else if(isturf(A))
+		var/turf/T = A
+		if(!T.can_accept_liquid() || !T.can_leave_liquid())
+			return ..()
+	else if(isobj(A))
+		var/obj/O = A
+		if(!O.liquid_pass())
+			return ..()
 
 /turf/proc/can_accept_liquid(from_direction)
 	return 0
@@ -339,8 +347,7 @@ var/puddle_text = FALSE
 	..()
 
 /obj/effect/overlay/puddle/mapping/initialize()
-	if(turf_on.liquid && turf_on.liquid.reagents)
-		turf_on.liquid.add_reagent(reagent_type,volume)
+	turf_on.add_to_liquid(reagent_type,volume)
 
 /obj/effect/overlay/puddle/mapping/water
 	reagent_type = WATER
