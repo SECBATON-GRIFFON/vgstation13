@@ -322,9 +322,9 @@ var/puddle_text = FALSE
 		var/turf/T = A
 		if(!T.can_accept_liquid(get_dir(A,src)) || !T.can_leave_liquid(get_dir(src,A)) || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
 			return ..()
-	else if(ismovable(A))
-		var/atom/movable/AM = A
-		if(!AM.liquid_pass())
+	else if(istype(A,/obj)) // This was somehow letting all movable atoms count when isobj(), THANKS BYOND
+		var/obj/O = A
+		if(!O.liquid_pass())
 			return ..()
 
 /turf/proc/can_accept_liquid(from_direction)
@@ -343,8 +343,8 @@ var/puddle_text = FALSE
 			return 0
 		if(W.dir & from_direction)
 			return 0
-	for(var/atom/movable/AM in src)
-		if(!AM.liquid_pass())
+	for(var/obj/O in src)
+		if(!O.liquid_pass())
 			return 0
 	return 1
 
@@ -354,8 +354,8 @@ var/puddle_text = FALSE
 			return 0
 		if(W.dir & to_direction)
 			return 0
-	for(var/atom/movable/AM in src)
-		if(!AM.liquid_pass())
+	for(var/obj/O in src)
+		if(!O.liquid_pass())
 			return 0
 	return 1
 
@@ -364,7 +364,7 @@ var/puddle_text = FALSE
 /turf/simulated/wall/can_leave_liquid(from_direction)
 	return 0
 
-/atom/movable/proc/liquid_pass()
+/obj/proc/liquid_pass()
 	return 1
 
 /obj/machinery/door/liquid_pass()
