@@ -192,8 +192,6 @@ var/puddle_text = FALSE
 		if(!T)
 			log_debug("Puddle reached map edge.")
 			continue
-		if(!T.reagents && !T.clears_reagents)
-			continue
 		if(!turf_on.can_leave_liquid(direction)) //Check if this liquid can leave the tile in the direction
 			continue
 		if(!T.can_accept_liquid(turn(direction,180))) //Check if this liquid can enter the tile

@@ -810,7 +810,7 @@
 		if(!locate(/obj/effect/decal/cleanable/molten_item) in T)
 			var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(T)
 			I.desc = "A bit of gel left over from sodium polyacrylate absorbing liquid."
-		T.reagents.del_reagents(SLIPPABLES) //Absorbs water or lube
+		T.liquid.reagents.del_reagents(SLIPPABLES) //Absorbs water or lube
 
 /datum/reagent/anti_toxin
 	name = "Dylovene"
@@ -2182,7 +2182,7 @@
 		return 1
 
 	if(T.is_wet())
-		T.reagents.remove_reagent(LUBE, T.reagents.get_reagent_amount(LUBE)) //Cleans water or lube
+		T.liquid.reagents.remove_reagent(LUBE, T.liquid.reagents.get_reagent_amount(LUBE)) //Cleans water or lube
 		var/obj/effect/smoke/S = new /obj/effect/smoke(T)
 		S.time_to_live = 10 //unusually short smoke
 		//We don't need to start up the system because we only want to smoke one tile.
@@ -2387,7 +2387,7 @@
 				H.adjustToxLoss(rand(5, 10)/10)
 
 		if(T.liquid && T.liquid.reagents && T.liquid.reagents.has_any_reagents(CLEANABLES))
-			T.reagents.del_reagents(CLEANABLES)
+			T.liquid.reagents.del_reagents(CLEANABLES)
 
 	T.color = ""
 
@@ -9883,7 +9883,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/incense/vapor/OnDisperse(var/turf/location)
 	for(var/turf/simulated/T in view(2,location))
 		if(T.is_wet())
-			T.reagents.remove_reagent(LUBE, T.reagents.get_reagent_amount(LUBE))
+			T.liquid.reagents.remove_reagent(LUBE, T.liquid.reagents.get_reagent_amount(LUBE))
 			T.turf_animation('icons/effects/water.dmi',"dry_floor",0,0,TURF_LAYER)
 
 /datum/reagent/incense/dense

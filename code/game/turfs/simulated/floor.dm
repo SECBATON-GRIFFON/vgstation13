@@ -565,7 +565,7 @@ var/global/list/turf/simulated/floor/phazontiles = list()
 						update_icon()
 
 /turf/simulated/proc/is_wet() //Returns true if reagents are slippery
-	return reagents && reagents.has_any_reagents(SLIPPABLES)
+	return liquid && liquid.reagents && liquid.reagents.has_any_reagents(SLIPPABLES)
 
 /turf/simulated/floor/attack_construct(var/mob/user)
 	if(istype(src,/turf/simulated/floor/carpet))

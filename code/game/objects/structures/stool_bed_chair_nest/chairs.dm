@@ -377,7 +377,7 @@
 	if(last_airflow + 5 SECONDS > world.time) //ugly hack: can't scoot during ZAS
 		return 0
 
-	if(istype(T, /turf/simulated) && T.reagents && T.reagents.has_reagent(LUBE))
+	if(istype(T, /turf/simulated) && T.liquid && T.liquid.reagents && T.liquid.reagents.has_reagent(LUBE))
 		user.unlock_from(src)
 		T.Entered(user) //bye bye
 		return 0
