@@ -629,15 +629,18 @@
 	result_amount = 1
 
 /datum/chemical_reaction/flash_powder/on_reaction(var/datum/reagents/holder, var/created_volume)
-	if(!is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
-		var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(!is_in_airtight_object(A)) //Don't pop while ventcrawling.
+		var/location = get_turf(A)
 		spark(location, 2)
 		if(created_volume >= 20)
-			holder.my_atom.flashbangprime(FALSE)
+			A.flashbangprime(FALSE)
 		else
 			playsound(src, 'sound/effects/phasein.ogg', 25, 1)
 
-			for(var/mob/living/M in viewers(get_turf(holder.my_atom), null))
+			for(var/mob/living/M in viewers(location, null))
 				if(M.blinded)
 					continue
 				var/eye_safety = 0
@@ -662,8 +665,9 @@
 	result_amount = 1
 
 /datum/chemical_reaction/napalm/on_reaction(var/datum/reagents/holder, var/created_volume)
-	if(!is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
-		var/turf/location = get_turf(holder.my_atom.loc)
+	if(isatom(holder.my_atom) && !is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
+		var/atom/A = holder.my_atom
+		var/turf/location = get_turf(A.loc)
 
 		for(var/turf/simulated/floor/target_tile in range(0,location))
 			var/datum/gas_mixture/napalm = new()
@@ -979,8 +983,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/explosion_bicarodyne/on_reaction(var/datum/reagents/holder, var/created_volume)
-	explosion(get_turf(holder.my_atom),1,2,4)
-	if(!holder.my_atom.is_open_container() || ismob(holder.my_atom))
+	var/atom/A = holder.my_atom
+	if(istype(A))
+		explosion(get_turf(A),1,2,4)
+	if(istype(A) && (!A.is_open_container() || ismob(holder.my_atom)))
 		holder.del_reagent(BICARODYNE)
 		holder.del_reagent(PARACETAMOL)
 	else
@@ -1235,12 +1241,13 @@
 
 /datum/chemical_reaction/mimicshift/on_reaction(var/datum/reagents/holder)
 	if(istype(holder.my_atom, /obj/item/weapon/reagent_containers/food/snacks/meat/mimic))
+		var/atom/A = holder.my_atom
 		var/obj/item/weapon/reagent_containers/food/snacks/meat/mimic/M = holder.my_atom
 		M.shapeshift()
 
-		if(ismob(holder.my_atom.loc))
-			var/mob/mob_holder = holder.my_atom.loc
-			mob_holder.drop_item(holder.my_atom) //Bandaid to work around items becoming invisible when their appearance is changed!
+		if(ismob(A.loc))
+			var/mob/mob_holder = A.loc
+			mob_holder.drop_item(A) //Bandaid to work around items becoming invisible when their appearance is changed!
 
 /////////////////////////////////////////////NEW SLIME CORE REACTIONS/////////////////////////////////////////////
 
@@ -1283,13 +1290,14 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimespawn/on_reaction(var/datum/reagents/holder)
-	if(!is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
-		if(istype(holder.my_atom.loc,/obj/item/weapon/grenade/chem_grenade))
-			holder.my_atom.visible_message("<span class='rose'>The grenade bursts open and a new baby slime emerges from it!</span>")
+	if(isatom(holder.my_atom) && !is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
+		var/atom/A = holder.my_atom
+		if(istype(A.loc,/obj/item/weapon/grenade/chem_grenade))
+			A.visible_message("<span class='rose'>The grenade bursts open and a new baby slime emerges from it!</span>")
 		else
-			holder.my_atom.visible_message("<span class='rose'>Infused with plasma, the core begins to quiver and grow, and soon a new baby slime emerges from it!</span>")
+			A.visible_message("<span class='rose'>Infused with plasma, the core begins to quiver and grow, and soon a new baby slime emerges from it!</span>")
 		var/mob/living/carbon/slime/S = new /mob/living/carbon/slime
-		S.forceMove(get_turf(holder.my_atom))
+		S.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimemonkey
@@ -1419,8 +1427,11 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimecrit/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc, /obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(!istype(A.loc, /obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
 		sleep(50)
 
 	var/list/blocked = existing_typesof(
@@ -1435,9 +1446,9 @@
 
 	var/list/critters = existing_typesof(/mob/living/simple_animal/hostile) - existing_typesof_list(blocked) //List of possible hostile mobs
 
-	playsound(holder.my_atom, 'sound/effects/phasein.ogg', 100, 1)
+	playsound(A, 'sound/effects/phasein.ogg', 100, 1)
 
-	for(var/mob/O in viewers(get_turf(holder.my_atom), null))
+	for(var/mob/O in viewers(get_turf(A), null))
 		if(O.is_blind())
 			if(O.is_deaf())
 				to_chat(O, "<span class='danger'>You feel a strange rumbling!</span>")
@@ -1455,7 +1466,7 @@
 
 	for(var/i = 1, i <= 5, i++)
 		var/chosen = pick(critters)
-		var/mob/living/simple_animal/hostile/C = new chosen(get_turf(holder.my_atom))
+		var/mob/living/simple_animal/hostile/C = new chosen(get_turf(A))
 		C.faction = "slimesummon"
 		if(prob(50))
 			for(var/j = 1, j <= rand(1, 3), j++)
@@ -1470,8 +1481,11 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimecritlesser/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc, /obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to vibrate violently !</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(!istype(A.loc, /obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to vibrate violently !</span>")
 		sleep(50)
 
 	var/list/blocked = list(
@@ -1485,9 +1499,9 @@
 
 	var/list/critters = existing_typesof(/mob/living/simple_animal/hostile) - existing_typesof_list(blocked)//List of possible hostile mobs
 
-	playsound(holder.my_atom, 'sound/effects/phasein.ogg', 100, 1)
+	playsound(A, 'sound/effects/phasein.ogg', 100, 1)
 
-	for(var/mob/O in viewers(get_turf(holder.my_atom), null))
+	for(var/mob/O in viewers(get_turf(A), null))
 		if(O.is_blind())
 			if(O.is_deaf())
 				to_chat(O, "<span class='rose'>There's a sudden whiff of ozone in the air!</span>")
@@ -1506,7 +1520,7 @@
 	var/chosen = pick(critters)
 	var/mob/living/simple_animal/hostile/C = new chosen
 	C.faction = "neutral" //Uh, beepsky ignores mobs in this faction as of Redmine #147 - N3X
-	C.forceMove(get_turf(holder.my_atom))
+	C.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimecritweak
@@ -1517,10 +1531,13 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimecritweak/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc, /obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to slowly vibrate!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(!istype(A.loc, /obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to slowly vibrate!</span>")
 
-	var/atom/location = holder.my_atom.loc
+	var/atom/location = A.loc
 	spawn(5 SECONDS)
 		if(isturf(location))
 			var/list/disguise_candidates = list()
@@ -1565,6 +1582,10 @@
 	required_container = /obj/item/slime_extract/silver
 
 /datum/chemical_reaction/slime_extract/slimebork/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+
 	var/blocked = list(
 		/obj/item/weapon/reagent_containers/food/snacks,
 		/obj/item/weapon/reagent_containers/food/snacks/snackbar,
@@ -1576,9 +1597,9 @@
 	var/list/borks = existing_typesof(/obj/item/weapon/reagent_containers/food/snacks) - blocked
 
 	//BORK BORK BORK
-	playsound(holder.my_atom, 'sound/effects/phasein.ogg', 100, 1)
+	playsound(A, 'sound/effects/phasein.ogg', 100, 1)
 
-	for(var/mob/O in viewers(get_turf(holder.my_atom), null))
+	for(var/mob/O in viewers(get_turf(A), null))
 		if(O.is_blind())
 			to_chat(O,"<span class='notice'>you think you can smell some food nearby!</span>")
 		else if(ishuman(O))
@@ -1595,7 +1616,7 @@
 		var/chosen = pick(borks)
 		var/obj/B = new chosen
 		if(B)
-			B.forceMove(get_turf(holder.my_atom))
+			B.forceMove(get_turf(A))
 
 			if(istype(B,/obj/item/weapon/reagent_containers/food/snacks/meat/human))
 				B.name = "human-meat"
@@ -1619,6 +1640,9 @@
 	required_container = /obj/item/slime_extract/silver
 
 /datum/chemical_reaction/slime_extract/slimedrinks/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 
 	var/blocked = list(
 		/obj/item/weapon/reagent_containers/food/drinks,
@@ -1629,9 +1653,9 @@
 	var/list/borks = existing_typesof(/obj/item/weapon/reagent_containers/food/drinks) - blocked
 
 	//BORK BORK BORK
-	playsound(holder.my_atom, 'sound/effects/phasein.ogg', 100, 1)
+	playsound(A, 'sound/effects/phasein.ogg', 100, 1)
 
-	for(var/mob/O in viewers(get_turf(holder.my_atom), null))
+	for(var/mob/O in viewers(get_turf(A), null))
 		if(O.is_blind())
 			if(O.is_deaf())
 				continue
@@ -1651,7 +1675,7 @@
 		var/obj/B = new chosen
 
 		if(B)
-			B.forceMove(get_turf(holder.my_atom))
+			B.forceMove(get_turf(A))
 
 			if(istype(B,/obj/item/weapon/reagent_containers/food/drinks/sillycup))
 				B.reagents.add_reagent(WATER, 10)
@@ -1674,6 +1698,9 @@
 	required_container = /obj/item/slime_extract/silver
 
 /datum/chemical_reaction/slime_extract/slimematerials/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/list/paths = list(/obj/item/stack/sheet/plasteel,
 			/obj/item/stack/sheet/metal,
 			/obj/item/stack/sheet/mineral/plasma,
@@ -1681,9 +1708,9 @@
 			/obj/item/stack/sheet/mineral/gold,
 			/obj/item/stack/sheet/mineral/uranium)
 	var/path = pick(paths)
-	new path(get_turf(holder.my_atom), 5)
+	new path(get_turf(A), 5)
 	path = pick(paths)
-	new path(get_turf(holder.my_atom), 5)
+	new path(get_turf(A), 5)
 	..()
 
 //Blue
@@ -1704,13 +1731,17 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimefreeze/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc,/obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+
+	if(!istype(A.loc,/obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
 		sleep(50)
 
-	playsound(holder.my_atom, 'sound/effects/phasein.ogg', 100, 1)
+	playsound(A, 'sound/effects/phasein.ogg', 100, 1)
 
-	for(var/mob/living/M in range (get_turf(holder.my_atom), 7))
+	for(var/mob/living/M in range (get_turf(A), 7))
 		M.bodytemperature -= 6
 		to_chat(M, "<span class='notice'>You feel a chill!</span>")
 	..()
@@ -1722,8 +1753,11 @@
 	required_container = /obj/item/slime_extract/darkblue
 
 /datum/chemical_reaction/slime_extract/slimenutrient/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimenutrient/P = new /obj/item/weapon/slimenutrient
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 //Orange
@@ -1743,11 +1777,15 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimefire/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc,/obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+
+	if(!istype(A.loc,/obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
 		sleep(50)
 
-	var/turf/location = get_turf(holder.my_atom.loc)
+	var/turf/location = get_turf(A.loc)
 	for(var/turf/simulated/floor/target_tile in range(0, location))
 
 		var/datum/gas_mixture/napalm = new
@@ -1767,7 +1805,10 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimeoverload/on_reaction(var/datum/reagents/holder, var/created_volume)
-	empulse(get_turf(holder.my_atom), 3, 7)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	empulse(get_turf(A), 3, 7)
 	..()
 
 /datum/chemical_reaction/slime_extract/slimecell
@@ -1777,8 +1818,11 @@
 	required_container = /obj/item/slime_extract/yellow
 
 /datum/chemical_reaction/slime_extract/slimecell/on_reaction(var/datum/reagents/holder, var/created_volume)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/cell/slime/P = new /obj/item/weapon/cell/slime
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimeglow
@@ -1788,8 +1832,11 @@
 	required_container = /obj/item/slime_extract/yellow
 
 /datum/chemical_reaction/slime_extract/slimeglow/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/device/flashlight/lamp/slime/P = new /obj/item/device/flashlight/lamp/slime
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 //Purple
@@ -1800,8 +1847,11 @@
 	required_container = /obj/item/slime_extract/purple
 
 /datum/chemical_reaction/slime_extract/slimepsteroid/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimesteroid/P = new /obj/item/weapon/slimesteroid
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimejam
@@ -1821,9 +1871,12 @@
 	required_container = /obj/item/slime_extract/darkpurple
 
 /datum/chemical_reaction/slime_extract/slimeplasma/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/stack/sheet/mineral/plasma/P = new /obj/item/stack/sheet/mineral/plasma
 	P.amount = 10
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 //Red
@@ -1843,8 +1896,11 @@
 	required_container = /obj/item/slime_extract/red
 
 /datum/chemical_reaction/slime_extract/slimeres/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimeres/P = new /obj/item/weapon/slimeres
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimebloodlust
@@ -1855,12 +1911,15 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimebloodlust/on_reaction(var/datum/reagents/holder)
-	for(var/mob/living/carbon/slime/slime in viewers(get_turf(holder.my_atom), null))
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	for(var/mob/living/carbon/slime/slime in viewers(get_turf(A), null))
 		slime.rabid()
-		holder.my_atom.visible_message("<span class='warning'>\The [slime] is driven into a frenzy!</span>")
-	for(var/mob/living/simple_animal/slime/slime in viewers(get_turf(holder.my_atom), null))
+		A.visible_message("<span class='warning'>\The [slime] is driven into a frenzy!</span>")
+	for(var/mob/living/simple_animal/slime/slime in viewers(get_turf(A), null))
 		slime.rabid()
-		holder.my_atom.visible_message("<span class='warning'>\The [slime] is driven into a frenzy!</span>")
+		A.visible_message("<span class='warning'>\The [slime] is driven into a frenzy!</span>")
 	..()
 
 //Pink
@@ -1871,8 +1930,11 @@
 	required_container = /obj/item/slime_extract/pink
 
 /datum/chemical_reaction/slime_extract/slimeppotion/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimepotion/P = new /obj/item/weapon/slimepotion
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 //Black
@@ -1928,10 +1990,13 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimeexplosion/on_reaction(var/datum/reagents/holder)
-	if(!istype(holder.my_atom.loc,/obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(!istype(A.loc,/obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to vibrate violently!</span>")
 		sleep(50)
-	explosion(get_turf(holder.my_atom), 1 ,3, 6)
+	explosion(get_turf(A), 1 ,3, 6)
 	..()
 
 /datum/chemical_reaction/slime_extract/slimegenocide
@@ -1942,9 +2007,12 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimegenocide/on_reaction(var/datum/reagents/holder)
-	for(var/mob/living/carbon/slime/S in viewers(get_turf(holder.my_atom), null)) //Kills slimes
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	for(var/mob/living/carbon/slime/S in viewers(get_turf(A), null)) //Kills slimes
 		S.death(0)
-	for(var/mob/living/simple_animal/slime/S in viewers(get_turf(holder.my_atom), null)) //Kills pet slimes too
+	for(var/mob/living/simple_animal/slime/S in viewers(get_turf(A), null)) //Kills pet slimes too
 		S.death(0)
 	..()
 
@@ -1956,8 +2024,11 @@
 	required_reagents = list(PLASMA = 5)
 
 /datum/chemical_reaction/slime_extract/slimepotion2/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimepotion2/P = new /obj/item/weapon/slimepotion2
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimeparalyze
@@ -1967,7 +2038,10 @@
 	required_reagents = list(BLOOD = 5)
 
 /datum/chemical_reaction/slime_extract/slimeparalyze/on_reaction(var/datum/reagents/holder)
-	new /obj/item/weapon/slimeparapotion(get_turf(holder.my_atom))
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	new /obj/item/weapon/slimeparapotion(get_turf(A))
 	..()
 
 //Adamantine
@@ -1978,8 +2052,11 @@
 	required_container = /obj/item/slime_extract/adamantine
 
 /datum/chemical_reaction/slime_extract/slimegolem/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/effect/golem_rune/Z = new /obj/effect/golem_rune
-	Z.forceMove(get_turf(holder.my_atom))
+	Z.forceMove(get_turf(A))
 	Z.announce_to_ghosts()
 	..()
 
@@ -1990,9 +2067,12 @@
 	required_reagents = list(CARBON = 5)
 
 /datum/chemical_reaction/slime_extract/slimediamond2/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/stack/sheet/mineral/diamond/D = new /obj/item/stack/sheet/mineral/diamond
 	D.amount = 5
-	D.forceMove(get_turf(holder.my_atom))
+	D.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimephazon
@@ -2002,9 +2082,12 @@
 	required_reagents = list(GOLD = 5)
 
 /datum/chemical_reaction/slime_extract/slimephazon/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/stack/sheet/mineral/phazon/P = new /obj/item/stack/sheet/mineral/phazon
 	P.amount = 5
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimeclown
@@ -2014,9 +2097,12 @@
 	required_container = /obj/item/slime_extract/adamantine
 
 /datum/chemical_reaction/slime_extract/slimeclown/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/stack/sheet/mineral/clown/C = new /obj/item/stack/sheet/mineral/clown
 	C.amount = 5
-	C.forceMove(get_turf(holder.my_atom))
+	C.forceMove(get_turf(A))
 	..()
 
 //Bluespace
@@ -2028,6 +2114,9 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimeteleport/on_reaction(var/datum/reagents/holder, var/created_volume)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	//Calculate new position (searches through beacons in world)
 	var/obj/item/beacon/chosen
 	var/list/possible = list()
@@ -2040,7 +2129,7 @@
 	if(chosen)
 
 		//Calculate previous position for transition
-		var/turf/from = get_turf(holder.my_atom) //The turf of origin we're travelling from
+		var/turf/from = get_turf(A) //The turf of origin we're travelling from
 		var/turf/towards = get_turf(chosen)			 //The turf of origin we're travelling towards
 
 		playsound(towards, 'sound/effects/phasein.ogg', 100, 1)
@@ -2053,21 +2142,21 @@
 
 		var/y_distance = towards.y - from.y
 		var/x_distance = towards.x - from.x
-		for(var/atom/movable/A in range(4, from)) //Iterate thru list of mobs in the area
-			if(istype(A, /obj/item/beacon)) //Don't teleport beacons because that's just insanely stupid
+		for(var/atom/movable/AM in range(4, from)) //Iterate thru list of mobs in the area
+			if(istype(AM, /obj/item/beacon)) //Don't teleport beacons because that's just insanely stupid
 				continue
-			if(A.anchored)
+			if(AM.anchored)
 				continue
-			if(istype(A, /obj/structure/cable))
+			if(istype(AM, /obj/structure/cable))
 				continue
 
-			var/turf/newloc = locate(A.x + x_distance, A.y + y_distance, towards.z) //Calculate the new place
-			if(!A.Move(newloc)) //If the atom, for some reason, can't move, force them to move! We try Move() first to invoke any movement-related checks the atom needs to perform after moving
-				A.forceMove(locate(A.x + x_distance, A.y + y_distance, towards.z))
+			var/turf/newloc = locate(AM.x + x_distance, AM.y + y_distance, towards.z) //Calculate the new place
+			if(!AM.Move(newloc)) //If the atom, for some reason, can't move, force them to move! We try Move() first to invoke any movement-related checks the atom needs to perform after moving
+				AM.forceMove(locate(AM.x + x_distance, AM.y + y_distance, towards.z))
 
 			spawn()
-				if(ismob(A) && !(A in flashers)) //Don't flash if we're already doing an effect
-					var/mob/M = A
+				if(ismob(AM) && !(AM in flashers)) //Don't flash if we're already doing an effect
+					var/mob/M = AM
 					if(M.client)
 						var/obj/blueeffect = new /obj(src)
 						blueeffect.screen_loc = "WEST,SOUTH to EAST,NORTH"
@@ -2090,7 +2179,10 @@
 	required_container = /obj/item/slime_extract/bluespace
 
 /datum/chemical_reaction/slime_extract/slimecrystal/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/obj/item/bluespace_crystal/BC = new(get_turf(holder.my_atom))
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/obj/item/bluespace_crystal/BC = new(get_turf(A))
 	BC.visible_message("<span class='notice'>\The [BC] appears out of thin air!</span>")
 	..()
 
@@ -2102,8 +2194,11 @@
 	required_container = /obj/item/slime_extract/cerulean
 
 /datum/chemical_reaction/slime_extract/slimepsteroid2/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimesteroid2/P = new /obj/item/weapon/slimesteroid2
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimedupe
@@ -2113,8 +2208,11 @@
 	required_container = /obj/item/slime_extract/cerulean
 
 /datum/chemical_reaction/slime_extract/slimedupe/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/slimedupe/P = new /obj/item/weapon/slimedupe
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 //Sepia
@@ -2125,8 +2223,11 @@
 	required_container = /obj/item/slime_extract/sepia
 
 /datum/chemical_reaction/slime_extract/slimecamera/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/device/camera/sepia/P = new /obj/item/device/camera/sepia
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimefilm
@@ -2136,8 +2237,11 @@
 	required_container = /obj/item/slime_extract/sepia
 
 /datum/chemical_reaction/slime_extract/slimefilm/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/device/camera_film/P = new /obj/item/device/camera_film
-	P.forceMove(get_turf(holder.my_atom))
+	P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimestop
@@ -2148,8 +2252,11 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimestop/on_reaction(var/datum/reagents/holder, var/created_volume)
-	playsound(holder.my_atom, 'sound/effects/theworld3.ogg', 100, 1)
-	timestop(get_turf(holder.my_atom), 25,5)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	playsound(A, 'sound/effects/theworld3.ogg', 100, 1)
+	timestop(get_turf(A), 25,5)
 	..()
 
 //Pyrite
@@ -2160,11 +2267,14 @@
 	required_container = /obj/item/slime_extract/pyrite
 
 /datum/chemical_reaction/slime_extract/slimepaint/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/list/paints = subtypesof(/obj/item/weapon/reagent_containers/glass/paint)
 	var/chosen = pick(paints)
 	var/obj/P = new chosen
 	if(P)
-		P.forceMove(get_turf(holder.my_atom))
+		P.forceMove(get_turf(A))
 	..()
 
 /datum/chemical_reaction/slime_extract/slimecash
@@ -2174,9 +2284,12 @@
 	required_container = /obj/item/slime_extract/pyrite
 
 /datum/chemical_reaction/slime_extract/slimecash/on_reaction(var/datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	var/obj/item/weapon/spacecash/c100/C = new /obj/item/weapon/spacecash/c100/
 	C.amount = 5
-	C.forceMove(get_turf(holder.my_atom))
+	C.forceMove(get_turf(A))
 	..()
 
 //////////////////////////////////////////FOOD MIXTURES////////////////////////////////////
@@ -2197,7 +2310,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/tofu/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i = 1, i <= created_volume, i++)
 		new /obj/item/weapon/reagent_containers/food/snacks/tofu(location)
 
@@ -2209,7 +2325,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/chocolate_bar/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i = 1, i <= created_volume, i++)
 		new /obj/item/weapon/reagent_containers/food/snacks/chocolatebar(location)
 
@@ -2221,7 +2340,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/chocolate_bar2/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i = 1, i <= created_volume, i++)
 		new /obj/item/weapon/reagent_containers/food/snacks/chocolatebar(location)
 
@@ -2332,7 +2454,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/cheesewheel/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i=1 to created_volume)
 		new /obj/item/weapon/reagent_containers/food/snacks/sliceable/cheesewheel(location)
 
@@ -2345,7 +2470,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/butter/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i=1 to created_volume)
 		new /obj/item/weapon/reagent_containers/food/snacks/butter(location)
 
@@ -2389,7 +2517,10 @@
 	result_amount = 1
 
 /datum/chemical_reaction/syntiflesh/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	for(var/i=1 to created_volume)
 		new /obj/item/weapon/reagent_containers/food/snacks/meat/syntiflesh(location)
 
@@ -3661,8 +3792,9 @@
 	result_amount = 3
 
 /datum/chemical_reaction/diy_soda/on_reaction(var/datum/reagents/holder, var/created_volume)
-	if(holder.get_reagent_amount(DIY_SODA) == 90) //apparently this gets called AFTER the reaction is done reacting
-		var/obj/effect/smoke/S = new /obj/effect/smoke(get_turf(holder.my_atom))
+	if(holder.get_reagent_amount(DIY_SODA) == 90 && isatom(holder.my_atom)) //apparently this gets called AFTER the reaction is done reacting
+		var/atom/A = holder.my_atom
+		var/obj/effect/smoke/S = new /obj/effect/smoke(get_turf(A))
 		S.time_to_live = 5 //unusually short smoke
 		//We don't need to start up the system because we only want to smoke one tile.
 
@@ -3711,9 +3843,12 @@
 	required_container = /obj/item/weapon/reagent_containers/food/snacks/cracker
 
 /datum/chemical_reaction/synthparrot/on_reaction(var/datum/reagents/holder)
-	var/location = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
 	new /mob/living/simple_animal/parrot(location)
-	qdel(holder.my_atom)
+	qdel(A)
 
 /datum/chemical_reaction/synthmob //to cut down in duplicate code
 	name = null
@@ -3738,9 +3873,12 @@
 		to_chat(H, "<span class='danger'>You feel something tearing its way out of your stomach...</span>")
 		H.apply_damage(2*created_volume, BRUTE, LIMB_CHEST)
 		sleep(rand(5 SECONDS, 10 SECONDS))
-		H.vomit(instant = TRUE) //mouse spawning continues below
-	var/location = get_turf(holder.my_atom)
-	for(var/i=1 to created_volume)	
+		H.vomit(instant = TRUE) //mouse spawning continues
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/location = get_turf(A)
+	for(var/i=1 to created_volume)
 		new mob2spawn(location)
 
 /datum/chemical_reaction/synthmobhostile //to cut down in duplicate code
@@ -3784,14 +3922,17 @@
 		var/mob/living/carbon/monkey/M = holder.my_atom
 		location = get_turf(holder.my_atom)
 		M.gib()
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	if(!location)
-		location = get_turf(holder.my_atom)
+		location = get_turf(A)
 	for(var/i=1 to created_volume)
 		if(prob(80)) //here so aminoblatella can spawn its two variants of roach on the mutagen reaction, does not affect aminocyprinidol, since that only makes baby carps
 			new mob2spawnA(location)
 		else
 			new mob2spawnB(location)
-			
+
 /datum/chemical_reaction/synthmob/synthmouse
 	name = "Synthmouse"
 	id = "synthmouse"
@@ -3892,9 +4033,10 @@
 				H.visible_message("<span class='danger'>[H.name]'s skeleton jumps right out of their skin, forcefully!</span>")
 				H.drop_all()
 			gibs(H.loc, H.virus2, H.dna)
-	else
+	else if(isatom(holder.my_atom))
+		var/atom/A = holder.my_atom
 		for(var/i = 1 to created_volume)
-			var/L = get_turf(holder.my_atom)
+			var/L = get_turf(A)
 			new /mob/living/simple_animal/hostile/humanoid/skellington(L) //Should spawn skeletons normally if the holder isn't human.
 
 /datum/chemical_reaction/synthskeleton/proc/bigBoned(var/mob/living/carbon/human/theSkel, var/volume)
@@ -3917,9 +4059,12 @@
 	required_container = /obj/item/weapon/reagent_containers/food/snacks/gingerbread_man
 
 /datum/chemical_reaction/synthgingerbone/on_reaction(var/datum/reagents/holder)
-	var/L = get_turf(holder.my_atom)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/L = get_turf(A)
 	new /mob/living/simple_animal/hostile/ginger/gingerboneman(L)
-	qdel(holder.my_atom)
+	qdel(A)
 
 /datum/chemical_reaction/midazoline
 	name = "Midazoline"
@@ -3930,7 +4075,8 @@
 
 /datum/chemical_reaction/midazoline/required_condition_check(datum/reagents/holder)
 	if(istype(holder.my_atom, /obj/item/weapon/reagent_containers))
-		return (locate(/obj/item/stack/sheet/mineral/plasma) in holder.my_atom.contents)
+		var/atom/A = holder.my_atom
+		return (locate(/obj/item/stack/sheet/mineral/plasma) in A.contents)
 	return 0
 
 /datum/chemical_reaction/midazoline_dissolve

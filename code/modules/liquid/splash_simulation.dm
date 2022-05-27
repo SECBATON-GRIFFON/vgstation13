@@ -8,7 +8,7 @@ var/puddle_text = FALSE
 /turf
 	var/obj/effect/overlay/puddle/current_puddle = null
 
-var/list/datum/liquid/puddles = list()
+var/list/datum/liquid/liquid_bodies = list()
 
 /datum/liquid
 	var/list/obj/effect/overlay/puddle/liquid_objects = list()
@@ -36,7 +36,7 @@ var/list/datum/liquid/puddles = list()
 
 /datum/liquid/New(var/turf/T)
 	..()
-	puddles += src
+	liquid_bodies += src
 	reagents = new(1000)
 	reagents.my_atom = src
 	var/obj/effect/overlay/puddle/P = new(T)
@@ -45,7 +45,7 @@ var/list/datum/liquid/puddles = list()
 	edge_objects += P
 
 /datum/liquid/Destroy()
-	puddles -= src
+	liquid_bodies -= src
 	for(var/obj/O in liquid_objects)
 		qdel(O)
 		O = null
