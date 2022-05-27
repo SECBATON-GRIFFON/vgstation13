@@ -178,7 +178,6 @@
 	var/puddle_spreading = 1 //If puddles can spread
 	var/puddle_reactions = 1 //If puddles can react chemicals in them
 
-	var/map_voting = 0
 	var/renders_url = ""
 
 	var/grue_egglaying = 1 //Whether or not grues can lay eggs to reproduce
