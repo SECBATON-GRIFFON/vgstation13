@@ -44,8 +44,6 @@ var/puddle_text = FALSE
 	reagents = new(1000)
 	reagents.my_atom = src
 	var/obj/effect/overlay/puddle/P = new(T)
-	liquid_objects += P
-	edge_objects += P
 
 /datum/liquid/Destroy()
 	puddles -= src
@@ -126,7 +124,12 @@ var/puddle_text = FALSE
 
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
-	puddles.Add(src)
+	turf_on.liquid.liquid_objects += src
+	for(var/direction in cardinal)
+		var/turf/T = get_step(src,direction)
+		if(!locate(src.type) in T)
+			turf_on.liquid.edge_objects += src
+			break
 	update_icon()
 
 /obj/effect/overlay/puddle/proc/spread()
@@ -225,9 +228,15 @@ var/puddle_text = FALSE
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents)
 		turf_on.liquid.reagents.remove_reagents(turf_on.liquid.reagents.reagent_list, min(turf_on.liquid.reagents.total_volume,50))
-	for(var/obj/effect/overlay/puddle/P in adjacent_atoms(src))
-		if(P.turf_on.liquid && !(P in P.turf_on.liquid.edge_objects))
-			P.turf_on.liquid.edge_objects += P
+		turf_on.liquid.liquid_objects -= src
+		if(src in turf_on.liquid.edge_objects)
+			turf_on.liquid.edge_objects -= src
+	for(var/direction in cardinal)
+		var/turf/T = get_step(src,direction)
+		var/obj/effect/overlay/puddle/P = locate() in T
+		if(P)
+			T.liquid.edge_objects += P
+			break
 	turf_on.maptext = ""
 	..()
 
