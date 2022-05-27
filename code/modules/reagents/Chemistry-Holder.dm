@@ -14,8 +14,7 @@ var/const/INGEST = 2
 	var/list/amount_cache=list() //-- N3X
 	var/total_volume = 0
 	var/maximum_volume = 100
-	var/atom/my_atom = null
-	var/datum/liquid/my_liquid = null
+	var/datum/my_atom = null
 	var/last_ckey_transferred_to_this = ""	//The ckey of the last player who transferred reagents into this reagent datum.
 	var/chem_temp = T20C
 	var/obscured = FALSE
@@ -227,32 +226,6 @@ var/const/INGEST = 2
 	R.handle_reactions()
 	src.handle_reactions()
 	return amount
-/*
-trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var/preserve_data=1)//if preserve_data=0, the reagents data will be lost. Usefull if you use data for some strange stuff and don't want it to be transferred.
-	if (!target )
-		return
-	if (!target.aerosols || src.total_volume<=0)
-		return
-	var/datum/reagents/R = target.aerosols
-	amount = min(min(amount, src.total_volume), R.maximum_volume-R.total_volume)
-	var/part = amount / src.total_volume
-	var/trans_data = null
-	for (var/datum/reagent/current_reagent in src.reagent_list)
-		if (!current_reagent)
-			continue
-		var/current_reagent_transfer = current_reagent.volume * part
-		if(preserve_data)
-			trans_data = current_reagent.data
-
-		R.add_reagent(current_reagent.id, (current_reagent_transfer * multiplier), trans_data)
-		src.remove_reagent(current_reagent.id, current_reagent_transfer)
-
-	src.update_total()
-	R.update_total()
-	R.handle_reactions()
-	src.handle_reactions()
-	return amount
-*/
 
 //Pretty straightforward, remove from all of our chemicals at once, as if transfering to a nonexistant container or something.
 /datum/reagents/proc/remove_all(var/amount=1)
@@ -398,8 +371,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 /datum/reagents/proc/handle_reactions()
 	if(!my_atom)
 		return //sanity check
-	if(my_atom.flags & NOREACT)
-		return //Yup, no reactions here. No siree.
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		if(A.flags & NOREACT)
+			return //Yup, no reactions here. No siree.
 
 	var/reaction_occured = 0
 	do
@@ -497,19 +472,20 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			for(var/S in C.secondary_results)
 				add_reagent(S, C.result_amount * C.secondary_results[S] * multiplier, reagtemp = chem_temp)
 
+		var/atom/A = my_atom
 		if	(istype(my_atom, /obj/item/weapon/grenade/chem_grenade) && !quiet)
-			my_atom.visible_message("<span class='caution'>[bicon(my_atom)] Something comes out of \the [my_atom].</span>")
+			A.visible_message("<span class='caution'>[bicon(my_atom)] Something comes out of \the [my_atom].</span>")
 			//Logging inside chem_grenade.dm, prime()
 		else if	(istype(my_atom, /mob/living/carbon/human) && !quiet)
-			my_atom.visible_message("<span class='notice'>[my_atom] shudders a little.</span>","<span class='notice'>You shudder a little.</span>")
+			A.visible_message("<span class='notice'>[my_atom] shudders a little.</span>","<span class='notice'>You shudder a little.</span>")
 			//Since the are no fingerprints to be had here, we'll trust the attack logs to log this
 		else
-			if(!quiet)
-				my_atom.visible_message("<span class='notice'>[bicon(my_atom)] The solution begins to bubble.</span>")
+			if(!quiet && istype(A))
+				A.visible_message("<span class='notice'>[bicon(my_atom)] The solution begins to bubble.</span>")
 			C.log_reaction(src, created_volume)
 
-		if(!quiet && !(my_atom.flags & SILENTCONTAINER))
-			playsound(my_atom, 'sound/effects/bubbles.ogg', 80, 1)
+		if(!quiet && istype(A) && !(A.flags & SILENTCONTAINER))
+			playsound(A, 'sound/effects/bubbles.ogg', 80, 1)
 
 		C.on_reaction(src, created_volume)
 		if(C.react_discretely)
@@ -524,7 +500,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			del_reagent(R.id,update_totals=0)
 	// Only call ONCE. -- N3X
 	update_total()
-	my_atom.on_reagent_change()
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		A.on_reagent_change()
 
 /datum/reagents/proc/isolate_any_reagent(var/list/protected_reagents)
 	for(var/A in reagent_list)
@@ -536,7 +514,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		if (protected == FALSE)
 			del_reagent(R.id,update_totals=0)
 	update_total()
-	my_atom.on_reagent_change()
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		A.on_reagent_change()
 
 /datum/reagents/proc/del_reagent(var/reagent, var/update_totals=1)
 	var/total_dirty=0
@@ -551,7 +531,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 	if(total_dirty && update_totals)
 		update_total()
-		my_atom.on_reagent_change()
+		if(isatom(my_atom))
+			var/atom/A = my_atom
+			A.on_reagent_change()
 	return total_dirty
 
 /datum/reagents/proc/del_reagents(var/list/reagents, var/update_totals=1)
@@ -562,7 +544,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 	if(total_dirty && update_totals)
 		update_total()
-		my_atom.on_reagent_change()
+		if(isatom(my_atom))
+			var/atom/A = my_atom
+			A.on_reagent_change()
 	return total_dirty
 
 /datum/reagents/proc/update_total()
@@ -585,8 +569,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		del_reagent(R.id,update_totals=0)
 	// Only call ONCE. -- N3X
 	update_total()
-	if(my_atom)
-		my_atom.on_reagent_change()
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		A.on_reagent_change()
 	return 0
 
 /datum/reagents/proc/reaction(var/atom/A, var/method=TOUCH, var/volume_modifier=0, var/amount_override = 0, var/volume_multiplier = 1, var/list/zone_sels = ALL_LIMBS)
@@ -629,7 +614,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		if (R.id == reagent)
 			R.volume += amount
 			update_total()
-			my_atom.on_reagent_change()
+			if(isatom(my_atom))
+				var/atom/A = my_atom
+				A.on_reagent_change()
 
 			if(!isnull(data))
 				if (reagent == BLOOD)
@@ -670,7 +657,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		R.on_introduced()
 
 		update_total()
-		my_atom.on_reagent_change()
+		if(isatom(my_atom))
+			var/atom/A = my_atom
+			A.on_reagent_change()
 		handle_reactions()
 		return 0
 	else
@@ -735,8 +724,9 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	update_total()
 	if(!safety)//So it does not handle reactions when it need not to
 		handle_reactions()
-	if(my_atom)
-		my_atom.on_reagent_change()
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		A.on_reagent_change()
 	return 0
 
 
@@ -884,9 +874,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 	reagent_list.Cut()
 
-	if(my_atom)
-		my_atom.reagents = null
-		my_atom = null
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		A.reagents = null
+	my_atom = null
 	..()
 
 /**
@@ -1019,8 +1010,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 //written for ethylredoxrazine, but might be fun for turning water into wine or something
 /datum/reagents/proc/convert_some_of_type(var/datum/reagent/convert_from_type, var/datum/reagent/convert_to_type,var/convert_amount)
-	if(my_atom.flags & NOREACT)
-		return //Yup, no reactions here. No siree.
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		if(A.flags & NOREACT)
+			return //Yup, no reactions here. No siree.
 	var/total_amount_converted = 0
 
 	for(var/datum/reagent/itsareagent in reagent_list)
@@ -1032,8 +1025,11 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	return add_reagent(initial(convert_to_type.id), total_amount_converted)
 
 /datum/reagents/proc/convert_all_to_id(var/reagent_id, var/list/whitelisted_ids)
-	if(my_atom.flags & NOREACT)
-		return //Yup, no reactions here. No siree.
+
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		if(A.flags & NOREACT)
+			return //Yup, no reactions here. No siree.
 	if(!reagent_list.len)
 		return
 	if(reagent_list.len == 1)
@@ -1048,8 +1044,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		total_amount_converted += reagent_datum.volume
 		remove_that_reagent(reagent_datum, reagent_datum.volume)
 
-	if(!(my_atom.flags & SILENTCONTAINER))
-		playsound(my_atom, 'sound/effects/bubbles.ogg', 50, 1)
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		if(!(A.flags & SILENTCONTAINER))
+			playsound(A, 'sound/effects/bubbles.ogg', 50, 1)
 
 	return add_reagent(reagent_id, total_amount_converted)
 

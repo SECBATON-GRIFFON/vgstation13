@@ -38,7 +38,7 @@ var/list/datum/liquid/puddles = list()
 	..()
 	puddles += src
 	reagents = new(1000)
-	reagents.my_liquid = src
+	reagents.my_atom = src
 	var/obj/effect/overlay/puddle/P = new(T)
 	P.controller = src
 	liquid_objects += P
@@ -66,16 +66,17 @@ var/list/datum/liquid/puddles = list()
 		var/reagentAmount = input(usr, "Amount", "Insert Amount", 0) as num
 		if(!isnum(reagentAmount))
 			return
-		if(reagentAmount <= LIQUID_TRANSFER_THRESHOLD)
+		if(reagentAmount <= PUDDLE_TRANSFER_THRESHOLD)
 			return
 		var/reagentTemp = input(usr, "Temperature", "Insert Temperature (As Kelvin)", T0C+20) as num
+		var/turf/T = get_turf(src.mob)
+		if(!isturf(T))
+			return
 		if(!T.create_liquid(reagentDatum, reagentAmount, reagentTemp))
 			to_chat(usr, "<span class='warning'>[reagentDatum] doesn't exist.</span>")
 			return
 		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
 		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
-
-
 
 /turf/proc/create_liquid(reagent_id,volume,temp)
 	if(volume <= PUDDLE_TRANSFER_THRESHOLD)
