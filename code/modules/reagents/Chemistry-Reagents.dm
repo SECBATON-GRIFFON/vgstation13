@@ -1260,7 +1260,7 @@
 	var/datum/reagent/self = src
 	if(..())
 		return 1
-	if(T.reagents && T.reagents.get_reagent_amount(self.id) >= 5)
+	if(T.liquid && T.liquid.reagents && T.liquid.reagents.get_reagent_amount(self.id) >= 5)
 		T.bless()
 
 /datum/reagent/holywater/reaction_animal(var/mob/living/simple_animal/M, var/method=TOUCH, var/volume)
@@ -2391,7 +2391,7 @@
 			if(isslimeperson(H))
 				H.adjustToxLoss(rand(5, 10)/10)
 
-		if(T.reagents && T.reagents.has_any_reagents(CLEANABLES))
+		if(T.liquid && T.liquid.reagents && T.liquid.reagents.has_any_reagents(CLEANABLES))
 			T.reagents.del_reagents(CLEANABLES)
 
 	T.color = ""

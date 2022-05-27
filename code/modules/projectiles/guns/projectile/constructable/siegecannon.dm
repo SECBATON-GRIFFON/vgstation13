@@ -534,8 +534,7 @@
 	if(cannonFired)
 		if(prob(10) && istype(get_turf(src), /turf/simulated))
 			var/turf/simulated/T = get_turf(src)
-			if(T.reagents)
-				T.reagents.add_reagent(LUBE,40)
+			T.add_to_liquid(LUBE,40)
 		var/target = get_ranged_target_turf(src, honkDir, 50)
 		isBouncing = FALSE
 		throw_at(target, 50, 1000, 1, 1)

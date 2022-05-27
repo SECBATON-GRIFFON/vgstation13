@@ -1062,11 +1062,11 @@ var/global/list/yantar_stuff = list(
 			break
 		R.forceMove(src)
 		trash += R
-	if(T.reagents)
+	if(T.liquid && T.liquid.reagents)
 		if(reagents.is_full())
 			visible_message("<span class='warning'>\The [src] sputters, wet tank full!</span>")
 			return
-		T.reagents.trans_to(reagents, min(reagents.maximum_volume - reagents.total_volume, 50)) // Dry up entire puddle, or as much as possible
+		T.liquid.reagents.trans_to(reagents, min(reagents.maximum_volume - reagents.total_volume, 50)) // Dry up entire puddle, or as much as possible
 
 /obj/structure/wetdryvac/proc/can_use(mob/user, atom/target)
 	if(!ishigherbeing(user) && !isrobot(user) || user.incapacitated() || user.lying)

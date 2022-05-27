@@ -89,7 +89,7 @@ var/puddle_text = FALSE
 		liquid = new(src)
 	return liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
 
-/turf/proc/trans_from_liquid(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
+/turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(volume <= PUDDLE_TRANSFER_THRESHOLD)
 		return
 
@@ -170,7 +170,7 @@ var/puddle_text = FALSE
 		if(T.clears_reagents)
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
-		T.trans_from_liquid(turf_on.liquid.reagents, average_volume)
+		T.trans_from_source(turf_on.liquid.reagents, average_volume)
 		if(T.liquid && T.liquid != turf_on.liquid &&\
 			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects)\
 			- (turf_on.liquid.total_volume*turf_on.liquid.liquid_objects))\

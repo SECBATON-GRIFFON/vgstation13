@@ -79,27 +79,15 @@
 
 
 /obj/structure/mopbucket/ex_act(severity)
+	var/spillprob = 0
 	switch(severity)
 		if(1.0)
-			if(reagents && reagents.total_volume && isturf(loc))
-				var/turf/T = loc
-				if(T.reagents)
-					reagents.trans_to(T,reagents.total_volume) // Spill em out
-			qdel(src)
-			return
+			spillprob = 100
 		if(2.0)
-			if (prob(50))
-				if(reagents && reagents.total_volume && isturf(loc))
-					var/turf/T = loc
-					if(T.reagents)
-						reagents.trans_to(T,reagents.total_volume) // Spill em out
-				qdel(src)
-				return
+			spillprob = 50
 		if(3.0)
-			if (prob(5))
-				if(reagents && reagents.total_volume && isturf(loc))
-					var/turf/T = loc
-					if(T.reagents)
-						reagents.trans_to(T,reagents.total_volume) // Spill em out
-				qdel(src)
-				return
+			spillprob = 5
+
+	if(reagents && reagents.total_volume && isturf(loc) && prob(spillprob))
+		var/turf/T = loc
+		T.trans_from_source(reagents,reagents.total_volume) // Spill em out

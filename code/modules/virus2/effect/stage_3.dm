@@ -130,8 +130,7 @@
 
 		if(istype(mob.loc,/turf/simulated))
 			var/turf/simulated/T = mob.loc
-			if(T.reagents)
-				T.reagents.add_reagent(WATER,40)
+			T.add_to_liquid(WATER,40)
 
 
 /datum/disease2/effect/elvis
@@ -857,12 +856,12 @@
 	)
 	// Getting sent to one of these areas would probably kill the person, so let's exclude them.
 	var/list/blacklisted_areas = list(
-		/area/engineering/engine_smes,		
+		/area/engineering/engine_smes,
 		/area/engineering/engine,
 		/area/science/xenobiology,
 	)
 	var/list/valid_areas = list()
-	var/active = 0 
+	var/active = 0
 
 /datum/disease2/effect/cult_teleport/activate(mob/living/carbon/mob)
 	if(valid_areas.len == 0)
