@@ -6,7 +6,6 @@ var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 var/puddle_text = FALSE
 
 /turf
-	var/obj/effect/overlay/puddle/current_puddle = null
 	var/datum/liquid/liquid = null
 
 /datum/liquid
@@ -125,9 +124,6 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 
-	if(turf_on.current_puddle)
-		qdel(turf_on.current_puddle)
-	turf_on.current_puddle = src
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
 	puddles.Add(src)
@@ -229,9 +225,7 @@ var/puddle_text = FALSE
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents)
 		turf_on.liquid.reagents.clear_reagents()
-	puddles.Remove(src)
 	turf_on.maptext = ""
-	turf_on.current_puddle = null
 	..()
 
 /obj/effect/overlay/puddle/update_icon()
