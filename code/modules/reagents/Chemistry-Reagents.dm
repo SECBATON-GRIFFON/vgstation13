@@ -660,7 +660,7 @@
 	color = "#DEF7F5" //rgb: 192, 227, 233
 	alpha = 128
 	puddle_color = "#6da7ff"
-	evaporation_rate = 1
+	evaporation_rate = 4
 	specheatcap = 4.184
 	density = 1
 	glass_desc = "The father of all refreshments."
@@ -785,7 +785,7 @@
 	id = LUBE
 	description = "Lubricant is a substance introduced between two moving surfaces to reduce the friction and wear between them. giggity."
 	viscosity = 25
-	evaporation_rate = 1
+	evaporation_rate = 4
 	reagent_state = REAGENT_STATE_LIQUID
 	color = "#009CA8" //rgb: 0, 156, 168
 	overdose_am = REAGENTS_OVERDOSE
@@ -2350,7 +2350,7 @@
 	description = "A compound used to clean things. Now with 50% more sodium hypochlorite!"
 	reagent_state = REAGENT_STATE_LIQUID
 	creates_puddle = FALSE //It cleans so... no
-	evaporation_rate = 50
+	evaporation_rate = 200
 	color = "#A5F0EE" //rgb: 165, 240, 238
 	density = 0.76
 	specheatcap = 60.17
@@ -5324,7 +5324,7 @@ var/procizine_tolerance = 0
 	name = "Corn Oil"
 	id = CORNOIL
 	description = "An oil derived from various types of corn."
-	evaporation_rate = 1
+	evaporation_rate = 4
 	reagent_state = REAGENT_STATE_LIQUID
 	nutriment_factor = 20 * REAGENTS_METABOLISM
 	color = "#302000" //rgb: 48, 32, 0

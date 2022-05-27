@@ -26,7 +26,7 @@ var/puddle_text = FALSE
 
 	for(var/datum/reagent/R in reagents.reagent_list)
 		if(R.evaporation_rate)
-			reagents.remove_reagent(R.id, R.evaporation_rate)
+			reagents.remove_reagent(R.id, R.evaporation_rate/SS_WAIT_LIQUID)
 
 	if(config.puddle_spreading && reagents.total_volume > MAX_PUDDLE_VOLUME*liquid_objects.len)
 		for(var/obj/effect/overlay/puddle/L in edge_objects)

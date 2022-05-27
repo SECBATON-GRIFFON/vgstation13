@@ -64,7 +64,7 @@
 
 #define SS_WAIT_WEATHER         	2 SECONDS
 #define SS_WAIT_MACHINERY           2 SECONDS //TODO move the rest of these to defines
-#define SS_WAIT_LIQUID				2 SECONDS
+#define SS_WAIT_LIQUID				0.4 SECONDS
 #define SS_WAIT_BOTS           		1 SECONDS
 #define SS_WAIT_FAST_MACHINERY      0.7 SECONDS
 #define SS_WAIT_FAST_OBJECTS        0.5 SECONDS
