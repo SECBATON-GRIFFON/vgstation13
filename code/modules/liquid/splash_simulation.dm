@@ -276,9 +276,10 @@ var/puddle_text = FALSE
 /obj/effect/liquid/update_icon()
 	for(var/client/C in admins)
 		C.images -= debug_text
-	if(turf_on.liquid && turf_on.liquid.reagents && turf_on.liquid.reagents.reagent_list.len)
-		color = mix_color_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
-		alpha = mix_alpha_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
+	if(turf_on.liquid && turf_on.liquid.reagents)
+		if(turf_on.liquid.reagents.reagent_list.len)
+			color = mix_color_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
+			alpha = mix_alpha_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
 		var/puddle_volume = turf_on.liquid.reagents.total_volume
 		// Absolute scaling with volume, Scale() would give relative.
 		transform = matrix(min(1, puddle_volume / CIRCLE_PUDDLE_VOLUME), 0, 0, 0, min(1, puddle_volume / CIRCLE_PUDDLE_VOLUME), 0)
