@@ -103,7 +103,7 @@ var/puddle_text = FALSE
 		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
 
 /turf/proc/add_to_liquid(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20)
-	if(volume <= PUDDLE_TRANSFER_THRESHOLD)
+	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
 		return
 
 	if(!liquid)
