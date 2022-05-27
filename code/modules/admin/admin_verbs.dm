@@ -378,6 +378,7 @@ var/list/admin_verbs_mod = list(
 		/client/proc/ticklag,
 		/client/proc/cmd_admin_grantfullaccess,
 		/client/proc/kaboom,
+		/client/proc/splash,
 		/client/proc/toggle_puddle_values,
 		/client/proc/cmd_admin_areatest,
 		/client/proc/readmin,

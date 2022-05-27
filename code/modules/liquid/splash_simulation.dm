@@ -21,9 +21,13 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 
-	if(reagents && reagents.total_volume < PUDDLE_TRANSFER_THRESHOLD)
+	if(reagents && reagents.total_volume < PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len)
 		qdel(src)
 		return
+
+
+	if(reagents && reagents.total_volume < MAX_PUDDLE_VOLUME * liquid_objects.len)
+		return split()
 
 	for(var/datum/reagent/R in reagents.reagent_list)
 		if(R.evaporation_rate)
@@ -36,15 +40,26 @@ var/puddle_text = FALSE
 	reagents.maximum_volume = 1000 * liquid_objects.len
 
 /datum/liquid/proc/merge(var/datum/liquid/other)
-	other.reagents.trans_to_holder(src.reagents)
-	liquid_objects += other.liquid_objects
-	edge_objects += other.edge_objects
-	qdel(other)
+	if(reagents)
+		if(reagents.total_volume < MAX_PUDDLE_VOLUME * liquid_objects.len)
+			return
+		other.reagents.trans_to_holder(src.reagents)
+		liquid_objects += other.liquid_objects
+		edge_objects += other.edge_objects
+		qdel(other)
+
+/datum/liquid/proc/split()
+	if(reagents.total_volume >= MAX_PUDDLE_VOLUME * liquid_objects.len)
+		return
+	for(var/obj/effect/overlay/puddle/LO in liquid_objects)
+		LO.turf_on.liquid = new(LO.turf_on)
+		reagents.trans_to_holder(LO.turf_on.liquid.reagents, MAX_PUDDLE_VOLUME)
+	qdel(src)
 
 /datum/liquid/New(var/turf/T)
 	..()
 	puddles += src
-	reagents = new(1000)
+	reagents = new/datum/reagents(1000)
 	reagents.my_atom = src
 	if(!T.current_puddle)
 		new /obj/effect/overlay/puddle(T)
@@ -208,8 +223,8 @@ var/puddle_text = FALSE
 		T.trans_from_source(turf_on.liquid.reagents, average_volume)
 		T.liquid = turf_on.liquid
 		if(T.liquid && T.liquid != turf_on.liquid &&\
-			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects)\
-			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects))\
+			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects.len)\
+			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects.len))\
 			< PUDDLE_TRANSFER_THRESHOLD)
 			turf_on.liquid.merge(T.liquid)
 

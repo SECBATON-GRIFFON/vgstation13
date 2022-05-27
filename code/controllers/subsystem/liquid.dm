@@ -3,7 +3,7 @@ var/datum/subsystem/liquid/SSliquid
 var/list/datum/liquid/puddles = list()
 
 /datum/subsystem/liquid
-	name          = "Machinery"
+	name          = "Liquid"
 	wait          = SS_WAIT_LIQUID
 	flags         = SS_NO_INIT | SS_KEEP_TIMING
 	priority      = SS_PRIORITY_LIQUID
