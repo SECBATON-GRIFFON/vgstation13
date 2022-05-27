@@ -88,12 +88,12 @@ var/puddle_text = FALSE
 	return liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
 
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
-	if(volume <= PUDDLE_TRANSFER_THRESHOLD)
+	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
 		return
 
 	if(!liquid)
 		liquid = new(src)
-	return from.reagents.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
+	return from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
 
 /client/proc/toggle_puddle_values()
 	set name = "Toggle Puddle Values"
@@ -257,7 +257,7 @@ var/puddle_text = FALSE
 				round = 0.01
 			if(puddle_volume < 10)
 				round = 0.001
-			debug_text.maptext = "<span class = 'center maptext black_outline'>[round(puddle_volume, round)]</span>"
+			debug_text.maptext = "<span class = 'center maptext black_outline'>[round(puddle_volume, round)][(src in turf_on.liquid.edge_objects) ? "<br>(EDGE)" : ""]</span>"
 			for(var/client/C in admins)
 				C.images += debug_text
 		relativewall()
@@ -274,15 +274,17 @@ var/puddle_text = FALSE
 
 /obj/effect/overlay/puddle/canSmoothWith()
 	var/static/list/smoothables = list(
-		/obj/effect/overlay/puddle,
+		/atom
 	)
 	return smoothables
 
-/obj/effect/overlay/puddle/isSmoothableNeighbor(var/obj/effect/overlay/puddle/A)
-	if(istype(A) && A.turf_on && A.turf_on.reagents && A.turf_on.liquid.reagents.total_volume < CIRCLE_PUDDLE_VOLUME)
-		return
-
-	return ..()
+/obj/effect/overlay/puddle/isSmoothableNeighbor(atom/A)
+	if(istype(A,/obj/effect/overlay/puddle))
+		var/obj/effect/overlay/puddle/P = A
+		if(P.turf_on && P.turf_on.liquid && P.turf_on.liquid.reagents && P.turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
+			return ..()
+	else if(!A.can_accept_liquid() || !A.can_leave_liquid() || !A.liquid_pass())
+		return ..()
 
 /turf/proc/can_accept_liquid(from_direction)
 	return 0
