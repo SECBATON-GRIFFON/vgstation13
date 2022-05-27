@@ -224,7 +224,10 @@ var/puddle_text = FALSE
 	for(var/client/C in admins)
 		C.images -= debug_text
 	if(turf_on.liquid && turf_on.liquid.reagents)
-		turf_on.liquid.reagents.clear_reagents()
+		turf_on.liquid.reagents.remove_reagents(turf_on.liquid.reagents.reagent_list, min(turf_on.liquid.reagents.total_volume,50))
+	for(var/obj/effect/overlay/puddle/P in adjacent_atoms(src))
+		if(P.turf_on.liquid && !(P in P.turf_on.liquid.edge_objects))
+			P.turf_on.liquid.edge_objects += P
 	turf_on.maptext = ""
 	..()
 
