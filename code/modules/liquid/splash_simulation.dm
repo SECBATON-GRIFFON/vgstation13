@@ -25,7 +25,6 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 
-
 	if(reagents && reagents.total_volume < MAX_PUDDLE_VOLUME * liquid_objects.len)
 		return split()
 
@@ -112,7 +111,7 @@ var/puddle_text = FALSE
 	var/result = liquid.reagents.add_reagent(reagent_id,volume,reagtemp = temp)
 	if(!result && current_puddle) // Was a success
 		current_puddle.update_icon()
-	return result
+	return !result
 
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
