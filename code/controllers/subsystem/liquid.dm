@@ -1,6 +1,6 @@
 var/datum/subsystem/liquid/SSliquid
 
-var/list/obj/effect/overlay/puddle/puddles = list()
+var/list/datum/liquid/puddles = list()
 
 /datum/subsystem/liquid
 	name          = "Machinery"
