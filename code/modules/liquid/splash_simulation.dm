@@ -1,6 +1,7 @@
 #define PUDDLE_TRANSFER_THRESHOLD 0.05
 #define MAX_PUDDLE_VOLUME 50
 #define CIRCLE_PUDDLE_VOLUME 40 //39.26899 technically but this is close enough
+//#define DEBUG_LIQUIDS
 
 var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 var/puddle_text = FALSE
@@ -15,24 +16,24 @@ var/puddle_text = FALSE
 	var/datum/reagents/reagents = null
 
 /datum/liquid/proc/process()
-	set waitfor = FALSE
-
-	if(liquid_objects.len == 0)
+	if(!reagents || !liquid_objects.len)
+		log_debug("Liquid deleted due to lack of valid reagents or objects")
 		qdel(src)
 		return
 
-	if(reagents && reagents.total_volume < PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len)
+	if(reagents && reagents.total_volume < (PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len))
+		log_debug("Liquid deleted due to low volume")
 		qdel(src)
 		return
 
-	if(reagents && reagents.total_volume < MAX_PUDDLE_VOLUME * liquid_objects.len)
+	if(reagents && liquid_objects.len > 1 && reagents.total_volume < (MAX_PUDDLE_VOLUME * liquid_objects.len))
 		return split()
 
 	for(var/datum/reagent/R in reagents.reagent_list)
 		if(R.evaporation_rate)
 			reagents.remove_reagent(R.id, R.evaporation_rate/SS_WAIT_LIQUID)
 
-	if(config.puddle_spreading && reagents.total_volume > MAX_PUDDLE_VOLUME*liquid_objects.len)
+	if(config.puddle_spreading && reagents.total_volume > (MAX_PUDDLE_VOLUME*liquid_objects.len))
 		for(var/obj/effect/liquid/L in edge_objects)
 			L.spread()
 
@@ -40,19 +41,26 @@ var/puddle_text = FALSE
 
 /datum/liquid/proc/merge(var/datum/liquid/other)
 	if(reagents)
-		if(reagents.total_volume < MAX_PUDDLE_VOLUME * liquid_objects.len)
+		if(reagents.total_volume < (MAX_PUDDLE_VOLUME * liquid_objects.len))
 			return
+		for(var/obj/effect/liquid/L in other.liquid_objects)
+			if(L.turf_on)
+				L.turf_on.liquid = src
+			liquid_objects += L
+			if(L in other.edge_objects)
+				edge_objects += L
+		reagents.maximum_volume = 1000 * liquid_objects.len
 		other.reagents.trans_to_holder(src.reagents)
-		liquid_objects += other.liquid_objects
-		edge_objects += other.edge_objects
+		log_debug("Liquid deleted due to merge with other")
 		qdel(other)
 
 /datum/liquid/proc/split()
-	if(reagents.total_volume >= MAX_PUDDLE_VOLUME * liquid_objects.len)
+	if(reagents.total_volume >= MAX_PUDDLE_VOLUME * liquid_objects.len || liquid_objects.len <= 1)
 		return
 	for(var/obj/effect/liquid/LO in liquid_objects)
 		LO.turf_on.liquid = new(LO.turf_on)
 		reagents.trans_to_holder(LO.turf_on.liquid.reagents, MAX_PUDDLE_VOLUME)
+	log_debug("Liquid deleted due to split from low volume")
 	qdel(src)
 
 /datum/liquid/on_reagent_change()
@@ -78,31 +86,6 @@ var/puddle_text = FALSE
 	qdel(reagents)
 	reagents = null
 	..()
-
-/client/proc/splash()
-	set name = "Create Liquids"
-	set category = "Debug"
-
-	if(!usr.client || !usr.client.holder)
-		to_chat(usr, "<span class='warning'>You need to be an administrator to access this.</span>")
-		return
-
-	var/reagentDatum = input(usr,"Reagent","Insert Reagent","") as text|null
-	if(reagentDatum)
-		var/reagentAmount = input(usr, "Amount", "Insert Amount", 0) as num
-		if(!isnum(reagentAmount))
-			return
-		if(reagentAmount <= PUDDLE_TRANSFER_THRESHOLD)
-			return
-		var/reagentTemp = input(usr, "Temperature", "Insert Temperature (As Kelvin)", T0C+20) as num
-		var/turf/T = get_turf(src.mob)
-		if(!isturf(T))
-			return
-		if(T.add_to_liquid(reagentDatum, reagentAmount, reagentTemp))
-			to_chat(usr, "<span class='warning'>[reagentDatum] doesn't exist.</span>")
-			return
-		log_admin("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
-		message_admins("[key_name(usr)] added [reagentDatum] with [reagentAmount] units to [T] at [reagentTemp]K temperature.")
 
 /turf/proc/add_to_liquid(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
@@ -176,9 +159,10 @@ var/puddle_text = FALSE
 		turf_on.liquid.liquid_objects -= src
 		if(src in turf_on.liquid.edge_objects)
 			turf_on.liquid.edge_objects -= src
+		turf_on.liquid = null
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
-		if(T.current_puddle)
+		if(T.current_puddle && T.liquid)
 			T.liquid.edge_objects += T.current_puddle
 			break
 	turf_on.maptext = ""
@@ -213,7 +197,7 @@ var/puddle_text = FALSE
 		return
 
 	var/average_volume = excess_volume / spread_turfs.len //How much would be taken from our tile to fill each
-	for(var/datum/reagent/R in turf_on.reagents.reagent_list)
+	for(var/datum/reagent/R in turf_on.liquid.reagents.reagent_list)
 		average_volume = min(R.viscosity, average_volume) //Capped by viscosity
 	if(average_volume <= (spread_turfs.len * PUDDLE_TRANSFER_THRESHOLD))
 		return //If this is lower than the transfer threshold, break out
