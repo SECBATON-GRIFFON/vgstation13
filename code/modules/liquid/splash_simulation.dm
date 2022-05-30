@@ -297,7 +297,9 @@ var/puddle_text = FALSE
 			debug_text.maptext = "<span class = 'center maptext black_outline'>[round(puddle_volume, round)][(src in turf_on.liquid.edge_objects) ? "<br>(EDGE)" : ""]</span>"
 			for(var/client/C in admins)
 				C.images += debug_text
-		relativewall()
+		if(turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
+			relativewall()
+			relativewall_neighbours()
 	else // Sanity
 		log_debug("Puddle attempted icon update at [turf_on ? "[turf_on] ([turf_on.x],[turf_on.y],[turf_on.z])" : "unknown turf"] and failed.")
 		qdel(src)
