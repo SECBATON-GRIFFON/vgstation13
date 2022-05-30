@@ -182,7 +182,7 @@ var/puddle_text = FALSE
 		log_debug("Puddle attempted spread begin at [turf_on ? "[turf_on] ([turf_on.x],[turf_on.y],[turf_on.z])" : "unknown turf"] and failed.")
 		qdel(src)
 		return
-	var/excess_volume = turf_on.liquid.reagents.total_volume - MAX_PUDDLE_VOLUME
+	var/excess_volume = turf_on.liquid.reagents.total_volume - (MAX_PUDDLE_VOLUME*turf_on.liquid.liquid_objects.len)
 	var/list/turf/spread_turfs = list()
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
