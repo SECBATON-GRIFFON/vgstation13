@@ -23,19 +23,19 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 
-	if(reagents && reagents.total_volume < (PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len))
+	if(reagents.total_volume < (PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len))
 #ifdef DEBUG_LIQUIDS
-		log_debug("Liquid deleted due to low volume")
+		log_debug("Liquid deleted due to low volume. ([reagents.total_volume]u, [liquid_objects.len] objects)")
 #endif
 		qdel(src)
 		return
 
-	if(reagents && liquid_objects.len > 1 && reagents.total_volume < (MAX_PUDDLE_VOLUME * liquid_objects.len))
+	if(liquid_objects.len > 1 && reagents.total_volume < (MAX_PUDDLE_VOLUME * liquid_objects.len))
 		return split()
 
 	for(var/datum/reagent/R in reagents.reagent_list)
 		if(R.evaporation_rate)
-			reagents.remove_reagent(R.id, R.evaporation_rate/SS_WAIT_LIQUID)
+			reagents.remove_reagent(R.id, R.evaporation_rate*(SS_WAIT_LIQUID/10))
 
 	if(config.puddle_spreading && reagents.total_volume > (MAX_PUDDLE_VOLUME*liquid_objects.len))
 		for(var/obj/effect/liquid/L in edge_objects)
@@ -44,6 +44,9 @@ var/puddle_text = FALSE
 	reagents.maximum_volume = 1000 * liquid_objects.len
 
 /datum/liquid/proc/merge(var/datum/liquid/other)
+#ifdef DEBUG_LIQUIDS
+	log_debug("Liquid ([reagents.total_volume]u, [liquid_objects.len] objects) to merge with another ([other.reagents.total_volume]u, [other.liquid_objects.len] objects)")
+#endif
 	if(reagents)
 		if(reagents.total_volume < (MAX_PUDDLE_VOLUME * liquid_objects.len))
 			return
@@ -56,7 +59,7 @@ var/puddle_text = FALSE
 		reagents.maximum_volume = 1000 * liquid_objects.len
 		other.reagents.trans_to_holder(src.reagents)
 #ifdef DEBUG_LIQUIDS
-		log_debug("Liquid deleted due to merge with other")
+		log_debug("Liquid deleted due to merge with other. (now [reagents.total_volume]u, [liquid_objects.len] objects)")
 #endif
 		qdel(other)
 
@@ -72,9 +75,10 @@ var/puddle_text = FALSE
 	qdel(src)
 
 /datum/liquid/on_reagent_change()
-	if(config.puddle_reactions)
-		for(var/obj/effect/liquid/P in liquid_objects)
+	for(var/obj/effect/liquid/P in liquid_objects)
+		if(config.puddle_reactions)
 			reagents.reaction(P.turf_on, volume_multiplier = 0)
+		P.update_icon()
 
 /datum/liquid/New(var/turf/T)
 	..()
@@ -101,10 +105,7 @@ var/puddle_text = FALSE
 
 	if(!liquid)
 		liquid = new(src)
-	var/result = liquid.reagents.add_reagent(reagent,amount,data,reagtemp)
-	if(!result && current_puddle) // Was a success
-		current_puddle.update_icon()
-	return result
+	return liquid.reagents.add_reagent(reagent,amount,data,reagtemp)
 
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
@@ -112,10 +113,7 @@ var/puddle_text = FALSE
 
 	if(!liquid)
 		liquid = new(src)
-	var/result = from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
-	if(result && current_puddle)
-		current_puddle.update_icon()
-	return result
+	return from.trans_to_holder(liquid.reagents, amount, multiplier, preserve_data)
 
 /client/proc/toggle_puddle_values()
 	set name = "Toggle Puddle Values"
@@ -183,6 +181,9 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 	var/excess_volume = turf_on.liquid.reagents.total_volume - (MAX_PUDDLE_VOLUME*turf_on.liquid.liquid_objects.len)
+#ifdef DEBUG_LIQUIDS
+	log_debug("Liquid has excess volume of [excess_volume]u. ([turf_on.liquid.reagents.total_volume]u, [turf_on.liquid.liquid_objects.len] objects)")
+#endif
 	var/list/turf/spread_turfs = list()
 	for(var/direction in cardinal)
 		var/turf/T = get_step(src,direction)
@@ -205,8 +206,14 @@ var/puddle_text = FALSE
 		return
 
 	var/average_volume = excess_volume / spread_turfs.len //How much would be taken from our tile to fill each
+#ifdef DEBUG_LIQUIDS
+	log_debug("Liquid has average spread volume of [average_volume]u before viscosity checks. ([turf_on.liquid.reagents.total_volume]u, [turf_on.liquid.liquid_objects.len] objects)")
+#endif
 	for(var/datum/reagent/R in turf_on.liquid.reagents.reagent_list)
 		average_volume = min(R.viscosity, average_volume) //Capped by viscosity
+#ifdef DEBUG_LIQUIDS
+	log_debug("Liquid has average spread volume of [average_volume]u after viscosity checks. ([turf_on.liquid.reagents.total_volume]u, [turf_on.liquid.liquid_objects.len] objects)")
+#endif
 	if(average_volume <= (spread_turfs.len * PUDDLE_TRANSFER_THRESHOLD))
 		return //If this is lower than the transfer threshold, break out
 
@@ -220,11 +227,11 @@ var/puddle_text = FALSE
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
 		T.trans_from_source(turf_on.liquid.reagents, average_volume)
-		if(T.liquid && T.liquid != turf_on.liquid &&\
-			abs((T.liquid.reagents.total_volume*T.liquid.liquid_objects.len)\
-			- (turf_on.liquid.reagents.total_volume*turf_on.liquid.liquid_objects.len))\
-			< PUDDLE_TRANSFER_THRESHOLD)
+		if(T.liquid && T.liquid != turf_on.liquid && ((T.liquid.reagents.total_volume/T.liquid.liquid_objects.len) > MAX_PUDDLE_VOLUME))
 			turf_on.liquid.merge(T.liquid)
+#ifdef DEBUG_LIQUIDS
+		log_debug("Liquid is now [turf_on.liquid.reagents.total_volume]u, [turf_on.liquid.liquid_objects.len] objects after spread")
+#endif
 
 /obj/effect/liquid/getFireFuel() // Copied over from old fuel overlay system and adjusted
 	var/total_fuel = 0
