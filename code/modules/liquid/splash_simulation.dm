@@ -17,12 +17,16 @@ var/puddle_text = FALSE
 
 /datum/liquid/proc/process()
 	if(!reagents || !liquid_objects.len)
+#ifdef DEBUG_LIQUIDS
 		log_debug("Liquid deleted due to lack of valid reagents or objects")
+#endif
 		qdel(src)
 		return
 
 	if(reagents && reagents.total_volume < (PUDDLE_TRANSFER_THRESHOLD * liquid_objects.len))
+#ifdef DEBUG_LIQUIDS
 		log_debug("Liquid deleted due to low volume")
+#endif
 		qdel(src)
 		return
 
@@ -51,7 +55,9 @@ var/puddle_text = FALSE
 				edge_objects += L
 		reagents.maximum_volume = 1000 * liquid_objects.len
 		other.reagents.trans_to_holder(src.reagents)
+#ifdef DEBUG_LIQUIDS
 		log_debug("Liquid deleted due to merge with other")
+#endif
 		qdel(other)
 
 /datum/liquid/proc/split()
@@ -60,7 +66,9 @@ var/puddle_text = FALSE
 	for(var/obj/effect/liquid/LO in liquid_objects)
 		LO.turf_on.liquid = new(LO.turf_on)
 		reagents.trans_to_holder(LO.turf_on.liquid.reagents, MAX_PUDDLE_VOLUME)
+#ifdef DEBUG_LIQUIDS
 	log_debug("Liquid deleted due to split from low volume")
+#endif
 	qdel(src)
 
 /datum/liquid/on_reagent_change()
@@ -204,9 +212,9 @@ var/puddle_text = FALSE
 
 	for(var/turf/T in spread_turfs)
 		if(!T)
-			log_debug("Puddle reached map edge.")
+			log_debug("Puddle reached map edge at [turf_on]. ([turf_on.x],[turf_on.y],[turf_on.z])")
 			continue
-		if(T.liquid && T.liquid == src.turf_on.liquid)
+		if(T.liquid && T.liquid == turf_on.liquid)
 			continue
 		if(T.clears_reagents)
 			turf_on.liquid.reagents.remove_all(average_volume)
