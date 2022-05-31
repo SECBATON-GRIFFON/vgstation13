@@ -1618,6 +1618,11 @@
 	T.weedlevel += 2
 	T.pestlevel += 2
 
+/datum/reagent/sugar/cornsyrup
+	name = "High-fructose corn syrup"
+	id = CORNSYRUP
+	description = "For when sugar needs to be produced on a budget, can become so prevalent that everyone will be made to drink it."
+
 /datum/reagent/caramel
 	name = "Caramel"
 	id = CARAMEL
