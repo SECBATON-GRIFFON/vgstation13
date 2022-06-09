@@ -174,7 +174,7 @@ Subject's pulse: ??? BPM"})
 	var/BU = M.getFireLoss() > 50  ? "<b>[M.getFireLoss()]</b>"  : M.getFireLoss()
 	var/BR = M.getBruteLoss() > 50 ? "<b>[M.getBruteLoss()]</b>" : M.getBruteLoss()
 	if(M.status_flags & FAKEDEATH)
-		OX = "<b>200</b>" 
+		OX = "<b>200</b>"
 		message += "<span class='notice'>Analyzing Results for [M]:<br>Overall Status: Dead</span><br>"
 	else
 		message += "<span class='notice'>Analyzing Results for [M]:<br>Overall Status: [M.stat > 1 ? "Dead" : "[(M.health - M.halloss)/M.maxHealth*100]% Healthy"]</span>"
@@ -536,6 +536,8 @@ Subject's pulse: ??? BPM"})
 		var/dat = ""
 		if(O.reagents.reagent_list.len)
 			for(var/datum/reagent/R in O.reagents.reagent_list)
+				if(R.flags & CHEMFLAG_MIXTURE)
+					continue
 				var/reagent_percent = (R.volume/O.reagents.total_volume)*100
 				dat += "<br><span class='notice'>[R][details ? " ([R.volume] units, [reagent_percent]%, time in system: [R.real_tick*2] seconds" : ""]</span>"
 		if(dat)

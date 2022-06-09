@@ -476,10 +476,16 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 				for(var/D in L)
 					if(!preserved_data)
 						preserved_data = get_data(D)
+					var/datum/reagent/R = chemical_reagents_list[C.result]
+					if(R?.flags & CHEMFLAG_REACTEACH)
+						continue
 					remove_reagent(D, (multiplier * C.required_reagents[B]), safety = 1)
 			else
 				if(!preserved_data)
 					preserved_data = get_data(B)
+				var/datum/reagent/R = chemical_reagents_list[C.result]
+				if(R?.flags & CHEMFLAG_REACTEACH)
+					continue
 				remove_reagent(B, (multiplier * C.required_reagents[B]), safety = 1)
 
 		chem_temp += C.reaction_temp_change
@@ -561,7 +567,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		if(R.volume < R.custom_metabolism/2) //Used to be 0.1, changing this to custom_metabolism/2 to alter balance as little as possible since the default metabolism is 0.2
 			del_reagent(R.id,update_totals=0)
 		else
-			total_volume += R.volume
+			if(!(R.flags & CHEMFLAG_REACTEACH))
+				total_volume += R.volume
 			amount_cache += list(R.id = R.volume)
 		if(R.flags & CHEMFLAG_OBSCURING)
 			obscured = TRUE
@@ -610,8 +617,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	if(!isnum(amount))
 		return 1
 	update_total()
+	var/datum/reagent/D = chemical_reagents_list[reagent]
 	if(total_volume + amount > maximum_volume)
-		amount = (maximum_volume - total_volume) //Doesnt fit in. Make it disappear. Shouldn't happen. Will happen.
+		if(!(D?.flags & CHEMFLAG_REACTEACH))
+			amount = (maximum_volume - total_volume) //Doesnt fit in. Make it disappear. Shouldn't happen. Will happen.
 	chem_temp = round(((amount * reagtemp) + (total_volume * chem_temp)) / (total_volume + amount)) //equalize with new chems
 	for (var/datum/reagent/R in reagent_list)
 		if (R.id == reagent)
@@ -632,8 +641,6 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 
 			handle_reactions()
 			return 0
-
-	var/datum/reagent/D = chemical_reagents_list[reagent]
 	if(D)
 
 		var/datum/reagent/R = new D.type()
@@ -720,6 +727,11 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	if(!R.on_removal(amount))
 		return 0 //handled and reagent says fuck no
 	R.volume -= amount
+	if(R.flags & CHEMFLAG_REACTEACH)
+		var/list/possible_compunds = R.get_compound_parts()
+		if(possible_compunds?.len)
+			for(var/element in possible_compunds)
+				remove_reagent(element,(possible_compunds[element]*amount))
 	update_total()
 	if(!safety)//So it does not handle reactions when it need not to
 		handle_reactions()
@@ -937,6 +949,13 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		chem_temp = max(chem_temp + temp_change, received_temperature, 0)
 	handle_reactions()
 
+/datum/reagent/proc/get_compound_parts()
+	var/datum/chemical_reaction/check = chemical_reactions_list[id]
+	var/list/found_reagents = check.required_reagents.Copy()
+	for(var/id in found_reagents)
+		found_reagents[id] *= (volume/check.result_amount)
+	return found_reagents.len ? found_reagents : list()
+
 /datum/reagents/proc/get_examine(var/mob/user, var/vis_override, var/blood_type)
 	if(obscured && !vis_override)
 		to_chat(user, "<span class='info'>You can't quite make out the contents.</span>")
@@ -947,12 +966,21 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	to_chat(user, "It contains:")
 	if(!user.hallucinating())
 		if(reagent_list.len)
+			var/list/mixture_obscured_reagents = list()
 			for(var/datum/reagent/R in reagent_list)
+				if(R.flags & CHEMFLAG_MIXTURE)
+					mixture_obscured_reagents += R.get_compound_parts()
+			for(var/datum/reagent/R in reagent_list)
+				var/ourvolume = R.volume
+				if(mixture_obscured_reagents[R.id])
+					ourvolume -= mixture_obscured_reagents[R.id]
+				if(ourvolume < 0)
+					continue
 				if(blood_type && R.id == BLOOD)
 					var/type = R.data["blood_type"]
-					to_chat(user, "<span class='info'>[R.volume] units of [R.name], of type [type]</span>")
+					to_chat(user, "<span class='info'>[ourvolume] units of [R.name], of type [type]</span>")
 				else
-					to_chat(user, "<span class='info'>[R.volume] units of [R.name]</span>")
+					to_chat(user, "<span class='info'>[ourvolume] units of [R.name]</span>")
 		else
 			to_chat(user, "<span class='info'>Nothing.</span>")
 
