@@ -42,8 +42,8 @@
 	var/cant_drop_msg = " sticks to your hand!"
 	var/laying_pickup = FALSE //Allows things to be placed in hands while the owner of those hands is laying
 
-	var/list/armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
-	var/armor_absorb = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
+	var/list/armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
+	var/list/armor_absorb = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
 
 	var/list/allowed = null //suit storage stuff.
 	var/icon_override = null  //Used to override hardcoded clothing dmis in human clothing proc.
@@ -140,22 +140,23 @@
 	return 0
 
 /obj/item/t_scanner_expose()
-	if (level != LEVEL_BELOW_FLOOR)
-		return
+	if (level > LEVEL_BELOW_FLOOR)
+		..()
+	else
+		var/old_alpha = alpha
+		var/old_invisibility = invisibility
+		invisibility = 0
+		alpha = 127
+		plane = initial(plane)
+		layer = initial(layer)
 
-	var/oldalpha = alpha
-	invisibility = 0
-	alpha = 127
-	plane = initial(plane)
-	layer = initial(layer)
-
-	spawn(1 SECONDS)
-		var/turf/U = loc
-		if(istype(U) && U.intact)
-			invisibility = 101
-			plane = ABOVE_PLATING_PLANE
-			layer = FLOORBOARD_ITEM_LAYER
-		alpha = oldalpha
+		spawn(1 SECONDS)
+			var/turf/U = loc
+			if(istype(U) && U.intact)
+				invisibility = old_invisibility
+				plane = ABOVE_PLATING_PLANE
+				layer = FLOORBOARD_ITEM_LAYER
+			alpha = old_alpha
 
 /obj/item/device
 	icon = 'icons/obj/device.dmi'
@@ -230,6 +231,59 @@
 	return
 
 /obj/item/proc/SlipDropped(var/mob/living/user, var/slip_dir, var/slipperiness = TURF_WET_WATER)
+	if(iscarbon(user))
+		var/mob/living/carbon/C = user
+		if(sharpness_flags & (SHARP_BLADE | SERRATED_BLADE | SHARP_TIP | HOT_EDGE)) //Running with sharp objects is dangerous!
+			var/severity = 0
+			var/saving_prob = C.lucky_probability(60, luckfactor = 1/50)
+
+			if(M_CLUMSY in C.mutations)
+				severity += 1
+
+			for(var/i in 1 to 3) //Three saving throws. One failed means a near miss. Two failed means a normal attack. Three failed means a critical attack.
+				if(prob(saving_prob))
+					break
+				severity += 1
+			if(severity >= 2)
+				var/list/attackable_zones = list("head")
+				if(C.has_eyes())
+					attackable_zones += "eyes"
+				if(C.hasmouth())
+					attackable_zones += "mouth"
+				var/attackable_zone = pick(attackable_zones)
+
+				//Temporarily switch C to harm intent and make them target their head.
+				var/previntent = C.a_intent
+				var/prevzone
+				if(C.zone_sel)
+					prevzone = C.zone_sel.selecting
+					C.zone_sel.selecting = attackable_zone //For proper afterattack() behavior, otherwise we chould just pass attackable_zone into attacked_by().
+				C.a_intent = I_HURT
+
+				//Do the attack.
+				C.attacked_by(src, C, def_zone = attackable_zone, crit = severity >= 3, flavor = "accidentally")
+				afterattack(C, C)
+
+				//Switch them back to their previous intent and targeting.
+				C.a_intent = previntent
+				if(C.zone_sel)
+					C.zone_sel.selecting = prevzone
+
+			else if(severity >= 1)
+				var/list/possibles = list("face", "neck")
+				if(C.has_eyes())
+					possibles += "eye"
+				if(C.hasmouth())
+					possibles += "throat"
+				var/list/possible_edgepoints = list()
+				if(sharpness_flags & SHARP_BLADE)
+					possible_edgepoints += "sharp edge"
+				if(sharpness_flags & SERRATED_BLADE)
+					possible_edgepoints += "serrated edge"
+				if(sharpness_flags & SHARP_TIP)
+					possible_edgepoints += "sharp point"
+				to_chat(C, "<span class = 'warning'>[possible_edgepoints.len ? "The [pick(possible_edgepoints)] of \the [src]" : "\The [src]"] just misses your [pick(possibles)]... close one!</span>")
+
 	return
 
 /obj/item/projectile_check()
@@ -368,6 +422,7 @@
 
 // called when this item is added into a storage item, which is passed on as S. The loc variable is already set to the storage item.
 /obj/item/proc/on_enter_storage(obj/item/weapon/storage/S as obj)
+	invisibility = 0
 	return
 
 // called when "found" in pockets and storage items. Returns 1 if the search should end.
@@ -1308,10 +1363,6 @@ var/global/list/image/blood_overlays = list()
 //Gets the rating of the item, used in stuff like machine construction.
 /obj/item/proc/get_rating()
 	return FALSE
-
-// Like the above, but used for RPED sorting of parts.
-/obj/item/proc/rped_rating()
-	return get_rating()
 
 /obj/item/kick_act(mob/living/carbon/human/H) //Kick items around!
 	var/datum/organ/external/kickingfoot = H.pick_usable_organ(LIMB_RIGHT_FOOT, LIMB_LEFT_FOOT)

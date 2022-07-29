@@ -1166,6 +1166,22 @@ Use this proc preferably at the end of an equipment loadout
 	face_atom(A)
 	A.examine(src)
 
+	if(istype(src,/mob/living))
+		var/mob/living/L = src
+		if(!isobserver(L) && !L.eyecheck() && !L.invisibility && L.alpha >= 1)
+			if(A.loc != L || A == L.get_active_hand() || A == L.get_inactive_hand())
+				for(var/mob/M in viewers(4, L))
+					if(M == L)
+						continue
+					if(istype(M.get_item_by_slot(slot_glasses),/obj/item/clothing/glasses/regular/tracking))
+						if(M.is_blind())
+							continue
+						if(isobj(A.loc))
+							to_chat(M, "<span class='info'><b>\The [L]</b> looks inside \the [A.loc].</span>")
+						else if(A == L)
+							to_chat(M, "<span class='info'><b>\The [L]</b> looks at \the [A].</span>")
+						else
+							to_chat(M, "<span class='info'><b>\The [L]</b> looks at [A].</span>")
 
 /mob/living/verb/verb_pickup(obj/I in acquirable_objects_in_view(usr, 1))
 	set name = "Pick up"
@@ -2107,7 +2123,7 @@ Use this proc preferably at the end of an equipment loadout
 /mob/proc/make_visible(var/source_define)
 	if(!invisibility && alpha == 255 || !source_define)
 		return
-	if(src)
+	if(src && alphas[source_define])
 		invisibility = 0
 		alphas.Remove(source_define)
 		handle_alpha()
@@ -2177,7 +2193,7 @@ Use this proc preferably at the end of an equipment loadout
 /mob/proc/attempt_crawling(var/turf/target)
 	return FALSE
 
-/mob/proc/can_mind_interact(var/datum/mind/target_mind)
+/proc/can_mind_interact(var/datum/mind/target_mind)
 	var/mob/living/target
 	if(isliving(target_mind))
 		target = target_mind
@@ -2187,26 +2203,34 @@ Use this proc preferably at the end of an equipment loadout
 		target = target_mind.current
 	if (!istype(target))
 		return null
-	var/turf/target_turf = get_turf(target)
-	var/turf/our_turf = get_turf(src)
-	if(!target_turf)
+	if(M_JAMSIGNALS in target.mutations)
 		return null
-	if (target.isDead())
-		to_chat(src, "You cannot sense the target mind anymore, that's not good...")
+	if(isalien(target))
 		return null
-	if(target_turf.z != our_turf.z) //Not on the same zlevel as us
-		to_chat(src, "The target mind is too faint, they must be quite far from you...")
+	if(target.is_wearing_item(/obj/item/clothing/mask/gas/voice))
 		return null
-	if(target.stat != CONSCIOUS)
-		to_chat(src, "The target mind is too faint, but still close, they must be unconscious...")
+	if(target.is_wearing_item(/obj/item/clothing/head/helmet/stun/))
 		return null
-	if(M_PSY_RESIST in target.mutations)
-		to_chat(src, "The target mind is resisting!")
+	if(target.is_wearing_item(/obj/item/clothing/gloves/ninja))
 		return null
-	if(target.is_wearing_any(list(/obj/item/clothing/head/helmet/space/martian,/obj/item/clothing/head/tinfoil,/obj/item/clothing/head/helmet/stun), slot_head))
-		to_chat(src, "Interference is disrupting the connection with the target mind.")
+	if(target.is_wearing_item(/obj/item/clothing/head/tinfoil))
 		return null
-	return target
+	if(target.is_wearing_item(/obj/item/clothing/head/helmet/space/martian))
+		return null
+	if(target.is_holding_item(/obj/item/device/megaphone/madscientist))
+		return null
+	var/mob/living/carbon/human/H = target
+	if(istype(H))
+		if(H.wear_id && istype(H.wear_id.GetID(), /obj/item/weapon/card/id/syndicate))
+			return null
+	if(istruevampire(H))
+		return null
+	var/datum/role/changeling/C = target.mind.GetRole(CHANGELING)
+	if(istype(C))
+		if(locate(/datum/power/changeling/DigitalCamouflage) in C.current_powers)
+			return null
+
+	return TRUE
 
 /mob/proc/canMouseDrag()//used mostly to check if the mob can drag'and'drop stuff in/out of various other stuff, such as disposals, cryo tubes, etc.
 	return TRUE

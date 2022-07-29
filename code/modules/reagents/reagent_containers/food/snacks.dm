@@ -312,14 +312,11 @@
 				var/datum/disease2/disease/D = virus2[ID]
 				eater.infect_disease2(D, 1, notes="(Ate an infected [src])")//eating infected food means 100% chance of infection.
 		if(reagentreference.total_volume)
-			reagentreference.reaction(eater, INGEST)
+			reagentreference.reaction(eater, INGEST, amount_override = min(reagentreference.total_volume,bitesize*bitesizemod)/(reagentreference.reagent_list.len))
 			spawn() //WHY IS THIS SPAWN() HERE
 				if(gcDestroyed)
 					return
-				if(reagentreference.total_volume > bitesize*bitesizemod)
-					reagentreference.trans_to(eater, bitesize*bitesizemod)
-				else
-					reagentreference.trans_to(eater, reagentreference.total_volume)
+				reagentreference.trans_to(eater, min(reagentreference.total_volume,bitesize*bitesizemod))
 				bitecount++
 				after_consume(eater, reagentreference)
 		return 1
@@ -1149,6 +1146,30 @@
 	reagents.add_reagent(NUTRIMENT, 6)
 	bitesize = 2
 
+/obj/item/weapon/reagent_containers/food/snacks/sausage/dan
+	name = "premium sausage"
+	desc = "A piece of premium, mixed meat. Very mixed..."
+	icon_state = "sausage"
+	food_flags = FOOD_MEAT
+	base_crumb_chance = 0
+
+/obj/item/weapon/reagent_containers/food/snacks/sausage/dan/New()
+	..()
+	reagents.clear_reagents()
+	for(var/blendedmeat = 1 to 6)
+		switch(rand(1,3))
+			if(1)
+				reagents.add_reagent(NUTRIMENT, 1) //15 nutrition
+			if(2)
+				reagents.add_reagent(BEFF,rand(3,8)) //6-16
+			if(3)
+				reagents.add_reagent(HORSEMEAT,rand(3,6)) //9-18
+	reagents.add_reagent(BONEMARROW,rand(0,3)) //0-3
+	if(prob(50))
+		reagents.add_reagent(ROACHSHELL,rand(0,8)) //0
+	//36 to 111 nutrition. 4noraisins has 90...
+	bitesize = 7 //Three bites on average to finish
+
 /obj/item/weapon/reagent_containers/food/snacks/donkpocket
 	name = "\improper Donk-pocket"
 	desc = "The food of choice for the seasoned traitor."
@@ -1545,6 +1566,41 @@
 	reagents.add_reagent(NUTRIMENT, 4)
 	reagents.add_reagent(CARAMEL, 3)
 	bitesize = 3
+
+/obj/item/weapon/reagent_containers/food/snacks/explosive_pie
+	name = "banana cream pie"
+	desc = "Just like back home, on clown planet! HONK!"
+	icon_state = "pie"
+	food_flags = FOOD_SWEET
+
+/obj/item/weapon/reagent_containers/food/snacks/explosive_pie/New()
+	..()
+	reagents.clear_reagents()
+	reagents.add_reagent(NUTRIMENT, 2)
+	reagents.add_reagent(BANANA,3)
+	bitesize = 5
+
+/obj/item/weapon/reagent_containers/food/snacks/explosive_pie/examine(mob/user)
+	..()
+	if(is_holder_of(user,src))
+		to_chat(user, "<span class='info'><b>When inspected hands-on,</b> the [src] feels heavier than normal and seems to be ticking.</span>")
+
+/obj/item/weapon/reagent_containers/food/snacks/explosive_pie/after_consume(mob/user)
+	explosion(get_turf(user), -1, 0, 0, 3)
+	user.gib()
+	qdel(src)
+
+/obj/item/weapon/reagent_containers/food/snacks/explosive_pie/throw_impact(atom/hit_atom)
+	set waitfor = FALSE
+	if(ismob(hit_atom))
+		var/mob/M = hit_atom
+		src.visible_message("<span class='warning'>\The [src] explodes in [M]'s face!</span>")
+		explosion(get_turf(M), -1, 0, 1, 3)
+		qdel(src)
+
+	if(isturf(hit_atom))
+		explosion(get_turf(hit_atom), -1, 0, 1, 3)
+		qdel(src)
 
 /obj/item/weapon/reagent_containers/food/snacks/berryclafoutis
 	name = "berry clafoutis"
@@ -2065,18 +2121,11 @@
 /obj/item/weapon/reagent_containers/food/snacks/butter/Crossed(atom/movable/O)
 	if(..())
 		return 1
-	if (ishuman(O))
-		var/mob/living/carbon/human/H = O
-		if (H.CheckSlip() != TRUE)
-			return
-
-		H.stop_pulling()
-		to_chat(H, "<SPAN CLASS='notice'>You slipped on the [name]!</SPAN>")
-		playsound((src), 'sound/misc/slip.ogg', 50, 1, -3)
-		H.Stun(4)
-		H.Knockdown(3)
-		new/obj/effect/decal/cleanable/smashed_butter(src.loc)
-		qdel(src)
+	if(iscarbon(O))
+		var/mob/living/carbon/C = O
+		if(C.Slip(4, 3, slipped_on = src))
+			new/obj/effect/decal/cleanable/smashed_butter(src.loc)
+			qdel(src)
 
 /obj/item/weapon/reagent_containers/food/snacks/pancake
 	name = "pancake"
@@ -4963,19 +5012,12 @@
 	desc = "It's so slippery!"
 	icon_state = "slider_slippery"
 
-/obj/item/weapon/reagent_containers/food/snacks/slider/slippery/Crossed(atom/movable/O) //exactly the same as soap
+/obj/item/weapon/reagent_containers/food/snacks/slider/slippery/Crossed(atom/movable/O) //similar to soap
 	if(..())
 		return 1
-	if (ishuman(O))
-		var/mob/living/carbon/human/H = O
-		if (H.CheckSlip() != TRUE)
-			return
-
-		H.stop_pulling()
-		to_chat(H, "<SPAN CLASS='notice'>You slipped on the [name]!</SPAN>")
-		playsound(src, 'sound/misc/slip.ogg', 50, 1, -3)
-		H.Stun(3)
-		H.Knockdown(2)
+	if(iscarbon(O))
+		var/mob/living/carbon/C = O
+		C.Slip(3, 2, slipped_on = src)
 
 ////////////////SLIDERS END////////////////
 
@@ -6668,18 +6710,11 @@ var/global/list/bomb_like_items = list(/obj/item/device/transfer_valve, /obj/ite
 /obj/item/weapon/reagent_containers/food/snacks/butterstick/Crossed(atom/movable/O)
 	if(..())
 		return 1
-	if (ishuman(O))
-		var/mob/living/carbon/human/H = O
-		if (H.CheckSlip() != TRUE)
-			return
-
-		H.stop_pulling()
-		to_chat(H, "<SPAN CLASS='notice'>You slipped on the [name]!</SPAN>")
-		playsound((src), 'sound/misc/slip.ogg', 50, 1, -3)
-		H.Stun(4)
-		H.Knockdown(3)
-		new/obj/effect/decal/cleanable/smashed_butter(src.loc)
-		qdel(src)
+	if(iscarbon(O))
+		var/mob/living/carbon/C = O
+		if(C.Slip(4, 3, slipped_on = src))
+			new/obj/effect/decal/cleanable/smashed_butter(src.loc)
+			qdel(src)
 
 /obj/item/weapon/reagent_containers/food/snacks/butterstick/New()
 	..()
@@ -6717,6 +6752,13 @@ var/global/list/bomb_like_items = list(/obj/item/device/transfer_valve, /obj/ite
 	..()
 	reagents.add_reagent(NUTRIMENT, 2)
 
+/obj/item/weapon/reagent_containers/food/snacks/butterfingers_r/Crossed(atom/movable/O)
+	if(..())
+		return 1
+	if(iscarbon(O))
+		var/mob/living/carbon/C = O
+		C.Slip(4, 3, slipped_on = src)
+
 /obj/item/weapon/reagent_containers/food/snacks/butterfingers_l
 	name = "butter fingers"
 	desc = "It's a microwaved hand slathered in butter!"
@@ -6728,6 +6770,13 @@ var/global/list/bomb_like_items = list(/obj/item/device/transfer_valve, /obj/ite
 /obj/item/weapon/reagent_containers/food/snacks/butterfingers_l/New()
 	..()
 	reagents.add_reagent(NUTRIMENT, 2)
+
+/obj/item/weapon/reagent_containers/food/snacks/butterfingers_l/Crossed(atom/movable/O)
+	if(..())
+		return 1
+	if(iscarbon(O))
+		var/mob/living/carbon/C = O
+		C.Slip(4, 3, slipped_on = src)
 
 /obj/item/weapon/reagent_containers/food/snacks/butteredtoast
 	name = "buttered toast"

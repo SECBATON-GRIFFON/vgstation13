@@ -55,7 +55,7 @@
 
 	var/turf_speed_multiplier = 1
 
-	var/explosion_block = 0
+	var/explosion_block = 0 //efficacy at blocking explosions. Invulnerable walls set to 9999
 
 	// This is the placed to store data for the holomap.
 	var/list/image/holomap_data
@@ -74,6 +74,8 @@
 	var/last_beam_damage = 0
 
 	var/clears_reagents = FALSE // If reagents get deleted when spread to here
+
+	var/mute_time = 0
 
 /turf/examine(mob/user)
 	..()

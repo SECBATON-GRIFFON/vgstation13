@@ -192,7 +192,7 @@ var/global/list/airalarm_presets = list(
 	icon = 'icons/obj/monitors.dmi'
 	icon_state = "alarm0"
 	anchored = 1
-	use_power = 1
+	use_power = MACHINE_POWER_USE_IDLE
 	idle_power_usage = 100
 	active_power_usage = 200
 	power_channel = ENVIRON
@@ -307,13 +307,16 @@ var/global/list/airalarm_presets = list(
 		if(AC.current == src)
 			AC.current = null
 			nanomanager.update_uis(src)
-
+	var/area/this_area = get_area(src)
+	if(src in this_area.air_alarms)
+		this_area.air_alarms.Remove(src)
 	..()
 
 /obj/machinery/alarm/proc/first_run()
 	var/area/this_area = get_area(src)
 	area_uid = this_area.uid
 	name = "[this_area.name] Air Alarm"
+	this_area.air_alarms.Add(src)
 
 	// breathable air according to human/Life()
 	/*
@@ -328,6 +331,13 @@ var/global/list/airalarm_presets = list(
 	apply_preset(1, 0) // Don't cycle and don't propagate.
 	apply_mode() //apply mode to scrubbers and vents
 
+/obj/machinery/alarm/Entered(atom/movable/Obj, atom/OldLoc)
+	var/area/old_area = get_area(OldLoc)
+	var/area/new_area = get_area(Obj)
+	if(old_area != new_area)
+		old_area.air_alarms.Remove(src)
+		new_area.air_alarms.Add(src)
+	return ..()
 
 /obj/machinery/alarm/initialize()
 	add_self_to_holomap()
@@ -338,7 +348,7 @@ var/global/list/airalarm_presets = list(
 
 /obj/machinery/alarm/process()
 	if((stat & (NOPOWER|BROKEN|FORCEDISABLE)) || shorted || buildstage != 2)
-		use_power = 0
+		use_power = MACHINE_POWER_USE_NONE
 		return
 
 	var/turf/simulated/location = loc
@@ -388,7 +398,7 @@ var/global/list/airalarm_presets = list(
 
 	if (new_danger < old_level)
 		danger_averted_confidence++
-		use_power = 1
+		use_power = MACHINE_POWER_USE_IDLE
 
 	// Only change danger level if:
 	// we're going up a level
@@ -397,7 +407,7 @@ var/global/list/airalarm_presets = list(
 		setDangerLevel(new_danger)
 		update_icon()
 		danger_averted_confidence = 0 // Reset counter.
-		use_power = 2
+		use_power = MACHINE_POWER_USE_ACTIVE
 
 	if (mode==AALARM_MODE_CYCLE && environment.return_pressure()<ONE_ATMOSPHERE*0.05)
 		mode=AALARM_MODE_FILL
@@ -1166,7 +1176,7 @@ FIRE ALARM
 	var/timing = 0.0
 	var/lockdownbyai = 0
 	anchored = 1.0
-	use_power = 1
+	use_power = MACHINE_POWER_USE_IDLE
 	idle_power_usage = 2
 	active_power_usage = 6
 	power_channel = ENVIRON
@@ -1490,7 +1500,7 @@ var/global/list/firealarms = list() //shrug
 	var/timing = 0.0
 	var/lockdownbyai = 0
 	anchored = 1.0
-	use_power = 1
+	use_power = MACHINE_POWER_USE_IDLE
 	idle_power_usage = 2
 	active_power_usage = 6
 

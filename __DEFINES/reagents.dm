@@ -1,4 +1,3 @@
-
 #define REAGENT_STATE_SOLID 1
 #define REAGENT_STATE_LIQUID 2
 #define REAGENT_STATE_GAS 3
@@ -471,6 +470,7 @@
 #define TRINITRINE		"trinitrine"
 #define MIDAZOLINE		"midazoline"
 #define LOCUTOGEN		"locutogen"
+#define BUMCIVILIAN		"bumcivilian"
 
 //Plant-specific reagents
 #define TANNIC_ACID		"tannic_acid"
@@ -533,6 +533,7 @@ var/list/cheartstopper = list(/*"potassium_chloride",*/ CHEESYGLOOP) //this stop
 #define ANTI_TOXINS list(ANTI_TOXIN, ALLICIN)
 #define KELOTANES list(KELOTANE, TANNIC_ACID)
 #define DERMALINES list(DERMALINE, KATHALAI)
+#define MUTAGENS list(MUTAGEN, UNTABLE_MUTAGEN)
 #define BICARIDINES list(BICARIDINE, OPIUM)
 #define SPACE_DRUGGS list(SPACE_DRUGS, MESCALINE)
 #define SYNAPTIZINES list(SYNAPTIZINE, CYTISINE)

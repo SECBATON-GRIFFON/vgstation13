@@ -45,12 +45,13 @@
 			size = "huge"
 
 	var/pronoun = "it is"
-	if(src.gender == FEMALE)
-		pronoun = "she is"
-	else if(src.gender == MALE)
-		pronoun = "he is"
-	else if(src.gender == PLURAL)
-		pronoun = "they are"
+	switch(gender)
+		if(FEMALE)
+			pronoun = "she is"
+		if(MALE)
+			pronoun = "he is"
+		if(PLURAL)
+			pronoun = "they are"
 
 	..(user, " [capitalize(pronoun)] [size].", show_name, FALSE)
 	if(meat_taken > 0)
@@ -515,7 +516,7 @@ Thanks.
 /mob/living/proc/rejuvenate(animation = 0)
 	var/turf/T = get_turf(src)
 	if(animation)
-		T.turf_animation('icons/effects/64x64.dmi',"rejuvinate",-16,0,MOB_LAYER+1,'sound/effects/rejuvinate.ogg',anim_plane = EFFECTS_PLANE)
+		T.turf_animation('icons/effects/64x64.dmi',"rejuvenate",-16,0,MOB_LAYER+1,'sound/effects/rejuvenate.ogg',anim_plane = EFFECTS_PLANE)
 
 	// shut down various types of badness
 	toxloss = 0
@@ -557,6 +558,11 @@ Thanks.
 		locked_to.unbuckle()
 	locked_to = initial(src.locked_to)
 	*/
+	if(istype(src, /mob/living/carbon))
+		var/mob/living/carbon/C = src
+		dead_mob_list -= C
+		living_mob_list |= list(C)
+
 	if(istype(src, /mob/living/carbon/human))
 		var/mob/living/carbon/human/H = src
 		H.timeofdeath = 0

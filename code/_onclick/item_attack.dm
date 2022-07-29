@@ -93,7 +93,7 @@
 	if(M_HULK in user.mutations)
 		power *= 2
 
-	if(!istype(M, /mob/living/carbon/human))
+	if(!(ishuman(M) || ismonkey(M)))
 		if(istype(M, /mob/living/carbon/slime))
 			var/mob/living/carbon/slime/slime = M
 			if(prob(25))
@@ -238,7 +238,7 @@
 					to_chat(M, "Aargh it burns!")
 
 	//Break the item if applicable.
-	if(power && (I.breakable_flags & BREAKABLE_AS_MELEE) && (I.breakable_flags & BREAKABLE_MOB))
+	if(power && (I.breakable_flags & BREAKABLE_AS_MELEE) && (I.breakable_flags & BREAKABLE_MOB) && (I.damtype == BRUTE))
 		take_damage(min(power, BREAKARMOR_MEDIUM), skip_break = TRUE, mute = FALSE) //Cap recoil damage at BREAKARMOR_MEDIUM to avoid a powerful weapon also needing really strong armor to avoid breaking apart when used. Be verbose about the item being damaged if applicable.
 		try_break(hit_atom = M) //Break the item and spill any reagents onto the target.
 
