@@ -34,6 +34,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 
 	var/stop_automated_movement = 0 //Use this to temporarely stop random movement or to if you write special movement code for animals.
 	var/wander = 1	// Does the mob wander around when idle?
+	var/must_wander = FALSE //if true, the mob will try all cardinals when wandering if boxed in
 	var/stop_automated_movement_when_pulled = 1 //When set to 1 this stops the animal from moving when someone is pulling it.
 	//Interaction
 	var/response_help   = "pokes"
@@ -62,7 +63,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	var/max_co2 = 5
 	var/min_n2 = 0
 	var/max_n2 = 0
-	var/unsuitable_atoms_damage = 2	//This damage is taken when atmos doesn't fit all the requirements above
+	var/unsuitable_atmos_damage = 2	//This damage is taken when atmos doesn't fit all the requirements above
 
 
 	mob_bump_flag = SIMPLE_ANIMAL
@@ -110,6 +111,8 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	var/pacify_aura = FALSE
 
 	var/blooded = TRUE	//Until we give them proper vessels, this lets us know which animals should bleed and stuff
+	var/acidimmune = 0 //A check for whether the mob doesn't take damage from acid reagents. Set to 0 by default
+	var/force_airlock_time=0 //to allow for airlock forcing to take some time
 
 /mob/living/simple_animal/isBloodedAnimal()
 	return blooded
@@ -128,7 +131,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 /mob/living/simple_animal/rejuvenate(animation = 0)
 	var/turf/T = get_turf(src)
 	if(animation)
-		T.turf_animation('icons/effects/64x64.dmi',"rejuvinate",-16,0,MOB_LAYER+1,'sound/effects/rejuvinate.ogg',anim_plane = EFFECTS_PLANE)
+		T.turf_animation('icons/effects/64x64.dmi',"rejuvenate",-16,0,MOB_LAYER+1,'sound/effects/rejuvenate.ogg',anim_plane = EFFECTS_PLANE)
 	src.health = src.maxHealth
 	return 1
 
@@ -193,7 +196,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 			src.delayedRegen()
 		return 0
 
-	if(health < 1 && stat != DEAD)
+	if(health <= 0 && stat != DEAD)
 		death()
 		return 0
 
@@ -216,10 +219,12 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	if(sdisabilities & BLIND)	//disabled-blind, doesn't get better on its own
 		blinded = 1
 	else if(eye_blind)			//blindness, heals slowly over time
-		eye_blind = max(eye_blind-1,0)
+		eye_blind = max(eye_blind - 1, 0)
 		blinded = 1
-	else if(eye_blurry)	//blurry eyes heal slowly
-		eye_blurry = max(eye_blurry-1, 0)
+	else
+		if(eye_blurry)	//blurry eyes heal slowly
+			eye_blurry = max(eye_blurry - 1, 0)
+		blinded = null
 
 	//Ears
 	if(sdisabilities & DEAF)	//disabled-deaf, doesn't get better on its own
@@ -237,8 +242,6 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	if(purge)
 		purge -= 1
 
-	isRegenerating = 0
-
 	//Movement
 	if((!client||deny_client_move) && !stop_automated_movement && wander && !anchored && (ckey == null) && !(flags & INVULNERABLE))
 		if(isturf(src.loc) && canmove)		//This is so it only moves if it's not inside a closet, gentics machine, etc.
@@ -246,7 +249,12 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 			if(turns_since_move >= turns_per_move)
 				if(!(stop_automated_movement_when_pulled && pulledby)) //Some animals don't move when pulled
 					INVOKE_EVENT(src, /event/before_move)
-					var/destination = get_step(src, pick(cardinal))
+					var/attempts = 3
+					var/our_options = cardinal.Copy()
+					var/destination = get_step(src, pick_n_take(our_options))
+					while(must_wander && destination == loc && attempts > 0)
+						destination = get_step(src, pick_n_take(our_options))
+						attempts--
 					wander_move(destination)
 					turns_since_move = 0
 					INVOKE_EVENT(src, /event/after_move)
@@ -339,7 +347,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 				toxins_alert = 1
 
 	if(!atmos_suitable)
-		adjustBruteLoss(unsuitable_atoms_damage)
+		adjustOxyLoss(unsuitable_atmos_damage)
 
 	if(bodytemperature < minbodytemp)
 		temperature_alert = TEMP_ALARM_COLD_STRONG
@@ -351,6 +359,9 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 		temperature_alert = 0
 
 /mob/living/simple_animal/gib(var/animation = 0, var/meat = 1)
+	if(status_flags & BUDDHAMODE)
+		adjustBruteLoss(200)
+		return
 	if(icon_gib)
 		anim(target = src, a_icon = icon, flick_anim = icon_gib, sleeptime = 15)
 
@@ -537,6 +548,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 		return
 	if(supernatural && isholyweapon(O))
 		purge = 3
+	playsound(loc, O.hitsound, 50, 1, -1)
 	..()
 
 
@@ -556,7 +568,7 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 		stat(null, "Health: [round((health / maxHealth) * 100)]%")
 
 /mob/living/simple_animal/death(gibbed)
-	if(stat == DEAD)
+	if((status_flags & BUDDHAMODE) || stat == DEAD)
 		return
 
 	if(!gibbed)
@@ -584,23 +596,27 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	if(flags & INVULNERABLE)
 		return
 	..()
+	var/dmg_phrase = ""
+	var/msg_admin = (src.key || src.ckey || (src.mind && src.mind.key)) && whodunnit
 	switch (severity)
 		if (1.0)
 			adjustBruteLoss(500)
-			add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Gibbed", admin_warn = TRUE)
+			add_attacklogs(src, whodunnit, "got caught in an explosive blast[whodunnit ? " from" : ""]", addition = "Severity: [severity], Gibbed", admin_warn = msg_admin)
 			gib()
 			return
 
 		if (2.0)
 			adjustBruteLoss(60)
-			add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Damage: 60", admin_warn = TRUE)
+			dmg_phrase = "Damage: 60"
 
 		if(3.0)
 			adjustBruteLoss(30)
-			add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Damage: 30", admin_warn = TRUE)
+			dmg_phrase = "Damage: 30"
+
+	add_attacklogs(src, whodunnit, "got caught in an explosive blast[whodunnit ? " from" : ""]", addition = "Severity: [severity], [dmg_phrase]", admin_warn = msg_admin)
 
 /mob/living/simple_animal/adjustBruteLoss(damage)
-
+	damage *= brute_damage_modifier
 	if(INVOKE_EVENT(src, /event/damaged, "kind" = BRUTE, "amount" = damage))
 		return 0
 	if (damage > 0)
@@ -609,12 +625,12 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 		damage = damage * 2
 	if(purge)
 		damage = damage * 2
-
 	health = clamp(health - damage, 0, maxHealth)
-	if(health < 1 && stat != DEAD)
+	if(health <= 0 && stat != DEAD)
 		death()
 
 /mob/living/simple_animal/adjustFireLoss(damage)
+	damage *= burn_damage_modifier
 	if(status_flags & GODMODE)
 		return 0
 	if(mutations.Find(M_RESIST_HEAT))
@@ -626,7 +642,17 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	if(purge)
 		damage = damage * 2
 	health = clamp(health - damage, 0, maxHealth)
-	if(health < 1 && stat != DEAD)
+	if(health <= 0 && stat != DEAD)
+		death()
+
+/mob/living/simple_animal/adjustOxyLoss(damage)
+	damage *= oxy_damage_modifier
+	if(status_flags & GODMODE)
+		return 0
+	if(INVOKE_EVENT(src, /event/damaged, "kind" = OXY, "amount" = damage))
+		return 0
+	health = clamp(health - damage, 0, maxHealth)
+	if(health <= 0 && stat != DEAD)
 		death()
 
 /mob/living/simple_animal/proc/skinned()
@@ -768,25 +794,29 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 	return ..()
 
 /mob/living/simple_animal/proc/reagent_act(id, method, volume)
-	if(isDead())
-		return
-
 	switch(id)
 		if(SACID)
+			if(acidimmune)
+				return
 			if(!supernatural)
 				adjustBruteLoss(volume * 0.5)
 		if(PACID)
+			if(acidimmune)
+				return
 			if(!supernatural)
 				adjustBruteLoss(volume * 0.5)
+		if(WATER)
+			make_visible(INVISIBLESPRAY)
 
 /mob/living/simple_animal/proc/delayedRegen()
 	set waitfor = 0
 	isRegenerating = 1
 	sleep(rand(minRegenTime, maxRegenTime)) //Don't want it being predictable
-	src.resurrect()
-	src.revive()
-	visible_message("<span class='warning'>[src] appears to wake from the dead, having healed all wounds.</span>")
-	isRegenerating = 0
+	if(src)
+		resurrect()
+		revive()
+		visible_message("<span class='warning'>[src] appears to wake from the dead, having healed all wounds.</span>")
+		isRegenerating = 0
 
 /mob/living/simple_animal/proc/pointed_at(var/mob/pointer)
 	return
@@ -850,3 +880,18 @@ var/global/list/animal_count = list() //Stores types, and amount of animals of t
 		qdel(src)
 
 /datum/locking_category/simple_animal
+
+//Sets a new maxHealth for a mob and rescales that mob's health and oxy damage scaling accordingly.
+/mob/living/simple_animal/proc/rescaleHealth(var/newMaxHealth = maxHealth)
+	if(maxHealth)
+		var/oldMaxHealth = maxHealth
+		maxHealth = newMaxHealth
+		health *= (newMaxHealth / oldMaxHealth)
+		oxy_damage_modifier *= (newMaxHealth / oldMaxHealth)
+		return TRUE
+	else
+		return FALSE
+
+// Simplemobs do not have hands.
+/mob/living/simple_animal/put_in_hand_check(obj/item/W, index)
+	return 0

@@ -1,10 +1,8 @@
-#define EVENT_HANDLER_OBJREF_INDEX 1
-#define EVENT_HANDLER_PROCNAME_INDEX 2
+// WARNING
+// Event handlers (i.e.: procs that are registered with `proc/register_event` MUST NOT sleep()).
 
 // Declare children of this type path to use as identifiers for the events.
 /event
-
-// TODO: Document here the arguments that need to be passed to the procs invoked by each event
 
 // Called by human/proc/apply_radiation()
 // Arguments:
@@ -103,7 +101,6 @@
 /event/clickon
 
 // Called when an atom is attacked with an empty hand.
-// Currently only used by xenoarch artifacts, should probably be moved to the base proc.
 // Arguments:
 // mob/user: the guy who is attacking.
 // atom/target: the atom that's being attacked.
@@ -156,7 +153,7 @@
 // Currently only implemented for humans.
 // Arguments:
 // atom/movable/bumper: the atom that is bumping.
-// atom/target: the atom that's being bumped into.
+// atom/bumped: the atom that's being bumped into.
 /event/to_bump
 
 // Called by hitby
@@ -170,7 +167,7 @@
 // Arguments:
 // mob/attacker: the mob doing the attack
 // mob/attacked: the victim of the attack
-// mob/item: the item being used to attack with
+// obj/item/item: the item being used to attack with
 /event/attacked_by
 
 // Called by unarmed_attack_mob
@@ -201,11 +198,23 @@
 /event/beam_power_change
 
 // Called by attackby
-// Currently only used by artifacts.
+// Used by artifacts and cooktops.
 // Arguments:
 // mob/living/attacker: the mob attacking the atom
 // obj/item/item: the item being used for the attack
 /event/attackby
+
+// Called by throw_impact
+// Arguments:
+// atom/hit_atom: the atom hit by the throw impact
+// speed: the speed at which the thrown atom was thrown
+// mob/living/user: the mob who threw the atom, if any
+/event/throw_impact
+
+//Called by examine
+//Arguments:
+//mob/user: the mob doing the examining
+/event/examined
 
 /event/ui_act
 
@@ -238,6 +247,25 @@
 // mob/source: the mob performing the emote
 /event/emote
 
+// Called by mob/living/Hear
+// Arguments:
+// datum/speech/speech: the speech datum being heard
+/event/hear
+
+// Called by area/Entered
+// Arguments:
+// atom/movable/enterer: the movable entering the area
+/event/area_entered
+
+// Called by area/Exited
+// Arguments:
+// atom/movable/exiter: the movable exiting the area
+/event/area_exited
+
+// Note: the following are used by datum/component/ai subtypes to give instructions to each other.
+// AI components are expected to INVOKE_EVENT these to send commands to other components
+// on the same datum without having to hold references to them.
+// They may need to be reworked, and they are currently undocumented.
 /event/comp_ai_friend_attacked
 
 /event/comp_ai_cmd_get_best_target
@@ -260,6 +288,9 @@
 /event/comp_ai_cmd_set_state
 /event/comp_ai_cmd_get_state
 
+/event/comp_ai_cmd_say
+/event/comp_ai_cmd_specific_say
+
 /datum
 	/// Associative list of type path -> list(),
 	/// where the type path is a descendant of /event_type.
@@ -276,6 +307,9 @@
   * * list/arguments Optional. List of parameters to be passed to the event handlers.
   */
 #define INVOKE_EVENT(target, event_type, arguments...) (target.registered_events?[event_type] && target.invoke_event(event_type, list(##arguments)))
+
+#define EVENT_HANDLER_OBJREF_INDEX 1
+#define EVENT_HANDLER_PROCNAME_INDEX 2
 
 /datum/proc/invoke_event(event/event_type, list/arguments)
 	SHOULD_NOT_OVERRIDE(TRUE)

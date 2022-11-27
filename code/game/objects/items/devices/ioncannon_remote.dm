@@ -22,9 +22,9 @@
 /obj/item/device/loic_remote/examine(mob/user)
 	..()
 	if(cooldown-world.time < 0)
-		to_chat(user, "<span class='notice'>It is ready to fire.</span>") 
+		to_chat(user, "<span class='notice'>It is ready to fire.</span>")
 	else
-		to_chat(user, "<span class='notice'>The Low Orbit Ion Cannon can fire again in [altFormatTimeDuration(cooldown-world.time)].</span>") 
+		to_chat(user, "<span class='notice'>The Low Orbit Ion Cannon can fire again in [altFormatTimeDuration(cooldown-world.time)].</span>")
 /obj/item/device/loic_remote/attack_self(var/mob/user)
 	if(cooldown - world.time > 0)
 		to_chat(user, "<span class='notice'>The Low Orbit Ion Cannon is still on cooldown.</span>")
@@ -49,7 +49,7 @@
 	log_admin("[key_name(user)] generated an ion law using a LOIC remote.")
 
 	for (var/obj/machinery/computer/communications/C in machines)
-		if(! (C.stat & (BROKEN|NOPOWER) ) )
+		if(! (C.stat & (FORCEDISABLE|BROKEN|NOPOWER) ) )
 			var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
 			P.name = "'[command_name()] Update.'"
 			P.info = "Station Time: <B>[worldtime2text()]</B><br><br>Malicious Interference with standard AI-Subsystems detected.<br><br>Signal traced to <B>[get_area(src).name]</B>. Investigation recommended."
@@ -57,7 +57,7 @@
 			C.messagetitle.Add("[command_name()] Update")
 			C.messagetext.Add(P.info)
 
-	
+
 
 
 

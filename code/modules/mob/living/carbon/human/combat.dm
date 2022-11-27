@@ -44,6 +44,17 @@
 			visible_message("<span class='danger'>[src] places a hand over [target]'s mouth!</span>")
 			return 1
 
+		if(src.zone_sel.selecting == "head" && !(S.status & ORGAN_DESTROYED) && ishuman(target))
+			playsound(loc, 'sound/effects/slap1.ogg', 50, 1, -1)
+			visible_message("<span class='danger'>[src] slaps [target] in the face!</span>")
+			return 1
+
+		if(src.zone_sel.selecting == "head" && !(S.status & ORGAN_DESTROYED) && ishuman(target) && lying) //On the ground = pimp slap
+			T.forcesay("-")
+			playsound(loc, 'sound/effects/snap.ogg', 50, 1, -1)
+			visible_message("<span class='danger'>[src] pimp slaps [target] hard on the cheek!</span>")
+			return 1
+
 	if(target.disarmed_by(src))
 		return
 
@@ -141,6 +152,8 @@
 		damage += G.get_damage_added() //Increase damage by the gloves' damage modifier
 
 		G.on_punch(src, victim)
+	if(is_real_champion(src)) //Wearing championship belt and luchador mask
+		damage *= 2
 
 	return damage
 
@@ -285,10 +298,25 @@
 	return tD
 
 /mob/living/carbon/human/bonusTackleRange(var/tR = 0)
+	for(var/obj/item/clothing/C in get_all_slots())
+		if(istype(C))
+			tR += C.rangeTackleBonus()
 	if(species)
 		tR += species.tackleRange
 	if(wear_suit)
 		var/obj/item/slowSuit = wear_suit
 		if(slowSuit.slowdown > NO_SLOWDOWN)
 			tR -= 1
+	if(reagents.get_sportiness()>=10)	//Not as easy as just a swig of sport drink
+		tR += 1
 	return max(0, tR)
+
+/mob/living/carbon/human/tackleGetHurt(var/hurtAmount = 0, var/knockAmount = 0, var/hurtSound = "trayhit")
+	if(!hurtAmount)
+		hurtAmount = rand(5,15)
+	if(!knockAmount)
+		knockAmount = hurtAmount/2
+	if(hurtAmount >= 10)
+		knock_out_teeth()
+	..(hurtAmount, knockAmount, hurtSound)
+

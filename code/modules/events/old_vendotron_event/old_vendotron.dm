@@ -136,6 +136,7 @@
 		/obj/item/weapon/bikehorn/baton = 300,
 		/obj/item/weapon/grenade/flashbang/clusterbang = 300,
 		/obj/item/cannonball/bananium = 200,
+//		/obj/item/weapon/stock_parts/console_screen/reinforced/plasma/rplasma = 150,
 		/obj/item/weapon/stock_parts/micro_laser/high/ultra/giga = 200,
 		/obj/item/weapon/stock_parts/capacitor/adv/super/ultra = 250,
 		/obj/item/weapon/stock_parts/manipulator/nano/pico/femto = 200,
@@ -148,6 +149,9 @@
 		/obj/item/weapon/storage/box/mysterycubes = 250,
 		/obj/item/weapon/glow_orb = 200,
 		/obj/item/stack/sheet/mineral/phazon = 300,
+		/obj/item/weapon/reagent_containers/spray/noreact = 750,	//This isn't nearly as broken as it sounds
+		/obj/item/weapon/circuitboard/mind_machine_hub = 400,
+		/obj/item/weapon/circuitboard/mind_machine_pod = 250,
 	)
 
 	var/list/rareStock = list(
@@ -235,8 +239,11 @@
 
 //Begin spoilers/////
 
+/obj/machinery/vending/old_vendotron/arcane_act(mob/user)
+	user.say("P'Y 'P!")
+	neoUltraCapitalismMode(user)
 
-/obj/machinery/vending/old_vendotron/emag(mob/user)
+/obj/machinery/vending/old_vendotron/emag_act(mob/user)
 	if(!emagged)
 		emagged = TRUE
 		if(prob(50))
@@ -338,11 +345,7 @@
 	visible_message("<span class='big danger'>\The [src] vends some peculiar eggs!</span>")
 	for(var/i = 1 to eggAmount)
 		var/turf/eggT = get_turf(pick(orange(5, get_turf(src))))
-		var/obj/item/weapon/reagent_containers/food/snacks/egg/cEgg = new /obj/item/weapon/reagent_containers/food/snacks/egg/chaos(eggT)
-		var/eggTimer = rand(3, 10)
-		spawn(eggTimer SECONDS)
-			if(!cEgg.gcDestroyed)
-				cEgg.hatch()
+		new /obj/item/weapon/reagent_containers/food/snacks/egg/chaos/instahatch(eggT)
 
 /obj/machinery/vending/old_vendotron/proc/ghettoNightmare(var/nightmareLevel = 8, mob/user)	//This is a sin
 	visible_message("<span class='big danger'>Even \the [src] looks afraid!</span>")

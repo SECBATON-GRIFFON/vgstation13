@@ -35,6 +35,7 @@
 	var/list/target_rules = list()
 
 	var/can_ventcrawl = FALSE // If the mob can ventcrawl
+	var/mob/living/simple_animal/hostile/asteroid/hivelord/hivelord = null
 
 /mob/living/simple_animal/hostile/New()
 	..()
@@ -44,6 +45,10 @@
 	for(var/datum/fuzzy_ruling/D in target_rules)
 		qdel(D)
 	target_rules = null
+	if(hivelord)
+		if(src in hivelord.broods)
+			hivelord.broods.Remove(src)
+		hivelord = null
 	..()
 
 /mob/living/simple_animal/hostile/proc/initialize_rules()
@@ -220,7 +225,7 @@
 			if(M.occupant)//Just so we don't attack empty mechs
 				if(CanAttack(M.occupant))
 					return 1
-		if((environment_smash_flags & OPEN_DOOR_STRONG) && istype(the_target, /obj/machinery/door/airlock))
+		if(!(environment_smash_flags & OPEN_DOOR_SMART) && (environment_smash_flags & (OPEN_DOOR_STRONG | OPEN_DOOR_WEAK)) && istype(the_target, /obj/machinery/door/airlock))
 			var/obj/machinery/door/airlock/A = the_target
 			if(!A.density || A.operating || A.locked || A.welded)
 				return 0
@@ -234,17 +239,26 @@
 		stance = HOSTILE_STANCE_ATTACK
 	return
 
+/mob/living/simple_animal/hostile/proc/ranged_mode() //Allows different ranged modes to be used, and potentially for a mob to ignore normal ranged behavior in pursuit of a target
+	return ranged
+
 /mob/living/simple_animal/hostile/proc/MoveToTarget()//Step 5, handle movement between us and our target
 	stop_automated_movement = 1
 	if(!target || !CanAttack(target))
 		LoseTarget()
 		return
 
-	if(loc == lastloc)
-		hostile_interest--
-		if(hostile_interest <= 0)
-			LoseTarget()
-			return
+	if(loc == lastloc && !target.Adjacent(src))
+		if(environment_smash_flags & OPEN_DOOR_SMART)
+			var/turf/T = get_step(src,target)
+			for(var/obj/machinery/door/airlock/AL in T)
+				AL.attack_animal(src)
+				delayNextAttack(1 SECONDS)
+		else
+			hostile_interest--
+			if(hostile_interest <= 0)
+				LoseTarget()
+				return
 	else
 		hostile_interest = initial(hostile_interest)
 
@@ -253,13 +267,14 @@
 	if(isturf(loc))
 		if(target in ListTargets())
 			var/target_distance = get_dist(src,target)
-			if(ranged)//We ranged? Shoot at em
+			if(ranged_mode())//We ranged? Shoot at em if our ranged mode allows for it
 				if(target_distance >= 2 && ranged_cooldown <= 0)//But make sure they're a tile away at least, and our range attack is off cooldown
 					OpenFire(target)
 			if(target.Adjacent(src))	//If they're next to us, attack
 				AttackingTarget()
 			if(canmove && space_check())
 				if(retreat_distance != null && target_distance <= retreat_distance) //If we have a retreat distance, check if we need to run from our target
+					before_retreat()
 					walk_away(src,target,retreat_distance,move_to_delay)
 				else
 					Goto(target,move_to_delay,minimum_distance)//Otherwise, get to our minimum distance so we chase them
@@ -341,6 +356,10 @@
 /mob/living/simple_animal/hostile/death(var/gibbed = FALSE)
 	LoseAggro()
 	walk(src, 0)
+	if(hivelord)
+		if(src in hivelord.broods)
+			hivelord.broods.Remove(src)
+		hivelord = null
 	..(gibbed)
 
 /mob/living/simple_animal/hostile/inherit_mind(mob/living/simple_animal/from)
@@ -459,6 +478,7 @@
 					 /obj/structure/closet,
 					 /obj/structure/table,
 					 /obj/structure/grille,
+					 /obj/structure/girder,
 					 /obj/structure/rack,
 					 /obj/machinery/door/window,
 					 /obj/item/tape,
@@ -474,6 +494,7 @@
 						var/obj/machinery/door/firedoor/FIR = A
 						if(!FIR.density || FIR.blocked || FIR.operating)
 							continue
+					hostile_interest = initial(hostile_interest) // don't lose interest while smashing shit!
 					UnarmedAttack(A, Adjacent(A))
 	return
 
@@ -492,6 +513,9 @@
 		return 1
 	else
 		return 0
+
+//What to do immediately after deciding to retreat but before the walk action starts
+/mob/living/simple_animal/hostile/proc/before_retreat()
 
 //Let players use mobs' ranged attacks
 /mob/living/simple_animal/hostile/Stat()

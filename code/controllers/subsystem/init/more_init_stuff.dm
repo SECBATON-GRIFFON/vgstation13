@@ -9,7 +9,15 @@ var/datum/subsystem/more_init/SSmore_init
 	NEW_SS_GLOBAL(SSmore_init)
 
 /datum/subsystem/more_init/Initialize(timeofday)
+	initialize_rune_words()
+	library_catalog.initialize()
+	initialize_beespecies()
+	init_mind_ui()
+	createPaiController()
+	ticker.init_snake_leaderboard()
+	ticker.init_minesweeper_leaderboard()
 	setup_news()
+	
 	var/watch=start_watch()
 	log_startup_progress("Caching damage icons...")
 	cachedamageicons()
@@ -49,6 +57,7 @@ var/datum/subsystem/more_init/SSmore_init
 	typing_indicator = new
 	CHECK_TICK
 	centcomm_store = new
+	create_randomized_reagents()
 	log_startup_progress("Finished doing the other misc. initializations in [stop_watch(watch)]s.")
 
 /proc/cache_machinery_components_rating()
@@ -78,8 +87,8 @@ var/datum/subsystem/more_init/SSmore_init
 //		testing("Generating [S], Blood([species_blood])")
 		for(var/datum/organ/external/O in H.organs)
 			//testing("[O] part")
-			for(var/brute = 1 to 3)
-				for(var/burn = 1 to 3)
+			for(var/brute = 0 to 3)
+				for(var/burn = 0 to 3)
 					var/damage_state = "[brute][burn]"
 					if(species_blood)
 						DI = icon('icons/mob/dam_human.dmi', "[brute]0-color")

@@ -4,9 +4,9 @@
 	icon = 'icons/obj/doors/windoor.dmi'
 	icon_state = "left"
 	var/base_state = "left"
-	var/health = 60
+	health = 60
 	visible = 0.0
-	use_power = 0
+	use_power = MACHINE_POWER_USE_NONE
 	flow_flags = ON_BORDER
 	plane = ABOVE_HUMAN_PLANE //Make it so it appears above all mobs (AI included), it's a border object anyway
 	layer = WINDOOR_LAYER //Below curtains
@@ -14,10 +14,9 @@
 	opacity = 0
 	var/obj/item/weapon/circuitboard/airlock/electronics = null
 	var/secure = FALSE
-	explosion_resistance = 5
 	air_properties_vary_with_direction = 1
 	ghost_read = 0
-	machine_flags = EMAGGABLE
+	machine_flags = EMAGGABLE|WIREJACK
 	soundeffect = 'sound/machines/windowdoor.ogg'
 	var/shard_type = /obj/item/weapon/shard
 	penetration_dampening = 2
@@ -25,6 +24,12 @@
 	var/obj/machinery/smartglass_electronics/smartwindow
 	var/window_is_opaque = FALSE //The var that helps darken the glass when the door opens/closes
 	var/assembly_type = /obj/structure/windoor_assembly
+
+	hack_abilities = list(
+		/datum/malfhack_ability/toggle/disable,
+		/datum/malfhack_ability/oneuse/overload_quiet,
+		/datum/malfhack_ability/oneuse/emag
+	)
 
 
 /obj/machinery/door/window/New()
@@ -67,19 +72,20 @@
 		to_chat(user, "It is a secure windoor. It's stronger and closes more quickly.")
 
 /obj/machinery/door/window/Bumped(atom/movable/AM)
+	var/sleeptime = normalspeed ? 50 : 20 // secure doors close faster
 	if(!ismob(AM))
 		var/obj/machinery/bot/bot = AM
 		if(istype(bot))
 			if(density && check_access(bot.botcard))
 				open()
-				sleep(50)
+				sleep(sleeptime)
 				close()
 		else if(istype(AM, /obj/mecha))
 			var/obj/mecha/mecha = AM
 			if(density)
 				if(mecha.occupant && allowed(mecha.occupant))
 					open()
-					sleep(50)
+					sleep(sleeptime)
 					close()
 		else if(istype(AM, /obj/structure/bed/chair/vehicle))
 			var/obj/structure/bed/chair/vehicle/vehicle = AM
@@ -88,7 +94,7 @@
 					if(istype(vehicle, /obj/structure/bed/chair/vehicle/firebird))
 						vehicle.forceMove(get_step(vehicle,vehicle.dir))//Firebird doesn't wait for no slowpoke door to fully open before dashing through!
 					open()
-					sleep(50)
+					sleep(sleeptime)
 					close()
 				else if(!operating)
 					denied()
@@ -99,11 +105,7 @@
 		return
 	if(density && allowed(AM))
 		open()
-		// What.
-		if(check_access(null))
-			sleep(50)
-		else //secure doors close faster
-			sleep(20)
+		sleep(sleeptime)
 		close()
 
 /obj/machinery/door/window/Cross(atom/movable/mover, turf/target, height=1.5, air_group = 0)
@@ -140,15 +142,13 @@
 	door_animate("opening")
 	playsound(src, soundeffect, 100, 1)
 	icon_state = "[base_state]open"
-	sleep(animation_delay)
+	spawn(animation_delay)
+		setDensity(FALSE)
+		set_opacity(0) //You can see through open windoors even if the glass is opaque
+		update_nearby_tiles()
 
-	explosion_resistance = 0
-	setDensity(FALSE)
-	set_opacity(0) //You can see through open windoors even if the glass is opaque
-	update_nearby_tiles()
-
-	if(operating == 1) //emag again
-		operating = 0
+		if(operating == 1) //emag again
+			operating = 0
 	return TRUE
 
 /obj/machinery/door/window/close()
@@ -165,24 +165,25 @@
 	icon_state = base_state
 
 	setDensity(TRUE)
-	explosion_resistance = initial(explosion_resistance)
 	update_nearby_tiles()
 
-	sleep(animation_delay)
-	if(window_is_opaque) //you can't see through closed opaque windoors
-		set_opacity(1)
+	spawn(animation_delay)
+		if(window_is_opaque) //you can't see through closed opaque windoors
+			set_opacity(1)
 
-	operating = 0
+		operating = 0
 	return TRUE
 
-/obj/machinery/door/window/proc/take_damage(var/damage)
-	health = max(0, health - damage)
+/obj/machinery/door/window/try_break()
 	if(health <= 0)
 		playsound(src, "shatter", 70, 1)
 		new shard_type(loc)
 		new /obj/item/stack/cable_coil(loc, 2)
 		eject_electronics()
 		qdel(src)
+		return TRUE
+	else
+		return FALSE
 
 /obj/machinery/door/window/bullet_act(var/obj/item/projectile/Proj)
 	if(Proj.damage)
@@ -203,9 +204,6 @@
 	playsound(src, 'sound/effects/Glasshit.ogg', 100, 1)
 	take_damage(tforce)
 
-/obj/machinery/door/window/attack_ai(mob/user)
-	add_hiddenprint(user)
-	return attack_hand(user)
 
 /obj/machinery/door/window/attack_ghost(mob/user)
 	if(isAdminGhost(user))
@@ -279,7 +277,7 @@
 		return
 
 	//If it's a weapon, smash windoor. Unless it's an id card, agent card, ect.. then ignore it (Cards really shouldnt damage a door anyway)
-	if(density && istype(I, /obj/item) && !istype(I, /obj/item/weapon/card))
+	if(density && istype(I, /obj/item) && !istype(I, /obj/item/weapon/card) && !istype(I, /obj/item/device/paicard))
 		var/aforce = I.force
 		user.do_attack_animation(src, I)
 		user.delayNextAttack(8)
@@ -296,7 +294,7 @@
 
 	return ..()
 
-/obj/machinery/door/window/emag(mob/user)
+/obj/machinery/door/window/emag_act(mob/user)
 	..()
 	hackOpen(user)
 
@@ -355,12 +353,21 @@
 	else if(req_one_access && req_one_access.len > 0)
 		electronics.conf_access = req_one_access
 		electronics.one_access = 1
+	electronics.dir_access = req_access_dir
+	electronics.access_nodir = access_not_dir
 
 /obj/machinery/door/window/proc/eject_electronics()
 	if(electronics)
 		electronics.installed = FALSE
 		electronics.forceMove(loc)
 		electronics = null
+
+/obj/machinery/door/window/wirejack(var/mob/living/silicon/pai/P)
+	if(..())
+		if (!density)
+			return close()
+		else
+			return open()
 
 /obj/machinery/door/window/clockworkify()
 	GENERIC_CLOCKWORK_CONVERSION(src, /obj/machinery/door/window/clockwork, BRASS_WINDOOR_GLOW)
@@ -375,6 +382,7 @@
 	health = 100
 	assembly_type = /obj/structure/windoor_assembly/secure
 	penetration_dampening = 4
+	normalspeed = 0
 
 /obj/machinery/door/window/plasma
 	name = "plasma window door"
@@ -393,6 +401,7 @@
 	secure = TRUE
 	assembly_type = /obj/structure/windoor_assembly/plasma
 	penetration_dampening = 8
+	normalspeed = 0
 
 // Used on Packed ; smartglassified roundstart
 // TODO: Remove this snowflake stuff.

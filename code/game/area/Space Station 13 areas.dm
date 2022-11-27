@@ -27,7 +27,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	icon_state = "unknown"
 	mouse_opacity = 0
 	luminosity = 0
-	var/lightswitch = 1
+	var/haslightswitch = FALSE
 	var/list/ambient_sounds = list(
 		/datum/ambience/generic1,
 		/datum/ambience/generic2,
@@ -457,7 +457,17 @@ var/global/list/adminbusteleportlocs = list()
 	holomap_draw_override = HOLOMAP_DRAW_EMPTY
 
 /area/shuttle/lightship/start
+	icon_state = "yellow"
+
+/area/shuttle/brokeufo
+	name = "\improper Broken UFO"
+	requires_power = 1
 	icon_state = "firingrange"
+	dynamic_lighting = 1
+	holomap_draw_override = HOLOMAP_DRAW_EMPTY
+
+/area/shuttle/brokeufo/start
+	icon_state = "yellow"
 
 /area/shuttle/salvage
 	name = "\improper Salvage Ship"
@@ -1627,23 +1637,6 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Firing Range"
 	icon_state = "firingrange"
 
-/*
-/area/security/range/New()
-	..()
-
-	spawn(10) //let objects set up first
-		for(var/turf/turfToGrayscale in src)
-			if(turfToGrayscale.icon)
-				var/icon/newIcon = icon(turfToGrayscale.icon)
-				newIcon.GrayScale()
-				turfToGrayscale.icon = newIcon
-			for(var/obj/objectToGrayscale in turfToGrayscale) //1 level deep, means tables, apcs, locker, etc, but not locker contents
-				if(objectToGrayscale.icon)
-					var/icon/newIcon = icon(objectToGrayscale.icon)
-					newIcon.GrayScale()
-					objectToGrayscale.icon = newIcon
-*/
-
 /area/security/checkpoint
 	name = "\improper Security Checkpoint"
 	icon_state = "checkpoint1"
@@ -2661,9 +2654,6 @@ var/list/the_station_areas = list (
 	/area/derelictparts,
 )
 
-
-
-
 /area/beach/
 	name = "The metaclub's private beach"
 	icon_state = "null"
@@ -2672,35 +2662,9 @@ var/list/the_station_areas = list (
 	var/sound/mysound = null
 	shuttle_can_crush = FALSE
 	flags = NO_PERSISTENCE
+	music = 'sound/ambience/shore.ogg'
 
-/* We have a jukebox now, fuck that
-/area/beach/New()
-	..()
-	var/sound/S = new/sound()
-	mysound = S
-	S.file = 'sound/ambience/shore.ogg'
-	S.repeat = 1
-	S.wait = 0
-	S.channel = 123
-	S.volume = 100
-	S.priority = 255
-	S.status = SOUND_UPDATE
-	process()
-
-/area/beach/Entered(atom/movable/Obj,atom/OldLoc)
-	if(ismob(Obj))
-		if(Obj:client)
-			mysound.status = SOUND_UPDATE
-			Obj << mysound
-	return
-
-//This only works when using Move() to exit the area
-/area/beach/Exited(atom/movable/Obj)
-	if(ismob(Obj))
-		if(Obj:client)
-			mysound.status = SOUND_PAUSED | SOUND_UPDATE
-			Obj << mysound
-
+/*
 /area/beach/proc/process()
 	//set background = 1
 
@@ -2709,20 +2673,6 @@ var/list/the_station_areas = list (
 	if(prob(25))
 		S = sound(file=pick('sound/ambience/seag1.ogg','sound/ambience/seag2.ogg','sound/ambience/seag3.ogg'), volume=50)
 		sound_delay = rand(0, 50)
-
-	for(var/mob/living/carbon/human/H in src)
-//			if(H.my_appearance.s_tone > -55)	//ugh...nice/novel idea but please no.
-//				H.my_appearance.s_tone--
-//				H.update_body()
-		if(H.client)
-			mysound.status = SOUND_UPDATE
-			H << mysound
-			if(S)
-				spawn(sound_delay)
-					H << S
-
-	spawn(60) .()
-
 */
 
 /* Asteroid station areas */
@@ -2877,3 +2827,174 @@ var/list/the_station_areas = list (
 	icon_state = "escape"
 
 // END Horizon
+// BEGIN Island
+//Maintenance tunnels
+/area/maintenance/fore_port_struct
+	name = "\improper Fore Port Struct"
+	icon_state = "foreportstruct"
+
+/area/maintenance/fore_starboard_struct
+	name = "\improper Fore Starboard Struct"
+	icon_state = "forestarboardstruct"
+
+/area/maintenance/aft_port_struct
+	name = "\improper Aft Port Struct"
+	icon_state = "aftportstruct"
+
+/area/maintenance/aft_starboard_struct
+	name = "\improper Aft Starboard Struct"
+	icon_state = "aftstarboardstruct"
+
+/area/maintenance/transport_island_fore_maintenance
+	name = "\improper Transport Island Fore Maintenance"
+	icon_state = "transportmaintfore"
+
+/area/maintenance/transport_island_aft_maintenance
+	name = "\improper Transport Island Aft Maintenance"
+	icon_state = "transportmaintaft"
+
+/area/maintenance/medical_island_fore_maintenance
+	name = "\improper Medical Island Fore Maintenance"
+	icon_state = "medicalmaintfore"
+
+/area/maintenance/medical_island_aft_maintenance
+	name = "\improper Medical Island Aft Maintenance"
+	icon_state = "medicalmaintaft"
+
+/area/maintenance/engineering_island_starboard_maintenance
+	name = "\improper Engineering Island Starboard Maintenance"
+	icon_state = "engyislandmaintstarboard"
+
+/area/maintenance/engineering_island_port_maintenance
+	name = "\improper Engineering Island Port Maintenance"
+	icon_state = "engyislandmaintport"
+
+/area/maintenance/research_island_starboard_maintenance
+	name = "\improper Research Island Starboard Maintenance"
+	icon_state = "rndislandmaintstarboard"
+
+
+/area/maintenance/research_island_port_maintenance
+	name = "\improper Research Island Port Maintenance"
+	icon_state = "rndislandmaintport"
+
+/area/maintenance/central_island_fore_port_maintenance
+	name = "\improper Central Island Fore Port Maintenance"
+	icon_state = "centralforeportmaint"
+
+/area/maintenance/central_island_aft_starboard_maintenance
+	name = "\improper Central Island Aft Starboard Maintenance"
+	icon_state = "centralaftSBmaint"
+
+/area/maintenance/central_island_aft_port_maintenance
+	name = "\improper Central Island Aft Port Maintenance"
+	icon_state = "centralaftportmaint"
+
+/area/maintenance/central_island_fore_starboard_maintenance
+	name = "\improper Central Island Fore Starboard Maintenance"
+	icon_state = "centralforeSBmaint"
+
+/area/maintenance/outpost_docking_maintenance
+	name = "\improper Outpost Docking Maintenance"
+	icon_state = "outpostdockmaint"
+
+
+//Hallways
+/area/hallway/central_aft_hallway
+	name = "\improper Central Aft Hallway"
+	icon_state = "centralhallaft"
+
+/area/hallway/central_fore_hallway
+	name = "\improper Central Fore Hallway"
+	icon_state = "centralhallfore"
+
+/area/hallway/central_port_hallway
+	name = "\improper Central Port Hallway"
+	icon_state = "centralhallport"
+
+/area/hallway/central_starboard_hallway
+	name = "\improper Central Starboard Hallway"
+	icon_state = "centralhallstarboard"
+
+/area/hallway/outpost_fore_hallway
+	name = "\improper Outpost Fore Hallway"
+	icon_state = "outpostforehall"
+
+/area/hallway/outpost_aft_hallway
+	name = "\improper Outpost Aft Hallway"
+	icon_state = "outpostafthall"
+
+/area/hallway/outpost_starboard_hallway
+	name = "\improper Outpost Starboard Hallway"
+	icon_state = "outpostSBhall"
+
+/area/hallway/outpost_port_hallway
+	name = "\improper Outpost Port Hallway"
+	icon_state = "outpostporthall"
+
+
+
+//Rooms
+/area/outpost_medbay
+	name = "\improper Outpost Medbay"
+	icon_state = "outpostmed"
+
+/area/outpost_brig
+	name = "\improper Outpost Brig"
+	icon_state = "outpostbrig"
+
+/area/outpost_engineering
+	name = "\improper Outpost Engineering"
+	icon_state = "outpostengy"
+
+/area/disabled_work_platform
+	name = "\improper Disabled Work Platform"
+	icon_state = "disabledplatform"
+
+/area/outpost_dock_control_center
+	name = "\improper Outpost Dock Control Center"
+	icon_state = "outpostdockcontrol"
+
+/area/outpost_bridge
+	name = "\improper Outpost Bridge"
+	icon_state = "outpostbridge"
+
+/area/outpost_starboard_launcher
+	name = "\improper Outpost Starboard Launcher"
+	icon_state = "outpostlauncherstarboard"
+
+/area/outpost_port_launcher
+	name = "\improper Outpost Port Launcher"
+	icon_state = "outpostlauncherport"
+
+/area/bridge_secure_auxilliary
+	name = "\improper Bridge Secure Auxilliary"
+	icon_state = "bridgeaux"
+
+/area/trade_floor
+	name = "\improper Trade Floor"
+	icon_state = "tradefloor"
+
+/area/vacant_storefront
+	name = "\improper Vacant Storefront"
+	icon_state = "vacstore"
+
+//Shuttles
+/area/shuttle/engineering
+	name = "\improper Engineering Shuttle"
+	icon_state = "engineeringshuttle"
+
+/area/shuttle/medical
+	name = "\improper Medical Shuttle"
+	icon_state = "medicalshuttle"
+
+/area/shuttle/damage_control
+	name = "\improper Damage Control Shuttle"
+	icon_state = "mommishuttle"
+
+//END Island
+
+/area/hell
+	name = "\improper HELL"
+	requires_power = 0
+	dynamic_lighting = 0

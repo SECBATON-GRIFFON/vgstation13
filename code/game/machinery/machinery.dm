@@ -122,7 +122,7 @@ Class Procs:
 
 	var/stat = 0
 	var/emagged = 0
-	var/use_power = 1
+	var/use_power = MACHINE_POWER_USE_IDLE
 		//0 = dont run the auto
 		//1 = run auto, use idle
 		//2 = run auto, use active
@@ -145,6 +145,7 @@ Class Procs:
 	var/light_range_on = 0
 	var/light_power_on = 0
 	var/use_auto_lights = 0//Incase you want to use it, set this to 0, defaulting to 1 so machinery with no lights doesn't call set_light()
+	var/pulsecompromised = 0 //Used for pulsedemons
 
 	/**
 	 * Machine construction/destruction/emag flags.
@@ -173,6 +174,7 @@ Class Procs:
 /obj/machinery/New()
 	all_machines += src // Machines are only removed from this upon destruction
 	machines += src
+	initialize_malfhack_abilities()
 	//if(ticker) initialize()
 	return ..()
 
@@ -202,6 +204,10 @@ Class Procs:
 			component_parts -= AM
 */
 	component_parts = null
+	for(var/datum/malfhack_ability/MH in hack_abilities)
+		MH.machine = null
+		qdel(MH)
+	qdel(hack_overlay)
 
 	..()
 
@@ -213,7 +219,8 @@ Class Procs:
 	return PROCESS_KILL
 
 /obj/machinery/emp_act(severity)
-	if(use_power && stat == 0)
+	malf_disrupt(MALF_DISRUPT_TIME)
+	if(use_power != MACHINE_POWER_USE_NONE && stat == 0)
 		use_power(7500/severity)
 
 		var/obj/effect/overlay/pulse2 = new/obj/effect/overlay ( src.loc )
@@ -225,11 +232,14 @@ Class Procs:
 
 		spawn(10)
 			qdel(pulse2)
+	for(var/mob/living/simple_animal/hostile/pulse_demon/PD in contents)
+		PD.emp_act(severity) // Finally take these out inside APCs and etc.
 	..()
 
 /obj/machinery/suicide_act(var/mob/living/user)
-	to_chat(viewers(user), "<span class='danger'>[user] is placing \his hands into the sockets of the [src] and tries to fry \himself! It looks like \he's trying to commit suicide.</span>")
-	return(SUICIDE_ACT_FIRELOSS)
+	if(!(stat & (NOPOWER|BROKEN|FORCEDISABLE)) && use_power > 0)
+		to_chat(viewers(user), "<span class='danger'>[user] is placing \his hands into the sockets of the [src] to try to fry \himself! It looks like \he's trying to commit suicide.</span>")
+		return(SUICIDE_ACT_FIRELOSS)
 
 /obj/machinery/ex_act(severity)
 	switch(severity)
@@ -253,12 +263,76 @@ Class Procs:
 
 /obj/machinery/proc/auto_use_power()
 	switch (use_power)
-		if (1)
+		if (MACHINE_POWER_USE_IDLE)
 			use_power(idle_power_usage, power_channel)
-		if (2)
+		if (MACHINE_POWER_USE_ACTIVE)
 			use_power(active_power_usage, power_channel)
 
 	return 1
+
+// increment the power usage stats for an area
+// defaults to power_channel
+/obj/machinery/proc/use_power(amount, chan = power_channel)
+	var/area/this_area = get_area(src)
+	if(connected_cell && connected_cell.charge > 0)   //If theres a cell directly providing power use it, only for cargo carts at the moment
+		if(connected_cell.charge < amount*0.75)	//Let them squeeze the last bit of power out.
+			connected_cell.charge = 0
+		else
+			connected_cell.use(amount*0.75)
+	else
+		if(!this_area)
+			return 0						// if not, then not powered.
+		if(!powered(chan)) //no point in trying if we don't have power
+			return 0
+
+		this_area.use_power(amount, chan)
+
+// called whenever the power settings of the containing area change
+// by default, check equipment channel & set flag
+// can override if needed
+/obj/machinery/proc/power_change()
+	if(powered(power_channel))
+		stat &= ~NOPOWER
+
+		if(!use_auto_lights)
+			return
+		if(stat & FORCEDISABLE)
+			return
+		set_light(light_range_on, light_power_on)
+
+	else
+		stat |= NOPOWER
+
+		if(!use_auto_lights)
+			return
+		set_light(0)
+
+// returns true if the machine is powered (or doesn't require power).
+// performs basic checks every machine should do, then
+/obj/machinery/proc/powered(chan = power_channel, power_check_anyways = FALSE)
+	if(!src.loc)
+		return FALSE
+
+	if(battery_dependent && !connected_cell)
+		return FALSE
+
+	if(connected_cell)
+		if(connected_cell.charge > 0)
+			return TRUE
+		else
+			return FALSE
+
+	if(!power_check_anyways && use_power == MACHINE_POWER_USE_NONE)
+		return TRUE
+
+	if((machine_flags & FIXED2WORK) && !anchored)
+		return FALSE
+
+	var/area/this_area = get_area(src)
+	if(!this_area)
+		return FALSE
+
+	return this_area.powered(chan)
 
 /obj/machinery/proc/multitool_topic(var/mob/user,var/list/href_list,var/obj/O)
 	if("set_id" in href_list)
@@ -381,13 +455,11 @@ Class Procs:
 	return TRUE
 
 /obj/machinery/proc/is_in_range(var/mob/user)
-	if((!in_range(src, usr) || !istype(src.loc, /turf)) && !istype(usr, /mob/living/silicon))
-		return FALSE
-	return TRUE
+	return (in_range(src, user) && isturf(loc)) || issilicon(user) || ispulsedemon(user)
 
 /obj/machinery/Topic(href, href_list)
 	..()
-	if(stat & (BROKEN|NOPOWER))
+	if(stat & (BROKEN|NOPOWER|FORCEDISABLE))
 		return 1
 	if(href_list["close"])
 		return
@@ -409,7 +481,7 @@ Class Procs:
 	else if(!custom_aghost_alerts)
 		log_adminghost("[key_name(usr)] screwed with [src] ([href])!")
 
-	src.add_fingerprint(usr)
+		src.add_fingerprint(usr)
 	src.add_hiddenprint(usr)
 
 	return handle_multitool_topic(href,href_list,usr)
@@ -420,9 +492,11 @@ Class Procs:
 		// For some reason attack_robot doesn't work
 		// This is to stop robots from using cameras to remotely control machines.
 		if(user.client && user.client.eye == user)
-			return src.attack_hand(user)
+			return attack_hand(user)
 	else
-		return src.attack_hand(user)
+		if(stat & NOAICONTROL)
+			return
+		return attack_hand(user)
 
 /obj/machinery/attack_ghost(mob/user as mob)
 	src.add_hiddenprint(user)
@@ -436,7 +510,8 @@ Class Procs:
 	return src.attack_hand(user)
 
 /obj/machinery/attack_hand(mob/user as mob, var/ignore_brain_damage = 0)
-	if(stat & (NOPOWER|BROKEN|MAINT))
+	. = ..()
+	if(stat & (NOPOWER|BROKEN|MAINT|FORCEDISABLE))
 		return 1
 
 	if(user.lying || (user.stat && !canGhostRead(user))) // Ghost read-only
@@ -448,6 +523,7 @@ Class Procs:
 	if(!user.dexterity_check())
 		to_chat(user, "<span class='warning'>You don't have the dexterity to do this!</span>")
 		return 1
+
 /*
 	//distance checks are made by atom/proc/DblClick
 	if ((get_dist(src, user) > 1 || !istype(src.loc, /turf)) && !istype(user, /mob/living/silicon))
@@ -570,11 +646,10 @@ Class Procs:
  * Handle emags.
  * @param user /mob The mob that used the emag.
  */
-/obj/machinery/proc/emag(mob/user as mob)
+/obj/machinery/emag_act(mob/user as mob)
 	// Disable emaggability. Note that some machines such as the Communications Computer might be emaggable multiple times.
 	machine_flags &= ~EMAGGABLE
-	new/obj/effect/sparks(get_turf(src))
-	playsound(loc,"sparks",50,1)
+	spark(src)
 
 
 /**
@@ -591,11 +666,14 @@ Class Procs:
 
 	add_fingerprint(user)
 
-	if(istype(O, /obj/item/weapon/card/emag) && machine_flags & EMAGGABLE)
+	if(O.is_cookvessel && is_cooktop)
+		return 1
+
+	if(isEmag(O) && machine_flags & EMAGGABLE)
 		var/obj/item/weapon/card/emag/E = O
 		if(E.canUse(user,src))
-			emag(user)
-			return
+			emag_act(user)
+			return 1
 
 	if(O.is_wrench(user) && wrenchable()) //make sure this is BEFORE the fixed2work check
 		if(!panel_open)
@@ -606,7 +684,7 @@ Class Procs:
 				if(wrenchAnchor(user, O) && machine_flags & FIXED2WORK) //wrenches/unwrenches into place if possible, then updates the power and state if necessary
 					state = anchored
 					power_change() //updates us to turn on or off as necessary
-					return 1
+				return 1
 		else
 			to_chat(user, "<span class='warning'>\The [src]'s maintenance panel must be closed first!</span>")
 			return -1 //we return -1 rather than 0 for the if(..()) checks
@@ -742,6 +820,35 @@ Class Procs:
 		return 1
 	return 0
 
+//exclusively for use with machines being made from the flatpacker
+//works like the parts exchange but because we only call this from a certain location
+//we can make some particular assumptions about what's going on
+/obj/machinery/proc/force_parts_transfer(var/datum/design/mechanic_design/O)
+	if(component_parts)
+		var/list/X = O.parts
+		//We paid for it when we made the flatpack, now we get new components.
+		//...has to be copied otherwise you delete the parts from the source
+		var/M = X.Copy(1,0)
+		var/obj/item/weapon/circuitboard/CB = locate(/obj/item/weapon/circuitboard) in component_parts
+		var/P
+		for(var/obj/item/A in component_parts)
+			//use some logic to, one by one, replace the parts in the flatpack
+			//we can't just force add all the parts to the machine because (including stock parts) because some parts aren't copiable
+			for(var/D in CB.req_components)
+				if(ispath(A.type, D))
+					P = D
+					break
+			for(var/obj/item/B in M)
+				if(istype(B, P) && istype(A, P))
+					if(B.get_rating() > A.get_rating()) //base rating parts should not be added (they already shouldn't be in this list, but whatever)
+						component_parts -= A
+						component_parts += B
+						M -= B //if you don't remove the part, one upgraded part will replace everything in the recipe
+						B.forceMove(null)
+						break
+		RefreshParts()
+		return 1
+	return 0
 
 /obj/machinery/kick_act(mob/living/carbon/human/H)
 	if(H.locked_to && isobj(H.locked_to) && H.locked_to != src)
@@ -772,6 +879,13 @@ Class Procs:
 	else
 		src.shake(1, 3) //1 means x movement, 3 means intensity
 
+	if(arcanetampered && density && anchored)
+		to_chat(H,"<span class='sinister'>[src] kicks YOU!</span>")
+		playsound(src, 'sound/effects/grillehit.ogg', 50, 1) //Zth: I couldn't find a proper sound, please replace it
+		H.Knockdown(10)
+		H.Stun(10)
+		return
+
 	if(scan)
 		if(prob(50))
 			scan.forceMove(get_turf(src))
@@ -779,7 +893,7 @@ Class Procs:
 			scan = null
 
 /obj/machinery/proc/is_operational()
-	return !(stat & (NOPOWER|BROKEN|MAINT))
+	return !(stat & (NOPOWER|BROKEN|MAINT|FORCEDISABLE))
 
 
 /obj/machinery/proc/setOutputLocation(user)

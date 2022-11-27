@@ -84,28 +84,30 @@
 		transfer_to_without_current(new_character)
 		return
 
-	new_character.attack_log += current.attack_log
+	//new_character.attack_log += current.attack_log
 	new_character.attack_log += "\[[time_stamp()]\]: mind transfer from [current] to [new_character]"
 
 	for (var/role in antag_roles)
 		var/datum/role/R = antag_roles[role]
 		R.PreMindTransfer(current)
 
-	if(current)					//remove ourself from our old body's mind variable
-		current.old_assigned_role = assigned_role
-		current.mind = null
 	if(new_character.mind)		//remove any mind currently in our new body's mind variable
 		new_character.mind.current = null
 
 	nanomanager.user_transferred(current, new_character)
 
+	//find a better way to do this, this is horrible
+	if(active)
+		new_character.key = key	//now transfer the key to link the client to our new body
+
+	if(current)					//remove ourself from our old body's mind variable NOW THAT THE TRANSFER IS DONE
+		current.old_assigned_role = assigned_role
+		current.mind = null
+
 	var/mob/old_character = current
 	current = new_character		//link ourself to our new body
 	new_character.mind = src	//and link our new body to ourself
-
-	if(active)
-		new_character.key = key		//now transfer the key to link the client to our new body
-									//gotta do that after linking the mind to the body or we'll create an extra mind on Login()
+	new_character.mind.active = TRUE	//necessary for some reason
 
 	for (var/role in antag_roles)
 		var/datum/role/R = antag_roles[role]
@@ -126,6 +128,7 @@
 
 	if(active)
 		new_character.key = key		//now transfer the key to link the client to our new body
+		to_chat(world, "transfered to successfully")
 
 	current = new_character		//link ourself to our new body
 	new_character.mind = src	//and link our new body to ourself

@@ -1,4 +1,7 @@
 /mob/living/silicon/robot/gib(animation = FALSE, meat = TRUE)
+	if(status_flags & BUDDHAMODE)
+		adjustBruteLoss(200)
+		return
 	//robots don't die when gibbed. instead they drop their MMI'd brain
 	if(!isUnconscious())
 		forcesay("-")
@@ -13,7 +16,7 @@
 
 	if(mind) //To make sure we're gibbing a player, who knows
 		if(!mind.suiciding) //I don't know how that could happen, but you can't be too sure
-			score["deadsilicon"] += 1
+			score.deadsilicon += 1
 
 	living_mob_list -= src
 	dead_mob_list -= src
@@ -38,11 +41,12 @@
 
 
 /mob/living/silicon/robot/death(gibbed)
-	if(stat == DEAD)
+	if((status_flags & BUDDHAMODE) || stat == DEAD)
 		return
 	if(connected_ai)
 		if(connected_ai.explosive_cyborgs)
-			visible_message("<span class='notice'>You hear a soft beep.</span>")
+			visible_message("<span class='warning'>You hear a soft beep.</span>")
+			playsound(src, "sound/effects/kirakrik.ogg", 60)
 			spawn(10)
 				explosion(src.loc, 1, 4, 5, 6, whodunnit = src)
 				gib()
@@ -74,7 +78,7 @@
 	if(mind)
 		mind.store_memory("Time of death: [tod]", 0)
 		if(!mind.suiciding)
-			score["deadsilicon"] += 1
+			score.deadsilicon += 1
 
 	sql_report_cyborg_death(src)
 

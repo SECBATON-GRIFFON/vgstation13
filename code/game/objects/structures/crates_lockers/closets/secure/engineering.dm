@@ -37,12 +37,14 @@
 		/obj/item/weapon/storage/belt/utility/chief,
 		/obj/item/clothing/glasses/scanner/material,
 		/obj/item/weapon/card/debit/preferred/department/engineering,
-		/obj/item/weapon/reagent_containers/food/snacks/monkeycube/gourmonger
+		/obj/item/weapon/reagent_containers/food/snacks/monkeycube/gourmonger,
+		/obj/item/tool/solder/screw,
+		/obj/item/tool/crowbar/halligan
 	)
 
 /obj/structure/closet/secure_closet/engineering_electrical
 	name = "electrical supplies locker"
-	req_access = list(access_engine_equip)
+	req_access = list(access_engine_minor)
 	icon_state = "secureengelec1"
 	icon_closed = "secureengelec"
 	icon_locked = "secureengelec1"
@@ -61,7 +63,7 @@
 
 /obj/structure/closet/secure_closet/engineering_welding
 	name = "welding supplies locker"
-	req_access = list(access_engine_equip)
+	req_access = list(access_engine_minor)
 	icon_state = "secureengweld1"
 	icon_closed = "secureengweld"
 	icon_locked = "secureengweld1"
@@ -77,7 +79,7 @@
 
 /obj/structure/closet/secure_closet/engineering_personal
 	name = "\improper Engineer's locker"
-	req_access = list(access_engine_equip)
+	req_access = list(access_engine_minor)
 	icon_state = "secureeng1"
 	icon_closed = "secureeng"
 	icon_locked = "secureeng1"
@@ -142,6 +144,7 @@
 		/obj/item/device/analyzer,
 		/obj/item/clothing/glasses/scanner/material,
 		/obj/item/device/gps/engineering,
+		/obj/item/tool/crowbar/halligan,
 	)
 
 /obj/structure/closet/secure_closet/engineering_mechanic
@@ -178,7 +181,7 @@
 
 /obj/structure/closet/secure_closet/engineering_general
 	name = "engineering locker"
-	req_access = list(access_engine_equip)
+	req_access = list(access_engine_minor)
 	icon_state = "secureeng1"
 	icon_closed = "secureeng"
 	icon_locked = "secureeng1"
@@ -188,7 +191,7 @@
 
 /obj/structure/closet/crate/secure/large/reinforced/shard
 	name = "supermatter shard crate"
-	req_access = list(access_engine_equip)
+	req_access = list(access_engine_minor)
 	var/payload = /obj/machinery/power/supermatter/shard
 	var/mapping_idtag
 

@@ -174,7 +174,7 @@
 
 /////////////////
 
-/obj/structure/bed/chair/vehicle/adminbus/proc/mass_rejuvinate(mob/bususer)
+/obj/structure/bed/chair/vehicle/adminbus/proc/mass_rejuvenate(mob/bususer)
 	for(var/mob/living/M in orange(src,3))
 		M.revive(1)
 		if(M.mind)
@@ -403,7 +403,7 @@
 		if(istype(T, /turf/space/))
 			if(isspace(T.loc))
 				continue
-			var/obj/item/stack/tile/plasteel/P = new /obj/item/stack/tile/plasteel
+			var/obj/item/stack/tile/metal/P = new /obj/item/stack/tile/metal
 			P.build(T)
 		else if(istype(T,/turf/simulated/floor))
 			var/turf/simulated/floor/F = T

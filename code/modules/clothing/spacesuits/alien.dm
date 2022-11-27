@@ -118,6 +118,7 @@
 	species_restricted = list(VOX_SHAPED)
 	species_fit = list(VOX_SHAPED)
 	body_parts_visible_override = 0
+	hides_identity = HIDES_IDENTITY_NEVER
 
 /obj/item/clothing/head/helmet/space/vox/pressure
 	name = "alien helmet"
@@ -249,14 +250,14 @@
 	icon_state = "vox-pressure"
 	item_state = "vox-pressure"
 	desc = "A huge, pressurized suit, designed for distinctly nonhuman proportions. It looks unusually cheap, even for Vox."
-	clothing_flags = GOLIATHREINFORCE
+	clothing_flags = GOLIATH_REINFORCEABLE|HIVELORD_REINFORCEABLE|BASILISK_REINFORCEABLE
 
 /obj/item/clothing/head/helmet/space/vox/civ/trader //brownhelmet
 	name = "alien helmet"
 	icon_state = "vox-pressure"
 	item_state = "vox-pressure"
 	desc = "Hey, wasn't this a prop in \'The Abyss\'?"
-	clothing_flags = GOLIATHREINFORCE
+	clothing_flags = GOLIATH_REINFORCEABLE|HIVELORD_REINFORCEABLE|BASILISK_REINFORCEABLE
 
 /obj/item/clothing/suit/space/vox/civ/trader/flex
 	name = "flexible trader pressure suit"
@@ -408,12 +409,12 @@
 /obj/item/clothing/suit/space/vox/civ/mining
 	name = "vox mining pressure suit"
 	icon_state = "vox-civ-mining"
-	clothing_flags = GOLIATHREINFORCE
+	clothing_flags = GOLIATH_REINFORCEABLE|HIVELORD_REINFORCEABLE|BASILISK_REINFORCEABLE
 
 /obj/item/clothing/head/helmet/space/vox/civ/mining
 	name = "vox mining pressure helmet"
 	icon_state = "vox-civ-mining"
-	clothing_flags = GOLIATHREINFORCE
+	clothing_flags = GOLIATH_REINFORCEABLE|HIVELORD_REINFORCEABLE|BASILISK_REINFORCEABLE
 
 //Engineering
 /obj/item/clothing/suit/space/vox/civ/engineer
@@ -671,22 +672,29 @@
 	name = "explorer pressure helmet"
 	icon_state = "grey-fishbowl-helm"
 	item_state = "grey-fishbowl-helm"
-	desc = "A Grey explorer's pressure helmet. It has plenty of room for planning an atmospheric reentry. Zounds!"
+	desc = "A grey explorer's pressure helmet. It has plenty of room for planning an atmospheric reentry. Zounds!"
 	armor = list(melee = 20, bullet = 5, laser = 20, energy = 5, bomb = 15, bio = 100, rad = 10)
 	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	heat_conductivity = SPACESUIT_HEAT_CONDUCTIVITY
 	species_restricted = list(GREY_SHAPED)
 	species_fit = list(GREY_SHAPED)
 
+/obj/item/clothing/head/helmet/space/grey/dissolvable()
+	return FALSE
+
 /obj/item/clothing/suit/space/grey
 	name = "explorer pressure suit"
 	icon_state = "grey-pressure-suit"
 	item_state = "grey-pressure-suit"
-	desc = "An outdated pressure suit that was once standard issue for spacefaring Grey explorers. It's compact enough to be stored in a bag."
+	desc = "An outdated pressure suit that was once standard issue for spacefaring grey explorers. It's compact enough to be stored in a bag."
 	armor = list(melee = 20, bullet = 5, laser = 20, energy = 5, bomb = 15, bio = 100, rad = 10)
+	allowed = list(/obj/item/weapon/tank, /obj/item/weapon/gun/energy/smalldisintegrator)
 	w_class = W_CLASS_MEDIUM
 	species_restricted = list(GREY_SHAPED)
 	species_fit = list(GREY_SHAPED)
+
+/obj/item/clothing/suit/space/grey/dissolvable()
+	return FALSE
 
 
 //Martian Fishbowl

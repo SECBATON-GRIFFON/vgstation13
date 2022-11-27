@@ -216,6 +216,7 @@
 	w_class = 5
 	mech_flags = MECH_SCAN_ILLEGAL
 	cant_drop = 1
+	autoignition_temperature = AUTOIGNITION_ORGANIC
 	var/mob/living/simple_animal/borer/parent_borer = null
 
 /obj/item/weapon/shield/riot/bone/New(atom/A, var/p_borer = null)
@@ -257,6 +258,7 @@
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/shields.dmi', "right_hand" = 'icons/mob/in-hand/right/shields.dmi')
 	flags = FPRINT | SLOWDOWN_WHEN_CARRIED
 	slowdown = 4
+	w_type = RECYK_METAL
 
 /obj/item/weapon/shield/riot/rune
 	name = "rune kiteshield"

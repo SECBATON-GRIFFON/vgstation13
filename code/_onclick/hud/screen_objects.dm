@@ -170,6 +170,14 @@
 			//usr.next_move = world.time+2
 	return 1
 
+/obj/abstract/screen/nocontext/MouseEntered(location, control, params)
+	usr?.client?.show_popup_menus = FALSE
+
+/obj/abstract/screen/nocontext/MouseExited(location, control, params)
+	if(ismalf(usr))
+		return
+	usr?.client?.show_popup_menus = TRUE
+
 /obj/abstract/screen/gun
 	name = "gun"
 	icon = 'icons/mob/screen1.dmi'
@@ -324,8 +332,8 @@
 		if("equip")
 			if (istype(usr.loc,/obj/mecha)) // stops inventory actions in a mech
 				return 1
-			if(ishuman(usr))
-				var/mob/living/carbon/human/H = usr
+			if(iscarbon(usr))
+				var/mob/living/carbon/H = usr
 				H.quick_equip()
 
 		if("resist")
@@ -619,5 +627,5 @@
 			qdel(objects)
 	src.screen = null
 
-/obj/abstract/screen/acidable()
+/obj/abstract/screen/dissolvable()
 	return 0

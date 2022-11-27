@@ -9,6 +9,7 @@
 	throw_speed = 5
 	throw_range = 3
 	w_class = W_CLASS_MEDIUM
+	autoignition_temperature = AUTOIGNITION_FABRIC
 	flags = FPRINT
 	attack_verb = list("mops", "bashes", "bludgeons", "whacks", "slaps", "whips")
 
@@ -51,16 +52,20 @@
 		return
 	if(istype(A, /mob/living))
 		if(!(reagents.total_volume < 1)) //Slap slap slap
-			A.visible_message("<span class='danger'>[user] covers [A] in the mop's contents</span>")
-			reagents.reaction(A,1,10) //I hope you like my polyacid cleaner mix
+			A.visible_message("<span class='danger'>[user] [ishuman(A) ? "hits [A] in the [parse_zone(user.zone_sel.selecting)] with" : "covers [A] in"] the mop's contents</span>")
+			reagents.reaction(A,1,10, zone_sels = list(user.zone_sel.selecting)) //I hope you like my polyacid cleaner mix
 			reagents.clear_reagents()
 
 	if(istype(A, /turf/simulated) || iscleanaway(A))
 		if(reagents.total_volume < 1)
 			to_chat(user, "<span class='notice'>Your mop is dry!</span>")
 			return
-		user.visible_message("<span class='warning'>[user] cleans \the [get_turf(A)].</span>", "<span class='notice'>You clean \the [get_turf(A)].</span>")
+		user.visible_message("<span class='[arcanetampered ? "sinister" : "warning"]'>[user] cleans \the [get_turf(A)].</span>", "<span class='[arcanetampered ? "sinister" : "notice"]'>You clean \the [get_turf(A)].</span>")
 		user.delayNextAttack(10)
-		clean(get_turf(A))
+		if(arcanetampered)
+			var/dirttype = pick(subtypesof(/obj/effect/decal/cleanable))
+			new dirttype(get_turf(A))
+		else
+			clean(get_turf(A))
 		reagents.remove_any(1) //Might be a tad wonky with "special mop mixes", but fuck it
 	update_icon()

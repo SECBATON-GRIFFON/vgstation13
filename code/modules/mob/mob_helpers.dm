@@ -67,9 +67,7 @@
 	. = ..()
 	if(.)
 		return .
-	var/obj/item/clothing/glasses/scanner/S = is_wearing_item(/obj/item/clothing/glasses/scanner, slot_glasses)
-	if(S && S.on && S.color_matrix)
-		return S.color_matrix
+
 	var/datum/organ/internal/eyes/eyes = internal_organs_by_name["eyes"]
 	if(eyes && eyes.colourmatrix.len && !(eyes.robotic))
 		return eyes.colourmatrix
@@ -287,6 +285,8 @@
 			//if(9,10)	newletter="<b>[newletter]</b>"
 			//if(11,12)	newletter="<big>[newletter]</big>"
 			//if(13)	newletter="<small>[newletter]</small>"
+			else
+				//do nothing
 		newphrase+="[newletter]";counter-=1
 	return newphrase
 

@@ -12,6 +12,7 @@
 	flags = FPRINT // No HEAR. Headsets should only work when being used explicitly.
 	broadcasting = TRUE
 	slot_flags = SLOT_EARS
+	autoignition_temperature = AUTOIGNITION_PLASTIC
 	var/translate_binary = 0
 	var/translate_hive = 0
 	var/obj/item/device/encryptionkey/keyslot1 = null
@@ -34,12 +35,16 @@
 /obj/item/device/radio/headset/talk_into(datum/speech/speech_orig, channel=null)
 	if(!broadcasting)
 		return
+	if(usr?.client?.prefs.headset_sound)
+		playsound(usr, 'sound/effects/radio_chatter.ogg', 100, 1, vary = 0)
 	return ..()
 
 /obj/item/device/radio/headset/receive_range(freq, level)
 	if(ishuman(src.loc))
 		var/mob/living/carbon/human/H = src.loc
 		if(H.ears == src)
+			if(H.client && (H.client.prefs.headset_sound == HEADSET_SOUND_ALL))
+				playsound(H, 'sound/effects/radio_chatter.ogg', 100, 1, vary = 0)
 			return ..(freq, level)
 	return -1
 

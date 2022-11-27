@@ -205,6 +205,10 @@
 
 // TODO UPHEAVAL PART 2, make this spell available again as a ritual reward. Though instead of using this code it'll probably be activated through mind UI
 //SPELL III
+
+// DONE!!!
+
+/*
 /spell/cult/blood_dagger
 	name = "Blood Dagger"
 	desc = "(5 BLOOD) Solidify some blood into a sharp weapon. Slash at your enemies to steal their blood. Use the dagger to re-absorb the stolen blood."
@@ -256,7 +260,7 @@
 		H.visible_message("<span class='warning'>\The [user] squeezes the blood in their hand, and it takes the shape of a dagger!</span>",
 			"<span class='warning'>You squeeze the blood in your hand, and it takes the shape of a dagger.</span>")
 		playsound(H, 'sound/weapons/bloodyslice.ogg', 30, 0,-2)
-
+*/
 // TODO UPHEAVAL PART 2, not sure what to do with this spell really, it always kinda sucked and tomes as a whole need an overhaul
 var/list/arcane_pockets = list()
 //SPELL IV
@@ -345,7 +349,8 @@ var/list/arcane_pockets = list()
 
 /spell/astral_return/cast(var/list/targets, var/mob/user)
 	var/mob/living/simple_animal/astral_projection/astral = user
-	astral.death()//pretty straightforward isn't it?
+	if (istype(astral))
+		astral.death()//pretty straightforward isn't it?
 
 /spell/astral_toggle
 	name = "Toggle Tangibility"

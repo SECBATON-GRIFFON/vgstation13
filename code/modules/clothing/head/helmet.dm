@@ -10,6 +10,7 @@
 	max_heat_protection_temperature = HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
 	siemens_coefficient = 0.7
 	species_fit = list(GREY_SHAPED, INSECT_SHAPED)
+	autoignition_temperature = AUTOIGNITION_PROTECTIVE
 
 /obj/item/clothing/head/helmet/NoiseDampening()	// checked on headwear by flashbangs
 	return TRUE
@@ -113,7 +114,7 @@
 	name = "gladiator helmet"
 	desc = "Ave, Imperator, morituri te salutant."
 	icon_state = "gladiator"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(INSECT_SHAPED, GREY_SHAPED)
 	flags = FPRINT
 	item_state = "gladiator"
 	siemens_coefficient = 1

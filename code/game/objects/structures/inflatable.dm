@@ -2,7 +2,7 @@
 	name = "inflatable"
 	w_class = W_CLASS_MEDIUM
 	icon = 'icons/obj/inflatable.dmi'
-	w_type = RECYK_METAL
+	w_type = RECYK_PLASTIC
 	melt_temperature = MELTPOINT_PLASTIC
 	starting_materials = list(MAT_PLASTIC = 1.5*CC_PER_SHEET_MISC)
 
@@ -138,7 +138,7 @@
 	var/undeploy_path = null
 	var/spawn_undeployed = TRUE
 	var/tmp/deflating = 0
-	var/health = 30
+	health = 30
 	var/ctrl_deflate = TRUE
 
 /obj/structure/inflatable/wall
@@ -168,7 +168,7 @@
 		if(2)
 			deflate(1)
 		if(3)
-			take_damage(rand(15,45), 0)
+			take_damage(rand(15,45), sound_effect = 0)
 
 /obj/structure/inflatable/attackby(obj/item/I, mob/user)
 	if(!istype(I) || istype(I, /obj/item/weapon/inflatable_dispenser))
@@ -198,15 +198,19 @@
 	user.visible_message("<span class='danger'>[user] rips \the [src] apart!</span>")
 	deflate(1)
 
-/obj/structure/inflatable/proc/take_damage(var/damage, var/sound_effect = 1)
-	health = max(0, health - damage)
+/obj/structure/inflatable/take_damage(incoming_damage, damage_type, skip_break, mute, var/sound_effect = 1) //Custom take_damage() proc because of sound_effect behavior.
+	health = max(0, health - incoming_damage)
 	if(sound_effect)
 		playsound(loc, 'sound/effects/Glasshit.ogg', 75, 1)
+	return try_break()
+
+/obj/structure/inflatable/try_break()
 	if(health <= 0)
 		spawn(1)
 			deflate(1)
-		return 1
-	return 0
+		return TRUE
+	return FALSE
+
 
 /obj/structure/inflatable/CtrlClick()
 	if(ctrl_deflate)
@@ -333,7 +337,7 @@
 	if(living_contents.len)
 		to_chat(user,"<span class='info'>You can see [english_list(living_contents)] inside.</span>")
 
-/obj/structure/inflatable/shelter/forceMove(atom/destination, no_tp=0, harderforce = FALSE, glide_size_override = 0) //Like an unanchored window, we can block if pushed into place.
+/obj/structure/inflatable/shelter/forceMove(atom/destination, step_x = 0, step_y = 0, no_tp = FALSE, harderforce = FALSE, glide_size_override = 0) //Like an unanchored window, we can block if pushed into place.
 	..()
 	update_nearby_tiles()
 
@@ -346,14 +350,14 @@
 	return TRUE
 
 /obj/structure/inflatable/shelter/update_icon()
-	overlays = list()
-	var/mob/living/carbon/human/occupant = locate(/mob/living/carbon/human) in contents
-	if(occupant)
-		var/image/occupant_overlay = occupant.appearance
-		overlays += occupant_overlay
-	var/image/cover_overlay = image('icons/obj/inflatable.dmi', icon_state = "shelter_top", layer = FLY_LAYER)
-	cover_overlay.plane = ABOVE_HUMAN_PLANE
-	overlays += cover_overlay
+	vis_contents.Cut()
+	overlays.Cut()
+	for(var/mob/living/L in contents)
+		vis_contents.Add(L)
+	if(contents.len)
+		var/image/cover_overlay = image('icons/obj/inflatable.dmi', icon_state = "shelter_top", layer = FLY_LAYER)
+		cover_overlay.plane = ABOVE_HUMAN_PLANE
+		overlays += cover_overlay
 
 /obj/structure/inflatable/shelter/attack_hand(mob/user)
 	if(user.loc == src && ishuman(user))
@@ -447,17 +451,34 @@
 		exiting -= user
 		to_chat(user,"<span class='warning'>You stop climbing free of \the [src].</span>")
 		return
+	if(dest && !dest.Cross(user,dest))
+		exiting -= user
+		to_chat(user,"<span class='warning'>You cannot climb out here, the way is blocked.</span>")
+		return
+	var/turf/T = get_turf(src)
+	var/x_offset = 0
+	var/y_offset = 0
+	var/z_offset = 0
+	if(dest)
+		x_offset = dest.x-T.x
+		y_offset = dest.y-T.y
+		z_offset = dest.z-T.z
 	visible_message("<span class='warning'>[user] begins to climb free of the \the [src]!</span>")
 	exiting += user
 	spawn(6 SECONDS)
 		if(loc && exiting.Find(user)) //If not loc, it was probably deflated
-			if (dest)
-				user.forceMove(dest)
+			if(dest)
+				var/turf/T2 = get_turf(src)
+				if(user.Move(locate(T2.x+x_offset,T2.y+y_offset,T2.z+z_offset)))
+					update_icon()
+					to_chat(user,"<span class='notice'>You climb free of the shelter.</span>")
+				else
+					to_chat(user,"<span class='warning'>You cannot climb out here, the way is blocked.</span>")
 			else
 				user.forceMove(loc)
-			exiting -= user
-			update_icon()
-			to_chat(user,"<span class='notice'>You climb free of the shelter.</span>")
+				update_icon()
+				to_chat(user,"<span class='notice'>You climb free of the shelter.</span>")
+		exiting -= user
 
 /obj/structure/inflatable/shelter/MouseDropTo(atom/movable/O, mob/user) //copy pasted from cryo code
 	if(O.loc == user || !isturf(O.loc) || !isturf(user.loc) || !user.Adjacent(O)) //no you can't pull things out of your ass
@@ -498,19 +519,9 @@
 
 
 /obj/structure/inflatable/shelter/MouseDropFrom(over_object, src_location, turf/over_location, src_control, over_control, params)
-	if(!Adjacent(over_location))
+	if(!Adjacent(over_location) || !istype(over_location) || usr.incapacitated())
 		return
-	if(!istype(over_location) || over_location.density)
-		return
-	if(usr.incapacitated())
-		return
-	for(var/atom/movable/A in over_location.contents)
-		if(A.density)
-			if((A == src) || istype(A, /mob))
-				continue
-			return
-	if(istype(over_location))
-		container_resist(usr,over_location)
+	container_resist(usr,over_location)
 
 /obj/structure/inflatable/shelter/Exited(var/atom/movable/mover)
 	update_icon()

@@ -18,6 +18,19 @@
 	var/has_sound = 1 //The CLICK sound when turning on/off
 	var/sound_on = 'sound/items/flashlight_on.ogg'
 	var/sound_off = 'sound/items/flashlight_off.ogg'
+	var/flickering = FALSE
+
+	health = 30
+	breakable_flags = BREAKABLE_ALL
+	breakable_fragments = list(/obj/item/weapon/light/bulb/broken, /obj/item/stack/cable_coil/cut/)
+	damage_armor = 10
+	damage_resist = 10
+	damaged_examine_text = "It is dented."
+	take_hit_text = "denting"
+	take_hit_text2 = "dents"
+	breaks_text = "breaks apart"
+	glanced_sound = 'sound/items/metal_impact.ogg'
+	breaks_sound = 'sound/effects/Glassbr1.ogg'
 
 /obj/item/device/flashlight/initialize()
 	..()
@@ -49,7 +62,6 @@
 	on = !on
 	update_brightness(user)
 	return 1
-
 
 /obj/item/device/flashlight/attack(mob/living/M as mob, mob/living/user as mob)
 	add_fingerprint(user)
@@ -92,8 +104,43 @@
 				if(!M.blinded)
 					M.flash_eyes(visual = 1)
 					to_chat(user, "<span class='notice'>[M]'s pupils narrow.</span>")
+			if(M.times_cloned)
+				to_chat(user, "<span class='notice'>[src] highlights [M.times_cloned] dot[M.times_cloned != 1 ? "s" : ""] on [M]'s sclerae!</span>")
 	else
 		return ..()
+
+/obj/item/device/flashlight/proc/flicker()
+	if(flickering)
+		return
+	if(on)
+		flickering = 1
+		spawn(0)
+			on = FALSE
+			update_brightness()
+			sleep(rand(5, 15))
+			flickering = 0
+			on = TRUE
+			update_brightness()
+
+/obj/item/device/flashlight/attack_ghost(var/mob/dead/observer/ghost)
+	flicker()
+	. = ..()
+
+/obj/item/device/flashlight/torch
+	name = "torch"
+	desc = "Well I didn't vote for you!"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/flashlights_n_lamps.dmi', "right_hand" = 'icons/mob/in-hand/right/flashlights_n_lamps.dmi')
+	icon_state = "torch"
+	item_state = "torch"
+	force = 8
+	damtype = "fire"
+	hitsound = 'sound/items/cautery.ogg'
+	flags = FPRINT
+	brightness_on = 5
+	has_sound = 1
+	light_color = LIGHT_COLOR_FIRE
+	sound_on = 'sound/items/flare_on.ogg'
+	sound_off = 'sound/items/cautery.ogg'
 
 /obj/item/device/flashlight/pen
 	name = "penlight"
@@ -105,12 +152,18 @@
 	brightness_on = 2
 	has_sound = 0
 
+	health = 10
+
 /obj/item/device/flashlight/tactical
 	name = "tactical light"
 	desc = "A compact, tactical flashlight with automatic self-attaching screws. Fits on armor and headgear."
 	icon_state = "taclight"
 	item_state = ""
-	
+
+	health = 40
+	damage_armor = 15
+	damage_resist = 15
+
 /obj/item/device/flashlight/tactical/preattack(atom/target, mob/user, proximity_flag, click_parameters)
 	if(!proximity_flag)
 		return 0
@@ -129,8 +182,7 @@
 		return 1
 	else
 		to_chat(user, "<span class='notice'>\The [src] cannot be attached to that.</span>")
-	return ..()	
-
+	return ..()
 
 // the desk lamps are a bit special
 /obj/item/device/flashlight/lamp
@@ -143,10 +195,17 @@
 	flags = FPRINT
 	siemens_coefficient = 1
 	starting_materials = null
-	on = 1
+	on = 1	//Lamps start on but are turned off unless someone spawns in the same department as them at roundstart.
+	var/drawspower = TRUE
+	var/datum/power_connection/consumer/pwrconn //the on var means the lamp switch is turned on but the area also has to be powered for it to produce light
+
+/obj/item/device/flashlight/lamp/AltClick()
+	if(toggle_light())
+		return
+	return ..()
 
 /obj/item/device/flashlight/lamp/cultify()
-	new /obj/structure/cult_legacy/pylon(loc)
+	new /obj/structure/cult/pylon(loc)
 	qdel(src)
 
 // green-shaded desk lamp
@@ -156,14 +215,58 @@
 	item_state = "lampgreen"
 	brightness_on = 5
 
-
 /obj/item/device/flashlight/lamp/verb/toggle_light()
 	set name = "Toggle light"
 	set category = "Object"
 	set src in oview(1)
 
-	if(!usr.stat)
+	if(!Adjacent(usr))
+		return
+
+	if(usr.incapacitated()) //Checks for stuns, ghost, restraint, and being awake.
+		return
+
+	if(usr.has_hand_check())
 		attack_self(usr)
+		return TRUE
+
+/obj/item/device/flashlight/lamp/proc/toggle_onoff(var/onoff = null) //this is only called by gameticker.dm at roundstart, so we call update_brightness() with playsound = FALSE below.
+	if(on == onoff)
+		return
+	if(isnull(onoff))
+		on = !on
+	else
+		on = onoff
+	update_brightness(playsound = FALSE)
+
+//Lamps draw power from the area they're in, unlike flashlights.
+/obj/item/device/flashlight/lamp/New()
+	if(drawspower)
+		pwrconn = new(src)
+		pwrconn.channel = LIGHT
+		pwrconn.active_usage = 60 * brightness_on / 5 //power usage scales with brightness
+	update_brightness(playsound = FALSE)
+
+/obj/item/device/flashlight/lamp/update_brightness(var/mob/user = null, var/playsound = TRUE)
+	if(drawspower)
+		if(on)
+			processing_objects.Add(src)
+			pwrconn.use_power = MACHINE_POWER_USE_ACTIVE
+		else
+			processing_objects.Remove(src)
+			pwrconn.use_power = MACHINE_POWER_USE_NONE
+	process(playsound)
+
+/obj/item/device/flashlight/lamp/process(var/playsound = FALSE)
+	if(on && (!drawspower || pwrconn?.powered()))
+		icon_state = "[initial(icon_state)]-on"
+		set_light(brightness_on)
+	else
+		icon_state = initial(icon_state)
+		set_light(0)
+	if(playsound && has_sound)
+		if(get_turf(src))
+			playsound(src, on ? sound_on : sound_off, 50, 1)
 
 // FLARES
 
@@ -185,6 +288,8 @@
 	var/H_color = ""
 
 	light_color = LIGHT_COLOR_FLARE
+
+	breakable_flags = 0 //Not breakable for now.
 
 /obj/item/device/flashlight/flare/New()
 	fuel = rand(300, 500) // Sorry for changing this so much but I keep under-estimating how long X number of ticks last in seconds.
@@ -219,6 +324,9 @@
 		update_brightness(U)
 	else
 		update_brightness()
+
+/obj/item/device/flashlight/flare/flicker()
+	return
 
 /obj/item/device/flashlight/flare/attack_self(mob/user)
 
@@ -270,11 +378,21 @@
 	item_state = ""
 	origin_tech = Tc_BIOTECH + "=3"
 	light_color = LIGHT_COLOR_SLIME_LAMP
-	on = 0
 	luminosity = 2
 	has_sound = 0
+	autoignition_temperature = AUTOIGNITION_ORGANIC
 	var/brightness_max = 6
 	var/brightness_min = 2
+	on = 0
+	drawspower = FALSE //slime lamps don't draw power from the area apc
+
+	breakable_fragments = null
+	damaged_examine_text = "It is cracked."
+	take_hit_text = list("cracking", "chipping")
+	take_hit_text2 = list("cracks", "chips")
+	breaks_text = "shatters"
+	breaks_sound = 'sound/effects/Glassbr3.ogg'
+
 
 /obj/item/device/flashlight/lamp/slime/initialize()
 	..()

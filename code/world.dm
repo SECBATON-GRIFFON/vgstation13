@@ -18,7 +18,7 @@ var/savefile/panicfile
 var/datum/early_init/early_init_datum = new
 
 #if AUXTOOLS_DEBUGGER
-var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
+var/auxtools_path
 
 /proc/enable_debugging(mode, port) //Hooked by auxtools
 	CRASH("auxtools not loaded")
@@ -33,6 +33,7 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 /datum/early_init/New()
 	..()
 	#if AUXTOOLS_DEBUGGER
+	auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	if(fexists(auxtools_path))
 		call(auxtools_path, "auxtools_init")()
 		enable_debugging()
@@ -44,7 +45,7 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 
 /world/New()
 	world_startup_time = world.timeofday
-	// Honk honk, fuck you science
+
 	for(var/i=1, i<=map.zLevels.len, i++)
 		WORLD_X_OFFSET += rand(-50,50)
 		WORLD_Y_OFFSET += rand(-50,50)
@@ -74,8 +75,6 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
 
-	make_datum_references_lists()	//initialises global lists for referencing frequently used datums (so that we only ever do it once)
-
 	load_configuration()
 	SSdbcore.Initialize(world.timeofday) // Get a database running, first thing
 
@@ -84,18 +83,12 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	load_admins()
 	load_mods()
 	LoadBansjob()
-	if(config.usewhitelist)
-		load_whitelist()
-	if(config.usealienwhitelist)
-		load_alienwhitelist()
 	jobban_loadbanfile()
 	oocban_loadbanfile()
+	paxban_loadbanfile()
 	jobban_updatelegacybans()
 	appearance_loadbanfile()
 	LoadBans()
-	SetupHooks() // /vg/
-
-	library_catalog.initialize()
 
 	spawn() copy_logs() // Just copy the logs.
 	if(config && config.log_runtimes)
@@ -104,26 +97,10 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 		// dumb and hardcoded but I don't care~
 		config.server_name += " #[(world.port % 1000) / 100]"
 
-	Get_Holiday()	//~Carn, needs to be here when the station is named so :P
-
-	src.update_status()
-
-	initialize_rune_words()
-
-	initialize_beespecies()
-	generate_radio_frequencies()
-
-	data_core = new /obj/effect/datacore()
-	paiController = new /datum/paiController()
-
-	src.update_status()
-
 	send2mainirc("Server starting up on [config.server? "byond://[config.server]" : "byond://[world.address]:[world.port]"]")
 	send2maindiscord("**Server starting up** on `[config.server? "byond://[config.server]" : "byond://[world.address]:[world.port]"]`. Map is **[map.nameLong]**")
 
 	Master.Setup()
-
-	SortAreas()							//Build the list of all existing areas and sort it alphabetically
 
 	return ..()
 
@@ -149,7 +126,6 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 		s["mode"] = master_mode
 		s["respawn"] = config ? abandon_allowed : 0
 		s["enter"] = enter_allowed
-		s["vote"] = config.allow_vote_mode
 		s["ai"] = config.allow_ai
 		s["host"] = host ? host : null
 		s["players"] = list()
@@ -188,7 +164,6 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 
 
 /world/Reboot(reason)
-	testing("[time_stamp()] - World is rebooting. Reason: [reason]")
 	if(reason == REBOOT_HOST)
 		if(usr)
 			if (!check_rights(R_SERVER))
@@ -205,30 +180,17 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 		..()
 		return
 
-	if(config.map_voting)
-		//testing("we have done a map vote")
-		if(fexists(vote.chosen_map))
-			//testing("[vote.chosen_map] exists")
-			var/start = 1
-			var/pos = findtext(vote.chosen_map, "/", start)
-			var/lastpos = pos
-			//testing("First slash [lastpos]")
-			while(pos > 0)
-				lastpos = pos
-				pos = findtext(vote.chosen_map, "/", start)
-				start = pos + 1
-				//testing("Next slash [pos]")
-			var/filename = copytext(vote.chosen_map, lastpos + 1, 0)
-			//testing("Found [filename]")
-
-			if(!fcopy(vote.chosen_map, filename))
-				//testing("Fcopy failed, deleting and copying")
+	if(vote.winner && vote.map_paths)
+		//get filename
+		var/filename = "vgstation13.dmb"
+		var/map_path = "maps/voting/" + vote.map_paths[vote.winner] + "/" + filename
+		if(fexists(map_path))
+			//copy file to main folder
+			if(!fcopy(map_path, filename))
 				fdel(filename)
-				fcopy(vote.chosen_map, filename)
-			sleep(60)
+				fcopy(map_path, filename)
 
 	pre_shutdown()
-
 	..()
 
 /world/proc/pre_shutdown()
@@ -341,9 +303,6 @@ var/auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 		features += "closed"
 
 	features += abandon_allowed ? "respawn" : "no respawn"
-
-	if (config && config.allow_vote_mode)
-		features += "vote"
 
 	if (config && config.allow_ai)
 		features += "AI allowed"

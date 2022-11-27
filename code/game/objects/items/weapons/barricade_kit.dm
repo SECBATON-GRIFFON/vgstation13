@@ -10,6 +10,7 @@
 	throwforce = 3
 	throw_speed = 1
 	throw_range = 3
+	autoignition_temperature = AUTOIGNITION_WOOD
 	var/kit_uses = 3 //Three use of directional or blocking barricades, and one use for full-tile
 
 /obj/item/weapon/barricade_kit/examine(mob/user)
@@ -45,7 +46,7 @@
 			if(do_after(user, src, 30))
 				to_chat(user, "<span class='notice'>You finish the barricade.</span>")
 				var/obj/structure/window/barricade/BC = new /obj/structure/window/barricade(user.loc)
-				BC.dir = user.dir
+				BC.change_dir(user.dir)
 				kit_uses--
 				if(kit_uses < 1)
 					qdel(src)

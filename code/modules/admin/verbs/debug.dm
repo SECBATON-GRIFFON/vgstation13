@@ -649,7 +649,7 @@ Pressure: [env.pressure]"}
 		var/obj/machinery/power/battery/smes/infinite/magic = new(T)
 		// Manually set up our powernets since stupid seems to reign in the powernet code.
 		magic.connect_to_network()
-		magic.output=200000 // AKA rape
+		magic.outputlevel=200000 // AKA rape
 		magic.online=1
 
 //	to_chat(world, "<b>LET THERE BE JUICE</b>")
@@ -1267,31 +1267,28 @@ var/global/blood_virus_spreading_disabled = 0
 		object = copytext(object, 1, variables_start)
 
 
-	var/list/matches = get_matching_types(object, /datum) - typesof(/turf, /area, /datum/admins) //Exclude non-movable atoms
-
-	if(matches.len == 0)
-		to_chat(usr, "Unable to find any matches.")
+	//Exclude non-movable atoms
+	var/chosen = filter_list_input("Select a datum type", "Spawn Datum", get_matching_types(object, /datum) - typesof(/turf, /area, /datum/admins))
+	if(!chosen)
 		return
 
-	var/chosen
-	if(matches.len == 1)
-		chosen = matches[1]
-	else
-		chosen = input("Select a datum type", "Spawn Datum", matches[1]) as null|anything in matches
-		if(!chosen)
-			return
-
+	/*
 	var/list/lst = list()
 	var/argnum = input("Number of arguments","Number:",0) as num|null
 	if(!argnum && (argnum!=0))
 		return
 
-	lst.len = argnum // Expand to right length
-
 	for(var/i = 1 to argnum) // Lists indexed from 1 forwards in byond
-		lst[i] = variable_set(src)
+		var/data = variable_set(src)
+		lst += data
 
-	holder.marked_datum = new chosen(arglist(lst))
+	if (argnum > 0)
+		holder.marked_datum = new chosen(arglist(lst))
+	else
+		holder.marked_datum = new chosen
+	*/
+
+	holder.marked_datum = new chosen
 
 	to_chat(usr, "<span class='notify'>A reference to the new [chosen] has been stored in your marked datum. <a href='?_src_=vars;Vars=\ref[holder.marked_datum]'>Click here to access it</a></span>")
 	log_admin("[key_name(usr)] spawned the datum [chosen] to his marked datum.")
@@ -1322,11 +1319,7 @@ var/global/blood_virus_spreading_disabled = 0
 
 	var/turf/epicenter = get_turf(usr)
 	var/max_range = input("Set the max range") as num
-	var/inward = alert("Which way?","Spiral Block", "Inward","Outward")
-	if(inward == "Inward")
-		spiral_block(epicenter,max_range,1,1)
-	else
-		spiral_block(epicenter,max_range,0,1)
+	spiral_block(epicenter,max_range,1)
 
 /client/proc/check_striketeams()
 	set name = "Check StrikeTeams"

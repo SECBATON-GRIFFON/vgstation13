@@ -32,7 +32,6 @@
 
 /atom/movable/lighting_overlay/Destroy()
 	global.lighting_update_overlays     -= src
-	SSlighting.currentrun_overlays -= src
 
 	var/turf/T   = loc
 	if (istype(T))
@@ -100,7 +99,7 @@
 	return
 
 // Override here to prevent things accidentally moving around overlays.
-/atom/movable/lighting_overlay/forceMove(atom/destination, var/no_tp=FALSE, var/harderforce = FALSE, glide_size_override = 0)
+/atom/movable/lighting_overlay/forceMove(atom/destination, step_x = 0, step_y = 0, no_tp = FALSE, harderforce = FALSE, glide_size_override = 0)
 	if(harderforce)
 		. = ..()
 

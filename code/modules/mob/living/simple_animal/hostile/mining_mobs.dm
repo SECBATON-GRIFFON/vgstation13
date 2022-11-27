@@ -8,7 +8,7 @@
 	max_co2 = 0
 	min_n2 = 0
 	max_n2 = 0
-	unsuitable_atoms_damage = 15
+	unsuitable_atmos_damage = 15
 	faction = "mining"
 	environment_smash_flags = SMASH_LIGHT_STRUCTURES | SMASH_CONTAINERS | SMASH_WALLS
 	minbodytemp = 0
@@ -134,16 +134,42 @@
 		if(3.0)
 			adjustBruteLoss(110)
 
-/obj/item/asteroid/basilisk_hide
-	name = "basilisk crystals"
-	desc = "You shouldn't ever see this."
-	icon = 'icons/obj/mining.dmi'
-	icon_state = "Diamond ore"
-
-/obj/item/asteroid/basilisk_hide/New()
+/mob/living/simple_animal/hostile/asteroid/basilisk/death(var/gibbed = FALSE)
+	visible_message("<span class='danger'>\The [src] shatters before dying, leaving some diamond ore.</span>")
 	drop_stack(/obj/item/stack/ore/diamond, loc, 2)
-	..()
-	qdel(src)
+	..(gibbed)
+
+/obj/item/asteroid/basilisk_hide
+	name = "basilisk hide"
+	desc = "Diamond-studded hide."
+	icon = 'icons/obj/items.dmi'
+	icon_state = "basilisk_hide"
+
+/obj/item/asteroid/basilisk_hide/afterattack(atom/target, mob/user, proximity_flag)
+	if(!(proximity_flag && istype(target, /obj/item/clothing)))
+		return
+	var/obj/item/clothing/C = target
+	if(!(C.clothing_flags & BASILISK_REINFORCEABLE))
+		return
+
+	C.clothing_flags &= ~HIVELORD_REINFORCEABLE
+	C.clothing_flags &= ~GOLIATH_REINFORCEABLE
+
+	var/current_armor = C.armor
+	C.hidecount++
+	if(current_armor["laser"] < 30)
+		current_armor["laser"] = min(current_armor["laser"] + 5, 30)
+		to_chat(user, "<span class='info'>You strengthen [target], improving its dissipation of lasers.</span>")
+		qdel(src)
+	else
+		to_chat(user, "<span class='info'>You can't improve [C] any further.</span>")
+	if(has_icon(C.icon, "[initial(C.item_state)]_basilisk[C.hidecount]"))
+		C.name = "reinforced [initial(C.name)]"
+		C.item_state = "[initial(C.item_state)]_basilisk[C.hidecount]"
+		C.icon_state = "[initial(C.icon_state)]_basilisk[C.hidecount]"
+		C._color = "mining_basilisk[C.hidecount]"
+	if(user.is_wearing_item(C))
+		user.regenerate_icons()
 
 /mob/living/simple_animal/hostile/asteroid/goldgrub
 	name = "goldgrub"
@@ -286,16 +312,22 @@
 	minimum_distance = 3
 	pass_flags = PASSTABLE
 	hostile_interest = 15 //Very persistent
+	var/open_fire_type = /mob/living/simple_animal/hostile/asteroid/hivelordbrood
+	var/list/mob/living/simple_animal/hostile/broods = list()
+	var/brood_limit = 0
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/get_butchering_products()
 	return list(/datum/butchering_product/hivelord_core)
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/OpenFire(var/the_target)
-	var/mob/living/simple_animal/hostile/asteroid/hivelordbrood/A = new /mob/living/simple_animal/hostile/asteroid/hivelordbrood(src.loc)
-	A.GiveTarget(target)
-	A.friends = friends
-	A.faction = faction
-	return
+	if(!brood_limit || broods.len < brood_limit)
+		var/mob/living/simple_animal/hostile/A = new open_fire_type(src.loc)
+		if(istype(A))
+			A.GiveTarget(target)
+			A.friends = friends
+			A.faction = faction
+			A.hivelord = src
+			broods.Add(A)
 
 /mob/living/simple_animal/hostile/asteroid/hivelord/AttackingTarget()
 	OpenFire()
@@ -327,6 +359,29 @@
 		if(istype(core))
 			return core.amount
 	return 1
+
+/mob/living/simple_animal/hostile/asteroid/hivelord/boss
+	name = "Maria"
+	size = SIZE_HUGE
+	maxHealth = 300
+	health = 300
+	pixel_y = 16 * PIXEL_MULTIPLIER
+	status_flags = UNPACIFIABLE
+	move_to_delay = 30
+	harm_intent_damage = 10
+	hostile_interest = 5 //Less persistent
+	open_fire_type = /mob/living/simple_animal/hostile/asteroid/hivelord
+	brood_limit = 5
+
+/mob/living/simple_animal/hostile/asteroid/hivelord/boss/New()
+	..()
+	appearance_flags |= PIXEL_SCALE
+	var/matrix/M = matrix()
+	M.Scale(2,2)
+	transform = M
+
+/mob/living/simple_animal/hostile/asteroid/hivelord/boss/get_butchering_products()
+	return list(/datum/butchering_product/hivelord_core/heart)
 
 /obj/item/asteroid/hivelord_core
 	name = "hivelord remains"
@@ -373,6 +428,33 @@
 	else
 		return ..()
 
+/obj/item/asteroid/hivelord_core/afterattack(atom/target, mob/user, proximity_flag)
+	if(!(proximity_flag && istype(target, /obj/item/clothing)))
+		return
+	var/obj/item/clothing/C = target
+	if(!(C.clothing_flags & HIVELORD_REINFORCEABLE))
+		return
+
+	C.clothing_flags &= ~GOLIATH_REINFORCEABLE
+	C.clothing_flags &= ~BASILISK_REINFORCEABLE
+
+	var/current_armor = C.armor
+	C.hidecount++
+	if(current_armor["bio"] < 100 || current_armor["rad"] < 50)
+		current_armor["bio"] = min(current_armor["bio"] + 10, 100)
+		current_armor["rad"] = min(current_armor["rad"] + 10, 50)
+		to_chat(user, "<span class='info'>You strengthen [target], improving its resistance against biological and radiological attacks.</span>")
+		qdel(src)
+	else
+		to_chat(user, "<span class='info'>You can't improve [C] any further.</span>")
+	if(has_icon(C.icon, "[initial(C.item_state)]_hivelord[C.hidecount]"))
+		C.name = "reinforced [initial(C.name)]"
+		C.item_state = "[initial(C.item_state)]_hivelord[C.hidecount]"
+		C.icon_state = "[initial(C.icon_state)]_hivelord[C.hidecount]"
+		C._color = "mining_hivelord[C.hidecount]"
+	if(user.is_wearing_item(C))
+		user.regenerate_icons()
+
 /obj/item/asteroid/hivelord_core/attack_self(mob/user as mob)
 	if (iscarbon(user))
 		return consume(user, user)
@@ -413,6 +495,42 @@
 	user.drop_from_inventory(src)
 	qdel(src)
 	return TRUE
+
+/obj/item/organ/internal/heart/hivelord
+	name = "hivelord heart"
+	desc = "All that remains of a greater hivelord, works as a drop-in replacement for any species heart, granting protection from bone damage or internal bleeding, as well as boosting any healing processes. Try not to think about what's beating inside you."
+	icon = 'icons/obj/food.dmi'
+	icon_state = "boiledrorocore"
+	organ_tag = "heart"
+	prosthetic_name = null
+	prosthetic_icon = null
+	dead_icon = null
+	fresh = 6 // Juicy.
+	organ_type = /datum/organ/internal/heart/hivelord
+
+/obj/item/organ/internal/heart/hivelord/die()
+	..()
+	desc = "The remains of a greater hivelord that have become useless, having been left alone too long after being out of a body."
+
+/obj/item/organ/internal/heart/hivelord/revive()
+	..()
+	desc = initial(desc)
+
+/datum/organ/internal/heart/hivelord
+	name = "hivelord heart"
+	removed_type = /obj/item/organ/internal/heart/hivelord
+	min_bruised_damage = 15
+	min_broken_damage = 30
+
+/datum/organ/internal/heart/hivelord/Life()
+	for(var/datum/organ/external/E in owner.organs)
+		if(prob(10))
+			E.status &= ~ORGAN_BROKEN
+			E.status &= ~ORGAN_SPLINTED
+		for(var/datum/wound/W in E.wounds)
+			if(W.internal && prob(10))
+				E.wounds -= W
+				E.update_damages()
 
 /mob/living/simple_animal/hostile/asteroid/hivelordbrood
 	name = "hivelord brood"
@@ -548,24 +666,30 @@
 	w_class = W_CLASS_MEDIUM
 
 /obj/item/asteroid/goliath_hide/afterattack(atom/target, mob/user, proximity_flag)
-	if(proximity_flag && istype(target, /obj/item/clothing))
-		var/obj/item/clothing/C = target
-		var/current_armor = C.armor
-		if(C.clothing_flags & GOLIATHREINFORCE)
-			C.hidecount ++
-			if(current_armor["melee"] < 90)
-				current_armor["melee"] = min(current_armor["melee"] + 10, 90)
-				to_chat(user, "<span class='info'>You strengthen [target], improving its resistance against melee attacks.</span>")
-				qdel(src)
-			else
-				to_chat(user, "<span class='info'>You can't improve [C] any further.</span>")
-		if(has_icon(C.icon, "[initial(C.item_state)]_goliath[C.hidecount]"))
-			C.name = "reinforced [initial(C.name)]"
-			C.item_state = "[initial(C.item_state)]_goliath[C.hidecount]"
-			C.icon_state = "[initial(C.icon_state)]_goliath[C.hidecount]"
-			C._color = "mining_goliath[C.hidecount]"
-		if(user.is_wearing_item(C))
-			user.regenerate_icons()
+	if(!(proximity_flag && istype(target, /obj/item/clothing)))
+		return
+	var/obj/item/clothing/C = target
+	if(!(C.clothing_flags & GOLIATH_REINFORCEABLE))
+		return
+
+	C.clothing_flags &= ~HIVELORD_REINFORCEABLE
+	C.clothing_flags &= ~BASILISK_REINFORCEABLE
+
+	var/current_armor = C.armor
+	C.hidecount++
+	if(current_armor["melee"] < 90)
+		current_armor["melee"] = min(current_armor["melee"] + 10, 90)
+		to_chat(user, "<span class='info'>You strengthen [target], improving its resistance against melee attacks.</span>")
+		qdel(src)
+	else
+		to_chat(user, "<span class='info'>You can't improve [C] any further.</span>")
+	if(has_icon(C.icon, "[initial(C.item_state)]_goliath[C.hidecount]"))
+		C.name = "reinforced [initial(C.name)]"
+		C.item_state = "[initial(C.item_state)]_goliath[C.hidecount]"
+		C.icon_state = "[initial(C.icon_state)]_goliath[C.hidecount]"
+		C._color = "mining_goliath[C.hidecount]"
+	if(user.is_wearing_item(C))
+		user.regenerate_icons()
 
 /mob/living/simple_animal/hostile/asteroid/goliath/david
 	name = "david"
@@ -768,7 +892,7 @@
 			if(Adjacent(M))
 				//Climb in
 				visible_message("<span class = 'warning'>\The [src] burrows itself into \the [M]!</span>")
-				M.rockernaut = istype(src, /mob/living/simple_animal/hostile/asteroid/rockernaut/boss) ? TURF_CONTAINS_BOSS_ROCKERNAUT : TURF_CONTAINS_REGULAR_ROCKERNAUT
+				M.rockernaut = istype(src, /mob/living/simple_animal/hostile/asteroid/rockernaut/boss) ? TURF_CONTAINS_BOSS : TURF_CONTAINS_ROCKERNAUT
 				qdel(src)
 				return
 			else

@@ -51,8 +51,8 @@ var/list/uplink_items = list()
 	var/refund_path = null // Alternative path for refunds, in case the item purchased isn't what is actually refunded (Bombs and such).
 	var/refund_amount // specified refund amount in case there needs to be a TC penalty for refunds.
 
-/datum/uplink_item/proc/get_cost(var/user_job, var/cost_modifier = 1)
-	if(gives_discount(user_job))
+/datum/uplink_item/proc/get_cost(var/user_job, var/user_species, var/cost_modifier = 1)
+	if(gives_discount(user_job) || gives_discount(user_species))
 		. = discounted_cost
 	else
 		. = cost
@@ -73,13 +73,13 @@ var/list/uplink_items = list()
 	return new new_item(location)
 
 /datum/uplink_item/proc/spawn_item(var/turf/loc, datum/component/uplink/U, mob/user)
-	if(!available_for_job(U.job))
-		message_admins("[key_name(user)] tried to purchase \the [src.name] from their uplink despite not being available to their job! (Job: [U.job]) ([formatJumpTo(get_turf(U))])")
+	if(!available_for_job(U.job) && !available_for_job(U.species))
+		message_admins("[key_name(user)] tried to purchase \the [src.name] from their uplink despite not being available to them! (Job: [U.job]) (Species: [U.species]) ([formatJumpTo(get_turf(U))])")
 		return
 	if(U.nuke_ops_inventory && !available_for_nuke_ops)
 		message_admins("[key_name(user)] tried to purchase \the [src.name] from their uplink despite being a nuclear operative")
 		return
-	U.telecrystals -= max(get_cost(U.job), 0)
+	U.telecrystals -= max(get_cost(U.job, U.species), 0)
 	feedback_add_details("traitor_uplink_items_bought", name)
 	return new_uplink_item(item, loc, user)
 
@@ -101,7 +101,7 @@ var/list/uplink_items = list()
 	var/obj/item/holder = U.parent
 	if ((holder in user.contents || (in_range(holder, user) && istype(holder.loc, /turf))))
 		user.set_machine(U)
-		if(get_cost(U.job) > U.telecrystals)
+		if(get_cost(U.job, U.species) > U.telecrystals)
 			return 0
 
 		var/O = spawn_item(get_turf(user), U, user)
@@ -132,24 +132,24 @@ var/list/uplink_items = list()
 			if(istype(I, /obj/item))
 				A.put_in_any_hand_if_possible(I)
 
-			U.purchase_log += {"[user] ([user.ckey]) bought <img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [name] for [UI ? UI.get_cost(U.job, 0.5) : get_cost(U.job)]."}
+			U.purchase_log += {"[user] ([user.ckey]) bought <img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [name] for [UI ? UI.get_cost(U.job, U.species, 0.5) : get_cost(U.job, U.species)]."}
 			stat_collection.uplink_purchase(src, I, user)
 			times_bought += 1
 
 			if(user.mind)
-				user.mind.spent_TC += get_cost(U.job)
+				user.mind.spent_TC += get_cost(U.job, U.species)
 				//First, try to add the uplink buys to any operative teams they're on. If none, add to a traitor role they have.
 				var/datum/role/R = user.mind.GetRole(NUKE_OP)
 				if(R)
-					R.faction.faction_scoreboard_data += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, 0.5) : get_cost(U.job)] TC<BR>"}
+					R.faction.faction_scoreboard_data += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, U.species, 0.5) : get_cost(U.job, U.species)] TC<BR>"}
 				else
 					R = user.mind.GetRole(TRAITOR)
 					if(R)
-						R.uplink_items_bought += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, 0.5) : get_cost(U.job)] TC<BR>"}
+						R.uplink_items_bought += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, U.species, 0.5) : get_cost(U.job, U.species)] TC<BR>"}
 					else
 						R = user.mind.GetRole(CHALLENGER)
 						if(R)
-							R.uplink_items_bought += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, 0.5) : get_cost(U.job)] TC<BR>"}
+							R.uplink_items_bought += {"<img class='icon' src='data:image/png;base64,[iconsouth2base64(tempimage)]'> [bundlename] for [UI ? UI.get_cost(U.job, U.species, 0.5) : get_cost(U.job, U.species)] TC<BR>"}
 		return 1
 	return 0
 
@@ -300,6 +300,12 @@ var/list/uplink_items = list()
 	item = /obj/item/weapon/cartridge/syndicate
 	cost = 6
 
+/datum/uplink_item/stealthy_weapons/framecart
+	name = "F.R.A.M.E PDA Cartridge"
+	desc = "When inserted into a PDA, gives you four charges allowing you to create a fake uplink on PDAs of crewmembers who have messaging enabled. The fake uplinks will use the same unlock code as your uplink if applicable, or else generate a new one. TC can also be inserted into the cartridge to send to the PDA"
+	item = /obj/item/weapon/cartridge/syndifake
+	cost = 6
+
 /datum/uplink_item/stealthy_weapons/knuckles
 	name = "Spiked Knuckles"
 	desc = "A pair of spiked metal knuckles that can be worn directly on your hands in place of gloves, dramatically increasing damage done by your punches without giving any obvious signs to observers unless they inspect you more closely."
@@ -440,7 +446,7 @@ var/list/uplink_items = list()
 /datum/uplink_item/device_tools/camerabugs
 	name = "Camera Bugs"
 	desc = "A cigarette pack containing five camera bugs hidden within. Requires a mobile TV receiver to use, intended to recharge the above bundle for extra surveillance coverage."
-	item = /obj/item/weapon/storage/box/surveillance
+	item = /obj/item/device/radio/phone/surveillance
 	cost = 4
 
 /datum/uplink_item/device_tools/binary
@@ -524,6 +530,49 @@ var/list/uplink_items = list()
 	discounted_cost = 0
 	jobs_with_discount = SCIENCE_POSITIONS
 
+/datum/uplink_item/device_tools/radio_jammer
+	name = "Radio Jammer"
+	desc = "A device that disrupts all radio communication in nearby area. Guaranteed radio silence at point blank range, but effectiveness decreases with range. Requires a power cell for operation. Batteries and screwdriver not included."
+	item = /obj/item/device/radio_jammer
+	cost = 8
+
+// EXTRATERRESTRIAL BLACK MARKET
+// Weapons and gadgets from a spacefaring alien power that the Syndicate has acquired through unknown means (Only one item for now, more to come soon)
+
+/datum/uplink_item/ayylmao
+	category = "Extraterrestrial Black Market"
+
+/datum/uplink_item/ayylmao/hdisintegrator
+	name = "Heavy Disintegrator"
+	desc = "A powerful military issue alien laser weapon. It has a primary firing mode capable of incapacitating most unarmored targets in three shots, and a secondary mode capable of instantaneously inducing nausea and vomiting."
+	item = /obj/item/weapon/gun/energy/heavydisintegrator
+	cost = 16
+	discounted_cost = 12
+	jobs_with_discount = list("Grey")
+
+/datum/uplink_item/ayylmao/harmor
+	name = "MDF Heavy Armor"
+	desc = "A set of cumbersome but sturdy alien armor that excels at protecting the wearer from energy weapons and melee attacks. The armor plates were measured for a grey, but can be adjusted to fit a human as well. Not guaranteed to fit any other species. A soldier's uniform and boots are included with the kit."
+	item = /obj/item/weapon/storage/box/syndie_kit/ayylmao_harmor
+	cost = 4
+	discounted_cost = 3
+	jobs_with_discount = list("Grey")
+
+/datum/uplink_item/ayylmao/mdfbelt
+	name = "MDF Gear Belt"
+	desc = "A mothership soldier's belt. Loaded with an ion pistol, first aid supplies, binoculars, and an extended oxygen supply tank for operating in breached areas. Keep away from water."
+	item = /obj/item/weapon/storage/belt/mothership/partial_gear
+	cost = 5
+	discounted_cost = 4
+	jobs_with_discount = list("Grey")
+
+/datum/uplink_item/ayylmao/sdrone_grenade
+	name = "Saucer Drone Grenade"
+	desc = "A single grenade containing a payload of four mothership saucer drones. The drones are fragile, but equipped with a small cannon capable of firing scorch bolts. The drones will attack all unidentified lifeforms in the area except the grenade operator."
+	item = /obj/item/weapon/grenade/spawnergrenade/mothershipdrone
+	cost = 6
+	discounted_cost = 4
+	jobs_with_discount = list("Grey")
 
 // IMPLANTS
 // Any Syndicate item that gets implanted into the body goes here
@@ -612,22 +661,22 @@ var/list/uplink_items = list()
 		for(var/datum/uplink_item/I in buyable_items[category])
 			if(I == src)
 				continue
-			if(!I.available_for_job(U.job))
+			if(!I.available_for_job(U.job) && !I.available_for_job(U.species))
 				continue
 			if(!I.available_for_nuke_ops && U.nuke_ops_inventory)
 				continue
-			if(I.get_cost(U.job, 0.5) > U.telecrystals)
+			if(I.get_cost(U.job, U.species, 0.5) > U.telecrystals)
 				continue
 			possible_items += I
 
 	if(possible_items.len)
 		var/datum/uplink_item/I = pick(possible_items)
-		U.telecrystals -= max(0, I.get_cost(U.job, 0.5))
+		U.telecrystals -= max(0, I.get_cost(U.job, U.species, 0.5))
 		feedback_add_details("traitor_uplink_items_bought","RN")
 		return I
 
 /datum/uplink_item/jobspecific/command_security
-	category = "Command and Security Specials"
+	category = "Security Specials"
 
 /datum/uplink_item/jobspecific/command_security/syndicuffs
 	name = "Syndicate Cuffs"
@@ -664,7 +713,7 @@ var/list/uplink_items = list()
 /datum/uplink_item/jobspecific/command_security/remoteexplosive
 	name = "Remote Explosive Implants"
 	desc = "A box containing 5 implants disguised as chemical implants usable after being injected into one's body. When activated with from a prisoner management console, it will cause a small yet breaching explosion from the implant that will gib the user and easily space a room."
-	item = /obj/item/weapon/storage/box/remeximp
+	item = /obj/item/weapon/storage/box/chemimp/remeximp
 	cost = 18
 	discounted_cost = 12
 	jobs_with_discount = list("Warden", "Head of Security")
@@ -684,27 +733,6 @@ var/list/uplink_items = list()
 	cost = 12
 	discounted_cost = 10
 	jobs_with_discount = list("Detective")
-
-/datum/uplink_item/jobspecific/command_security/briefcase_smg
-	name = "Briefcase SMG"
-	desc = "A modified briefcase capable of storing and firing a gun under a false bottom, while still allowing regular storage functions. Starts with a 9mm SMG loaded with 18 rounds that can be fired by holding the briefcase. Use a screwdriver to pry away the false bottom and either retrieve the gun or insert a new one. Distinguishable upon close examination due to the added weight."
-	item = /obj/item/weapon/storage/briefcase/false_bottomed/smg
-	cost = 14
-	discounted_cost = 10
-	jobs_with_discount = list("Internal Affairs Agent")
-
-/datum/uplink_item/jobspecific/command_security/briefcase_smg/on_item_spawned(var/obj/I, var/mob/user)
-	if(gives_discount(user.job))
-		I.icon_state = "briefcase-centcomm"
-	return
-
-/datum/uplink_item/jobspecific/command_security/knifeboot
-	name = "Concealed knife shoes"
-	desc = "Lace-up shoes with a knife concealed in the toecap. Tap your heels together to reveal the small knife. Remember to kick the target to stab them. Knife will be visible when pulled out, but kicking with the knife will not be directly obvious to observers."
-	item = /obj/item/clothing/shoes/knifeboot
-	cost = 4
-	discounted_cost = 2
-	jobs_with_discount = list("Internal Affairs Agent")
 
 /datum/uplink_item/jobspecific/medical
 	category = "Medical Specials"
@@ -731,7 +759,7 @@ var/list/uplink_items = list()
 	item = /obj/item/weapon/organ_remover/traitor
 	cost = 8
 	discounted_cost = 6
-	jobs_with_discount = list("Medical Doctor", "Chief Medical Officer")
+	jobs_with_discount = list("Medical Doctor", "Chief Medical Officer", "Trader", "Vox")
 
 /datum/uplink_item/jobspecific/medical/chemsprayer
 	name = "Chemical Sprayer"
@@ -743,7 +771,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/jobspecific/medical/antisocial
 	name = "Explosive Hug Chemical"
-	desc = "30 units of Bicarodyne, a special chemical that causes a devastating explosion when exposed to endorphins released in the body by a hug. Metabolizes quite slowly."
+	desc = "30 units of Bicarodyne, a special chemical that causes a devastating explosion when exposed to endorphins released in the body by a hug. Metabolizes quite slowly. Converts Bicaridine into more of this substance."
 	item = /obj/item/weapon/storage/box/syndie_kit/explosive_hug //Had to be put in a box because it didn't play well with reagent creation
 	cost = 9
 	discounted_cost = 8
@@ -751,7 +779,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/jobspecific/medical/hypozinebottle
 	name = "Lethal Speed Chemical"
-	desc = "30 units of Hypozine, a special chemical that causes the body to seamlessly synthesize Hyperzine, but also causes increases in muscle activity to levels that rapidly tear the user's body apart, causing catastrophic ligament failure. Metabolizes quite slowly."
+	desc = "30 units of Hypozine, a special chemical that causes the body to seamlessly synthesize Hyperzine, but also causes increases in muscle activity to levels that rapidly tear the user's body apart, causing catastrophic ligament failure. Metabolizes quite slowly. Converts Hyperzine into more of this substance."
 	item = /obj/item/weapon/storage/box/syndie_kit/lethal_hyperzine
 	cost = 5
 	discounted_cost = 4
@@ -811,9 +839,9 @@ var/list/uplink_items = list()
 /datum/uplink_item/jobspecific/engineering/powercreeper_packet
 	name = "Powercreep Packet"
 	desc = "A packet that creates a dangerous mutated version of kudzu vines. The vines will repeatedly shock people and connect themselves to any cables near them, rapidly growing and spreading out of control if left unchecked."
-	item = /obj/item/powercreeper_packet
-	cost = 16
-	discounted_cost = 10
+	item = /obj/item/deployable_packet/powercreeper
+	cost = 10
+	discounted_cost = 5
 	jobs_with_discount = list("Botanist", "Station Engineer", "Chief Engineer")
 
 /datum/uplink_item/jobspecific/engineering/syndietape_engineering
@@ -855,6 +883,15 @@ var/list/uplink_items = list()
 	cost = 9
 	discounted_cost = 6
 	jobs_with_discount = list("Mechanic")
+
+// A telecomms technician traitor item
+/datum/uplink_item/jobspecific/engineering/vocal
+	name = "Vocal Implant"
+	desc = "An implant usable after being injected into one's body. Settings can be input to modify speech patterns in the affected's voice once implanted."
+	item = /obj/item/weapon/storage/box/syndie_kit/imp_vocal
+	cost = 8
+	discounted_cost = 6
+	jobs_with_discount = list("Mechanic", "Chief Engineer")
 
 /datum/uplink_item/jobspecific/cargo
 	category = "Cargo and Mining Specials"
@@ -1062,6 +1099,14 @@ var/list/uplink_items = list()
 	jobs_with_discount = list("Clown")
 	jobs_excluded = list("Mime")
 
+/datum/uplink_item/jobspecific/clown_mime/piebomb
+	name = "Pie Bomb"
+	desc = "These aren't homemade, they were made in a factory. A bomb factory. They're bombs."
+	item = /obj/item/weapon/reagent_containers/food/snacks/explosive_pie
+	cost = 4
+	discounted_cost = 2
+	jobs_with_discount = list("Clown", "Mime")
+
 /datum/uplink_item/jobspecific/assistant
 	category = "Assistant Specials"
 
@@ -1097,6 +1142,14 @@ var/list/uplink_items = list()
 	discounted_cost = 4
 	jobs_with_discount = list("Assistant")
 
+/datum/uplink_item/jobspecific/assistant/biomasspacket
+	name = "Biomass Packet"
+	desc = "A packet containing cryo-stabilized biomass tissue. Shake and throw for your very own interdimensional space barf."
+	item = /obj/item/deployable_packet/biomass
+	cost = 8
+	discounted_cost = 5
+	jobs_with_discount = list("Assistant", "Janitor") //There originally was a discount for mechanics too due to them being Assistant+, but it felt like a cheap joke
+
 /datum/uplink_item/jobspecific/command
 	category = "Command Specials"
 
@@ -1108,6 +1161,34 @@ var/list/uplink_items = list()
 	discounted_cost = 8
 	jobs_with_discount = list("Captain", "Head of Personnel")
 
+/datum/uplink_item/jobspecific/command/lawgivermk2
+	name = "Lawgiver Demolition Kit"
+	desc = "A container that comes with a Lawgiver modification kit, converting it into a Demolition variant Lawgiver. Also comes with two spare demolition magazines."
+	item = /obj/item/weapon/storage/box/demolition
+	cost = 12
+	jobs_exclusive = list("Head of Security")
+
+/datum/uplink_item/jobspecific/command/briefcase_smg
+	name = "Briefcase SMG"
+	desc = "A modified briefcase capable of storing and firing a gun under a false bottom, while still allowing regular storage functions. Starts with a 9mm SMG loaded with 18 rounds that can be fired by holding the briefcase. Use a screwdriver to pry away the false bottom and either retrieve the gun or insert a new one. Distinguishable upon close examination due to the added weight."
+	item = /obj/item/weapon/storage/briefcase/false_bottomed/smg
+	cost = 14
+	discounted_cost = 10
+	jobs_with_discount = list("Internal Affairs Agent")
+
+/datum/uplink_item/jobspecific/command/briefcase_smg/on_item_spawned(var/obj/I, var/mob/user)
+	if(gives_discount(user.job) || gives_discount(user.dna.species))
+		I.icon_state = "briefcase-centcomm"
+	return
+
+/datum/uplink_item/jobspecific/command/knifeboot
+	name = "Concealed knife shoes"
+	desc = "Lace-up shoes with a knife concealed in the toecap. Tap your heels together to reveal the small knife. Remember to kick the target to stab them. Knife will be visible when pulled out, but kicking with the knife will not be directly obvious to observers."
+	item = /obj/item/clothing/shoes/knifeboot
+	cost = 4
+	discounted_cost = 2
+	jobs_with_discount = list("Internal Affairs Agent")
+
 /datum/uplink_item/jobspecific/trader
 	category = "Trader Specials"
 
@@ -1115,22 +1196,36 @@ var/list/uplink_items = list()
 	name = "Chemical Dart Gun"
 	desc = "A staple in vox weaponry. This dart gun starts loaded with darts containing sleep toxin and chloral hydrate. The beaker inside can be swapped out to create your own deadly mixes."
 	item = /obj/item/weapon/gun/dartgun/vox/raider
-	cost = 16
-	jobs_exclusive = list("Trader")
+	cost = 20
+	discounted_cost = 16
+	jobs_exclusive = list("Trader","Vox","Skeletal Vox")
+	jobs_with_discount = list("Trader")
 
 /datum/uplink_item/jobspecific/trader/dart_cartridge
 	name = "Dart Cartridge"
 	desc = "A spare cartridge to refill your dart gun."
 	item = /obj/item/weapon/dart_cartridge
-	cost = 2
-	jobs_exclusive = list("Trader")
+	cost = 6
+	discounted_cost = 2
+	jobs_exclusive = list("Trader","Vox","Skeletal Vox")
+	jobs_with_discount = list("Trader")
 
 /datum/uplink_item/jobspecific/trader/cratesender
 	name = "Modified Crate Sender"
 	desc = "A modified salvage crate sender that has been modified to bypass the security protocols, allowing it to teleport crates from onboard the station and allowing it to teleport crates to random destinations. Comes with a cargo telepad you can send your stolen goods to."
 	item = /obj/item/weapon/storage/box/syndie_kit/cratesender
+	cost = 10
+	discounted_cost = 6
+	jobs_exclusive = list("Trader","Vox","Skeletal Vox")
+	jobs_with_discount = list("Trader","Cargo Technician","Quartermaster")
+
+/datum/uplink_item/jobspecific/cannedmatter
+	category = "Skrell Specials"
+	name = "Canned Compressed Matter"
+	desc = "For once, the syndicate has it. When an item is pressed onto the closed can, it can be stored inside regardless of its size, to be released again on the can opening. Does not allow items to be stored anymore once opened."
+	item = /obj/item/weapon/reagent_containers/food/drinks/soda_cans/canned_matter
 	cost = 6
-	jobs_exclusive = list("Trader")
+	jobs_exclusive = list("Skrell")
 
 // SYNDICATE COOP
 // Any high cost items that are intended to only be purchasable when three syndies come together to change the narrative.

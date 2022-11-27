@@ -57,6 +57,7 @@
 
 	var/opened = FALSE
 	var/emagged = FALSE
+	var/pulsecompromised = FALSE //Used for pulsedemons
 	var/illegal_weapons = FALSE
 	var/wiresexposed = FALSE
 	var/locked = TRUE
@@ -387,14 +388,15 @@
 /mob/living/silicon/robot/show_malf_ai()
 	..()
 	if(connected_ai && connected_ai.mind)
-		var/datum/faction/malf/malf = find_active_faction_by_member(connected_ai.mind.GetRole(MALF))
+		var/datum/role/malfAI/malfrole = connected_ai.mind.GetRole(MALF)
+		var/datum/faction/malf/malf = find_active_faction_by_member(malfrole)
 		if(!malf)
 			malf = find_active_faction_by_type(/datum/faction/malf) //Let's see if there is anything to print at least
 			var/malf_stat = malf.get_statpanel_addition()
 			if(malf_stat && malf_stat != null)
 				stat(null, malf_stat)
-		if(malf.apcs >= 3)
-			stat(null, "Time until station control secured: [max(malf.AI_win_timeleft/(malf.apcs/3), 0)] seconds")
+		if(malfrole.apcs.len >= 3)
+			stat(null, "Time until station control secured: [max(malf.AI_win_timeleft/(malfrole.apcs.len/3), 0)] seconds")
 	return FALSE
 
 // this function displays jetpack pressure in the stat panel
@@ -463,23 +465,25 @@
 
 	flash_eyes(visual = TRUE, affect_silicon = TRUE)
 
-	switch(severity)
-		if(1.0)
-			if(!isDead())
+	if(!isDead())
+		var/dmg_phrase = ""
+		var/msg_admin = (src.key || src.ckey || (src.mind && src.mind.key)) && whodunnit
+		switch(severity)
+			if(1.0)
 				adjustBruteLoss(100)
 				adjustFireLoss(100)
-				add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Damage: 200", admin_warn = TRUE)
+				add_attacklogs(src, whodunnit, "got caught in an explosive blast[whodunnit ? " from" : ""]", addition = "Severity: [severity], Gibbed", admin_warn = msg_admin)
 				gib()
 				return
-		if(2.0)
-			if(!isDead())
+			if(2.0)
 				adjustBruteLoss(60)
 				adjustFireLoss(60)
-				add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Damage: 120", admin_warn = TRUE)
-		if(3.0)
-			if(!isDead())
+				dmg_phrase = "Damage: 120"
+			if(3.0)
 				adjustBruteLoss(30)
-				add_attacklogs(src, whodunnit, "got caught in an explosive blast from", addition = "Severity: [severity], Damage: 30", admin_warn = TRUE)
+				dmg_phrase = "Damage: 30"
+
+		add_attacklogs(src, whodunnit, "got caught in an explosive blast[whodunnit ? " from" : ""]", addition = "Severity: [severity], [dmg_phrase]", admin_warn = msg_admin)
 
 	updatehealth()
 
@@ -530,6 +534,8 @@
 /mob/living/silicon/robot/cancelAlarm(var/class, area/A as area, obj/origin)
 	var/list/L = alarms[class]
 	var/cleared = FALSE
+	if(!A)
+		return FALSE
 	for (var/I in L)
 		if(I == A.name)
 			var/list/alarm = L[I]
@@ -726,6 +732,7 @@
 		var/datum/robot_component/C = components["power cell"]
 		if(wiresexposed)
 			to_chat(user, "Close the panel first.")
+			return
 		else if(cell)
 			to_chat(user, "You swap the power cell within with the new cell in your hand.")
 			var/obj/item/weapon/cell/oldpowercell = cell
@@ -757,6 +764,15 @@
 			C.install()
 			if(can_diagnose())
 				to_chat(src, "<span class='info' style=\"font-family:Courier\">New power source installed. Type: [cell.name]. Charge: [cell.charge] out of [cell.maxcharge].</span>")
+		if(cell.occupant)
+			to_chat(cell.occupant,"<span class='notice'>You are now inside \the [src], in control of its targeting.</span>")
+			pulsecompromised = 1
+			cell.occupant.loc = src
+			cell.occupant.current_robot = src
+			cell.occupant = null
+			to_chat(src, "<span class='danger'>ERRORERRORERROR</span>")
+			spawn(2 SECONDS)
+				to_chat(src, "<span class='danger'>ALERT: ELECTRICAL MALEVOLENCE DETECTED, TARGETING SYSTEMS HIJACKED, REPORT ALL UNWANTED ACTIVITY IN VERBAL FORM</span>")
 		updateicon()
 
 	else if(iswiretool(W))
@@ -1186,7 +1202,7 @@
 		to_chat(src, "<span style=\"font-family:Courier\">\[<span class='danger'>ALERT</span>\]Termination signal detected. Scrambling security and identification codes.</span>")
 		UnlinkSelf()
 		return FALSE
-	to_chat(src, "<span style=\"font-family:Courier\">\[<span class='danger'>ALERT</span>\]Self-Destruct signal recieved.</span>")
+	to_chat(src, "<span style=\"font-family:Courier\">\[<span class='danger'>ALERT</span>\]Self-Destruct signal received.</span>")
 	gib()
 	return TRUE
 
@@ -1258,7 +1274,7 @@
 		return FALSE
 	lockdown = state
 	if(lockdown)
-		to_chat(src, "<span style=\"font-family:Courier\"><b>\[<span class='danger'>ALERT</span>\] Lockdown signal recieved. Halting all activity.</b></span>")
+		to_chat(src, "<span style=\"font-family:Courier\"><b>\[<span class='danger'>ALERT</span>\] Lockdown signal received. Halting all activity.</b></span>")
 		src << 'sound/machines/twobeep.ogg'
 	else
 		to_chat(src, "<span style=\"font-family:Courier\"><b>\[<span class='notice'>INFO</span>\] Your lockdown has been lifted.</b></span>")

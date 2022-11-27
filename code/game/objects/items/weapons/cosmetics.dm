@@ -7,6 +7,7 @@
 	w_class = W_CLASS_TINY
 	var/colour = "red"
 	var/open = 0
+	autoignition_temperature = AUTOIGNITION_ORGANIC
 
 
 /obj/item/weapon/lipstick/purple
@@ -264,14 +265,35 @@
 /obj/item/weapon/hair_dye/proc/color_hair(mob/living/carbon/human/H, var/facial = 0)
 	if(!H)
 		return
-	if(facial)
-		H.my_appearance.r_facial = color_r
-		H.my_appearance.g_facial = color_g
-		H.my_appearance.b_facial = color_b
+	if(isvox(H))
+		var/list/voxhaircolorlist = list()
+		voxhaircolorlist["green"] = list(87, 123, 119)
+		voxhaircolorlist["brown"] = list(162,107,56)
+		voxhaircolorlist["grey"] = list(192, 192, 192)
+		voxhaircolorlist["lightgreen"] = list(132, 138, 64)
+		voxhaircolorlist["azure"] = list(112, 126, 93)
+		voxhaircolorlist["emerald"] = list(65, 136, 98)
+		voxhaircolorlist["greenbrown"] = list(147, 126, 61)
+
+		var/list/closest = ARBITRARILY_LARGE_NUMBER
+		var/voxcolor = 0
+		for(var/rgbcolorset in voxhaircolorlist)
+			var/rgb = voxhaircolorlist[rgbcolorset]
+			var/diff = (max(color_r,rgb[1]) - min(color_r,rgb[1])) + (max(color_r,rgb[2]) - min(color_r,rgb[2])) + (max(color_r,rgb[3]) - min(color_r,rgb[3]))
+			if(diff < closest)
+				closest = diff
+				var/haircolor = get_key_by_element(voxhaircolorlist, rgb)
+				voxcolor = voxhaircolorlist.Find(haircolor)
+		H.my_appearance.r_hair = voxcolor
 	else
-		H.my_appearance.r_hair = color_r
-		H.my_appearance.g_hair = color_g
-		H.my_appearance.b_hair = color_b
+		if(facial)
+			H.my_appearance.r_facial = color_r
+			H.my_appearance.g_facial = color_g
+			H.my_appearance.b_facial = color_b
+		else
+			H.my_appearance.r_hair = color_r
+			H.my_appearance.g_hair = color_g
+			H.my_appearance.b_hair = color_b
 	H.update_hair()
 	if(H.species.anatomy_flags & RGBSKINTONE)
 		H.update_body()
@@ -337,6 +359,16 @@
 	var/static/list/prohibited_objects = list( //For fun removal
 		)
 
+/obj/item/weapon/invisible_spray/examine(var/mob/user)
+	..()
+	if(loc != user)
+		return
+	if(sprays_left)
+		to_chat(user, "<span class='notice'>The can still has some spray left!</span>")
+	else
+		to_chat(user, "<span class='notice'>The can feels empty.</span>")
+
+
 /obj/item/weapon/invisible_spray/preattack(atom/movable/target, mob/user, proximity_flag, click_parameters)
 	if (!proximity_flag)
 		return 0
@@ -350,50 +382,29 @@
 		return
 	if(is_type_in_list(target,prohibited_objects))
 		to_chat(user, "<span class='notice'>For some reason, you don't think that would work.</span>")
+		return
+	if(!do_after(user, target, 2 SECONDS))
 		return 1
+	if(!sprays_left)   // le do_after check
+		to_chat(user, "\The [src] is empty.")
+		return
 	if(permanent)
 		invisible_time = 0
-	target.make_invisible(INVISIBLESPRAY, invisible_time)
-	/*
-	if(istype(target, /mob))
-		if(istype(target, /mob/living/carbon/human) || istype(target, /mob/living/carbon/monkey))
-			var/mob/living/carbon/C = target
-			C.body_alphas[INVISIBLESPRAY] = 1
-			C.regenerate_icons()
-			if(!permanent)
-				spawn(invisible_time)
-					if(C)
-						C.body_alphas.Remove(INVISIBLESPRAY)
-						C.regenerate_icons()
-		else
-			var/mob/M = target
-			M.alpha = 1	//to cloak immediately instead of on the next Life() tick
-			M.alphas[INVISIBLESPRAY] = 1
-			if(!permanent)
-				spawn(invisible_time)
-					if(M)
-						M.alpha = initial(M.alpha)
-						M.alphas.Remove(INVISIBLESPRAY)
-	else
-		if(istype(target, /obj))
-			var/obj/O = target
-			O.alpha = 1
-			O.has_been_invisible_sprayed = TRUE
-			if(O.loc == user)
-				user.regenerate_icons()
-			if(!permanent)
-				spawn(invisible_time)
-					if(O)
-						O.alpha = initial(O.alpha)
-						O.has_been_invisible_sprayed = FALSE
-						if(ismob(O.loc))
-							var/mob/M = O.loc
-							M.regenerate_icons()
-	*/
-	if(target == user)
+	var/mob/M = target
+	if(M == user)
 		to_chat(user, "You spray yourself with \the [src].")
-	else
-		to_chat(user, "You spray \the [target] with \the [src].")
+		user.make_invisible(INVISIBLESPRAY, invisible_time, FALSE, 1)
+	else if (ismob(M))
+		to_chat(user, "You spray [M] with \the [src].")
+		M.make_invisible(INVISIBLESPRAY, invisible_time, FALSE, 1)
+	var/obj/O = target
+	if(isobj(O))
+		if(locate(O) in get_contents_in_object(user))
+			O.make_invisible(INVISIBLESPRAY, invisible_time, 1)
+		else
+			O.make_invisible(INVISIBLESPRAY, invisible_time, 1)
+		to_chat(user, "You spray \the [O] with \the [src].")
+
 	playsound(src, 'sound/effects/spray2.ogg', 50, 1, -6)
 	sprays_left--
 	if(istype(target, /obj/machinery/power/supermatter))
@@ -518,12 +529,26 @@
 				if(41 to 50)
 					to_chat(H, "<span class='notice'>You don't see anything.</span>")
 					return
+				else
+					//do nothing
 		handle_hair(H)
 
 /obj/item/weapon/pocket_mirror/proc/handle_hair(mob/user, var/mob/living/carbon/human/H = null)
 	if(!H && ishuman(user))
 		H = user
 	if(!H)
+		return
+	if(arcanetampered)
+		to_chat(user, "<span class='sinister'>You feel different.</span>")
+		H.Humanize(pick("Unathi","Tajaran","Insectoid","Grey",/*and worst of all*/"Vox"))
+		var/list/species_facial_hair = valid_sprite_accessories(facial_hair_styles_list, H.gender, H.species.name)
+		if(species_facial_hair.len)
+			H.my_appearance.f_style = pick(species_facial_hair)
+			H.update_hair()
+		var/list/species_hair = valid_sprite_accessories(hair_styles_list, null, H.species.name)
+		if(species_hair.len)
+			H.my_appearance.h_style = pick(species_hair)
+			H.update_hair()
 		return
 	var/list/species_hair = valid_sprite_accessories(hair_styles_list, null, (H.species.name || null))
 	//gender intentionally left null so speshul snowflakes can cross-hairdress
@@ -535,7 +560,7 @@
 			H.my_appearance.h_style = new_style
 			H.update_hair()
 
-/obj/item/weapon/pocket_mirror/proc/shatter()
+/obj/item/weapon/pocket_mirror/proc/shatter(mob/shatterer)
 	if (shattered)
 		return
 	shattered = 1
@@ -543,23 +568,27 @@
 	playsound(src, "shatter", 70, 1)
 	desc = "Oh no, seven years of bad luck!"
 
-/obj/item/weapon/pocket_mirror/kick_act()
-	shatter()
+	//Curse the shatterer with bad luck
+	var/datum/blesscurse/brokenmirror/mirrorcurse = new /datum/blesscurse/brokenmirror
+	shatterer.add_blesscurse(mirrorcurse)
+
+/obj/item/weapon/pocket_mirror/kick_act(mob/living/carbon/human/H)
+	shatter(H)
 	..()
 
-/obj/item/weapon/pocket_mirror/throw_impact(atom/hit_atom)
+/obj/item/weapon/pocket_mirror/throw_impact(atom/hit_atom, var/speed, mob/user)
 	..()
 	if(!isturf(hit_atom))
 		return
 	if (prob(25))
-		shatter()
+		shatter(user)
 
 /obj/item/weapon/pocket_mirror/comb
 	name = "hair comb"
 	desc = "Despite the name honey is not included nor recommended for use with this."
 	icon_state = "comb"
 
-/obj/item/weapon/pocket_mirror/comb/shatter()
+/obj/item/weapon/pocket_mirror/comb/shatter(mob/shatterer)
 	return
 
 /obj/item/weapon/pocket_mirror/comb/attack(mob/M, mob/user)
@@ -575,7 +604,7 @@
 	sharpness = 1
 	sharpness_flags = SHARP_TIP | SHARP_BLADE
 
-/obj/item/weapon/pocket_mirror/scissors/shatter()
+/obj/item/weapon/pocket_mirror/scissors/shatter(mob/shatterer)
 	return
 
 /obj/item/weapon/pocket_mirror/scissors/attack(atom/target, mob/user)

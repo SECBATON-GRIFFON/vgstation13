@@ -282,6 +282,9 @@
 		return "Its core has been taken. "
 
 
+/datum/butchering_product/hivelord_core/heart
+	result = /obj/item/organ/internal/heart/hivelord
+
 //======deer head
 
 /datum/butchering_product/deer_head
@@ -425,9 +428,6 @@
 				butchSpeed += 0.25
 				if(!toolName)
 					toolName = "claws"
-		if(isgrue(H))
-			toolName = "grue"
-			butchSpeed += 0.5
 	else
 		butchSpeed = 0.5
 	if(!butchSpeed)

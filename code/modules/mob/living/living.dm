@@ -1,15 +1,5 @@
 /mob/living/New()
-	. = ..()
-	generate_static_overlay()
-	if(istype(static_overlays,/list) && static_overlays.len)
-		for(var/mob/living/silicon/robot/mommi/MoMMI in player_list)
-			if(MoMMI.can_see_static())
-				if(MoMMI.static_choice in static_overlays)
-					MoMMI.static_overlays.Add(static_overlays[MoMMI.static_choice])
-					MoMMI.client.images.Add(static_overlays[MoMMI.static_choice])
-				else
-					MoMMI.static_overlays.Add(static_overlays["static"])
-					MoMMI.client.images.Add(static_overlays["static"])
+	..()
 
 	if(!species_type)
 		species_type = src.type
@@ -17,17 +7,15 @@
 		meat_amount = size
 
 	immune_system = new (src)
+	oxy_damage_modifier *= (maxHealth / 100) //Scale oxy damage based on the max health of the mob.
+
+/mob/living/create_reagents(const/max_vol)
+	..(max_vol)
+	addicted_chems = new /datum/reagents(max_vol)
+	addicted_chems.my_atom = src
+	tolerated_chems = list()
 
 /mob/living/Destroy()
-	for(var/mob/living/silicon/robot/mommi/MoMMI in player_list)
-		for(var/image/I in static_overlays)
-			MoMMI.static_overlays.Remove(I) //no checks, since it's either there or its not
-			MoMMI.client.images.Remove(I)
-			qdel(I)
-			I = null
-	if(static_overlays)
-		static_overlays = null
-
 	if(butchering_drops)
 		for(var/datum/butchering_product/B in butchering_drops)
 			butchering_drops -= B
@@ -38,6 +26,9 @@
 		qdel(immune_system)
 		immune_system = null
 
+	if(addicted_chems)
+		qdel(addicted_chems)
+		addicted_chems = null
 	. = ..()
 
 /mob/living/examine(var/mob/user, var/size = "", var/show_name = TRUE, var/show_icon = TRUE) //Show the mob's size and whether it's been butchered
@@ -54,12 +45,13 @@
 			size = "huge"
 
 	var/pronoun = "it is"
-	if(src.gender == FEMALE)
-		pronoun = "she is"
-	else if(src.gender == MALE)
-		pronoun = "he is"
-	else if(src.gender == PLURAL)
-		pronoun = "they are"
+	switch(gender)
+		if(FEMALE)
+			pronoun = "she is"
+		if(MALE)
+			pronoun = "he is"
+		if(PLURAL)
+			pronoun = "they are"
 
 	..(user, " [capitalize(pronoun)] [size].", show_name, FALSE)
 	if(meat_taken > 0)
@@ -94,6 +86,10 @@
 			mutations.Remove(M_HARDCORE)
 			to_chat(src, "<span class='notice'>You feel like a pleb.</span>")
 	handle_beams()
+	if(istype(get_turf(src),/turf/unsimulated/floor/brimstone))
+		FireBurn(11, 9001, ONE_ATMOSPHERE) // lag free weird way of doing it
+		fire_stacks = 11
+		IgniteMob() // ffffFIRE!!!! FIRE!!! FIRE!!
 	return 1
 
 // Apply connect damage
@@ -148,13 +144,17 @@
 	var/lastcheck=last_beamchecks["\ref[B]"]
 	// Figure out how much damage to deal.
 	// Formula: (deciseconds_since_connect/10 deciseconds)*B.get_damage()
-	var/damage = ((world.time - lastcheck)/10)  * B.get_damage()
+	var/damage = ((world.time - lastcheck)/10)  * B.get_damage() * beam_defense(B)
 
 	// Actually apply damage
 	apply_damage(damage, B.damage_type, B.def_zone)
 
 	// Update check time.
 	last_beamchecks["\ref[B]"]=world.time
+
+//Return multiplier for damage
+/mob/living/proc/beam_defense(var/obj/effect/beam/B)
+	return 1
 
 /mob/living/verb/succumb()
 	set hidden = 1
@@ -278,6 +278,9 @@
 		var/mob/living/carbon/human/H = src
 		if(H.species.tox_mod)
 			mult = H.species.tox_mod
+		var/datum/organ/internal/heart/hivelord/HL = H.get_heart()
+		if(istype(HL) && amount < 0) // hivelord hearts just heal better
+			mult *= 2
 
 	toxloss = min(max(toxloss + (amount * tox_damage_modifier * mult), 0),(maxHealth*2))
 
@@ -524,7 +527,7 @@ Thanks.
 /mob/living/proc/rejuvenate(animation = 0)
 	var/turf/T = get_turf(src)
 	if(animation)
-		T.turf_animation('icons/effects/64x64.dmi',"rejuvinate",-16,0,MOB_LAYER+1,'sound/effects/rejuvinate.ogg',anim_plane = EFFECTS_PLANE)
+		T.turf_animation('icons/effects/64x64.dmi',"rejuvenate",-16,0,MOB_LAYER+1,'sound/effects/rejuvenate.ogg',anim_plane = EFFECTS_PLANE)
 
 	// shut down various types of badness
 	toxloss = 0
@@ -566,6 +569,11 @@ Thanks.
 		locked_to.unbuckle()
 	locked_to = initial(src.locked_to)
 	*/
+	if(istype(src, /mob/living/carbon))
+		var/mob/living/carbon/C = src
+		dead_mob_list -= C
+		living_mob_list |= list(C)
+
 	if(istype(src, /mob/living/carbon/human))
 		var/mob/living/carbon/human/H = src
 		H.timeofdeath = 0
@@ -737,6 +745,13 @@ Thanks.
 	if(T != loc)
 		handle_hookchain(Dir)
 
+	if(client && client.eye && istype(client.eye,/turf/simulated/wall))
+		var/turf/simulated/wall/W = client.eye
+		if (!Adjacent(W))
+			client.eye = src
+			client.perspective = MOB_PERSPECTIVE
+			W.peeper = null
+
 	if(.)
 		for(var/obj/item/weapon/gun/G in targeted_by) //Handle moving out of the gunner's view.
 			var/mob/living/M = G.loc
@@ -834,6 +849,14 @@ Thanks.
 			qdel(package)
 			playsound(src.loc, 'sound/items/poster_ripped.ogg', 100, 1)
 		return
+	else if(istype(src.loc, /obj/effect/spider/cocoon))
+		var/obj/effect/spider/cocoon/cocoon = src.loc
+		to_chat(L, "<span class='warning'>You attempt to untangle yourself, the webs are tight and will take some time.</span>")
+		if(do_after(src, src, 2 MINUTES))
+			L.visible_message("<span class='danger'>[L] successfully breaks out of [cocoon]!</span>",\
+							  "<span class='notice'>You successfully break out!</span>")
+			forceMove(T)
+			qdel(cocoon)
 
 	//Detaching yourself from a tether
 	if(L.tether)
@@ -1012,7 +1035,7 @@ Thanks.
 		L.visible_message("<span class='danger'>The [C] begins to shake violenty!</span>",
 						  "<span class='warning'>You lean on the back of [C] and start pushing the door open (this will take about [breakout_time] minutes).</span>")
 		spawn(0)
-			if(do_after(usr,src,breakout_time * 60 * 10)) //minutes * 60seconds * 10deciseconds
+			if(do_after(usr, C, breakout_time * 60 * 10, 30, custom_checks = new /callback(C, /obj/structure/closet/proc/on_do_after))) 	//minutes * 60seconds * 10deciseconds
 				if(!C || !L || L.stat != CONSCIOUS || L.loc != C || C.opened) //closet/user destroyed OR user dead/unconcious OR user no longer in closet OR closet opened
 					return
 
@@ -1107,21 +1130,18 @@ Thanks.
 		var/mob/living/carbon/CM = L
 	//putting out a fire
 		if(CM.on_fire && CM.canmove && ((!locate(/obj/effect/fire) in loc) || !CM.handcuffed))	//No point in putting ourselves out if we'd just get set on fire again. Unless there's nothing more pressing to resist out of, in which case go nuts.
-			CM.fire_stacks -= 5
-			CM.Knockdown(3)
-			CM.Stun(3)
+			CM.Knockdown(5)
+			CM.Stun(5)
 			playsound(CM.loc, 'sound/effects/bodyfall.ogg', 50, 1)
 			CM.visible_message("<span class='danger'>[CM] rolls on the floor, trying to put themselves out!</span>",
 							   "<span class='warning'>You stop, drop, and roll!</span>")
 
-			for(var/i = 1 to rand(8,12))
+			for(var/i = 1 to CM.fire_stacks + 7)
 				CM.dir = turn(CM.dir, pick(-90, 90))
-				sleep(2)
-
-			if(fire_stacks <= 0)
-				CM.visible_message("<span class='danger'>[CM] has successfully extinguished themselves!</span>",
-								   "<span class='notice'>You extinguish yourself.</span>")
-				ExtinguishMob()
+				sleep(1 SECONDS)
+			CM.fire_stacks = 0
+			CM.visible_message("<span class='danger'>[CM] has successfully extinguished themselves!</span>","<span class='notice'>You extinguish yourself.</span>")
+			ExtinguishMob()
 			return
 
 		CM.resist_restraints()
@@ -1136,42 +1156,36 @@ Thanks.
 		return
 	var/is_hulk = isalienadult(src) || (M_HULK in mutations)
 	var/obj/item/cuffs
-	var/resist_time
+	var/resist_time = 2 MINUTES
 	var/var_to_check // TOOD: Improve this once Lummox releases pointers?
 	var/do_after_callback
 	if(handcuffed)
 		cuffs = handcuffed
-		resist_time = is_hulk ? 5 SECONDS : cuffs.restraint_resist_time
-		if(!resist_time)
-			resist_time = 2 MINUTES //Default
+		resist_time = cuffs.restraint_resist_time
 		var_to_check = "handcuffed"
 	else if(legcuffed)
 		cuffs = legcuffed
 		var/obj/item/weapon/legcuffs/legcuffs = cuffs
-		resist_time = is_hulk ? 5 SECONDS : legcuffs.breakouttime
-		if(!resist_time)
-			resist_time = 2 MINUTES // Default
+		resist_time = legcuffs.breakouttime
 		var_to_check = "legcuffed"
 	else if(mutual_handcuffs)
 		cuffs = mutual_handcuffs
-		resist_time = is_hulk ? 5 SECONDS : 1 MINUTES // 1 minute since it's only one cuff
+		resist_time = cuffs.restraint_resist_time/2 //it's only one cuff
 		var_to_check = "mutual_handcuffs"
 	else if(is_wearing_item(/obj/item/clothing/suit/strait_jacket, slot_wear_suit))
 		cuffs = get_item_by_slot(slot_wear_suit)
-		if(is_hulk)
-			resist_time = 5 SECONDS
-		else
+		if(!is_hulk)
 			do_after_callback = new /callback(GLOBAL_PROC, /proc/strait_jacket_resist_do_after)
-			resist_time = 2 MINUTES // Default
 			var/left_arm = get_organ(LIMB_LEFT_ARM)
 			var/right_arm = get_organ(LIMB_RIGHT_ARM)
 			for(var/datum/organ/external/arm in list(left_arm, right_arm))
 				if(!arm.is_existing() || arm.is_broken())
-					resist_time -= 30 SECONDS
+					resist_time = max(0, resist_time - 30 SECONDS)
 		var_to_check = "wear_suit"
 	else
 		return
-
+	if(is_hulk)
+		resist_time = 5 SECONDS
 	visible_message("<span class='danger'>[src] attempts to [is_hulk ? "break" : "remove"] \the [cuffs]!</span>",
 					"<span class='warning'>You attempt to [is_hulk ? "break" : "remove"] \the [cuffs] (this will take around [resist_time / 10] seconds and you need to stand still).</span>",
 					self_drugged_message="<span class='warning'>You attempt to regain control of your hands (this will take a while).</span>")
@@ -1236,9 +1250,12 @@ Thanks.
 		gib()
 		return(gain)
 
-/mob/living/singularity_pull(S)
+/mob/living/singularity_pull(S, current_size, repel = FALSE)
 	if(!(src.flags & INVULNERABLE))
-		step_towards(src, S)
+		if(!repel)
+			step_towards(src, S)
+		else
+			step_away(src, S)
 
 //shuttle_act is called when a shuttle collides with the mob
 /mob/living/shuttle_act(datum/shuttle/S)
@@ -1269,28 +1286,9 @@ Thanks.
 /mob/living/proc/pointToMessage(var/pointer, var/pointed_at)
 	return "<b>\The [pointer]</b> points at <b>\the [pointed_at]</b>."
 
-/mob/living/proc/generate_static_overlay()
-	if(!istype(static_overlays,/list))
-		static_overlays = list()
-	static_overlays.Add(list("static", "blank", "letter", "cult"))
-	var/image/static_overlay = image(getStaticIcon(new/icon(src.icon, src.icon_state)), loc = src)
-	static_overlay.override = 1
-	static_overlays["static"] = static_overlay
-
-	static_overlay = image(getBlankIcon(new/icon(src.icon, src.icon_state)), loc = src)
-	static_overlay.override = 1
-	static_overlays["blank"] = static_overlay
-
-	static_overlay = getLetterImage(src)
-	static_overlay.override = 1
-	static_overlays["letter"] = static_overlay
-
-	static_overlay = image(icon = 'icons/mob/animal.dmi', loc = src, icon_state = pick("faithless","forgotten","otherthing",))
-	static_overlay.override = 1
-	static_overlays["cult"] = static_overlay
-
 /mob/living/to_bump(atom/movable/AM as mob|obj)
 	spawn(0)
+		INVOKE_EVENT(src, /event/to_bump, "bumper" = src, "bumped" = AM)
 		if (now_pushing || !loc || size <= SIZE_TINY)
 			return
 		now_pushing = 1
@@ -1417,8 +1415,7 @@ Thanks.
 	return 0
 
 /mob/living/nuke_act() //Called when caught in a nuclear blast
-	health = 0
-	stat = DEAD
+	return
 
 /mob/living/proc/turn_into_statue(forever = 0, force)
 	if(!force)
@@ -1725,7 +1722,7 @@ Thanks.
 	stop_pulling()
 	Stun(stun_amount)
 	Knockdown(weaken_amount)
-	score["slips"]++
+	score.slips++
 	return 1
 
 ///////////////////////DISEASE STUFF///////////////////////////////////////////////////////////////////
@@ -1894,3 +1891,50 @@ Thanks.
 			if(D.effects.len)
 				for(var/datum/disease2/effect/E in D.effects)
 					E.on_death(src)
+
+//Brain slug proc for voluntary removal of control.
+/mob/living/proc/release_control()
+	set category = "Alien"
+	set name = "Release Control"
+	set desc = "Release control of your host's body."
+
+	do_release_control(0)
+
+/mob/living/proc/do_release_control(var/rptext=1)
+	var/mob/living/simple_animal/borer/B = has_brain_worms()
+
+	if(!B)
+		return
+
+	if(B.controlling)
+		if(rptext)
+			to_chat(src, "<span class='danger'>You withdraw your probosci, releasing control of [B.host_brain]</span>")
+			to_chat(B.host_brain, "<span class='danger'>Your vision swims as the alien parasite releases control of your body.</span>")
+		B.ckey = ckey
+		B.controlling = 0
+	if(B.host_brain.ckey)
+		ckey = B.host_brain.ckey
+		B.host_brain.ckey = null
+		B.host_brain.name = "host brain"
+		B.host_brain.real_name = "host brain"
+
+	//reset name if the borer changed it
+	fully_replace_character_name(null, B.host_name)
+
+	verbs -= /mob/living/proc/release_control
+	verbs -= /mob/living/proc/punish_host
+
+//Brain slug proc for tormenting the host.
+/mob/living/proc/punish_host()
+	set category = "Alien"
+	set name = "Torment host"
+	set desc = "Punish your host with agony."
+
+	var/mob/living/simple_animal/borer/B = has_brain_worms()
+
+	if(!B)
+		return
+
+	if(B.host_brain.ckey)
+		to_chat(src, "<span class='danger'>You send a punishing spike of psychic agony lancing into your host's brain.</span>")
+		to_chat(B.host_brain, "<span class='danger'><FONT size=3>Horrific, burning agony lances through you, ripping a soundless scream from your trapped mind!</FONT></span>")

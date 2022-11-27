@@ -12,6 +12,9 @@
 	standard_damage_overlay_updates()
 
 /mob/living/gib(animation = FALSE, meat = TRUE)
+	if(status_flags & BUDDHAMODE)
+		adjustBruteLoss(200)
+		return
 	if(!isUnconscious())
 		forcesay("-")
 	death(1)
@@ -20,7 +23,7 @@
 	icon = null
 	invisibility = 101
 
-	gibs(loc, virus2, dna)
+	gibs(loc, virus2, dna, flesh_color2, blood_color2)
 
 	dead_mob_list -= src
 

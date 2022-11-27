@@ -55,8 +55,6 @@
 
 /obj/item/stack/sheet/metal/New(var/loc, var/amount=null)
 	recipes = metal_recipes
-	if(map.multiz)
-		recipes.Add(new/datum/stack_recipe("multi-floor stairs",   /obj/structure/stairs_frame, 4, time = 100, one_per_turf = 1, on_floor = 1))
 	return ..()
 
 /*
@@ -94,8 +92,9 @@
 	autoignition_temperature = AUTOIGNITION_WOOD
 	fire_fuel = 1 //Not used here the same way as elsewhere; see burnFireFuel() below.
 	sheettype = "wood"
-	w_type = RECYK_WOOD
 	siemens_coefficient = 0 //no conduct
+	w_type = RECYK_WOOD
+	starting_materials = list(MAT_WOOD = CC_PER_SHEET_WOOD)
 	mat_type = MAT_WOOD
 	perunit = CC_PER_SHEET_WOOD
 
@@ -141,6 +140,7 @@
 	singular_name = "cloth roll"
 	icon_state = "sheet-cloth"
 	origin_tech = Tc_MATERIALS + "=2"
+	autoignition_temperature = AUTOIGNITION_FABRIC
 
 /*
  * Cardboard
@@ -154,6 +154,7 @@
 	origin_tech = Tc_MATERIALS + "=1"
 	starting_materials = list(MAT_CARDBOARD = CC_PER_SHEET_CARDBOARD)
 	w_type=RECYK_MISC
+	autoignition_temperature = AUTOIGNITION_PAPER
 
 /obj/item/stack/sheet/cardboard/New(var/loc, var/amount=null)
 		recipes = cardboard_recipes
@@ -189,6 +190,7 @@ var/list/datum/stack_recipe/charcoal_recipes = list ()
 	origin_tech = Tc_BIOTECH + "=1"
 	icon_state = "sheet-bone"
 	//item_state = "bone"
+	autoignition_temperature = AUTOIGNITION_ORGANIC
 
 /obj/item/stack/sheet/brass
 	name = "brass"

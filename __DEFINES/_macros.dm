@@ -42,7 +42,7 @@
 
 #define ishorrorform(A) (ishuman(A) && istype(A:species, /datum/species/horror))
 
-#define isgrue(A) (ishuman(A) && istype(A:species, /datum/species/grue))
+#define istruevampire(A)  (ishuman(A) && isvampire(A) && istype(A:species, /datum/species/vampire))
 
 #define ismushroom(A) ((ishuman(A) && istype(A:species, /datum/species/mushroom)) || (istype(A, /mob/living/carbon/monkey/mushroom)))
 
@@ -73,6 +73,10 @@
 #define isgremlin(A) (istype(A, /mob/living/simple_animal/hostile/gremlin))
 
 #define isgrinch(A) (istype(A, /mob/living/simple_animal/hostile/gremlin/grinch))
+
+#define ispulsedemon(A) (istype(A, /mob/living/simple_animal/hostile/pulse_demon))
+
+#define isgrue(A) (istype(A, /mob/living/simple_animal/hostile/grue))
 
 #define isslimeadult(A) istype(A, /mob/living/carbon/slime/adult)
 
@@ -112,6 +116,8 @@
 
 #define isMoMMI(A) istype(A, /mob/living/silicon/robot/mommi)
 
+#define isSaMMI(A) istype(A, /mob/living/silicon/robot/mommi/sammi)
+
 #define isbot(A) istype(A, /obj/machinery/bot)
 
 #define isborer(A) istype(A, /mob/living/simple_animal/borer)
@@ -142,7 +148,7 @@
 
 #define isEmag(A) istype(A, /obj/item/weapon/card/emag)
 
-#define istool(A) is_type_in_list(A, common_tools)
+#define istool(A) iswrench(A) || iswelder(A) || isshovel(A) || ishammer(A) || iscablecoil(A) || iswiretool(A) || iscrowbar(A)
 
 #define iswelder(A) istype(A, /obj/item/tool/weldingtool)
 
@@ -152,7 +158,9 @@
 
 #define iscablecoil(A) istype(A, /obj/item/stack/cable_coil)
 
-#define iscoin(A) is_type_in_list(A, list(/obj/item/weapon/coin, /obj/item/weapon/reagent_containers/food/snacks/chococoin))
+#define iscoin(A) is_type_in_list(A, list(/obj/item/weapon/coin, /obj/item/weapon/reagent_containers/food/snacks/chococoin, /obj/item/weapon/reagent_containers/food/snacks/customizable/candy/coin))
+
+#define isfood(A) istype(A, /obj/item/weapon/reagent_containers/food)
 
 #define iswirecutter(A) istype(A, /obj/item/tool/wirecutters)
 
@@ -172,7 +180,7 @@
 
 #define issolder(A) istype(A, /obj/item/tool/solder)
 
-#define issocketwrench(A) istype(A, /obj/item/tool/wrench/socket)
+#define iswrench(A) istype(A, /obj/item/tool/wrench)
 
 #define isswitchtool(A) istype(A, /obj/item/weapon/switchtool)
 
@@ -241,8 +249,6 @@
 #define isrig(O) (istype(O, /obj/item/clothing/suit/space/rig))
 
 #define isrighelmet(O) (istype(O, /obj/item/clothing/head/helmet/space/rig))
-
-#define isNonTimeDataReagent(R) (is_type_in_list(R, list( /datum/reagent/citalopram, /datum/reagent/paroxetine)))
 
 #define isinvisible(A) (A.invisibility || A.alpha <= 1)
 
@@ -374,11 +380,6 @@
 #define calculateticks(x)	x * world.tick_lag // Converts your ticks to proper tenths.
 #define tcheck(CPU,TOSLEEP)	if(world.cpu > CPU) sleep(calculateticks(TOSLEEP)) //Shorthand of checking and then sleeping a process based on world CPU
 
-#define FOR_DVIEW(type, range, center, invis_flags) \
-	dview_mob.loc = center;           \
-	dview_mob.see_invisible = invis_flags; \
-	for(type in view(range, dview_mob))
-
 //get_turf(): Returns the turf that contains the atom.
 //Example: A fork inside a box inside a locker will return the turf the locker is standing on.
 //Yes, this is the fastest known way to do it.
@@ -398,8 +399,6 @@
 
 #define subtypesof(A) (typesof(A) - A)
 
-#define LIBVG(function, arguments...) call("./libvg.[world.system_type == UNIX ? "so" : "dll"]", function)(arguments)
-
 // For areas that are on the map, `x` is the coordinate of the turf with the lowest z, y, and x coordinate (in that order) that is contained by the area.
 #define is_area_in_map(A) (A.x)
 
@@ -415,9 +414,6 @@
 #define LOWEST_DENOMINATION 1
 #define round_to_lowest_denomination(A) (round(A, LOWEST_DENOMINATION))
 
-#define create_trader_account create_account("Trader Shoal", 0, null, 0, 1, TRUE, FALSE)
-//Starts 0 credits, not sourced from any database, earns 0 credits, hidden
-
 // strips all newlines from a string, replacing them with null
 #define STRIP_NEWLINE(S) replacetextEx(S, "\n", null)
 
@@ -425,3 +421,5 @@
 #define isapperanceeditable(A) (isatom(A))
 
 #define OMNI_LINK(A,B) isliving(A) && A:omnitool_connect(B)
+
+#define is_real_champion(A) ismob(A) && A.is_wearing_item(/obj/item/weapon/storage/belt/champion) && A.is_wearing_item(/obj/item/clothing/mask/luchador)

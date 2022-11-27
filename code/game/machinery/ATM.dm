@@ -21,7 +21,7 @@ log transactions
 	icon = 'icons/obj/terminals.dmi'
 	icon_state = "atm"
 	anchored = 1
-	use_power = 1
+	use_power = MACHINE_POWER_USE_IDLE
 	idle_power_usage = 10
 	var/datum/money_account/authenticated_account
 	var/number_incorrect_tries = 0
@@ -50,10 +50,10 @@ log transactions
 	..()
 
 /obj/machinery/atm/process()
-	if(stat & NOPOWER)
+	if(stat & (FORCEDISABLE|NOPOWER))
 		return
 
-	if(linked_db && ( (linked_db.stat & NOPOWER) || !linked_db.activated ) )
+	if(linked_db && ( (linked_db.stat & (NOPOWER|FORCEDISABLE)) || !linked_db.activated ) )
 		linked_db = null
 		authenticated_account = null
 		src.visible_message("<span class='warning'>[bicon(src)] [src] buzzes rudely, \"Connection to remote database lost.\"</span>")
@@ -67,6 +67,13 @@ log transactions
 		ticks_left_locked_down--
 		if(ticks_left_locked_down <= 0)
 			number_incorrect_tries = 0
+
+/obj/machinery/atm/kick_act(mob/living/carbon/human/H)
+	..()
+	if(atm_card && prob(50))
+		atm_card.forceMove(get_turf(src))
+		visible_message("<span class='notice'>\A [atm_card] pops out of \the [src]!</span>")
+		atm_card = null
 
 /obj/machinery/atm/attackby(obj/item/I as obj, mob/user as mob)
 	if(I.is_wrench(user))
@@ -91,23 +98,17 @@ log transactions
 		if(istype(I,/obj/item/weapon/spacecash))
 			var/obj/item/weapon/spacecash/dosh = I
 			//consume the money
-			authenticated_account.money += dosh.worth * dosh.amount
+			var/multiplier = dosh.arcanetampered ? rand(0,99) : 100
+			authenticated_account.money += round(dosh.worth * dosh.amount * (multiplier/100))
 			if(prob(50))
 				playsound(loc, 'sound/items/polaroid1.ogg', 50, 1)
 			else
 				playsound(loc, 'sound/items/polaroid2.ogg', 50, 1)
 
 			//create a transaction log entry
-			var/datum/transaction/T = new()
-			T.target_name = authenticated_account.owner_name
-			T.purpose = "Credit deposit"
-			T.amount = dosh.worth * dosh.amount
-			T.source_terminal = machine_id
-			T.date = current_date_string
-			T.time = worldtime2text()
-			authenticated_account.transaction_log.Add(T)
+			new /datum/transaction(authenticated_account, "Credit deposit", round(dosh.worth * dosh.amount * (multiplier/100)), machine_id)
 
-			to_chat(user, "<span class='info'>You insert [T.amount] credit\s into \the [src].</span>")
+			to_chat(user, "<span class='info'>You insert [round(dosh.worth * dosh.amount * (multiplier/100))] credit\s into \the [src].</span>")
 			src.attack_hand(user)
 			qdel(I)
 	else
@@ -252,6 +253,7 @@ log transactions
 							<A href='?src=\ref[src];choice=view_screen;view_screen=1'>Change account security level</a><br>
 							<A href='?src=\ref[src];choice=view_screen;view_screen=2'>Make transfer to another bank account</a><br>
 							<A href='?src=\ref[src];choice=view_screen;view_screen=3'>View transaction log</a><br>
+							<A href='?src=\ref[src];choice=wage_percent'>Change virtual wallet wage payout percentage</a><br>
 							<A href='?src=\ref[src];choice=balance_statement'>Print balance statement</a><br>
 							<A href='?src=\ref[src];choice=create_debit_card'>Print new debit card ($5)</a><br>
 							<A href='?src=\ref[src];choice=toggle_account'>Toggle account status</a><br>
@@ -283,6 +285,12 @@ log transactions
 				if(authenticated_account && linked_db && authenticated_account.disabled < 2)
 					authenticated_account.disabled = !authenticated_account.disabled
 					to_chat(usr, "[bicon(src)]<span class='info'>Account [authenticated_account.disabled ? "disabled" : "enabled"].</span>")
+			if("wage_percent")
+				if(authenticated_account && linked_db && authenticated_account.disabled < 2)
+					var/new_wage_ratio = input(usr, "Input what % of wages end up in virtual wallets, from 0-100", "Wage Percentage",authenticated_account.virtual_wallet_wage_ratio) as num
+					if(!isnull(new_wage_ratio))
+						new_wage_ratio = clamp(new_wage_ratio,0,100)
+						authenticated_account.virtual_wallet_wage_ratio = new_wage_ratio
 			if("transfer")
 				if(CAN_INTERACT_WITH_ACCOUNT)
 					var/transfer_amount = text2num(href_list["funds_amount"])
@@ -296,14 +304,8 @@ log transactions
 							authenticated_account.money -= transfer_amount
 
 							//create an entry in the account transaction log
-							var/datum/transaction/T = new()
-							T.target_name = "Account #[target_account_number]"
-							T.purpose = transfer_purpose
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							T.amount = "-[transfer_amount]"
-							authenticated_account.transaction_log.Add(T)
+							new /datum/transaction(authenticated_account, transfer_purpose, "-[transfer_amount]",\
+													machine_id, "Account #[target_account_number]")
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>Funds transfer failed.</span>")
 
@@ -335,13 +337,7 @@ log transactions
 								//create an entry in the account transaction log
 								var/datum/money_account/failed_account = linked_db.get_account(tried_account_num)
 								if(failed_account)
-									var/datum/transaction/T = new()
-									T.target_name = failed_account.owner_name
-									T.purpose = "Unauthorised login attempt"
-									T.source_terminal = machine_id
-									T.date = current_date_string
-									T.time = worldtime2text()
-									failed_account.transaction_log.Add(T)
+									new /datum/transaction(failed_account, "Unauthorised login attempt", 0, machine_id)
 							else
 								to_chat(usr, "<span class='warning'>[bicon(src)] Incorrect pin/account combination entered, [max_pin_attempts - number_incorrect_tries] attempts remaining.</span>")
 								previous_account_number = tried_account_num
@@ -355,13 +351,7 @@ log transactions
 						view_screen = NO_SCREEN
 
 						//create a transaction log entry
-						var/datum/transaction/T = new()
-						T.target_name = authenticated_account.owner_name
-						T.purpose = "Remote terminal access"
-						T.source_terminal = machine_id
-						T.date = current_date_string
-						T.time = worldtime2text()
-						authenticated_account.transaction_log.Add(T)
+						new /datum/transaction(authenticated_account, "Remote terminal access", 0, machine_id)
 
 						to_chat(usr, "<span class='notice'>[bicon(src)] Access granted. Welcome user '[authenticated_account.owner_name].'</span>")
 
@@ -383,14 +373,7 @@ log transactions
 							withdraw_arbitrary_sum(usr,amount)
 
 							//create an entry in the account transaction log
-							var/datum/transaction/T = new()
-							T.target_name = authenticated_account.owner_name
-							T.purpose = "Credit withdrawal"
-							T.amount = "-[amount]"
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							authenticated_account.transaction_log.Add(T)
+							new /datum/transaction(authenticated_account, "Credit withdrawal", "-[amount]", machine_id)
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>You don't have enough funds to do that!</span>")
 			if("withdraw_to_wallet")
@@ -409,23 +392,11 @@ log transactions
 							card_id.virtual_wallet.money += amount
 
 							//create an entry in the account transaction log
-							var/datum/transaction/T = new()
-							T.target_name = card_id.virtual_wallet.owner_name
-							T.purpose = "Credit transfer to wallet"
-							T.amount = "-[amount]"
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							authenticated_account.transaction_log.Add(T)
+							new /datum/transaction(authenticated_account, "Credit transfer to wallet", "-[amount]",\
+													machine_id, card_id.virtual_wallet.owner_name)
 
-							T = new()
-							T.target_name = authenticated_account.owner_name
-							T.purpose = "Credit transfer to wallet"
-							T.amount = "[amount]"
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							card_id.virtual_wallet.transaction_log.Add(T)
+							new /datum/transaction(card_id.virtual_wallet, "Credit transfer to wallet", "[amount]",\
+													machine_id, authenticated_account.owner_name)
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>You don't have enough funds to do that!</span>")
 			if("deposit_from_wallet")
@@ -444,23 +415,11 @@ log transactions
 							card_id.virtual_wallet.money -= amount
 
 							//create an entry in the account transaction log
-							var/datum/transaction/T = new()
-							T.target_name = card_id.virtual_wallet.owner_name
-							T.purpose = "Credit transfer from wallet"
-							T.amount = "[amount]"
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							authenticated_account.transaction_log.Add(T)
+							new /datum/transaction(authenticated_account, "Credit transfer from wallet", "[amount]",\
+													machine_id, card_id.virtual_wallet.owner_name)
 
-							T = new()
-							T.target_name = authenticated_account.owner_name
-							T.purpose = "Credit transfer from wallet"
-							T.amount = "-[amount]"
-							T.source_terminal = machine_id
-							T.date = current_date_string
-							T.time = worldtime2text()
-							card_id.virtual_wallet.transaction_log.Add(T)
+							new /datum/transaction(card_id.virtual_wallet, "Credit transfer from wallet", "-[amount]",\
+													machine_id, authenticated_account.owner_name)
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>You don't have enough funds to do that!</span>")
 			if("balance_statement")
@@ -562,13 +521,7 @@ log transactions
 					to_chat(human_user, "<span class='notice'>[bicon(src)] Access granted. Welcome user '[authenticated_account.owner_name].'</span>")
 
 					//create a transaction log entry
-					var/datum/transaction/T = new()
-					T.target_name = authenticated_account.owner_name
-					T.purpose = "Remote terminal access"
-					T.source_terminal = machine_id
-					T.date = current_date_string
-					T.time = worldtime2text()
-					authenticated_account.transaction_log.Add(T)
+					new /datum/transaction(authenticated_account, "Remote terminal access", 0, machine_id)
 
 #undef NO_SCREEN
 #undef CHANGE_SECURITY_LEVEL

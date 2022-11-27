@@ -57,7 +57,7 @@ var/creating_arena = FALSE
 	add_spell(new /spell/targeted/ghost/toggle_medHUD)
 	add_spell(new /spell/targeted/ghost/toggle_darkness)
 	add_spell(new /spell/targeted/ghost/become_mouse)
-	add_spell(new /spell/targeted/ghost/hide_sprite)
+	add_spell(new /spell/targeted/ghost/hide_ghosts)
 	add_spell(new /spell/targeted/ghost/haunt)
 	add_spell(new /spell/targeted/ghost/reenter_corpse)
 	//add_spell(new /spell/ghost_show_map, "grey_spell_ready")
@@ -406,6 +406,10 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	set name = "Ghost"
 	set desc = "Relinquish your life and enter the land of the dead."
 
+	if((client && !client.holder) && (status_flags & BUDDHAMODE))
+		to_chat(src,"<span class='notice'>You feel stuck on this plane.</span>")
+		return
+
 	var/timetocheck = timeofdeath
 	if (isbrain(src))
 		var/mob/living/carbon/brain/brainmob = src
@@ -432,6 +436,12 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		ghostize(1)
 	else if(stat == DEAD)
 		ghostize(1)
+	else if(check_rights(R_ADMIN))
+		if(mind)
+			mind.isScrying = 1
+		ghostize(1)
+		if(!key)
+			key = "@[key]"	//Haaaaaaaack. But the people have spoken. If it breaks; blame adminbus
 	else
 		var/response = alert(src, "Are you -sure- you want to ghost?\n(You are alive. If you ghost, you will not be able to re-enter your current body!  You can't change your mind so choose wisely!)","Are you sure you want to ghost?","Ghost","Stay in body")
 		if(response != "Ghost")

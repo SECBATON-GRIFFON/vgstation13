@@ -9,9 +9,8 @@
 	siemens_coefficient = 1
 	pressure_resistance = 5*ONE_ATMOSPHERE
 	layer = BELOW_OBJ_LAYER
-	explosion_resistance = 5
 	pass_flags_self = PASSGRILLE
-	var/health = 20 //Relatively "strong" since it's hard to dismantle via brute force
+	health = 20 //Relatively "strong" since it's hard to dismantle via brute force
 	var/broken = 0
 	var/grille_material = /obj/item/stack/rods
 
@@ -21,20 +20,10 @@
 	)
 	return smoothables
 
-/obj/structure/grille/New(loc)
-	..(loc)
-	if(ticker && ticker.current_state >= GAME_STATE_PLAYING)
-		initialize()
-
-/obj/structure/grille/initialize()
-	relativewall()
-	relativewall_neighbours()
-
 /obj/structure/grille/relativewall()
 	if(broken)
 		return
-	var/junction = findSmoothingNeighbors()
-	icon_state = "grille[junction]"
+	icon_state = "grille[..()]"
 
 /obj/structure/grille/isSmoothableNeighbor(atom/A)
 	if(istype(A,/obj/structure/grille))
@@ -301,6 +290,7 @@
 	..()
 	health -= rand(initial(health)*0.8, initial(health)*0.9) //Largely under broken threshold, this is used to adjust the health, NOT to break it
 	healthcheck() //Send this to healthcheck just in case we want to do something else with it
+
 
 /obj/structure/grille/broken/healthcheck(var/hitsound = 0) //needed because initial icon_state for broken is grille-b for mapping
 	..()

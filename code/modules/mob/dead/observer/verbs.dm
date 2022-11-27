@@ -1,15 +1,22 @@
+/mob/dead/observer/verb/ghost()
+	set category = "OOC"
+	set name = "Ghost"
+
+	reenter_corpse()
+
 /mob/dead/observer/verb/reenter_corpse()
 	set category = "Ghost"
 	set name = "Re-enter Corpse"
 
 	var/mob/M = get_top_transmogrification()
+	if(check_rights(R_ADMIN)) // admins
+		can_reenter_corpse = 1			//just in-case.
 	if(!M.client)
 		return
 	if(!(mind && mind.current && can_reenter_corpse))
 		to_chat(src, "<span class='warning'>You have no body.</span>")
 		return
 	if(mind.current.key && copytext(mind.current.key,1,2)!="@")	//makes sure we don't accidentally kick any clients
-		to_chat(usr, "<span class='warning'>Another consciousness is in your body...It is resisting you.</span>")
 		return
 	if(mind.current.ajourn && istype(mind.current.ajourn,/obj/effect/rune_legacy) && mind.current.stat != DEAD) 	//check if the corpse is astral-journeying (it's client ghosted using a cultist rune).
 		var/obj/effect/rune_legacy/R = mind.current.ajourn	//whilst corpse is alive, we can only reenter the body if it's on the rune
@@ -141,6 +148,9 @@
 		timedifference_text = time2text(mouse_respawn_time * 600 - timedifference,"mm:ss")
 		to_chat(src, "<span class='warning'>You may only spawn again as a mouse more than [mouse_respawn_time] minutes after your death. You have [timedifference_text] left.</span>")
 		return
+	if(!world.has_round_started())
+		to_chat(src, "<span class='warning'>The game has not started yet.</span>")
+		return
 
 	var/response = alert(src, "Are you -sure- you want to become a mouse?","Are you sure you want to squeek?","Squeek!","Nope!")
 	if(response != "Squeek!")
@@ -163,6 +173,7 @@
 		if(config.uneducated_mice)
 			host.universal_understand = 0
 		host.ckey = src.ckey
+		log_admin("([host.ckey]/[host]) became a mouse as a ghost.")
 		to_chat(host, "<span class='info'>You are now a mouse. Try to avoid interaction with players, and do not give hints away that you are more than a simple rodent.</span>")
 
 /mob/dead/observer/verb/hide_sprite()
@@ -185,6 +196,8 @@
 
 	var/list/mobs = getmobs()
 	var/input = input("Please, select a mob!", "Haunt", null, null) as null|anything in mobs
+	if(!input)
+		return
 	var/mob/target = mobs[input]
 	manual_follow(target)
 
@@ -234,11 +247,17 @@
 	set name = "Toggle Darkness"
 	set category = "Ghost"
 
-	if (see_invisible == SEE_INVISIBLE_OBSERVER_NOLIGHTING)
-		see_invisible = SEE_INVISIBLE_OBSERVER
-	else
-		see_invisible = SEE_INVISIBLE_OBSERVER_NOLIGHTING
-
+	switch(dark_plane.alphas["toggle_darkness"])
+		if(255)
+			see_invisible = SEE_INVISIBLE_OBSERVER
+			dark_plane.alphas["toggle_darkness"] = 180
+		if(180)
+			see_invisible = SEE_INVISIBLE_OBSERVER
+			dark_plane.alphas -= "toggle_darkness"
+		else
+			see_invisible = SEE_INVISIBLE_OBSERVER_NOLIGHTING
+			dark_plane.alphas["toggle_darkness"] = 255
+	check_dark_vision()
 
 /mob/dead/observer/verb/analyze_air()
 	set name = "Analyze Air"
@@ -437,7 +456,7 @@
 
 /mob/dead/observer/verb/find_arena()
 	set category = "Ghost"
-	set name = "Search For Arenas"
+	set name = "Find Arenas"
 	set desc = "Try to find an Arena to polish your robust bomb placement skills.."
 
 	if(!arenas.len)
@@ -466,7 +485,7 @@
 	set category = "Ghost"
 	set desc = "Create a bomberman arena for other observers and dead players."
 
-	if (ticker && ticker.current_state != GAME_STATE_PLAYING)
+	if (ticker && ticker.current_state < GAME_STATE_PLAYING)
 		to_chat(src, "<span class ='notice'>You can't use this verb before the game has started.</span>")
 		return
 
@@ -496,6 +515,9 @@
 		var/timedifference_text
 		timedifference_text = time2text(mouse_respawn_time * 600 - timedifference,"mm:ss")
 		to_chat(src, "<span class='warning'>You may only spawn again as a mouse or MoMMI more than [mouse_respawn_time] minutes after your death. You have [timedifference_text] left.</span>")
+		return
+	if(!world.has_round_started())
+		to_chat(src, "<span class='warning'>The game has not started yet.</span>")
 		return
 
 	//find a viable mouse candidate
@@ -539,16 +561,16 @@
 		return
 
 	var/response = alert(src, "Are you -sure- you want to become a space hobo?","Are you sure you want to ramble?","Yeah!","Nope!")
-	if(response != "Yeah!")
+	if(response != "Yeah!" || !src.key)
 		return  //Hit the wrong key...again.
-	
-	//find a viable mouse candidate
+
 	var/mob/living/carbon/human/hobo = new(pick(hobostart))
 	hobo.key = src.key
 	hobo.set_species(pick(200;"Human",50;"Vox",50;"Insectoid",25;"Diona",25;"Grey",1;"Tajaran",10;"Unathi"))
 	hobo.generate_name()
 	var/datum/outfit/special/with_id/hobo/hobo_outfit = new
 	hobo_outfit.equip(hobo)
+	log_admin("([hobo.ckey]/[hobo]) became a space hobo as a ghost.")
 	to_chat(hobo, "<B>You are a Space Hobo.</B>")
 	// somewhat taken from CEV eris
 	to_chat(hobo, "<b>The ID you wear is likely not even your own. At least as far as you can remember. But this chunk of plastic still can be a rare oddity that can change your character. Find a way to stay out of trouble, and survive. Though this does not mean you have no home, as the asteroid is your home. Whatever planet you may have come from is now a distant memory.</b>")

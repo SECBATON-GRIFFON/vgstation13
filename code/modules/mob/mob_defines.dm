@@ -3,7 +3,7 @@
 	density = 1
 	layer = MOB_LAYER
 	animate_movement = 2
-
+	throw_impact_sound = 'sound/effects/bodyfall.ogg'
 	w_type = RECYK_BIOLOGICAL
 
 //	flags = NOREACT
@@ -72,7 +72,9 @@
 	var/sdisabilities = 0	//Carbon
 	var/disabilities = 0	//Carbon
 	var/atom/movable/pulling = null
-	var/monkeyizing = null	//Carbon
+	/// Set to TRUE when the mob is being transformed into something else or gibbed.
+	/// Can be checked to avoid running expensive code for mobs that are about to not exist.
+	var/monkeyizing = null
 	var/other = 0.0
 	var/eye_blind = null	//Carbon
 	var/eye_blurry = null	//Carbon
@@ -230,8 +232,6 @@
 
 	var/status_flags = CANSTUN|CANKNOCKDOWN|CANPARALYSE|CANPUSH	//bitflags defining which status effects can be inflicted (replaces CANKNOCKDOWN, canstun, etc)
 
-	var/digitalcamo = 0 // Can they be tracked by the AI?
-
 	var/list/radar_blips = list() // list of screen objects, radar blips
 	var/radar_open = 0 	// nonzero is radar is open
 
@@ -274,6 +274,7 @@
 	var/list/languages[0]
 
 	var/list/alphas = list()
+	var/alpha_override = FALSE	
 	var/spell/spell_channeling // The spell that's currently being channeled
 
 	var/see_in_dark_override = 0	//for general guaranteed modification of these variables

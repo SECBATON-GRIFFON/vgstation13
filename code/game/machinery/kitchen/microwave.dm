@@ -5,10 +5,10 @@
 	icon_state = "mw"
 	density = 1
 	anchored = 1
-	use_power = 1
+	use_power = MACHINE_POWER_USE_IDLE
 	idle_power_usage = 5
-	active_power_usage = 100
-	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | EJECTNOTDEL
+	active_power_usage = 500
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | EJECTNOTDEL | EMAGGABLE
 	flags = OPENCONTAINER | NOREACT
 	pass_flags = PASSTABLE
 	log_reagents = 0 //transferred 5u of flour from a flour sack [0x20107e8] to Microwave [0x2007fdd]. transferred 5u of flour from a flour sack [0x20107e8] to Microwave [0x2007fdd]. transferred 5u of flour from a flour sack [0x20107e8] to Microwave [0x2007fdd].
@@ -23,7 +23,6 @@
 							/obj/item/weapon/cell,/obj/item/weapon/circuitboard,/obj/item/device/aicard
 							)// List of the items you can put in
 	var/global/list/acceptable_reagents // List of the reagents you can put in
-	var/list/holdingitems = list()
 	var/limit = 100
 	var/speed_multiplier = 1
 	var/scanning_power = 0
@@ -31,6 +30,13 @@
 												/obj/item/weapon/reagent_containers/food/drinks,
 												/obj/item/weapon/reagent_containers/food/condiment,
 												/obj/item/weapon/reagent_containers/dropper)
+
+
+	hack_abilities = list(
+		/datum/malfhack_ability/toggle/disable,
+		/datum/malfhack_ability/oneuse/overload_quiet,
+		/datum/malfhack_ability/oneuse/emag,
+	)
 
 	component_parts = newlist(\
 		/obj/item/weapon/circuitboard/microwave,\
@@ -58,15 +64,14 @@
 	create_reagents(100)
 
 	if (!available_recipes)
-		available_recipes = new
-		for (var/type in (typesof(/datum/recipe)-/datum/recipe))
-			available_recipes+= new type
+		available_recipes = generate_available_recipes(flags = COOKABLE_WITH_MICROWAVE | COOKABLE_WITH_MIXING) //Allow things like salads to be made in a microwave while mixing bowls are unimplemented.
 		acceptable_reagents = new
 		for (var/datum/recipe/recipe in available_recipes)
 			for (var/item in recipe.items)
 				acceptable_items |= item
 			for (var/reagent in recipe.reagents)
 				acceptable_reagents |= reagent
+		sortTim(available_recipes, /proc/cmp_microwave_recipe_dsc)
 
 /*******************
 *   Part Upgrades
@@ -87,7 +92,7 @@
 ********************/
 
 /obj/machinery/microwave/conveyor_act(var/atom/movable/AM, var/obj/machinery/conveyor/CB)
-	if(holdingitems && holdingitems.len >= limit)
+	if(contents.len >= limit)
 		return FALSE
 	else if(istype(AM, /obj/item/weapon/storage/bag/plants))
 		var/obj/item/weapon/storage/bag/B = AM
@@ -165,7 +170,7 @@
 	if(..())
 		return 1
 
-	if(holdingitems && holdingitems.len >= limit)
+	if(contents.len >= limit)
 		to_chat(usr, "The machine cannot hold anymore items.")
 		return 1
 	else if(istype(O, /obj/item/weapon/storage/bag/plants) || istype(O, /obj/item/weapon/storage/bag/food/borg))
@@ -173,7 +178,7 @@
 		for (var/obj/item/weapon/reagent_containers/food/snacks/G in O.contents)
 			B.remove_from_storage(G,src)
 			if(contents.len >= limit) //Sanity checking so the microwave doesn't overfill
-				to_chat(user, "<span class='notice'>You fill \the [src]] to the brim.</span>")
+				to_chat(user, "<span class='notice'>You fill \the [src] to the brim.</span>")
 				break
 		updateUsrDialog()
 
@@ -185,14 +190,14 @@
 				new ST.type (src)
 				ST.use(1)
 				user.visible_message( \
-					"<span class='notice'>[user] has added one of [O] to \the [src].</span>", \
-					"<span class='notice'>You add one of [O] to \the [src].</span>")
+					"<span class='notice'>[user] adds one of [O] to [src].</span>", \
+					"<span class='notice'>You add one of [O] to [src].</span>")
 				updateUsrDialog()
 				return 1
 		if(user.drop_item(O, src))
 			user.visible_message( \
-				"<span class='notice'>[user] has added \the [O] to \the [src].</span>", \
-				"<span class='notice'>You add \the [O] to \the [src].</span>")
+				"<span class='notice'>[user] adds [O] to [src].</span>", \
+				"<span class='notice'>You add [O] to [src].</span>")
 			updateUsrDialog()
 			return 1
 	else if(is_type_in_list(O,accepts_reagents_from))
@@ -200,15 +205,15 @@
 			return 1
 		for (var/datum/reagent/R in O.reagents.reagent_list)
 			if (!(R.id in acceptable_reagents))
-				to_chat(user, "<span class='warning'>Your [O] contains components unsuitable for cookery.</span>")
+				to_chat(user, "<span class='warning'>[O] contains substances unsuitable for cookery.</span>")
 				return 1
 		//G.reagents.trans_to(src,G.amount_per_transfer_from_this)
 	else if(istype(O,/obj/item/weapon/grab))
 		var/obj/item/weapon/grab/G = O
-		to_chat(user, "<span class='warning'>This is ridiculous. You can not fit \the [G.affecting] in this [src].</span>")
+		to_chat(user, "<span class='warning'>This is ridiculous. You can not fit [G.affecting] in this [src].</span>")
 		return 1
 	else
-		to_chat(user, "<span class='warning'>You have no idea what you can cook with this [O].</span>")
+		to_chat(user, "<span class='warning'>You have no idea what you can cook with [O].</span>")
 		return 1
 	updateUsrDialog()
 
@@ -227,10 +232,17 @@
 	if(isAdminGhost(user))
 		user.set_machine(src)
 		interact(user)
+		return
+	..()
 
 /obj/machinery/microwave/attack_hand(mob/user as mob)
 	user.set_machine(src)
 	interact(user)
+
+/obj/machinery/microwave/emag_act(mob/user)
+	..()
+	emagged = 1
+	to_chat(user, "<span class='warning'>You mess up \the [src]'s circuitry.</span>")
 
 /*******************
 *   Microwave Menu
@@ -272,64 +284,6 @@
 	onclose(user, "microwave")
 	return
 
-
-/obj/machinery/microwave/proc/build_list_of_contents()
-	var/dat = ""
-	var/list/items_counts = new
-	var/list/items_measures = new
-	var/list/items_measures_p = new
-	for (var/obj/O in contents)
-		var/display_name = O.name
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/meat)) //any meat
-			items_measures[display_name] = "slab of meat"
-			items_measures_p[display_name] = "slabs of meat"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/meat/carpmeat))
-			items_measures[display_name] = "fillet of fish"
-			items_measures_p[display_name] = "fillets of fish"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/egg))
-			items_measures[display_name] = "egg"
-			items_measures_p[display_name] = "eggs"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/tofu))
-			items_measures[display_name] = "tofu chunk"
-			items_measures_p[display_name] = "tofu chunks"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/donkpocket))
-			display_name = "Turnovers"
-			items_measures[display_name] = "turnover"
-			items_measures_p[display_name] = "turnovers"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/soybeans))
-			items_measures[display_name] = "soybean"
-			items_measures_p[display_name] = "soybeans"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/grapes))
-			display_name = "Grapes"
-			items_measures[display_name] = "bunch of grapes"
-			items_measures_p[display_name] = "bunches of grapes"
-		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/greengrapes))
-			display_name = "Green Grapes"
-			items_measures[display_name] = "bunch of green grapes"
-			items_measures_p[display_name] = "bunches of green grapes"
-		if (istype(O,/obj/item/weapon/kitchen/utensil)) //any spoons, forks, knives, etc
-			items_measures[display_name] = "utensil"
-			items_measures_p[display_name] = "utensils"
-		items_counts[display_name]++
-	for (var/O in items_counts)
-		var/N = items_counts[O]
-		if (!(O in items_measures))
-			dat += {"<B>[capitalize(O)]:</B> [N] [lowertext(O)]\s<BR>"}
-		else
-			if (N==1)
-				dat += {"<B>[capitalize(O)]:</B> [N] [items_measures[O]]<BR>"}
-			else
-				dat += {"<B>[capitalize(O)]:</B> [N] [items_measures_p[O]]<BR>"}
-
-	for (var/datum/reagent/R in reagents.reagent_list)
-		var/display_name = R.name
-		if (R.id == CAPSAICIN)
-			display_name = "Hotsauce"
-		if (R.id == FROSTOIL)
-			display_name = "Coldsauce"
-		dat += {"<B>[display_name]:</B> [R.volume] unit\s<BR>"}
-	return dat
-
 /obj/machinery/microwave/examine(mob/user)
 	to_chat(user, "[bicon(src)] That's a [name].")
 	if(desc)
@@ -352,8 +306,8 @@
 *   Microwave Menu Handling/Cooking
 ************************************/
 
-/obj/machinery/microwave/proc/cook()
-	if(stat & (NOPOWER|BROKEN))
+/obj/machinery/microwave/proc/cook(mob/user)
+	if(stat & (FORCEDISABLE|NOPOWER|BROKEN))
 		return
 	if(operating)
 		return
@@ -381,6 +335,8 @@
 				playsound(usr, 'sound/machines/ding.ogg', 50, 1)
 				empty()
 				if(microwave_cell.rigged)
+					if(microwave_cell.occupant)
+						microwave_cell.occupant.forceMove(get_turf(src))
 					explosion(get_turf(src), -1, round(sqrt(microwave_cell.charge)/60), round(sqrt(microwave_cell.charge)/30))
 				else
 					explosion(get_turf(src), -1,0,2) // Let's not be too harsh on idiots
@@ -444,15 +400,37 @@
 			cooked = fail()
 			cooked.forceMove(src.loc)
 			return
-		cooked = recipe.make_food(src)
+		if(!emagged && !arcanetampered)
+			cooked = recipe.make_food(src,user)
+		else
+			cooked = fail()
 		stop()
 		if(cooked)
+			adjust_cooked_food_reagents_temperature(cooked, recipe)
 			cooked.forceMove(src.loc)
 		return
 
+/obj/machinery/microwave/proc/adjust_cooked_food_reagents_temperature(atom/cooked, datum/recipe/cookedrecipe)
+	//Put the energy used during the cooking into heating the reagents of the food.
+
+	var/cooktime = 10 SECONDS //Use a default to account for burned messes, etc.
+
+	if(cookedrecipe)
+		cooktime = cookedrecipe.time
+		//If we cooked something like ice cream or salad, abort to avoid hot ice cream.
+		if(cookedrecipe.cookable_with == COOKABLE_WITH_MIXING)
+			if(!istype(cooked, /obj/item/weapon/reagent_containers/food/snacks/badrecipe)) //Continue and heat up burned messes for valid, salad-like recipes in the case of emagged, etc.
+				return
+
+	var/thermal_energy_transfer = cooktime * active_power_usage * 0.9 / (1 SECONDS) //Let's assume 90% efficiency. One area for expansion could be to have this depend on upgrades.
+	var/max_temperature = COOKTEMP_HUMANSAFE
+	if(emagged || arcanetampered)
+		max_temperature = INFINITY //If it's been messed with, let it heat more than that.
+	cooked.reagents.heating(thermal_energy_transfer, max_temperature)
+
 /obj/machinery/microwave/proc/running(var/seconds as num) // was called wzhzhzh, for some fucking reason
 	for (var/i=1 to seconds)
-		if (stat & (NOPOWER|BROKEN))
+		if (stat & (NOPOWER|BROKEN|FORCEDISABLE))
 			return 0
 		use_power(500)
 		sleep(10/speed_multiplier)
@@ -461,7 +439,7 @@
 /obj/machinery/microwave/proc/has_extra_item()
 	for (var/obj/O in contents)
 		if ( \
-				!istype(O,/obj/item/weapon/reagent_containers/food) && \
+				!istype(O, /obj/item/weapon/reagent_containers/food) && \
 				!istype(O, /obj/item/weapon/grown) \
 			)
 			return 1
@@ -534,7 +512,7 @@
 	src.operating = 0 // Turn it off again aferwards
 	src.updateUsrDialog()
 
-/obj/machinery/microwave/proc/fail()
+/obj/machinery/microwave/proc/fail(var/arcane = FALSE)
 	var/obj/item/weapon/reagent_containers/food/snacks/badrecipe/ffuu = new(src)
 	var/amount = 0
 	for (var/obj/O in contents-ffuu)
@@ -548,6 +526,12 @@
 	src.reagents.clear_reagents()
 	ffuu.reagents.add_reagent(CARBON, amount)
 	ffuu.reagents.add_reagent(TOXIN, amount/10)
+	if(emagged || arcanetampered || arcane || Holiday == APRIL_FOOLS_DAY)
+		playsound(src, "goon/sound/effects/dramatic.ogg", 100, 0)
+	if(arcanetampered || arcane)
+		muck_start()
+		muck_finish()
+		broke()
 	return ffuu
 
 /obj/machinery/microwave/proc/empty()
@@ -560,12 +544,12 @@
 	if(isAdminGhost(user) || (!user.incapacitated() && Adjacent(user) && user.dexterity_check() && anchored))
 		if(issilicon(user) && !attack_ai(user))
 			return ..()
-		cook() //Cook checks for power, brokenness, and contents internally
+		cook(user) //Cook checks for power, brokenness, and contents internally
 		return
 	return ..()
 
 /obj/machinery/microwave/AltClick(mob/user)
-	if(stat & (NOPOWER|BROKEN))
+	if(stat & (NOPOWER|BROKEN|FORCEDISABLE))
 		return ..()
 	if(!anchored)
 		return ..()
@@ -585,7 +569,7 @@
 
 		switch(task)
 			if("Cook")
-				cook()
+				cook(user)
 			if("Eject Ingredients")
 				dispose()
 			if("Toggle Reagent Disposal")
@@ -614,7 +598,7 @@
 
 	switch(href_list["action"])
 		if ("cook")
-			cook()
+			cook(usr)
 
 		if ("dispose")
 			dispose()

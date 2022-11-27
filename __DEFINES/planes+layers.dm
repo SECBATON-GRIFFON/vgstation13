@@ -74,6 +74,7 @@ Why is FLOAT_PLANE added to a bunch of these?
 	------
 	FLOAT_PLANE = -32767
 */
+#define BELOW_PLATING_PLANE 			(-6 + FLOAT_PLANE)
 
 #define PLATING_PLANE 			(-5 + FLOAT_PLANE)
 
@@ -86,6 +87,8 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define WIRE_LAYER					6
 	#define VENT_BEZEL_LAYER			7
 	#define WIRE_TERMINAL_LAYER			8
+	#define PULSEDEMON_LAYER			9
+	#define FLOORBOARD_ITEM_LAYER		10
 
 #define FLOOR_PLANE 			(-3 + FLOAT_PLANE)
 
@@ -133,6 +136,8 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define BELOW_OBJ_LAYER				2
 	#define MACHINERY_LAYER				2.5
 	// OBJ_LAYER 	 					3
+	#define CANVAS_LAYER				3.1					// So that canvas always appear above easels
+	#define EASEL_OVERLAY_LAYER			3.2					// So that the easel bits that hold a canvas in place always appear above a canvas
 	#define ABOVE_OBJ_LAYER				4
 	#define SIDE_WINDOW_LAYER			5
 	#define FULL_WINDOW_LAYER			6
@@ -164,13 +169,17 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define SHADOW_LAYER				0
 	#define VEHICLE_LAYER 				0
 	#define CHAIR_ARMREST_LAYER 		0
+	#define RAILING_BACK_LAYER 			0.1
+	#define RAILING_MID_LAYER 			0.2
+	#define RAILING_FRONT_LAYER 		0.3
 	#define WINDOOR_LAYER 				1
 	#define OPEN_CURTAIN_LAYER			2
 	// BELOW_OBJ_LAYER					2
 	// OBJ_LAYER 	 					3
 	// ABOVE_OBJ_LAYER					4
 	#define CLOSED_CURTAIN_LAYER		5
-	#define CHAT_LAYER					6
+	#define CLOSED_FIREDOOR_LAYER		6
+	#define CHAT_LAYER					7
 
 #define BLOB_PLANE 				(10 + FLOAT_PLANE)			// For Blobs, which are above humans.
 
@@ -201,33 +210,36 @@ Why is FLOAT_PLANE added to a bunch of these?
 
 	#define GHOST_LAYER 				1
 
-#define LIGHTING_PLANE 			(13)	// Don't put anything other than lighting_overlays in there please
+#define FAKE_CAMERA_PLANE		(13)
+
+#define LIGHTING_PLANE 			(14)	// Don't put anything other than lighting_overlays in there please
+	#define SELF_VISION_LAYER 		   -1
 	#define LIGHTING_LAYER 				0
 
-#define ABOVE_LIGHTING_PLANE	(14)
+#define ABOVE_LIGHTING_PLANE	(15)
 	#define ABOVE_LIGHTING_LAYER		0
 	#define SUPERMATTER_WALL_LAYER 		1
 	#define SUPER_PORTAL_LAYER			2
 	#define NARSIE_GLOW 				3
 
 
-
 	#define MAPPING_AREA_LAYER			999	// Why isn't this a plane exactly?
 
-#define OPEN_OVERLAY_PLANE	(14 + FLOAT_PLANE) // This one won't behave either
+#define OPEN_OVERLAY_PLANE	(16 + FLOAT_PLANE) // This one won't behave either
 
-#define BASE_PLANE 				(15 + FLOAT_PLANE)		//  this is where darkness is! see "how planes work" - needs SEE_BLACKNESS or SEE_PIXEL (see blackness is better for ss13)
+#define BASE_PLANE 				(17 + FLOAT_PLANE)		//  this is where darkness is! see "how planes work" - needs SEE_BLACKNESS or SEE_PIXEL (see blackness is better for ss13)
 
-#define MISC_HUD_MARKERS_PLANE	16
+#define MISC_HUD_MARKERS_PLANE	18
 
-#define ANTAG_HUD_PLANE		 	17
+#define ANTAG_HUD_PLANE		 	19
 
-#define STATIC_PLANE 			18		// For AI's static.
+#define STATIC_PLANE 			20		// For AI's static.
 
-	#define STATIC_LAYER				1
-	#define REACTIVATE_CAMERA_LAYER		2
+	#define HACK_LAYER 					1
+	#define STATIC_LAYER				2
+	#define REACTIVATE_CAMERA_LAYER		3
 
-#define FULLSCREEN_PLANE		19		// for fullscreen overlays that do not cover the hud.
+#define FULLSCREEN_PLANE		21		// for fullscreen overlays that do not cover the hud.
 
 	#define FULLSCREEN_LAYER	 		0
 	#define DAMAGE_HUD_LAYER 			1
@@ -236,7 +248,7 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define CRIT_LAYER 					4
 	#define HALLUCINATION_LAYER 		5
 
-#define HUD_PLANE 				20		// For the Head-Up Display
+#define HUD_PLANE 				22		// For the Head-Up Display
 
 	#define UNDER_HUD_LAYER 			0
 	#define HUD_BASE_LAYER		 		1
@@ -248,7 +260,7 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define MIND_UI_BUTTON 				11
 	#define MIND_UI_FRONT 				12
 
-#define ABOVE_HUD_PLANE 		21		// For being above the Head-Up Display
+#define ABOVE_HUD_PLANE 		23		// For being above the Head-Up Display
 
 
 /atom/proc/hud_layerise()
@@ -327,13 +339,23 @@ var/noir_master = list(new /obj/abstract/screen/plane_master/noir_master(),new /
 	ghost_planemaster_dummy = new /obj/abstract/screen/plane_master/ghost_planemaster_dummy
 	screen |= ghost_planemaster_dummy
 
+// OVERDARKNESS PLANEMASTER
+// Used to apply darkness over lights that the player isn't supposed to see when the lighting master is set to BLEND_ADD
+/obj/abstract/screen/plane_master/overdark_planemaster
+	plane = 0
+
+/obj/abstract/screen/plane_master/overdark_planemaster_target
+	appearance_flags = 0
+	plane = LIGHTING_PLANE
+	blend_mode = BLEND_ADD
+	mouse_opacity = 0
+	screen_loc = "CENTER,CENTER"
 
 // DARKNESS PLANEMASTER
 // One planemaster for each client, which they gain during mob/login()
 /obj/abstract/screen/plane_master/darkness_planemaster
 	plane = LIGHTING_PLANE
-
-	blend_mode    = BLEND_MULTIPLY
+	blend_mode = BLEND_MULTIPLY
 
 /obj/abstract/screen/plane_master/darkness_planemaster_dummy
 	alpha = 0
@@ -351,3 +373,25 @@ var/noir_master = list(new /obj/abstract/screen/plane_master/noir_master(),new /
 	screen |= darkness_planemaster
 	darkness_planemaster_dummy = new /obj/abstract/screen/plane_master/darkness_planemaster_dummy
 	screen |= darkness_planemaster_dummy
+
+
+/obj/abstract/screen/plane_master/fakecamera_planemaster
+	plane = FAKE_CAMERA_PLANE
+	alpha = 0
+
+/obj/abstract/screen/plane_master/fakecamera_planemaster_dummy
+	alpha = 0
+	appearance_flags = 0
+	plane = FAKE_CAMERA_PLANE
+
+/client/proc/initialize_fakecamera_planemaster()
+	if(fakecamera_planemaster)
+		screen -= fakecamera_planemaster
+		qdel(fakecamera_planemaster)
+	if(fakecamera_planemaster_dummy)
+		screen -= fakecamera_planemaster_dummy
+		qdel(fakecamera_planemaster_dummy)
+	fakecamera_planemaster = new /obj/abstract/screen/plane_master/fakecamera_planemaster
+	screen |= fakecamera_planemaster
+	fakecamera_planemaster_dummy = new /obj/abstract/screen/plane_master/fakecamera_planemaster_dummy
+	screen |= fakecamera_planemaster_dummy

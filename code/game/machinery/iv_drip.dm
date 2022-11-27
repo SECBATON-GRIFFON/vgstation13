@@ -11,6 +11,9 @@
 	var/obj/item/weapon/reagent_containers/beaker = null
 	var/mob/living/carbon/human/attached = null
 
+/obj/machinery/iv_drip/splashable()
+	return FALSE
+
 /obj/machinery/iv_drip/update_icon()
 	if(src.attached)
 		icon_state = "hooked[mode ? "_inject" : "_draw"]"
@@ -178,9 +181,6 @@
 	src.attached = null
 	src.update_icon()
 
-/obj/machinery/iv_drip/attack_ai(mob/living/user)
-	attack_hand(user)
-
 /obj/machinery/iv_drip/verb/toggle_mode()
 	set name = "Toggle Mode"
 	set category = "Object"
@@ -191,10 +191,6 @@
 
 	if(!istype(usr, /mob/living) || istype(usr, /mob/living/simple_animal))
 		to_chat(usr, "<span class='warning'>You can't do that.</span>")
-		return
-
-	if(locked_to) //attached to rollerbed? probably?
-		to_chat(usr, "<span class='warning'>You can't do that while \the [src] is fastened to something.</span>")
 		return
 
 	mode = !mode

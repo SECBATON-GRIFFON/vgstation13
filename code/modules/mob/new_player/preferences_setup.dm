@@ -21,6 +21,8 @@
 
 
 /datum/preferences/proc/randomize_hair_color(var/target = "hair")
+	if(species == "Vox")
+		r_hair = rand(1,7)
 	if(prob (75) && target == "facial") // Chance to inherit hair color
 		r_facial = r_hair
 		g_facial = g_hair
@@ -31,7 +33,7 @@
 	var/green
 	var/blue
 
-	var/col = pick ("blonde", "black", "chestnut", "copper", "brown", "wheat", "old", 15;"punk")
+	var/col = pick("blonde", "black", "chestnut", "copper", "brown", "wheat", "old", 15;"punk")
 	switch(col)
 		if("blonde")
 			red = 255
@@ -242,7 +244,13 @@
 	eyes_s.Blend(rgb(r_eyes, g_eyes, b_eyes), ICON_ADD)
 
 	var/datum/sprite_accessory/hair_style = hair_styles_list[h_style]
-	if(hair_style)
+	if(species == "Vox")
+		if(hair_style)
+			var/icon/hair_s = new/icon("icon" = hair_style.icon, "icon_state" = "[hair_style.icon_state]_[r_hair]_s")
+			if(hair_style.additional_accessories)
+				hair_s.Blend(icon("icon" = hair_style.icon, "icon_state" = "[hair_style.icon_state]_[r_hair]_acc"), ICON_OVERLAY)
+			eyes_s.Blend(hair_s, ICON_OVERLAY)
+	else if(hair_style)
 		var/icon/hair_s = new/icon("icon" = hair_style.icon, "icon_state" = "[hair_style.icon_state]_s")
 		if(hair_style.do_colouration)
 			hair_s.Blend(rgb(r_hair, g_hair, b_hair), ICON_ADD)
@@ -502,6 +510,11 @@
 				clothes_s.Blend(new /icon('icons/mob/hands.dmi', "black"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/in-hand/right/items_righthand.dmi', "toolbox_blue"), ICON_OVERLAY)
 				clothes_s.Blend(new /icon(suit_dmi, "labcoat_open"), ICON_OVERLAY)
+				clothes_s=blend_backpack(clothes_s,backbag,"satchel-norm",null,"courierbag")
+			if(/datum/job/trader)
+				clothes_s = new /icon(uniform_dmi, "trader-outfit_s")
+				clothes_s.Blend(new /icon(feet_dmi, "trader-boots"), ICON_OVERLAY)
+				clothes_s.Blend(new /icon('icons/mob/belt.dmi', "walkietalkie"), ICON_OVERLAY)
 				clothes_s=blend_backpack(clothes_s,backbag,"satchel-norm",null,"courierbag")
 			if(/datum/job/ai)//Gives AI and borgs assistant-wear, so they can still customize their character
 				clothes_s = new /icon(uniform_dmi, "grey_s")

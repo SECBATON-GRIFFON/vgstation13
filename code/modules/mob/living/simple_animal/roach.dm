@@ -56,6 +56,8 @@
 
 	var/const/max_unhatchable_eggs_in_world = 30
 	held_items = list()
+	
+	var/flyicon = "cockroach_fly" //here so the turk roach uses the proper fly icon
 
 /mob/living/simple_animal/cockroach/New()
 	..()
@@ -212,7 +214,7 @@
 	speed = 1
 	turns_since_move = 5 //Remove any delay
 
-	icon_state = "cockroach_fly"
+	icon_state = flyicon
 
 	flying = 1
 	speak_chance = 5
@@ -269,14 +271,7 @@
 	if(istype(W, /obj/item/weapon/newspaper))
 		user.visible_message("<span class='danger'>[user] swats \the [src] with \the [W]!</span>", "<span class='danger'>You swat \the [src] with \the [W].</span>")
 		W.desc = "[initial(W.desc)] <span class='notice'>There is a splattered [src] on the back.</span>"
-
 		adjustBruteLoss(5)
-	else if(istype(W, /obj/item/weapon/plantspray/pests))
-		var/obj/item/weapon/plantspray/pests/P = W
-		if(P.use(1))
-			to_chat(user, "You spray \the [src] with \the [P].")
-			playsound(loc, 'sound/effects/spray3.ogg', 50, 1, -6)
-			death(gore = 0)
 	else
 		return ..()
 
@@ -335,3 +330,16 @@
 	qdel(src)
 
 	H.vomit()
+
+/mob/living/simple_animal/cockroach/turkish
+	name = "Turk"
+	desc = "A Turkish politician, straight from the Space Turkey embassy."
+	icon_state = "turkroach"
+	icon_living = "turkroach"
+	icon_dead = "cockroach_dead"
+	emote_hear = list("seethes")
+	flyicon = "turkroach_fly" //so they use the proper flying icon
+
+/mob/living/simple_animal/cockroach/turkish/death(var/gore = 1)
+	new /obj/item/clothing/head/fez(get_turf(src))
+	..()

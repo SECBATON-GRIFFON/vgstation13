@@ -53,6 +53,24 @@
 /obj/item/weapon/reagent_containers/food/drinks/bite_act(mob/user)
 	return try_consume(user)
 
+/obj/item/weapon/reagent_containers/food/drinks/arcane_act(mob/user)
+	..()
+	cant_drop = 1
+	return prob(50) ? "D'TA EX'P'GED!" : "R'D'CTED!"
+
+/obj/item/weapon/reagent_containers/food/drinks/bless()
+	..()
+	cant_drop = 0
+
+/obj/item/weapon/reagent_containers/food/drinks/pickup(mob/user as mob)
+	..()
+	if(ishuman(user) && arcanetampered) // wizards turn it into SCP-198
+		var/mob/living/carbon/human/H = user
+		reagents.clear_reagents()
+		H.audible_scream()
+		H.adjustHalLoss(50)
+		H.vessel.trans_to(reagents,reagents.maximum_volume)
+
 /obj/item/weapon/reagent_containers/food/drinks/attack(mob/living/M as mob, mob/user as mob, def_zone)
 	var/datum/reagents/R = src.reagents
 	var/fillevel = gulp_size
@@ -136,8 +154,8 @@
 		//The reagents in the bottle splash all over the target, thanks for the idea Nodrak
 		if(src.reagents)
 			for(var/mob/O in viewers(user, null))
-				O.show_message(text("<span class='bnotice'>The contents of \the [smashtext][src] splashes all over [M]!</span>"), 1)
-			src.reagents.reaction(M, TOUCH)
+				O.show_message(text("<span class='bnotice'>The contents of \the [smashtext][src] splashes all over [M][ishuman(M) ? "'s [parse_zone(affecting)]" : ""]!</span>"), 1)
+			src.reagents.reaction(M, TOUCH, zone_sels = list(user.zone_sel.selecting))
 
 		//Finally, smash the bottle. This kills (del) the bottle.
 		src.smash(M, user)
@@ -185,7 +203,7 @@
 					reagents.remove_any(gulp_size)
 					return 0
 
-			reagents.reaction(M, INGEST)
+			reagents.reaction(M, INGEST, amount_override = min(reagents.total_volume,gulp_size)/(reagents.reagent_list.len))
 			spawn(5)
 				reagents.trans_to(M, gulp_size)
 
@@ -236,6 +254,11 @@
 		lit = 0
 
 	..()
+
+	if(arcanetampered && ishuman(user) && !reagents.total_volume)
+		var/mob/living/carbon/human/H = user
+		H.vessel.trans_to(reagents,reagents.maximum_volume)
+		return 0
 
 /obj/item/weapon/reagent_containers/food/drinks/New()
 	..()
@@ -475,7 +498,7 @@
 			name = "Groans Soda: Energy Shot"
 			desc = "Warning: The Groans Energy Blend(tm), may be toxic to those without constant exposure to chemical waste. Drink responsibly."
 			icon_state += "_energy"
-			reagents.add_reagent(SUGAR, 10)
+			reagents.add_reagent(CORNSYRUP, 10)
 			reagents.add_reagent(CHEMICAL_WASTE, 10)
 		if(5)
 			name = "Groans Soda: Double Dan"
@@ -529,7 +552,7 @@
 			reagents.add_reagent(FROSTOIL, 30)
 		if(3)
 			name = "Grifeo: Crystallic"
-			reagents.add_reagent(SUGAR, 20)
+			reagents.add_reagent(CORNSYRUP, 20)
 			reagents.add_reagent(ICE, 20, reagtemp = T0C)
 			reagents.add_reagent(SPACE_DRUGS, 20)
 		if(4)
@@ -641,16 +664,6 @@
 	A.desc += " It feels warm.." //This is required
 	user.drop_from_inventory(src)
 	qdel(src)
-
-/obj/item/weapon/reagent_containers/food/drinks/discount_sauce
-	name = "Discount Dan's Special Sauce"
-	desc = "Discount Dan brings you his very own special blend of delicious ingredients in one discount sauce!"
-	icon_state = "discount_sauce"
-	volume = 3
-
-/obj/item/weapon/reagent_containers/food/drinks/discount_sauce/New()
-	..()
-	reagents.add_reagent(DISCOUNT, 3)
 
 
 /obj/item/weapon/reagent_containers/food/drinks/beer
@@ -871,6 +884,25 @@
 		var/obj/B = new /obj/item/weapon/reagent_containers/food/snacks/sliceable/bread(get_turf(src))
 		user.put_in_hands(B)
 
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/canned_matter
+	name = "\improper canned bread"
+	desc = "Wow, they have it!"
+	icon_state = "cannedbread"
+	var/obj/item/storeditem = null
+	//no actual chemicals in the can
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/canned_matter/attackby(var/obj/item/I, mob/user as mob)
+	if(!(flags & OPENCONTAINER)) // Won't work if already opened
+		if(user.drop_item(I,src))
+			storeditem = I
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/canned_matter/pop_open(var/mob/user)
+	. = ..()
+	spawn(0.5 SECONDS)
+		playsound(src, pick('sound/effects/splat_pie1.ogg','sound/effects/splat_pie2.ogg'), 50)
+		storeditem.forceMove(get_turf(src))
+		storeditem = null
+
 /obj/item/weapon/reagent_containers/food/drinks/coloring
 	name = "\improper vial of food coloring"
 	icon = 'icons/obj/chemical.dmi'
@@ -1001,7 +1033,6 @@
 	..()
 	reagents.add_reagent(CAFE_LATTE, 50)
 
-
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/cannedcopcoffee
 	name = "HOSS Rainbow Donut Blend"
 	desc = "All the essentials, for on the go."
@@ -1009,6 +1040,22 @@
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/cannedcopcoffee/New()
 	..()
 	reagents.add_reagent(SECCOFFEE, 50)
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee
+	name = "Energizer"
+	desc = "Smells a bit like Battery Acid"
+	icon_state = "engicoffee"
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee/New()
+	..()
+	reagents.add_reagent(ENGICOFFEE, 50)
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee_shard
+	name = "Supermatter Sea Salt Soda "
+	desc = "Mmmmm Blurple"
+	icon_state = "engicoffee_shard"
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee_shard/New()
+	..()
+	reagents.add_reagent(ENGICOFFEE, 50)
 
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/lifeline_white
 	name = "Picomed: White edition"
@@ -1076,7 +1123,7 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/zam_formicfizz
 	name = "Zam Formic Fizz"
-	desc = "Sulphuric Splash is for brainless minions. This is a REAL Grey's drink."
+	desc = "Sulphuric Splash is for brainless minions. This is a REAL grey's drink."
 	icon_state = "Zam_FormicFizz"
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/zam_formicfizz/New()
 	..()
@@ -1098,7 +1145,7 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/zam_trustytea
 	name = "Zam Trusty Tea"
-	desc = "All trusty tea is made with real opok juice. Zam's honor!" // It'll use berry juice until opok juice exists. The tea is a lie...
+	desc = "All trusty tea is made with real opok juice. Zam's honor!" // Now with REAL Opok Juice!
 	icon_state = "Zam_TrustyTea"
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/zam_trustytea/New()
 	..()
@@ -1106,8 +1153,8 @@
 		name = "Zam Old Fashioned Tea"
 		desc = "One of the original cans! The design has been discontinued, and it might be worth something to a collector."
 		icon_state = "Zam_TrustyClassic"
-	reagents.add_reagent(ACIDTEA, 30)
-	reagents.add_reagent(BERRYJUICE, 5)
+	reagents.add_reagent(ACIDTEA, 25)
+	reagents.add_reagent(OPOKJUICE, 10)
 	reagents.add_reagent(CAFFEINE, 5)
 	src.pixel_x = rand(-10, 10) * PIXEL_MULTIPLIER
 	src.pixel_y = rand(-10, 10) * PIXEL_MULTIPLIER
@@ -1220,6 +1267,7 @@
 	origin_tech = Tc_MATERIALS + "=1"
 	melt_temperature = MELTPOINT_PLASTIC
 	starting_materials = list(MAT_PLASTIC = 500)
+	w_type = RECYK_PLASTIC
 	volume = 100
 	amount_per_transfer_from_this = 10
 
@@ -1782,7 +1830,8 @@
 				message_admins("[lit ? "Lit" : "Unlit"] molotov shattered at [formatJumpTo(get_turf(hit_atom))], thrown by [key_name_admin(user)] and containing [reagents.get_reagent_ids()]")
 			reagents.reaction(get_turf(src), TOUCH) //splat the floor AND the thing we hit, otherwise fuel wouldn't ignite when hitting anything that wasn't a floor
 			if(hit_atom != get_turf(src)) //prevent spilling on the floor twice though
-				reagents.reaction(hit_atom, TOUCH)  //maybe this could be improved?
+				var/list/hit_zone = user && user.zone_sel ? list(user.zone_sel.selecting) : ALL_LIMBS
+				reagents.reaction(hit_atom, TOUCH, zone_sels = hit_zone)  //maybe this could be improved?
 		invisibility = INVISIBILITY_MAXIMUM  //so it stays a while to ignite any fuel
 
 		if(molotov == 1) //for molotovs

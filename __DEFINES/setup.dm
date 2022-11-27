@@ -113,8 +113,6 @@ var/global/disable_vents     = 0
 // Factor of how fast mob nutrition decreases
 #define HUNGER_FACTOR 0.15  // Please remember when editing this that it will also affect hypothermia.
 
-#define FIRE_MINIMUM_TEMPERATURE_TO_SPREAD	150+T0C
-#define FIRE_MINIMUM_TEMPERATURE_TO_EXIST	100+T0C
 #define FIRE_SPREAD_RADIOSITY_SCALE		0.85
 #define FIRE_CARBON_ENERGY_RELEASED	  500000 //Amount of heat released per mole of burnt carbon into the tile
 #define FIRE_PLASMA_ENERGY_RELEASED	 3000000 //Amount of heat released per mole of burnt plasma into the tile
@@ -125,8 +123,7 @@ var/global/disable_vents     = 0
 var/turf/space/Space_Tile = locate(/turf/space) // A space tile to reference when atmos wants to remove excess heat.
 
 //This was a define, but I changed it to a variable so it can be changed in-game.(kept the all-caps definition because... code...) -Errorage
-var/MAX_EXPLOSION_RANGE = 14
-//#define MAX_EXPLOSION_RANGE		14					// Defaults to 12 (was 8) -- TLE
+var/MAX_EXPLOSION_RANGE = 32
 
 #define HUMAN_STRIP_DELAY 40 //takes 40ds = 4s to strip someone.
 #define HUMAN_REVERSESTRIP_DELAY 20
@@ -414,6 +411,8 @@ var/global/list/BODY_COVER_VALUE_LIST=list("[HEAD]" = COVER_PROTECTION_HEAD,"[EY
 #define DISABILITY_FLAG_ASTHMA 128
 #define DISABILITY_FLAG_LACTOSE		256
 #define DISABILITY_FLAG_LISP		512
+#define DISABILITY_FLAG_ANEMIA		1024
+#define DISABILITY_FLAG_EHS			2048
 
 ///////////////////////////////////////
 // MUTATIONS
@@ -459,7 +458,7 @@ var/global/list/BODY_COVER_VALUE_LIST=list("[HEAD]" = COVER_PROTECTION_HEAD,"[EY
 #define M_REMOTE_VIEW	101 	// remote viewing
 #define M_REGEN			102 	// health regen
 #define M_RUN			103 	// no slowdown
-#define M_REMOTE_TALK	104 	// remote talking
+#define M_TELEPATHY		104 	// remote talking
 #define M_MORPH			105 	// changing appearance
 #define M_RESIST_HEAT	106 	// heat resistance
 #define M_HALLUCINATE	107 	// hallucinations
@@ -472,7 +471,7 @@ var/global/list/BODY_COVER_VALUE_LIST=list("[HEAD]" = COVER_PROTECTION_HEAD,"[EY
 #define M_TOXIC_FARTS   201		// Duh
 #define M_STRONG        202		// (Nothing)
 #define M_SOBER         203		// Increased alcohol metabolism
-#define M_PSY_RESIST    204		// Block remoteview
+#define M_JAMSIGNALS	204		// Block EMFs
 #define M_SUPER_FART    205		// Duh
 #define M_SMILE         206		// :)
 #define M_ELVIS         207		// You ain't nothin' but a hound dog.
@@ -508,6 +507,8 @@ var/global/list/NOIRMATRIX = list(0.33,0.33,0.33,0,\
 #define NERVOUS			16
 #define ASTHMA		32
 #define LACTOSE		64
+#define ANEMIA		128
+#define ELECTROSENSE	256
 
 //sdisabilities
 #define BLIND			1
@@ -531,10 +532,12 @@ var/global/list/NOIRMATRIX = list(0.33,0.33,0.33,0,\
 // bitflags for machine stat variable
 #define BROKEN		1
 #define NOPOWER		2
-#define POWEROFF	4		// tbd
-#define MAINT		8			// under maintaince
+#define POWEROFF	4		// unused
+#define MAINT		8		// under maintaince
 #define EMPED		16		// temporary broken by EMP pulse
-#define FORCEDISABLE 32 //forced to be off, such as by a random event
+#define FORCEDISABLE 32 	//disabled either via wire pulse, grid check, or malf ai
+#define NOAICONTROL 	64		//ai control disable
+
 
 //bitflags for door switches.
 #define OPEN	1
@@ -612,6 +615,7 @@ var/list/global_mutations = list() // list of hidden mutation things
 #define UNPACIFIABLE 16		//Immune to pacify effects.
 #define GODMODE		4096
 #define FAKEDEATH	8192	//Replaces stuff like changeling.changeling_fakedeath
+#define BUDDHAMODE	16384
 #define XENO_HOST	32768	//Tracks whether we're gonna be a baby alien's mummy.
 #define ALWAYS_CRIT 65536
 
@@ -648,7 +652,7 @@ var/list/liftable_structures = list(\
 	/obj/machinery/space_heater, \
 	/obj/machinery/recharge_station, \
 	/obj/machinery/flasher, \
-	/obj/structure/stool, \
+	/obj/item/weapon/stool, \
 	/obj/structure/closet, \
 	/obj/machinery/photocopier, \
 	/obj/structure/filingcabinet, \
@@ -678,6 +682,8 @@ var/list/liftable_structures = list(\
 #define BANTYPE_APPEARANCE	6
 #define BANTYPE_OOC_PERMA	7
 #define BANTYPE_OOC_TEMP	8
+#define BANTYPE_PAX_PERMA	9
+#define BANTYPE_PAX_TEMP	10
 
 #define SEE_INVISIBLE_MINIMUM 5
 
@@ -688,13 +694,10 @@ var/list/liftable_structures = list(\
 #define SEE_INVISIBLE_LIVING 25		//This what players have by default.
 
 #define SEE_INVISIBLE_LEVEL_ONE 35	//Used by mobs under certain conditions.
-#define INVISIBILITY_LEVEL_ONE 35	//Used by infrared beams.
+#define INVISIBILITY_LEVEL_ONE 35	//Used by infrared beams and turrets inside their covers
 
 #define SEE_INVISIBLE_LEVEL_TWO 45	//Used by mobs under certain conditions.
-#define INVISIBILITY_LEVEL_TWO 45	//Used by turrets inside their covers.
-
-#define INVISIBILITY_CULTJAUNT 50	//Used by cult
-#define SEE_INVISIBLE_CULTJAUNT 50	//Used by cult
+#define INVISIBILITY_LEVEL_TWO 45	//Used objects/spells
 
 #define INVISIBILITY_OBSERVER 60	//Used by Ghosts.
 #define SEE_INVISIBLE_OBSERVER 60	//Used by Ghosts.
@@ -839,7 +842,7 @@ SEE_PIXELS	256
 #define R_POSSESS		64
 #define R_PERMISSIONS	128
 #define R_STEALTH		256
-#define R_REJUVINATE	512
+#define R_REJUVENATE	512
 #define R_VAREDIT		1024
 #define R_SOUNDS		2048
 #define R_SPAWN			4096
@@ -900,6 +903,7 @@ SEE_PIXELS	256
 #define ROLE_ALIEN			"xenomorph"
 #define ROLE_STRIKE			"striketeam"
 #define ROLE_PRISONER		"prisoner"
+#define ROLE_GRUE			"grue"
 
 #define AGE_MIN 17			//youngest a character can be
 #define AGE_MAX 85			//oldest a character can be
@@ -959,25 +963,27 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 	CAMERANET_THUNDER,
 	CAMERANET_ERT,
 	CAMERANET_NUKE,
-	CAMERANET_CREED
+	CAMERANET_CREED,
+	CAMERANET_MOTHERSHIPLAB
 	)
 
 //Generic species flags.
-#define NO_BREATHE 1
-#define NO_SCAN 2
-#define NO_PAIN 4
-#define IS_SLOW 8
-#define IS_PLANT 16
-#define IS_WHITELISTED 32
-#define RAD_ABSORB 64
-#define REQUIRE_LIGHT 128
-#define HYPOTHERMIA_IMMUNE 256
-#define PLASMA_IMMUNE 512
-#define RAD_GLOW 1024
-#define ELECTRIC_HEAL 2048
-#define SPECIES_NO_MOUTH 4096
-//#define REQUIRE_DARK 8192
-#define RAD_IMMUNE 16384
+#define WHITELISTED (1<<0)	//species that don't break player preferences available to admins only
+#define PLAYABLE (1<<1)		//species available to players
+#define NO_BREATHE (1<<2)
+#define NO_SCAN (1<<3)
+#define NO_PAIN (1<<4)
+#define IS_SLOW (1<<5)
+#define IS_PLANT (1<<6)
+#define RAD_ABSORB (1<<7)
+#define REQUIRE_LIGHT (1<<8)
+#define HYPOTHERMIA_IMMUNE (1<<9)
+#define PLASMA_IMMUNE (1<<10)
+#define RAD_GLOW (1<<11)
+#define ELECTRIC_HEAL (1<<12)
+#define SPECIES_NO_MOUTH (1<<13)
+//#define REQUIRE_DARK (1<<14)
+#define RAD_IMMUNE (1<<15)
 
 //Species anatomical flags.
 #define HAS_SKIN_TONE 1
@@ -1033,6 +1039,7 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define	ANTIGEN_COMMON	"common"
 #define	ANTIGEN_RARE	"rare"
 #define	ANTIGEN_ALIEN	"alien"
+#define ANTIGEN_SPECIAL "special"
 
 //blood antigens
 #define	ANTIGEN_O	"O"
@@ -1051,11 +1058,15 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define	ANTIGEN_X	"X"
 #define	ANTIGEN_Y	"Y"
 #define	ANTIGEN_Z	"Z"
+//cult antigen
+#define ANTIGEN_CULT	"C"
+
 
 //Language flags.
-#define WHITELISTED 1  // Language is available if the speaker is whitelisted.
-#define RESTRICTED 2   // Language can only be accquired by spawning or an admin.
-#define CAN_BE_SECONDARY_LANGUAGE 4 // Language is available on character setup as secondary language.
+//#define WHITELISTED (1<<0)  // Language is available if the speaker is whitelisted. Used in species flags
+#define RESTRICTED (1<<1)   // Language can only be accquired by spawning or an admin.
+#define CAN_BE_SECONDARY_LANGUAGE (1<<2)	// Language is available on character setup as secondary language.
+#define NONORAL (1<<3)		//Language is spoken without using the mouth, so can be spoken while muzzled.
 
 // Hairstyle flags
 #define HAIRSTYLE_CANTRIP 1 // 5% chance of tripping your stupid ass if you're running.
@@ -1095,7 +1106,8 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define RECYK_BIOLOGICAL 3
 #define RECYK_METAL      4
 #define RECYK_ELECTRONIC 5
-#define RECYK_WOOD		 6
+#define RECYK_WOOD       6
+#define RECYK_PLASTIC    7
 
 ////////////////
 // job.info_flags
@@ -1112,6 +1124,10 @@ var/default_colour_matrix = list(1,0,0,0,\
 
 #define AUTOIGNITION_WOOD  573.15
 #define AUTOIGNITION_PAPER 519.15
+#define AUTOIGNITION_PLASTIC 689.15 //autoignition temperature of ABS plastic
+#define AUTOIGNITION_FABRIC 523.15
+#define AUTOIGNITION_PROTECTIVE 573.15 //autoignition temperature of protective clothing like firesuits or kevlar vests
+#define AUTOIGNITION_ORGANIC 633.15 //autoignition temperature of animal fats
 
 // snow business
 #define SNOWBALL_MINIMALTEMP 265	//about -10°C, the minimal temperature at which a thrown snowball can cool you down.
@@ -1130,7 +1146,7 @@ var/default_colour_matrix = list(1,0,0,0,\
 
 
 //used to define machine behaviour in attackbys and other code situations
-#define EMAGGABLE		1 //can we emag it? If this is flagged, the machine calls emag()
+#define EMAGGABLE		1 //can we emag it? If this is flagged, the machine calls emag_act()
 #define SCREWTOGGLE		2 //does it toggle panel_open when hit by a screwdriver?
 #define CROWDESTROY		4 //does hitting a panel_open machine with a crowbar disassemble it?
 #define WRENCHMOVE		8 //does hitting it with a wrench toggle its anchored state?
@@ -1246,31 +1262,15 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define TOTAL_LAYERS			23
 //////////////////////////////////
 
-
-////////////////////////
-////PDA APPS DEFINES////
-////////////////////////
-#define PDA_APP_ALARM			100
-#define PDA_APP_RINGER			101
-#define PDA_APP_SPAMFILTER		102
-#define PDA_APP_BALANCECHECK	103
-#define PDA_APP_STATIONMAP		104
-#define PDA_APP_SNAKEII			105
-#define PDA_APP_MINESWEEPER		106
-#define PDA_APP_SPESSPETS		107
-#define PDA_APP_NEWSREADER		108
-
+//Snake stuff so leaderboard can see it too
 #define PDA_APP_SNAKEII_MAXSPEED		9
 #define PDA_APP_SNAKEII_MAXLABYRINTH	8
-
-#define NEWSREADER_CHANNEL_LIST	0
-#define NEWSREADER_VIEW_CHANNEL	1
-#define NEWSREADER_WANTED_SHOW	2
 
 //Some alien checks for reagents for alien races.
 #define IS_DIONA 1
 #define IS_VOX 2
 #define IS_PLASMA 3
+#define IS_GREY 4
 
 
 //Turf Construction defines
@@ -1307,6 +1307,7 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define LANGUAGE_INSECT "Insectoid"
 #define LANGUAGE_DEATHSQUAD "Deathsquad"
 #define LANGUAGE_CLOWN "Clown"
+#define LANGUAGE_GRUE "Grue"
 
 //#define SAY_DEBUG 1
 #ifdef SAY_DEBUG
@@ -1320,9 +1321,11 @@ var/default_colour_matrix = list(1,0,0,0,\
 #define ASTAR_DEBUG 0
 #if ASTAR_DEBUG == 1
 #warn "Astar debug is on. Don't forget to turn it off after you've done :)"
-#define astar_debug(text) to_chat(world, text)
+#define astar_debug(text) //to_chat(world, text)
+#define astar_debug_mulebots(text) to_chat(world, text)
 #else
 #define astar_debug(text)
+#define astar_debug_mulebots(text)
 #endif
 
 #define BSQL_DEBUG_CONNECTION 0
@@ -1403,6 +1406,17 @@ var/proccalls = 1
 
 #define UTENSILE_FORK	1
 #define UTENSILE_SPOON	2
+
+//Grue defines
+#define GRUE_LARVA 1
+#define GRUE_JUVENILE 2
+#define GRUE_ADULT 3
+#define GRUE_WALLBREAK 3//Beings to eat before able to break walls
+#define GRUE_RWALLBREAK 5 //Beings to eat before able to break reinforced walls
+#define GRUE_DARK 0 //dark enough for healing
+#define GRUE_DIM 1	//light level neither heals nor burns
+#define GRUE_LIGHT 2//bright enough to burn
+#define GRUE_DRAINLIGHT 1 //Channeling the drain light ability
 /*
  *
  *
@@ -1448,6 +1462,8 @@ var/proccalls = 1
 
 //OOC isbanned
 #define oocban_isbanned(key) oocban_keylist.Find("[ckey(key)]")
+
+#define paxban_isbanned(key) paxban_keylist.Find("[ckey(key)]")
 
 //message modes. you're not supposed to mess with these.
 #define MODE_HEADSET "headset"
@@ -1628,6 +1644,7 @@ var/proccalls = 1
 #define INSECT_BLOOD	"#EBECE6"
 #define PALE_BLOOD		"#272727"//Seek Paleblood to transcend the hunt.
 #define GHOUL_BLOOD		"#7FFF00"
+#define GRUE_BLOOD		"#272728"
 
 //Return values for /obj/machinery/proc/npc_tamper_act(mob/living/L)
 #define NPC_TAMPER_ACT_FORGET 1 //Don't try to tamper with this again
@@ -1696,7 +1713,7 @@ var/proccalls = 1
 #define ESPORTS_CULTISTS "Team Geometer"
 #define ESPORTS_SECURITY "Team Security"
 
-#define DNA_SE_LENGTH 58
+#define DNA_SE_LENGTH 60
 
 #define VOX_SHAPED "Vox","Skeletal Vox"
 #define GREY_SHAPED "Grey"
@@ -1790,3 +1807,44 @@ var/list/weekend_days = list("Friday", "Saturday", "Sunday")
 #define IS_WEEKEND (weekend_days.Find(time2text(world.timeofday, "Day")))
 
 #define RECOMMENDED_CLIENT_FPS 100
+
+// /datum/reagent/var/sport
+#define SPORTINESS_NONE 1
+#define SPORTINESS_SUGAR 1.2
+#define SPORTINESS_SPORTS_DRINK 5
+
+//Luck-related defines
+
+//Flags for item luckiness:
+#define LUCKINESS_WHEN_HELD (1<<0) //The item confers (un)luck when held in the hand. Also includes surgically implanted items.
+#define LUCKINESS_WHEN_WORN (1<<1)	//The item confers (un)luck when worn in an inventory slot other than the hands.
+#define LUCKINESS_WHEN_HELD_RECURSIVE (1<<2) //The item confers (un)luck when held in the hand directly or inside something else being held in the hand.
+#define LUCKINESS_WHEN_WORN_RECURSIVE (1<<3) //The item confers (un)luck when worn or inside something else being worn, but not held in the hand.
+#define LUCKINESS_WHEN_GENERAL (LUCKINESS_WHEN_HELD | LUCKINESS_WHEN_WORN) //The item confers (un)luck when directly held in the hand or worn in an inventory slot.
+#define LUCKINESS_WHEN_GENERAL_RECURSIVE (LUCKINESS_WHEN_HELD_RECURSIVE | LUCKINESS_WHEN_WORN_RECURSIVE) //The item confers (un)luck when held in the hand or worn directly, or inside something else being held in the hand or worn.
+
+#define LUCKINESS_DRAINFACTOR 0.998 //Multiplied by a mob's temporary luckiness every Life() tick. The greater the magnitude of temporary luckiness, the faster it drains.
+
+//Coin-related defines
+#define COIN_HEADS "heads-up."
+#define COIN_TAILS "tails-up."
+#define COIN_SIDE "on the side!"
+
+//Muzzles
+#define MUZZLE_SOFT 1	//Muzzle causes muffled speech.
+#define MUZZLE_HARD	2	//Muzzle prevents speech.
+
+//Cooking vessel-selective cookability of recipes
+#define COOKABLE_WITH_MICROWAVE (1<<0)
+#define COOKABLE_WITH_PAN (1<<1)
+#define COOKABLE_WITH_MIXING (1<<2) //For things like salads and ice cream that don't require heat to cook (when mixing bowls are implemented, for now this is just used to not heat those recipes when they're made in a microwave).
+#define COOKABLE_WITH_HEAT (COOKABLE_WITH_MICROWAVE | COOKABLE_WITH_PAN)
+#define COOKABLE_WITH_ALL ALL
+
+//Flags for the contents of a cooking vessel
+#define COOKVESSEL_CONTAINS_REAGENTS (1<<0) //The cooking vessel contains reagents
+#define COOKVESSEL_CONTAINS_CONTENTS (1<<1)	//The cooking vessel contains non-reagent contents (eg. items)
+
+//Cooking-related temperatures
+#define COOKTEMP_DEFAULT (T0C + 316) //Default cooking temperature, around 600 F
+#define COOKTEMP_HUMANSAFE (BODYTEMP_HEAT_DAMAGE_LIMIT - 1) //Human-safe temperature for cooked food, 1 degree less than the threshold for burning a human.

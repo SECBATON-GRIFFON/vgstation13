@@ -1,6 +1,7 @@
 /obj/item/clothing
 	name = "clothing"
 	sterility = 5
+	autoignition_temperature = AUTOIGNITION_FABRIC
 	var/list/species_restricted = null //Only these species can wear this kit.
 	var/wizard_garb = 0 // Wearing this empowers a wizard.
 	var/eyeprot = 0 //for head and eyewear
@@ -29,6 +30,16 @@
 		accessories.Remove(A)
 		qdel(A)
 	..()
+
+/obj/item/clothing/can_quick_store(var/obj/item/I)
+	for(var/obj/item/clothing/accessory/storage/A in accessories)
+		if(A.hold && A.hold.can_be_inserted(I,1))
+			return 1
+
+/obj/item/clothing/quick_store(var/obj/item/I,mob/user)
+	for(var/obj/item/clothing/accessory/storage/A in accessories)
+		if(A.hold && A.hold.handle_item_insertion(I,0))
+			return 1
 
 /obj/item/clothing/CtrlClick(var/mob/user)
 	if(isturf(loc))
@@ -278,16 +289,13 @@
 				visible_message("<span class='notice'>\The [user] puts out the fire on \the [target].</span>")
 		return
 
-/obj/item/clothing/proc/get_armor(var/type)
-	return armor[type]
-
-/obj/item/clothing/proc/get_armor_absorb(var/type)
-	return armor_absorb[type]
-
 /obj/item/clothing/proc/offenseTackleBonus()
 	return
 
 /obj/item/clothing/proc/defenseTackleBonus()
+	return
+
+/obj/item/clothing/proc/rangeTackleBonus()
 	return
 
 //Ears: headsets, earmuffs and tiny objects
@@ -339,6 +347,7 @@
 	sterility = 50
 	var/wired = 0
 	var/obj/item/weapon/cell/cell = 0
+	var/cant_remove_cell = FALSE
 	var/clipped = 0
 	body_parts_covered = HANDS
 	slot_flags = SLOT_GLOVES

@@ -1,7 +1,7 @@
 var/list/forced_roundstart_ruleset = list()
 
 // -- Distribution parameters chosen prior to roundstart --
-var/dynamic_curve_centre = 0
+var/dynamic_curve_centre = 0 // 0 for LORENTZ 1 for EXPONENTIAL
 var/dynamic_curve_width = 1.8
 var/dynamic_chosen_mode = LORENTZ
 
@@ -46,6 +46,8 @@ var/stacking_limit = 90
 	var/list/living_antags = list()
 	var/list/dead_players = list()
 	var/list/list_observers = list()
+	var/last_time_of_population = 0
+	var/last_time_of_late_shuttle_call = 0
 
 	var/latejoin_injection_cooldown = 0
 	var/midround_injection_cooldown = 0
@@ -147,8 +149,7 @@ var/stacking_limit = 90
 
 /datum/gamemode/dynamic/GetScoreboard()
 
-	dat += "<h2>Dynamic Mode - Roundstart Threat = <font color='red'>[threat_level]%</font>, Midround Threat = <font color='red'>[midround_threat_level]%</font></h2><a href='?src=\ref[src];threatlog=1'>\[View Log\]</a>"
-
+	dat += "<h2>Dynamic Mode - Roundstart Threat = <font color='red'>[threat_level]%</font>, Midround Threat = <font color='red'>[midround_threat_level]%</font></h2>"
 	if (executed_rules.len > 0)
 		for (var/datum/dynamic_ruleset/DR in executed_rules)
 			var/ruletype = ""
@@ -160,6 +161,7 @@ var/stacking_limit = 90
 				ruletype = "midround"
 			dat += "([ruletype]) - <b>[DR.name]</b>[DR.calledBy ? " (called by [DR.calledBy])" : ""]<br>"
 			rules_text += "[ruletype] - **[DR.name]** [DR.calledBy ? " (called by [DR.calledBy])" : ""]"
+		dat += "<a href='?src=\ref[src];threatlog=1'>\[View Log\]</a>"
 	else
 		dat += "(extended)"
 		rules_text += "None"
@@ -167,8 +169,8 @@ var/stacking_limit = 90
 	. = ..()
 
 /datum/gamemode/dynamic/send2servers()
-	send2mainirc("A round of [name] has ended - [living_players.len] survivors, [dead_players.len] ghosts. Final crew score: [score["crewscore"]]. ([score["rating"]])")
-	send2maindiscord("A round of **[name]** has ended - **[living_players.len]** survivors, **[dead_players.len]** ghosts. Final crew score: **[score["crewscore"]]**. ([score["rating"]])")
+	send2mainirc("A round of [name] has ended - [living_players.len] survivors, [dead_players.len] ghosts. Final crew score: [score.crewscore]. ([score.rating])")
+	send2maindiscord("A round of **[name]** has ended - **[living_players.len]** survivors, **[dead_players.len]** ghosts. Final crew score: **[score.crewscore]**. ([score.rating])")
 	send2mainirc("Dynamic mode Roundstart Threat: [starting_threat][(starting_threat!=threat_level)?" ([threat_level])":""], Midround Threat: [midround_starting_threat][(midround_starting_threat!=midround_threat_level)?" ([midround_threat_level])":""], rulesets: [jointext(rules_text, ", ")].")
 	send2maindiscord("Dynamic mode Roundstart Threat: **[starting_threat][(starting_threat!=threat_level)?" ([threat_level])":""]**, Midround Threat: **[midround_starting_threat][(midround_starting_threat!=midround_threat_level)?" ([midround_threat_level])":""]**, rulesets: [jointext(rules_text, ", ")]")
 
@@ -204,13 +206,9 @@ var/stacking_limit = 90
 	message_admins("Parameters were: centre = [curve_centre_of_round], width = [curve_width_of_round].")
 	log_admin("Parameters were: centre = [curve_centre_of_round], width = [curve_width_of_round].")
 
-	var/rst_pop = 0
-	for(var/mob/new_player/player in player_list)
-		if(player.ready && player.mind)
-			rst_pop++
-	if (rst_pop >= high_pop_limit)
-		message_admins("DYNAMIC MODE: Mode: High Population Override is in effect! ([rst_pop]/[high_pop_limit]) Threat Level will have more impact on which roles will appear, and player population less.")
-		log_admin("DYNAMIC MODE: High Population Override is in effect! ([rst_pop]/[high_pop_limit]) Threat Level will have more impact on which roles will appear, and player population less.")
+	if (roundstart_pop_ready >= high_pop_limit)
+		message_admins("DYNAMIC MODE: Mode: High Population Override is in effect! ([roundstart_pop_ready]/[high_pop_limit]) Threat Level will have more impact on which roles will appear, and player population less.")
+		log_admin("DYNAMIC MODE: High Population Override is in effect! ([roundstart_pop_ready]/[high_pop_limit]) Threat Level will have more impact on which roles will appear, and player population less.")
 	dynamic_stats = new
 	dynamic_stats.starting_threat_level = threat_level
 
@@ -254,12 +252,12 @@ var/stacking_limit = 90
 		if (initial(DR.weight))
 			midround_rules += new rule()
 	for(var/mob/new_player/player in player_list)
-		if(player.ready && player.mind)
+		if(player.mind && player.ready)
 			roundstart_pop_ready++
 			candidates.Add(player)
-	message_admins("DYNAMIC MODE: Listing [roundstart_rules.len] round start rulesets, and [candidates.len] players ready.")
-	log_admin("DYNAMIC MODE: Listing [roundstart_rules.len] round start rulesets, and [candidates.len] players ready.")
-	if (candidates.len <= 0)
+	message_admins("DYNAMIC MODE: Listing [roundstart_rules.len] round start rulesets, and [roundstart_pop_ready] players ready.")
+	log_admin("DYNAMIC MODE: Listing [roundstart_rules.len] round start rulesets, and [roundstart_pop_ready] players ready.")
+	if (roundstart_pop_ready <= 0)
 		message_admins("DYNAMIC MODE: Not a single player readied-up. The round will begin without any roles assigned.")
 		log_admin("DYNAMIC MODE: Not a single player readied-up. The round will begin without any roles assigned.")
 		return 1
@@ -275,7 +273,7 @@ var/stacking_limit = 90
 	var/starting_rulesets = ""
 	for (var/datum/dynamic_ruleset/roundstart/DR in executed_rules)
 		starting_rulesets += "[DR.name], "
-	dynamic_stats.round_start_pop = candidates.len
+	dynamic_stats.round_start_pop = roundstart_pop_ready
 	dynamic_stats.round_start_rulesets = starting_rulesets
 	dynamic_stats.measure_threat(threat)
 	candidates.Cut()
@@ -337,11 +335,7 @@ var/stacking_limit = 90
 	if (classic_secret) // Classic secret experience : one & only one roundstart ruleset
 		extra_rulesets_amount = 0
 	else
-		var/rst_pop = 0
-		for(var/mob/new_player/player in player_list)
-			if(player.ready && player.mind)
-				rst_pop++
-		if (rst_pop > high_pop_limit)
+		if (roundstart_pop_ready > high_pop_limit)
 			if (threat_level > 50)
 				extra_rulesets_amount++
 				if (threat_level > 75)
@@ -498,8 +492,10 @@ var/stacking_limit = 90
 			dynamic_stats.successful_injection(latejoin_rule)
 			if (latejoin_rule.persistent)
 				current_rules += latejoin_rule
-			return 1
-	return 0
+			. = TRUE
+	for (var/datum/dynamic_ruleset/latejoin/non_executed in drafted_rules)
+		non_executed.assigned.Cut()
+
 
 /datum/gamemode/dynamic/proc/picking_midround_rule(var/list/drafted_rules = list())
 	var/datum/dynamic_ruleset/midround/midround_rule = pickweight(drafted_rules)
@@ -656,6 +652,14 @@ var/stacking_limit = 90
 					continue
 			dead_players.Add(M)//Players who actually died (and admins who ghosted, would be nice to avoid counting them somehow)
 
+	if(living_players.len) //if anybody is around and alive in the current round
+		last_time_of_population = world.time
+	else if(last_time_of_population && world.time - last_time_of_population > 1 HOURS) //if enough time has passed without it
+		ticker.station_nolife_cinematic()
+	if(world.time > (7 HOURS + 40 MINUTES) && world.time - last_time_of_late_shuttle_call > 1 HOURS && emergency_shuttle.direction == 0) // 8 hour work shift, with time for shuttle to arrive and leave. If recalled, do every hour
+		shuttle_autocall("Shift due to end")
+		last_time_of_late_shuttle_call = world.time
+
 /datum/gamemode/dynamic/proc/GetInjectionChance()
 	var/chance = 0
 	//if the high pop override is in effect, we reduce the impact of population on the antag injection chance
@@ -760,7 +764,7 @@ var/stacking_limit = 90
 
 // Same as above, but for midround
 /datum/gamemode/dynamic/proc/refund_midround_threat(var/regain)
-	threat = min(midround_threat_level,midround_threat+regain)
+	midround_threat = min(midround_threat_level,midround_threat+regain)
 
 /datum/gamemode/dynamic/proc/create_midround_threat(var/gain)
 	midround_threat = min(100, midround_threat+gain)

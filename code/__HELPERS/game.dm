@@ -190,6 +190,12 @@
 			return M
 	return null
 
+/proc/get_mind_by_key(var/key)
+	for(var/datum/mind/M in ticker.minds)
+		if(lowertext(M.key) == lowertext(key))
+			return M
+	return null
+
 // Comment out when done testing shit.
 //#define DEBUG_ROLESELECT
 
@@ -217,6 +223,10 @@
 
 			if(((G.client.inactivity/10)/60) > buffer + i) // the most active players are more likely to become an alien
 				roleselect_debug("get_active_candidates(role_id=[role_id], buffer=[buffer], poll=[poll]): Skipping [G]  - Inactive.")
+				continue
+
+			if(isAdminGhost(G)) // don't do this to admins
+				roleselect_debug("get_active_candidates(role_id=[role_id], buffer=[buffer], poll=[poll]): Skipping [G]  - Is adminned.")
 				continue
 
 			roleselect_debug("get_active_candidates(role_id=[role_id], buffer=[buffer], poll=[poll]): Selected [G] as candidate.")

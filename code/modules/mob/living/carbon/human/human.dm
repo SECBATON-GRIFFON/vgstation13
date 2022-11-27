@@ -56,7 +56,7 @@
 	my_appearance.h_style = "Bald"
 	regenerate_icons()
 
-/mob/living/carbon/human/plasma/New(var/new_loc, delay_ready_dna = 0)
+/mob/living/carbon/human/plasmaman/New(var/new_loc, delay_ready_dna = 0)
 	..(new_loc, "Plasmaman")
 	my_appearance.h_style = "Bald"
 	regenerate_icons()
@@ -76,8 +76,8 @@
 	my_appearance.h_style = "Bald"
 	regenerate_icons()
 
-/mob/living/carbon/human/grue/New(var/new_loc, delay_ready_dna = 0)
-	..(new_loc, "Grue")
+/mob/living/carbon/human/vampire/New(var/new_loc, delay_ready_dna = 0)
+	..(new_loc, "Vampire")
 	my_appearance.h_style = "Bald"
 	regenerate_icons()
 
@@ -122,26 +122,6 @@
 	..(new_loc, "Undead")
 	my_appearance.h_style = "Bald"
 	regenerate_icons()
-
-/mob/living/carbon/human/generate_static_overlay()
-	if(!istype(static_overlays,/list))
-		static_overlays = list()
-	static_overlays.Add(list("static", "blank", "letter", "cult"))
-	var/image/static_overlay = image(icon('icons/effects/effects.dmi', "static"), loc = src)
-	static_overlay.override = 1
-	static_overlays["static"] = static_overlay
-
-	static_overlay = image(icon('icons/effects/effects.dmi', "blank_human"), loc = src)
-	static_overlay.override = 1
-	static_overlays["blank"] = static_overlay
-
-	static_overlay = getLetterImage(src, "H", 1)
-	static_overlay.override = 1
-	static_overlays["letter"] = static_overlay
-
-	static_overlay = image(icon = 'icons/mob/animal.dmi', loc = src, icon_state = pick("faithless","forgotten","otherthing",))
-	static_overlay.override = 1
-	static_overlays["cult"] = static_overlay
 
 /mob/living/carbon/human/New(var/new_loc, var/new_species_name = null, var/delay_ready_dna=0)
 	my_appearance = new // Initialise how they look.
@@ -315,7 +295,6 @@
 	return FALSE
 
 /mob/living/carbon/human/var/co2overloadtime = null
-/mob/living/carbon/human/var/temperature_resistance = T0C+75 //but why is this here
 
 // called when something steps onto a human
 // this could be made more general, but for now just handle mulebot
@@ -386,8 +365,7 @@
 		return get_worn_id_name("Unknown")
 	if( head && head.is_hidden_identity())
 		return get_worn_id_name("Unknown")	//Likewise for hats
-	var/datum/role/vampire/V = isvampire(src)
-	if(V && (locate(/datum/power/vampire/shadow) in V.current_powers) && V.ismenacing)
+	if(istruevampire(src))
 		return get_worn_id_name("Unknown")
 	var/face_name = get_face_name()
 	var/id_name = get_worn_id_name("")
@@ -844,7 +822,7 @@
 
 	var/datum/organ/internal/brain/BBrain = internal_organs_by_name["brain"]
 	if(!BBrain)
-		var/obj/item/organ/external/head/B = decapitated
+		var/obj/item/organ/external/head/B = decapitated?.get()
 		if(B)
 			var/datum/organ/internal/brain/copied
 			if(B.organ_data)
@@ -1397,7 +1375,15 @@
 	return id
 
 /mob/living/carbon/human/update_perception()
-	if(client && client.darkness_planemaster)
+	if (dark_plane)
+		dark_plane.alphas = list()
+		dark_plane.colours = null
+		dark_plane.blend_mode = BLEND_ADD
+
+	if (master_plane)
+		master_plane.blend_mode = BLEND_MULTIPLY
+
+	if(client && dark_plane)
 		var/datum/organ/internal/eyes/E = src.internal_organs_by_name["eyes"]
 		if(E)
 			E.update_perception(src)
@@ -1405,9 +1391,21 @@
 		for(var/ID in virus2)
 			var/datum/disease2/disease/D = virus2[ID]
 			for (var/datum/disease2/effect/catvision/catvision in D.effects)
-				if (catvision.count)//if catulism has activated at least once, we can see much better in the dark.
-					client.darkness_planemaster.alpha = min(100, client.darkness_planemaster.alpha)
+				if (catvision.count)
+					dark_plane.alphas["cattulism"] = clamp(15 + (catvision.count * 20),15,155) // The more it activates, the better we see, until we see as well as a tajaran would.
 					break
+
+	if (istype(glasses))
+		glasses.update_perception(src)
+		if (dark_plane && glasses.my_dark_plane_alpha_override && glasses.my_dark_plane_alpha_override_value)
+			dark_plane.alphas["[glasses.my_dark_plane_alpha_override]"] = glasses.my_dark_plane_alpha_override_value
+
+	if (mind)
+		for (var/key in mind.antag_roles)
+			var/datum/role/R = mind.antag_roles[key]
+			R.update_perception()
+
+	check_dark_vision()
 
 /mob/living/carbon/human/assess_threat(var/obj/machinery/bot/secbot/judgebot, var/lasercolor)
 	if(judgebot.emagged == 2)
@@ -1493,14 +1491,17 @@
 	investigation_log(I_SINGULO,"has been consumed by a singularity")
 	gib()
 	return gain
-/mob/living/carbon/human/singularity_pull(S, current_size,var/radiations = 3)
+/mob/living/carbon/human/singularity_pull(S, current_size, repel = FALSE, var/radiations = 3)
 	if(src.flags & INVULNERABLE)
 		return 0
 	if(current_size >= STAGE_THREE) //Pull items from hand
 		for(var/obj/item/I in held_items)
 			if(prob(current_size*5) && I.w_class >= ((11-current_size)/2) && u_equip(I,1))
-				step_towards(I, src)
-				to_chat(src, "<span class = 'warning'>\The [S] pulls \the [I] from your grip!</span>")
+				if(!repel)
+					step_towards(I, S)
+				else
+					step_away(I, S)
+				to_chat(src, "<span class = 'warning'>\The [S] [repel ? "pushes" : "pulls"] \the [I] from your grip!</span>")
 	if(radiations)
 		apply_radiation(current_size * radiations, RAD_EXTERNAL)
 	if(shoes)
@@ -1846,6 +1847,11 @@
 		species.anatomy_flags = rand(0,65535)
 	if(prob(5))
 		species.chem_flags = rand(0,65535)
+	if(prob(15))
+		species.tackleRange = max(0, rand(species.tackleRange-2, species.tackleRange+2))	//Leaving this with no upper limit is a choice I'm making today. God help us tomorrow.
+	if(prob(15))
+		species.tacklePower = max(0, rand(species.tacklePower*0.5, species.tacklePower*1.5))
+
 
 	if(!can_be_fat)
 		species.anatomy_flags &= ~CAN_BE_FAT
@@ -1878,6 +1884,7 @@
 		"check_mutations",
 		"lastFart",
 		"lastDab",
+		"lastAnemia",
 		"last_shush",
 		"last_emote_sound",
 		"decapitated",
@@ -1934,9 +1941,9 @@
 	// ...means no flavor text for you. Otherwise, good to go.
 	return TRUE
 
-/mob/living/carbon/human/proc/make_zombie(mob/master, var/retain_mind = TRUE, var/crabzombie = FALSE)
-	dropBorers()
+/mob/living/carbon/human/proc/zombify(mob/master, var/retain_mind = TRUE, var/crabzombie = FALSE)
 	if(crabzombie)
+		dropBorers()
 		var/mob/living/simple_animal/hostile/necro/zombie/headcrab/T = new(get_turf(src), master, (retain_mind ? src : null))
 		T.virus2 = virus_copylist(virus2)
 		T.get_clothes(src, T)
@@ -1944,14 +1951,32 @@
 		T.host = src
 		forceMove(null)
 		return T
-	else
+	else if(stat == DEAD || InCritical())
+		dropBorers()
 		var/mob/living/simple_animal/hostile/necro/zombie/turned/T = new(get_turf(src), master, (retain_mind ? src : null))
+		if(master && master.faction)
+			T.faction = "\ref[master]"
+		T.add_spell(/spell/aoe_turf/necro/zombie/evolve)
+		if(isgrey(src))
+			T.icon_state = "mauled_laborer"
+			T.icon_living = "mauled_laborer"
+			T.icon_dead = "mauled_laborer"
+		else if(isvox(src))
+			T.icon_state = "rotting_raider1"
+			T.icon_living = "rotting_raider1"
+			T.icon_dead = "rotting_raider1"
+		else if(isinsectoid(src))
+			T.icon_state = "zombie_turned"
+			T.icon_living = "zombie_turned"
+			T.icon_dead = "zombie_turned"
 		T.virus2 = virus_copylist(virus2)
 		T.get_clothes(src, T)
 		T.name = real_name
 		T.host = src
 		forceMove(null)
 		return T
+	else
+		become_zombie = TRUE
 
 /mob/living/carbon/human/throw_item(var/atom/target,var/atom/movable/what=null)
 	var/atom/movable/item = get_active_hand()
@@ -2263,7 +2288,7 @@
 			return list(
 		if ("Golem")
 			return list(
-		if ("Grue")
+		if ("Vampire")
 			return list(
 		if ("Slime")
 			return list(

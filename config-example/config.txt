@@ -25,8 +25,17 @@ JOBS_HAVE_MINIMAL_ACCESS
 ## you have noone older than 0 days, since noone has been logged yet. Only turn this on once you have had the database up for 30 days.
 #USE_AGE_RESTRICTION_FOR_JOBS
 
+## Remove # here if you wish to specify a custom cap on the amount of permabanned players showing up in hell, 0 disables
+#BANS_SHOWN_IN_HELL_LIMIT 32
+
 ## Unhash this to use recursive explosions, keep it hashed to use circle explosions. Recursive explosions react to walls, airlocks and blast doors, making them look a lot cooler than the boring old circular explosions. They require more CPU and are (as of january 2013) experimental
 #USE_RECURSIVE_EXPLOSIONS
+
+## Remove # here if you wish to have cargo forwarding on by default at roundstart
+#CARGO_FORWARDING_ON_ROUNDSTART
+
+## Remove # here if you wish to have cargo forwards sent always be a set amount (for debugging)
+#CARGO_FORWARDING_AMOUNT_OVERRIDE 5
 
 ## (SECURITY RISK ON PUBLIC SERVERS) Automatically give localhost clients +HOST access.
 LOCALHOST_AUTOADMIN
@@ -192,7 +201,7 @@ GUEST_BAN
 ##Remove the # mark infront of this to forbid admins from posssessing the singularity.
 #FORBID_SINGULO_POSSESSION
 
-## Remove the # to show a popup 'reply to' window to every non-admin that recieves an adminPM.
+## Remove the # to show a popup 'reply to' window to every non-admin that receives an adminPM.
 ## The intention is to make adminPMs more visible. (although I fnd popups annoying so this defaults to off)
 #POPUP_ADMIN_PM
 
@@ -366,9 +375,3 @@ BSQL_THREAD_LIMIT 50
 
 ## Uncomment to enable verbose BSQL communication logs
 #BSQL_DEBUG
-
-## The maximum number of z-levels rendered above or below in multi-z
-MULTIZ_RENDER_CAP 8
-
-## The maximum number of z-levels checked below in multi-z
-MULTIZ_BOTTOM_CAP 16

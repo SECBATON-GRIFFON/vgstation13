@@ -65,7 +65,7 @@
 						taggun.score()
 				M.Knockdown(2)
 				M.Stun(2)
-			else // We've got a game on the reciever, let's check if we've got a game on the wearer.
+			else // We've got a game on the receiver, let's check if we've got a game on the wearer.
 				if (!firer_tag || !firer_tag.my_laser_tag_game || (target_tag.my_laser_tag_game != firer_tag.my_laser_tag_game))
 					return 1
 				if (!target_tag.player || !firer_tag.player)
@@ -172,8 +172,11 @@
 	name = "neurotoxin bolt"
 	icon_state = "neurotoxin"
 	damage = 5
+	eyeblur = 4
 	damage_type = TOX
 	weaken = 5
+	stun = 5
+	bumped = 1
 
 /obj/item/projectile/energy/rad
 	name = "radiation bolt"

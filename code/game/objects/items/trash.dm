@@ -97,6 +97,10 @@
 	starting_materials = list(MAT_CARDBOARD = 370)
 	w_type=RECYK_MISC
 
+/obj/item/trash/popcorn/hoppers
+	name = "hoppers"
+	icon_state = "hoppers"
+	
 /obj/item/trash/sosjerky
 	name = "\improper Scaredy's Private Reserve Beef Jerky"
 	icon_state = "sosjerky"
@@ -290,35 +294,67 @@ var/list/crushed_cans_cache = list()
 
 /obj/item/trash/ketchup_packet
 	name = "ketchup packet"
-	desc = "A used ketchup packet"
+	desc = "A used ketchup packet."
 	icon_state	= "ketchup_small"
 
 /obj/item/trash/mayo_packet
-	name = "mayonaise packet"
-	desc = "A used mayonnaise packet"
+	name = "mayonnaise packet"
+	desc = "A used mayonnaise packet."
 	icon_state	= "mayo_small"
 
 /obj/item/trash/soysauce_packet
 	name = "soy sauce packet"
-	desc = "A used soy sauce packet"
+	desc = "A used soy sauce packet."
 	icon_state	= "soysauce_small"
 
 /obj/item/trash/vinegar_packet
 	name = "malt vinegar packet"
-	desc = "A used vinegar packet"
+	desc = "A used vinegar packet."
 	icon_state	= "vinegar_small"
 
 /obj/item/trash/zamitos_o
 	name = "Zamitos: Original Flavor"
-	desc = "Crumbs to crumbs"
+	desc = "Crumbs to crumbs."
 	icon_state	= "zamitos_o"
 
 /obj/item/trash/zamitos_bg
 	name = "Zamitos: Blue Goo Flavor"
-	desc = "Someone around here is a goo eater"
+	desc = "Someone around here is a goo eater."
 	icon_state	= "zamitos_bg"
 
 /obj/item/trash/zamitos_sj
 	name = "Zamitos: Spicy Stok Jerky Flavor"
-	desc = "The end of a meat-flavored era"
+	desc = "The end of a meat-flavored era."
 	icon_state	= "zamitos_sj"
+
+/obj/item/trash/zamspices_packet
+	name = "zam spices packet"
+	desc = "A used Zam spices packet."
+	icon_state	= "zamspices_small"
+
+/obj/item/trash/zammild_packet
+	name = "zam's mild sauce packet"
+	desc = "A used Zam's mild sauce packet."
+	icon_state	= "zammild_small"
+
+/obj/item/trash/zamspicytoxin_packet
+	name = "zam's spicy sauce packet"
+	desc = "A used Zam's spicy sauce packet."
+	icon_state	= "zamspicytoxin_small"
+	
+/obj/item/trash/discount_packet
+	name = "Discount Dan's Special Sauce"
+	desc = "Contained 40% less sauce than competing products!"
+	icon_state	= "discount_small"
+
+/obj/item/trash/emptybowl
+	name = "empty bowl"
+	desc = "No soup, no use."
+	icon_state	= "emptybowl"
+
+/obj/item/trash/emptybowl_ufo
+	name = "empty saucer bowl"
+	desc = "What a shame it's too small to fly in."
+	icon_state	= "emptysaucerbowl"
+	starting_materials = list(MAT_IRON = 100)
+	w_type=RECYK_METAL

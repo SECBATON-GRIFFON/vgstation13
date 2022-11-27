@@ -102,8 +102,27 @@
 				"<span class='notice'>[M] unbuckled \himself!</span>",
 				"You unbuckle yourself from \the [src].",
 				"You hear metal clanking.")
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				if(H.disabilities & ANEMIA)
+					if(world.time - H.lastAnemia <= 30 SECONDS)
+					else
+						H.sleeping += 2
+						H.visible_message("<span class='alert'>[H] collapses to the ground after standing up too fast.</span>", "<span class='warning'>Your vision swims as you fall over.</span>")
+						H.lastAnemia=world.time
 		playsound(src, 'sound/misc/buckle_unclick.ogg', 50, 1)
-		return TRUE
+	return TRUE
+
+/obj/structure/bed/arcane_act(mob/user)
+	..()
+	return "'N S'VIET R'SIA...!"
+
+/obj/structure/bed/bless()
+	..()
+	if(locked_to)
+		var/mob/M = locked_to
+		M.unlock_atom(src)
+		playsound(src, 'sound/misc/buckle_unclick.ogg', 50, 1)
 
 /obj/structure/bed/proc/buckle_mob(mob/M as mob, mob/user as mob)
 	if(!Adjacent(user) || user.incapacitated() || istype(user, /mob/living/silicon/pai))
@@ -146,7 +165,11 @@
 	playsound(src, 'sound/misc/buckle_click.ogg', 50, 1)
 	add_fingerprint(user)
 
-	lock_atom(M, mob_lock_type)
+	if(arcanetampered)
+		to_chat(user, "<span class='sinister'>[capitalize(name)] buckles YOU!</span>")
+		M.lock_atom(src)
+	else
+		lock_atom(M, mob_lock_type)
 
 	if(M.pulledby)
 		M.pulledby.start_pulling(src)

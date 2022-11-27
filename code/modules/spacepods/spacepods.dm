@@ -39,8 +39,8 @@
 	var/locked = FALSE
 	var/next_firetime = 0
 	var/list/pod_overlays
-	var/health = 400
-	var/maxHealth = 400
+	health = 400
+	maxHealth = 400
 	var/lights_enabled = FALSE
 	light_power = 2
 	light_range = SPACEPOD_LIGHTS_RANGE_OFF
@@ -619,7 +619,7 @@
 	new /obj/spacepod/random(get_turf(src))
 	qdel(src)
 
-/obj/spacepod/acidable()
+/obj/spacepod/dissolvable()
 	return 0
 
 /obj/spacepod/proc/move_into_pod(var/mob/living/L)

@@ -162,6 +162,20 @@
 	message_admins("[key_name_admin(usr)] has toggled [key_name_admin(M)]'s nodamage to [(M.status_flags & GODMODE) ? "On" : "Off"]", 1)
 	feedback_add_details("admin_verb","GOD") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
+/client/proc/cmd_admin_buddhamode(mob/M as mob in mob_list)
+	set category = "Special Verbs"
+	set name = "Buddha mode"
+
+	if(!holder)
+		to_chat(src, "Only administrators may use this command.")
+		return
+	M.status_flags ^= BUDDHAMODE
+	to_chat(usr, "<span class='notice'>Toggled [(M.status_flags & BUDDHAMODE) ? "ON" : "OFF"]</span>")
+
+	log_admin("[key_name(usr)] has toggled [key_name(M)]'s nodeath to [(M.status_flags & BUDDHAMODE) ? "On" : "Off"]")
+	message_admins("[key_name_admin(usr)] has toggled [key_name_admin(M)]'s nodeath to [(M.status_flags & BUDDHAMODE) ? "On" : "Off"]", 1)
+	feedback_add_details("admin_verb","BUDDHA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
 
 /proc/cmd_admin_mute(mob/M as mob, mute_type, automute = 0)
 	if(automute)
@@ -676,7 +690,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			return
 
 	for (var/obj/machinery/computer/communications/C in machines)
-		if(! (C.stat & (BROKEN|NOPOWER) ) )
+		if(! (C.stat & (FORCEDISABLE|BROKEN|NOPOWER) ) )
 			var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
 			P.name = "'[command_name()] Update.'"
 			P.info = input
@@ -704,6 +718,14 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		if(istype(O,/turf))
 			var/turf/T=O
 			T.ChangeTurf(T.get_underlying_turf())
+		if(istype(O,/mob/living/carbon/human))
+			var/mob/M=O
+			if(M.ckey != usr.ckey)
+				M.alpha_override = TRUE
+				playsound(M, 'sound/effects/deletescream.ogg', 75, 1)
+				animate(M, alpha = 0, time = 20)
+				sleep(19)
+			qdel(M)
 		else
 			qdel(O)
 
@@ -1086,34 +1108,33 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		return
 	if(!mob)
 		return
-	var/list/dropped_items
-	var/delete_items
-	var/strip_items = input(usr,"Do you want to strip \the [M]'s current equipment?","Equip Outfit","") as null|anything in list("Yes","No")
-	if(!strip_items)
+	var/delete_text
+	var/strip_text = input(usr,"Do you want to strip \the [M]'s current equipment?","Equip Outfit","") as null|anything in list("Yes","No")
+	if(!strip_text)
 		return
-	if(strip_items == "Yes")
-		delete_items = input(usr,"Delete stripped items?","Equip Outfit","") as null|anything in list("Yes","No")
-		if(!delete_items)
+	if(strip_text == "Yes")
+		delete_text = input(usr,"Delete stripped items?","Equip Outfit","") as null|anything in list("Yes","No")
+		if(!delete_text)
 			return
-	var/list/outfits = (typesof(/datum/outfit/) - /datum/outfit/ - /datum/outfit/striketeam/)
-	var/outfit_type = input(usr,"Outfit Type","Equip Outfit","") as null|anything in outfits
+	var/outfit_type = select_loadout()
 	if(!outfit_type || !ispath(outfit_type))
 		return
-	if(strip_items == "Yes")
-		dropped_items = M.unequip_everything()
-		if(delete_items == "Yes")
-			for(var/atom/A in dropped_items)
-				qdel(A)
+	var/strip_items = FALSE
+	var/delete_items = FALSE
+	if(strip_text == "Yes")
+		strip_items = TRUE
+	if(delete_text == "Yes")
+		delete_items = TRUE
 	var/datum/outfit/concrete_outfit = new outfit_type
-	concrete_outfit.equip(M, TRUE)
+	concrete_outfit.equip(M, TRUE, strip = strip_items, delete = delete_items)
 	log_admin("[key_name(usr)] has equipped an loadout of type [outfit_type] to [key_name(M)].")
 	message_admins("<span class='notice'>[key_name(usr)] has equipped an loadout of type [outfit_type] to [key_name(M)].</span>", 1)
 
 	feedback_add_details("admin_verb","ELO") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /proc/select_loadout()
-	var/list/outfits = (subtypesof(/datum/outfit/) - /datum/outfit/striketeam/)
-	var/outfit_type = input(usr,"Outfit Type","Equip Outfit","") as null|anything in outfits
+	var/object = input(usr, "Enter a typepath. It will be autocompleted.", "Equip Outfit") as null|text
+	var/outfit_type = filter_list_input("Outfit Type","Equip Outfit", get_matching_types(object, /datum/outfit) - /datum/outfit/ - /datum/outfit/striketeam/)
 	if(!outfit_type || !ispath(outfit_type))
 		return
 	return outfit_type

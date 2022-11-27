@@ -18,6 +18,8 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 	var/damtype = "brute"
 	var/force = 0
 
+	var/w_class
+
 	//Should we alert about reagents that should be logged?
 	var/log_reagents = 1
 
@@ -38,15 +40,63 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 	var/datum/delay_controller/pAImove_delayer
 	var/pAImovement_delay = 0
 
-	// Can we wrench/weld this to a turf with a dense /obj on it?
+	//Can we wrench/weld this to a turf with a dense /obj on it?
 	var/can_affix_to_dense_turf=0
 
-	var/has_been_invisible_sprayed = FALSE
+	var/list/alphas_obj = list()
 	var/impactsound
 	var/current_glue_state = GLUE_STATE_NONE
 
-	// Does this item have a slime installed?
+	//Does this item have a slime installed?
 	var/has_slime = 0
+
+	//Cooking stuff:
+	var/is_cooktop //If true, the object can be used in conjunction with a cooking vessel, eg. a frying pan, to cook food.
+	var/obj/item/weapon/reagent_containers/pan/cookvessel //The vessel being used to cook food in. If generalized out to other types of vessels, make sure to also generalize the frying pan's cook_start(), etc. as well.
+
+/obj/New()
+	..()
+	if(breakable_flags)
+		breakable_init()
+	if(is_cooktop)
+		add_component(/datum/component/cooktop)
+
+//More cooking stuff:
+/obj/proc/can_cook() //Returns true if object is currently in a state that would allow for food to be cooked on it (eg. the grill is currently powered on). Can (and generally should) be overriden to check for more specific conditions.
+	if(is_cooktop)
+		return TRUE
+	return FALSE
+
+/obj/proc/can_receive_cookvessel() //Returns true if object is currently in a state that would allow for a cooking vessel to be placed on or in it (eg. there's not already something being grilled). Can (and generally should) be overriden to check for more specific conditions.
+	//Doesn't need to check for there already being a cooking vessel, as that is already handled separately by the cooktop component.
+	return TRUE
+
+/obj/proc/on_cook_start() //Anything that needs to be done when we start cooking something.
+	return
+
+/obj/proc/on_cook_stop() //Anything that needs to be done when we stop cooking something.
+	return
+
+/obj/proc/render_cookvessel(offset_x, offset_y) //Called whenever we want to visibly render the cooking vessel.
+	if(cookvessel)
+		var/image/cookvesselimage = image(cookvessel)
+		cookvesselimage.pixel_x = offset_x
+		cookvesselimage.pixel_y = offset_y
+		overlays += cookvesselimage
+
+/obj/proc/cook_temperature() //Returns the temperature the object cooks at.
+	return COOKTEMP_DEFAULT
+
+/obj/proc/cook_energy() //Returns the energy transferred to the reagents in the cooking vessel per process() tick of the cooking vessel. Cooking vessels use the fast objects subsystem.
+	return 500 //Half that of fire_act().
+
+/obj/proc/generate_available_recipes(flags = COOKABLE_WITH_ALL)
+	var/list/recipes = list()
+	for(var/type in (typesof(/datum/recipe) - /datum/recipe))
+		var/datum/recipe/thisrecipe = new type
+		if((thisrecipe.cookable_with & flags) && ispath(thisrecipe.result)) //Check that the recipe is cookable with the given method, and also that the recipe isn't a base type with no result.
+			recipes += thisrecipe
+	return recipes
 
 // Whether this object can appear in holomaps
 /obj/proc/supports_holomap()
@@ -69,13 +119,14 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		integratedpai = null
 
 	material_type = null //Don't qdel, they're held globally
+	if(associated_forward)
+		associated_forward = null
 	..()
 
 /obj/item/proc/is_used_on(obj/O, mob/user)
 
 /obj/proc/blocks_doors()
 	return 0
-
 
 /obj/proc/install_pai(obj/item/device/paicard/P)
 	if(!P || !istype(P))
@@ -87,6 +138,10 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 
 /obj/attackby(obj/item/weapon/W, mob/user)
 	INVOKE_EVENT(src, /event/attackby, "attacker" = user, "item" = W)
+
+	if(handle_item_attack(W, user))
+		return
+
 	if(can_take_pai && istype(W, /obj/item/device/paicard))
 		if(integratedpai)
 			to_chat(user, "<span class = 'notice'>There's already a Personal AI inserted.</span>")
@@ -139,7 +194,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 /obj/proc/intenthurt_integrated_pai(mob/living/silicon/pai/user)	//called when integrated pAI uses the hurt intent hotkey
 	return
 
-/obj/proc/pAImove(mob/living/silicon/pai/user, dir)					//called when integrated pAI attempts to move
+/obj/proc/pAImove(mob/living/user, dir)								//called when integrated pAI attempts to move
 	if(pAImove_delayer.blocked())
 		user.last_movement=world.time
 		return 0
@@ -215,6 +270,11 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 /obj/proc/clockworkify()
 	return
 
+/obj/map_element_rotate(var/angle)
+	..()
+	if(req_access_dir)
+		req_access_dir = turn(req_access_dir, -angle)
+
 /obj/proc/wrenchable()
 	return 0
 
@@ -276,6 +336,10 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 					is_in_use = 1
 					src.attack_ai(M)
 
+				else if(ispulsedemon(M))
+					is_in_use = 1
+					src.attack_pulsedemon(M)
+
 				else if(!(M in nearby)) // NOT NEARBY
 					// check for TK users
 					if(M.mutations && M.mutations.len)
@@ -301,8 +365,8 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 			if (!M || !M.client || M.machine != src)
 				_using.Remove(M)
 				continue
-			// Not robot or AI, and not nearby?
-			if(!isAI(M) && !isrobot(M) && !(M in nearby))
+			// Not robot or AI, not nearby and not pulse demon?
+			if(!isAI(M) && !isrobot(M) && !(M in nearby) && !ispulsedemon(M))
 				_using.Remove(M)
 				continue
 			is_in_use = 1
@@ -312,14 +376,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 /obj/proc/interact(mob/user)
 	return
 
-//user: The mob that is suiciding
-//damagetype: The type of damage the item will inflict on the user
-//SUICIDE_ACT_BRUTELOSS = 1
-//SUICIDE_ACT_FIRELOSS = 2
-//SUICIDE_ACT_TOXLOSS = 4
-//SUICIDE_ACT_OXYLOSS = 8
-//Output a creative message and then return the damagetype done
-/obj/proc/suicide_act(var/mob/living/user)
+/obj/suicide_act(var/mob/living/user)
 	if (is_hot())
 		user.visible_message("<span class='danger'>[user] is immolating \himself on \the [src]! It looks like \he's trying to commit suicide.</span>")
 		user.IgniteMob()
@@ -351,14 +408,20 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		to_chat(user, "\the [src] already has a slime extract attached.")
 		return FALSE
 
-/obj/singularity_pull(S, current_size)
+/obj/singularity_pull(S, current_size, repel = FALSE)
 	INVOKE_EVENT(src, /event/before_move)
 	if(anchored)
 		if(current_size >= STAGE_FIVE)
 			anchored = 0
-			step_towards(src, S)
+			if(!repel)
+				step_towards(src, S)
+			else
+				step_away(src, S)
 	else
-		step_towards(src, S)
+		if(!repel)
+			step_towards(src, S)
+		else
+			step_away(src, S)
 	INVOKE_EVENT(src, /event/after_move)
 
 /obj/proc/multitool_menu(var/mob/user,var/obj/item/device/multitool/P)
@@ -558,7 +621,7 @@ a {
 /obj/proc/can_quick_store(var/obj/item/I) //proc used to check that the current object can store another through quick equip
 	return 0
 
-/obj/proc/quick_store(var/obj/item/I) //proc used to handle quick storing
+/obj/proc/quick_store(var/obj/item/I,mob/user) //proc used to handle quick storing
 	return 0
 
 /**
@@ -581,20 +644,25 @@ a {
 /obj/proc/give_tech_list()
 	return null
 
-/obj/acidable()
-	return !(flags & INVULNERABLE)
+/obj/dissolvable()
+	if (flags & INVULNERABLE)
+		return FALSE
+	else
+		return PACID
 
 /obj/proc/t_scanner_expose()
-	if (level != LEVEL_BELOW_FLOOR)
-		return
-
-	if (invisibility == 101)
+	//don't reveal docking ports or spawns
+	if(invisibility > 0 && invisibility < INVISIBILITY_OBSERVER || alpha < 255)
+		var/old_invisibility = invisibility
+		var/old_alpha = alpha
 		invisibility = 0
+		alpha = 255
 
 		spawn(1 SECONDS)
 			var/turf/U = loc
 			if(istype(U) && U.intact)
-				invisibility = 101
+				invisibility = old_invisibility
+				alpha = old_alpha
 
 /obj/proc/become_defective()
 	if(!defective)
@@ -606,7 +674,7 @@ a {
 		if(isrobot(user))
 			var/mob/living/silicon/robot/R = user
 			return HAS_MODULE_QUIRK(R, MODULE_IS_A_CLOWN)
-		return (M_CLUMSY in user.mutations) || user.reagents.has_reagent(INCENSE_BANANA)
+		return (M_CLUMSY in user.mutations) || user.reagents.has_reagent(INCENSE_BANANA) || user.reagents.has_reagent(HONKSERUM) || arcanetampered
 	return 0
 
 //Proc that handles NPCs (gremlins) "tampering" with this object.
@@ -644,7 +712,7 @@ a {
 				user.visible_message("<span class='danger'>[user] puts \his foot to \the [A] and kicks \himself away!</span>", \
 					"<span class='warning'>You put your foot to \the [A] and kick as hard as you can! [pick("RAAAAAAAARGH!", "HNNNNNNNNNGGGGGGH!", "GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", "AAAAAAARRRGH!")]</span>")
 				var/turf/T = get_edge_target_turf(src, movementdirection)
-				src.throw_at(T,8,20,fly_speed = 2)
+				src.throw_at(T, 8, 20, TRUE, 2)
 			else
 				user.visible_message("<span class='warning'>[user] kicks \himself away from \the [A].</span>", "<span class='notice'>You kick yourself away from \the [A]. Wee!</span>")
 				for(var/i in list(2,2,3,3))
@@ -656,22 +724,38 @@ a {
 					sleep(i)
 		return 1
 
-/obj/make_invisible(var/source_define, var/time, var/include_clothing)
-	if(..() || !source_define)
+/obj/proc/make_invisible(var/source_define, var/time = 0, var/alpha_value = 1, var/invisibility_value = 0)
+	//INVISIBILITY_MAXIMUM is a value of 100 for invisibility_value
+	//alpha_value = 1 hides the sprite
+	if(invisibility || alpha <= 1 || !source_define)
 		return
-	alpha = 1
-	if(source_define == INVISIBLESPRAY)
-		has_been_invisible_sprayed = TRUE
+	invisibility = invisibility_value
+	alphas_obj[source_define] = alpha_value
+	handle_alpha()
 	if(ismob(loc))
 		var/mob/M = loc
 		M.regenerate_icons()
 	if(time > 0)
 		spawn(time)
-			alpha = initial(alpha)
-			has_been_invisible_sprayed = FALSE
-			if(ismob(loc))
-				var/mob/M = loc
-				M.regenerate_icons()
+			make_visible(source_define)
+
+/obj/proc/make_visible(var/source_define)
+	if(!invisibility && alpha == 255 || !source_define)
+		return
+	if(src && alphas_obj[source_define])
+		invisibility = 0
+		alphas_obj.Remove(source_define)
+		handle_alpha()
+		if(ismob(loc))
+			var/mob/M = loc
+			M.regenerate_icons()
+
+/obj/proc/handle_alpha()	//uses the lowest alpha on the mob
+	if(alphas_obj.len < 1)
+		alpha = 255
+	else
+		sortTim(alphas_obj, /proc/cmp_numeric_asc,1)
+		alpha = alphas_obj[alphas_obj[1]]
 
 /obj/proc/gen_quality(var/modifier = 0, var/min_quality = 0, var/datum/material/mat)
 	var/material_mod = mat ? mat.quality_mod : material_type ? material_type.quality_mod : 1
@@ -800,3 +884,60 @@ a {
 	if(istype(caller) && (caller.pass_flags & pass_flags_self))
 		return TRUE
 	. = !density
+
+/obj/proc/build_list_of_contents() //used by microwaves and frying pans
+	var/dat = ""
+	var/list/items_counts = new
+	var/list/items_measures = new
+	var/list/items_measures_p = new
+	for (var/obj/O in contents)
+		var/display_name = O.name
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/meat)) //any meat
+			items_measures[display_name] = "slab of meat"
+			items_measures_p[display_name] = "slabs of meat"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/meat/carpmeat))
+			items_measures[display_name] = "fillet of fish"
+			items_measures_p[display_name] = "fillets of fish"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/egg))
+			items_measures[display_name] = "egg"
+			items_measures_p[display_name] = "eggs"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/tofu))
+			items_measures[display_name] = "tofu chunk"
+			items_measures_p[display_name] = "tofu chunks"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/donkpocket))
+			display_name = "Turnovers"
+			items_measures[display_name] = "turnover"
+			items_measures_p[display_name] = "turnovers"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/soybeans))
+			items_measures[display_name] = "soybean"
+			items_measures_p[display_name] = "soybeans"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/grapes))
+			display_name = "Grapes"
+			items_measures[display_name] = "bunch of grapes"
+			items_measures_p[display_name] = "bunches of grapes"
+		if (istype(O,/obj/item/weapon/reagent_containers/food/snacks/grown/greengrapes))
+			display_name = "Green Grapes"
+			items_measures[display_name] = "bunch of green grapes"
+			items_measures_p[display_name] = "bunches of green grapes"
+		if (istype(O,/obj/item/weapon/kitchen/utensil)) //any spoons, forks, knives, etc
+			items_measures[display_name] = "utensil"
+			items_measures_p[display_name] = "utensils"
+		items_counts[display_name]++
+	for (var/O in items_counts)
+		var/N = items_counts[O]
+		if (!(O in items_measures))
+			dat += {"<B>[capitalize(O)]:</B> [N] [lowertext(O)]\s<BR>"}
+		else
+			if (N==1)
+				dat += {"<B>[capitalize(O)]:</B> [N] [items_measures[O]]<BR>"}
+			else
+				dat += {"<B>[capitalize(O)]:</B> [N] [items_measures_p[O]]<BR>"}
+
+	for (var/datum/reagent/R in reagents.reagent_list)
+		var/display_name = R.name
+		if (R.id == CAPSAICIN)
+			display_name = "Hotsauce"
+		if (R.id == FROSTOIL)
+			display_name = "Coldsauce"
+		dat += {"<B>[display_name]:</B> [R.volume] unit\s<BR>"}
+	return dat

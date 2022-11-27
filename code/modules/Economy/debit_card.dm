@@ -9,7 +9,7 @@
 	melt_temperature = MELTPOINT_PLASTIC
 	w_class = W_CLASS_TINY
 	starting_materials = list(MAT_PLASTIC = 10)
-	w_type = RECYK_MISC
+	w_type = RECYK_PLASTIC
 	var/to_cut = 0.8
 	var/authorized_name = "" // The name of the card. Edited at any ATM.
 
@@ -61,7 +61,7 @@
 
 /obj/item/weapon/card/debit/trader/New(var/new_loc, var/account_number)
 	if(!trader_account)
-		trader_account = create_trader_account
+		trader_account = create_account("Trader Shoal", 0, null, 0, 1, TRUE, FALSE)
 	return ..(new_loc, trader_account.account_number)
 
 /obj/item/weapon/card/debit/preferred

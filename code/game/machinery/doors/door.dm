@@ -15,7 +15,9 @@ var/list/all_doors = list()
 	density = 1
 	layer = OPEN_DOOR_LAYER
 	penetration_dampening = 10
+	var/open_plane = OBJ_PLANE
 	var/open_layer = OPEN_DOOR_LAYER
+	var/closed_plane = OBJ_PLANE
 	var/closed_layer = CLOSED_DOOR_LAYER
 	var/secondsElectrified = 0
 	var/visible = 1
@@ -56,7 +58,29 @@ var/list/all_doors = list()
 	var/soundeffect = 'sound/machines/airlock.ogg'
 	var/soundpitch = 30
 
+	var/being_cut = FALSE
 	var/explosion_block = 0 //regular airlocks are 1, blast doors are 3, higher values mean increasingly effective at blocking explosions.
+	var/obj/machinery/door/arcane_linked_door = null
+
+/obj/machinery/door/proc/bashed_in(mob/user)
+	playsound(src, 'sound/items/Deconstruct.ogg', 50, 1)
+	new /obj/effect/decal/cleanable/dirt(get_turf(src))
+	qdel(src)
+
+/obj/machinery/door/proc/attempt_slicing(mob/user)
+	being_cut = TRUE
+	user.visible_message("<span class='warning'>[user] begins slicing through \the [src]!</span>", \
+	"<span class='notice'>You begin slicing through \the [src].</span>", \
+	"<span class='warning'>You hear slicing noises.</span>")
+	playsound(src, 'sound/items/Welder2.ogg', 100, 1)
+
+	if(do_after(user, src, 20 SECONDS))
+		user.visible_message("<span class='warning'>[user] slices through \the [src]!</span>", \
+		"<span class='notice'>You slice through \the [src].</span>", \
+		"<span class='warning'>You hear slicing noises.</span>")
+		playsound(src, 'sound/items/Welder2.ogg', 100, 1)
+		bashed_in(user, FALSE)
+	being_cut = FALSE
 
 /obj/machinery/door/projectile_check()
 	if(opacity)
@@ -86,7 +110,7 @@ var/list/all_doors = list()
 	if (ismob(AM))
 		var/mob/M = AM
 
-		if(!M.restrained() && (M.size > SIZE_TINY))
+		if(!M.restrained() && (M.size > SIZE_TINY) && !isSaMMI(M))
 			bump_open(M)
 
 		return
@@ -210,12 +234,12 @@ var/list/all_doors = list()
 	playsound(H.loc, 'sound/effects/horrorforce2.ogg', 80)
 	visible_message("<span class='danger'>\The [src]'s motors whine as several great tendrils begin trying to force it open!</span>")
 	if(do_after(H, src, 32))
-		open(1)
+		open()
 		visible_message("<span class='danger'>[H.name] forces \the [src] open!</span>")
 
 		// Open firedoors, too.
 		for(var/obj/machinery/door/firedoor/FD in loc)
-			FD.open(1)
+			FD.open()
 	else
 		to_chat(H, "<span class='warning'>You fail to open \the [src].</span>")
 
@@ -249,26 +273,30 @@ var/list/all_doors = list()
 	for (var/obj/O in src.loc)
 		if (O.blocks_doors())
 			return 0
+	if(arcane_linked_door)
+		arcane_linked_door.open()
 	if(!operating)
 		operating = 1
 
 	if(makes_noise)
 		playsound(src, soundeffect, soundpitch, 1)
 
-	set_opacity(0)
+	if(!arcane_linked_door)
+		set_opacity(0)
 	door_animate("opening")
 	if (animation_delay_predensity_opening)
 		sleep(animation_delay_predensity_opening)
 	else
 		sleep(animation_delay)
+	plane = open_plane
 	layer = open_layer
 	setDensity(FALSE)
 	update_nearby_tiles()
-	explosion_resistance = 0
 	if (animation_delay_predensity_opening)
 		sleep(animation_delay - animation_delay_predensity_opening)
 	update_icon()
-	set_opacity(0)
+	if(!arcane_linked_door)
+		set_opacity(0)
 	//update_freelook_sight()
 
 	if(operating == 1)
@@ -290,8 +318,12 @@ var/list/all_doors = list()
 		if (O.blocks_doors())
 			return 0
 
+	if(arcane_linked_door)
+		arcane_linked_door.close()
+
 	operating = 1
 
+	plane = closed_plane
 	layer = closed_layer
 
 	if (makes_noise)
@@ -334,13 +366,11 @@ var/list/all_doors = list()
 
 	if(density)
 		// above most items if closed
+		plane = closed_plane
 		layer = closed_layer
-
-		explosion_resistance = initial(explosion_resistance)
 	else
+		plane = open_plane
 		layer = open_layer
-
-		explosion_resistance = 0
 
 	if(width > 1)
 		if(dir in list(EAST, WEST))
@@ -358,6 +388,22 @@ var/list/all_doors = list()
 		setDensity(FALSE)
 		anim(target = src, a_icon = 'icons/effects/effects.dmi', a_icon_state = "breakdoor", sleeptime = 10)
 		qdel(src)
+
+/obj/machinery/door/arcane_act(mob/user)
+	..()
+	while(!arcane_linked_door || arcane_linked_door == src || arcane_linked_door.flow_flags & ON_BORDER || arcane_linked_door.z == map.zCentcomm) // no windoors or centcomm pls
+		arcane_linked_door = pick(all_doors)
+	arcane_linked_door.arcanetampered = arcanetampered
+	arcane_linked_door.arcane_linked_door = src
+	return "D'R ST'K!"
+
+/obj/machinery/door/bless()
+	..()
+	if(arcane_linked_door)
+		arcane_linked_door.bless()
+		arcane_linked_door = null
+		if(!density)
+			set_opacity(0)
 
 /obj/machinery/door/Destroy()
 	update_nearby_tiles()
@@ -377,7 +423,21 @@ var/list/all_doors = list()
 /obj/machinery/door/Crossed(AM as mob|obj) //Since we can't actually quite open AS the car goes through us, we'll do the next best thing: open as the car goes into our tile.
 	if(istype(AM, /obj/structure/bed/chair/vehicle/firebird)) //Which is not 100% correct for things like windoors but it's close enough.
 		open()
-	return ..()
+	if(arcane_linked_door && !density && istype(AM,/atom/movable))
+		var/atom/movable/A = AM
+		var/turf/T = get_turf(arcane_linked_door)
+		if(T)
+			T = get_step(T,A.dir)
+			if(T && T.Cross())
+				A.forceMove(T)
+				return ..()
+			for(var/dir in cardinal)
+				T = get_step(T,dir)
+				if(T && T.Cross())
+					A.forceMove(T)
+					return ..()
+			A.forceMove(T)
+			return ..()
 
 /obj/machinery/door/CanAStarPass(var/obj/item/weapon/card/id/ID)
 	return !density || check_access(ID)
@@ -424,7 +484,7 @@ var/list/all_doors = list()
 	update_freelok_sight()
 	return 1
 
-/obj/machinery/door/forceMove(atom/destination, no_tp=0, harderforce = FALSE, glide_size_override = 0)
+/obj/machinery/door/forceMove(atom/destination, step_x = 0, step_y = 0, no_tp = FALSE, harderforce = FALSE, glide_size_override = 0)
 	var/turf/T = loc
 	..()
 	update_nearby_tiles(T)
@@ -455,7 +515,10 @@ var/list/all_doors = list()
 
 // Flash denied and such.
 /obj/machinery/door/proc/denied()
-	playsound(loc, 'sound/machines/denied.ogg', 50, 1)
+	if((Holiday == APRIL_FOOLS_DAY) && prob(10) || (prob(1) && prob(10))) // 1/1000 any time or 1/10 during April Fools to play the Half-Life "Access Denied" voiceover
+		playsound(loc, 'sound/machines/access_denied.ogg', 75)
+	else
+		playsound(loc, 'sound/machines/denied.ogg', 50, 1)
 	if (density) //Why are we playing a denied animation on an OPEN DOOR
 		door_animate("deny")
 

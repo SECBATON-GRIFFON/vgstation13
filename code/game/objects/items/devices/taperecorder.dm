@@ -8,6 +8,7 @@
 	starting_materials = list(MAT_IRON = 60, MAT_GLASS = 30)
 	w_type = RECYK_ELECTRONIC
 	melt_temperature = MELTPOINT_PLASTIC
+	autoignition_temperature = AUTOIGNITION_PLASTIC
 	var/emagged = 0.0
 	var/recording = 0.0
 	var/playing = 0.0
@@ -25,7 +26,7 @@
 /obj/item/device/taperecorder/Hear(var/datum/speech/speech, var/rendered_speech="")
 	if(recording && speech.speaker != src)
 		timestamp += timerecorded
-		storedinfo += "\[[time2text(timerecorded*10,"mm:ss")]\] \"[html_encode(speech.message)]\""
+		storedinfo += "\[[time2text(timerecorded*10,"mm:ss")]\] [speech.name]:  \"[html_encode(speech.message)]\""
 
 /obj/item/device/taperecorder/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	..()

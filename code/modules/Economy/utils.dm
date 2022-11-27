@@ -12,7 +12,7 @@ var/global/no_pin_for_debit = TRUE
 	for(var/obj/machinery/account_database/DB in account_DBs)
 		if(from_z > -1 && DB.z != from_z)
 			continue
-		if((DB.stat & NOPOWER) || !DB.activated )
+		if((DB.stat & (FORCEDISABLE|NOPOWER)) || !DB.activated )
 			continue
 		var/datum/money_account/acct = DB.get_account(account_number)
 		if(!acct)
@@ -26,9 +26,7 @@ var/global/no_pin_for_debit = TRUE
 			return D
 
 
-/obj/proc/get_card_account(var/obj/item/weapon/card/I, var/mob/user=null, var/terminal_name="", var/transaction_purpose="", var/require_pin=0)
-	if(terminal_name=="")
-		terminal_name=src.name
+/proc/get_card_account(var/obj/item/weapon/card/I, var/mob/user=null,  var/require_pin=0)
 	if (istype(I, /obj/item/weapon/card/id))
 		var/obj/item/weapon/card/id/C = I
 		var/attempt_pin=0
@@ -67,32 +65,16 @@ var/global/no_pin_for_debit = TRUE
 
 		//create entries in the two account transaction logs
 		transaction_purpose = copytext(sanitize(transaction_purpose),1,MAX_MESSAGE_LEN)
-		var/datum/transaction/T
+		var/targname
 		if(dest)
-			T = new()
-			T.target_name = owner_name + ( authorized_name ? " charged as [authorized_name]" : "")
+			targname = owner_name + ( authorized_name ? " charged as [authorized_name]" : "")
 			if(terminal_name!="")
-				T.target_name += " (via [terminal_name])"
-			T.purpose = transaction_purpose
-			T.amount = "[transaction_amount]"
-			T.source_terminal = terminal_name
-			T.date = current_date_string
-			T.time = worldtime2text()
-			dest.transaction_log.Add(T)
-		//
-		T = new()
-		T.target_name = ((!dest) ? dest_name : dest.owner_name) + ( authorized_name ? " as [authorized_name]" : "")
+				targname += " (via [terminal_name])"
+			new /datum/transaction(dest, transaction_purpose, "[transaction_amount]", terminal_name, targname)
+		targname = ((!dest) ? dest_name : dest.owner_name) + ( authorized_name ? " as [authorized_name]" : "")
 		if(terminal_name!="")
-			T.target_name += " (via [terminal_name])"
-		T.purpose = transaction_purpose
-		if(transaction_amount < 0)
-			T.amount = "[-1*transaction_amount]"
-		else
-			T.amount = "-[transaction_amount]"
-		T.source_terminal = terminal_name
-		T.date = current_date_string
-		T.time = worldtime2text()
-		transaction_log.Add(T)
+			targname += " (via [terminal_name])"
+		new /datum/transaction(src, transaction_purpose, transaction_amount < 0 ? "[-1*transaction_amount]" : "-[transaction_amount]", terminal_name, targname)
 		return 1
 	else
 		to_chat(usr, "<span class='warning'>Not enough funds in account.</span>")
@@ -120,7 +102,7 @@ var/global/no_pin_for_debit = TRUE
 /obj/proc/charge_flow_verify_security(var/obj/machinery/account_database/linked_db, var/obj/item/weapon/card/card, var/mob/user, var/datum/money_account/account, var/debit_requires_pin)
 	if(!account)
 		if(linked_db)
-			if(!linked_db.activated || linked_db.stat & (BROKEN|NOPOWER))
+			if(!linked_db.activated || linked_db.stat & (FORCEDISABLE|BROKEN|NOPOWER))
 				to_chat(user, "[bicon(src)] <span class='warning'>No connection to account database.</span>")
 				return CARD_CAPTURE_FAILURE_NO_CONNECTION
 			account = linked_db.get_account(card.associated_account_number)
@@ -217,7 +199,7 @@ var/global/no_pin_for_debit = TRUE
 	// To keep track of the user just so we can can cancel if they move.
 	var/authorized = ""
 	// For debit cards.
-	if(!linked_db || !linked_db.activated || linked_db.stat & (BROKEN|NOPOWER))
+	if(!linked_db || !linked_db.activated || linked_db.stat & (FORCEDISABLE|BROKEN|NOPOWER))
 		// The account database has to avaiable, active, and not broken.
 		to_chat(user, "[bicon(src)] <span class='warning'>No connection to account database.</span>")
 		return CARD_CAPTURE_FAILURE_NO_CONNECTION
@@ -249,7 +231,15 @@ var/global/no_pin_for_debit = TRUE
 			// We'll charge the virtual wallet first.
 			if(primary_money_account.money < transaction_amount)
 				// Not enough funds in the virtual wallet so we'll need the bank account.
-				if(primary_money_account.money > 0 && alert(user, "Apply remaining balance of $[num2septext(primary_money_account.money)] from \the [card] virtual wallet?", "Card Transaction", "Yes", "No") == "Yes")
+				var/datum/money_account/bank_acc_check = linked_db.get_account(card.associated_account_number)
+				if(!bank_acc_check)
+					to_chat(user, "[bicon(src)] <span class='warning'>Not enough funds to process transaction.</span>")
+					return CARD_CAPTURE_FAILURE_NOT_ENOUGH_FUNDS
+				if((bank_acc_check.money + primary_money_account.money) < transaction_amount)
+					to_chat(user, "[bicon(src)] <span class='warning'>Not enough funds to process transaction.</span>")
+					return CARD_CAPTURE_FAILURE_NOT_ENOUGH_FUNDS
+				// But if they don't have enough money to begin with, even with a bank account, reject the whole thing.
+				if(primary_money_account.money > 0 && alert(user, "Not enough funds in \the [card]'s virtual wallet. Do you want to charge the virtual wallet's remaining balance of $[num2septext(primary_money_account.money)] before charging the rest to your bank account?", "Card Transaction", "Yes", "No") == "Yes")
 					// But lets check if there's an amount on the virtual card and ask if the user would like to apply that balance.
 					if(user_loc != user.loc)
 						to_chat(user, "[bicon(src)] <span class='warning'>You have to keep still to enter information.</span>")
@@ -325,11 +315,21 @@ var/global/no_pin_for_debit = TRUE
 
 	if(transaction_amount_secondary)
 		// If we have a vaild secondary amount, charge the secondary payment method.
-		secondary_money_account.charge(transaction_amount_secondary, dest, transaction_purpose, terminal_name, terminal_id, dest_name, authorized)
+		if(!secondary_money_account.charge(transaction_amount_secondary, dest, transaction_purpose, terminal_name, terminal_id, dest_name, authorized))
+			return CARD_CAPTURE_FAILURE_NOT_ENOUGH_FUNDS
+			// imagine fixing the bug where they dispensed money out of their PDA before buying an expensive item with a secure bank account
 
 	if(!primary_money_account.charge(transaction_amount_primary, dest, transaction_purpose, terminal_name, terminal_id, dest_name, authorized))
+		if(transaction_amount_secondary)
+			to_chat(user, "[bicon(src)] <span class='warning'>Refunding virtual wallet.</span>")
+			secondary_money_account.charge(-1 * transaction_amount_secondary, dest, "Refund due to lack of funds on secondary payment", terminal_name, terminal_id, dest_name, authorized)
+		// If they can't afford it, refund their initial virtual wallet
 		return CARD_CAPTURE_FAILURE_NOT_ENOUGH_FUNDS
 	// Finally charge the primary
+
+	if(transaction_amount_secondary)
+		var/second_account_type = secondary_money_account.virtual ? "virtual wallet" : "bank account"
+		to_chat(user, "[bicon(src)] <span class='notice'>Remaining balance on [second_account_type], $[num2septext(secondary_money_account.money)].</span>")
 	var/account_type = primary_money_account.virtual ? "virtual wallet" : "bank account"
 	to_chat(user, "[bicon(src)] <span class='notice'>Remaining balance on [account_type], $[num2septext(primary_money_account.money)].</span>")
 	// Present the remaining balance to the user.

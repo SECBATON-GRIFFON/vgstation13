@@ -4,7 +4,7 @@
 	layer = TURF_LAYER
 	luminosity = 0
 
-	//for floors, use is_plating(), is_plasteel_floor() and is_light_floor()
+	//for floors, use is_plating(), is_metal_floor() and is_light_floor()
 	var/intact = 1
 	var/turf_flags = 0
 
@@ -13,6 +13,7 @@
 	var/carbon_dioxide = 0
 	var/nitrogen = 0
 	var/toxins = 0
+	var/list/misc_gases //associative list of gas names and amounts. eg. to add N2O to a turf: misc_gases = list(GAS_SLEEPING = 36000)
 
 	//properties for airtight tiles (/wall)
 	var/thermal_conductivity = 0.05
@@ -54,7 +55,7 @@
 
 	var/turf_speed_multiplier = 1
 
-	var/explosion_block = 0
+	var/explosion_block = 0 //efficacy at blocking explosions. Invulnerable walls set to 9999
 
 	// This is the placed to store data for the holomap.
 	var/list/image/holomap_data
@@ -64,18 +65,18 @@
 
 	var/image/viewblock
 
-	var/junction = 0
-
 	var/volume_mult = 1 //how loud are things on this turf?
 
 	var/holomap_draw_override = HOLOMAP_DRAW_NORMAL
 
 	var/last_beam_damage = 0
 
+	var/mute_time = 0
+
 /turf/examine(mob/user)
 	..()
 	if(bullet_marks)
-		to_chat(user, "It has bullet markings on it.")
+		to_chat(user, "It has [bullet_marks > 1 ? "some holes" : "a hole"] in it.")
 
 /turf/proc/process()
 	set waitfor = FALSE
@@ -231,7 +232,7 @@
 					MOB.pulling = was_pulling
 					was_pulling.pulledby = MOB
 				if ((A && A.loc))
-					A.loc.Entered(A)
+					A.loc.Entered(A, OldLoc)
 				if (istype(A,/obj/item/projectile))
 					var/obj/item/projectile/P = A
 					P.reset()//fixing linear projectile movement
@@ -250,7 +251,7 @@
 	return is_plating()
 /turf/proc/is_asteroid_floor()
 	return 0
-/turf/proc/is_plasteel_floor()
+/turf/proc/is_metal_floor()
 	return 0
 /turf/proc/is_light_floor()
 	return 0
@@ -594,7 +595,7 @@
 			if(O.invisibility == 101)
 				O.singularity_act()
 	ChangeTurf(get_underlying_turf())
-	score["turfssingulod"]++
+	score.turfssingulod++
 	return(2)
 
 //Return a lattice to allow catwalk building

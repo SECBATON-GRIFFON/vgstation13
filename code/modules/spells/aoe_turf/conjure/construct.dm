@@ -190,7 +190,7 @@
 	range = 0
 	cast_delay = 20
 
-	summon_type = list(/obj/structure/cult_legacy/pylon)
+	summon_type = list(/obj/structure/cult/pylon)
 
 	cast_sound = 'sound/items/welder.ogg'
 	hud_state = "const_pylon"
@@ -202,14 +202,6 @@
 		playsound(user, 'sound/items/welder.ogg', 100, 1)
 	. = ..()
 
-/spell/aoe_turf/conjure/pylon/cast(list/targets)
-	..()
-	var/turf/spawn_place = pick(targets)
-	for(var/obj/structure/cult_legacy/pylon/P in spawn_place.contents)
-		if(P.isbroken)
-			P.repair(usr)
-		continue
-	return
 
 /spell/aoe_turf/conjure/forcewall/lesser
 	name = "Shield"
@@ -370,6 +362,7 @@
 
 /spell/aoe_turf/conjure/hex/on_creation(var/mob/living/simple_animal/hostile/hex/AM, var/mob/user)
 	AM.master = user
+	AM.no_master = FALSE
 	AM.master.minions.Add(AM)
 	var/mob/living/simple_animal/construct/builder = user
 	AM.setupglow(builder.construct_color)
