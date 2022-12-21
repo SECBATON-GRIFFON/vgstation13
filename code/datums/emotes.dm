@@ -89,6 +89,11 @@
 
 	var/turf/T = get_turf(user)
 	var/location = T ? "[T.x],[T.y],[T.z]" : "nullspace"
+	if(emote_type == EMOTE_AUDIBLE && isliving(user))
+		var/mob/living/L = user
+		var/datum/speech/speech = L.create_speech(msg)
+		L.radio(speech, L.get_message_mode(msg), TRUE)
+		qdel(speech)
 	log_emote("[user.name]/[user.key] (@[location]): [message]")
 
 

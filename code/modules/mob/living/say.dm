@@ -550,7 +550,7 @@ var/list/headset_modes = list(
 			return TRUE
 	return FALSE
 
-/mob/living/proc/radio(var/datum/speech/speech, var/message_mode)
+/mob/living/proc/radio(var/datum/speech/speech, var/message_mode, var/emote = FALSE)
 	switch(message_mode)
 		if(MODE_R_HAND)
 			say_testing(src, "/mob/living/radio() - MODE_R_HAND")
@@ -572,7 +572,7 @@ var/list/headset_modes = list(
 		if(MODE_BINARY)
 			say_testing(src, "/mob/living/radio() - MODE_BINARY")
 			if(binarycheck())
-				robot_talk(speech.message)
+				robot_talk(speech.message,emote)
 			return ITALICS | REDUCE_RANGE //Does not return 0 since this is only reached by humans, not borgs or AIs.
 		if(MODE_WHISPER)
 			say_testing(src, "/mob/living/radio() - MODE_WHISPER")
