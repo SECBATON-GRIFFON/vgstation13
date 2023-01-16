@@ -23,7 +23,6 @@
 	dynamic_lighting = 0
 
 /turf/unsimulated/wall/supermatter/New()
-	processing_objects |= src
 #ifndef BLUESPACELEAK_FLAT
 	icon_state = "bluespacecrystal[rand(1,3)]"
 	var/nturns=pick(0,3)
@@ -32,6 +31,12 @@
 		M.Turn(90*nturns)
 		transform = M
 #endif
+	for(var/pdir in avail_dirs)
+		var/turf/T=get_step(src,pdir)
+		if(istype(T, /turf/unsimulated/wall/supermatter/))
+			avail_dirs -= pdir
+	if(avail_dirs.len)
+		processing_objects |= src
 	return ..()
 
 /turf/unsimulated/wall/supermatter/Destroy()
@@ -44,7 +49,7 @@
 		return
 
 	// No more available directions? Shut down process().
-	if(avail_dirs.len==0)
+	if(!avail_dirs.len)
 		processing_objects.Remove(src)
 		return 1
 
@@ -52,12 +57,15 @@
 	next_check = world.time+5 SECONDS
 
 	// Choose a direction.
-	var/pdir = pick(avail_dirs)
-	avail_dirs -= pdir
-	var/turf/T=get_step(src,pdir)
-	if(istype(T, /turf/unsimulated/wall/supermatter/))
-		avail_dirs -= pdir
-		return
+	var/turf/T
+	do
+		var/pdir = pick_n_take(avail_dirs)
+		T=get_step(src,pdir)
+	while(avail_dirs.len && istype(T, /turf/unsimulated/wall/supermatter/))
+
+	if(!avail_dirs.len && istype(T, /turf/unsimulated/wall/supermatter/))
+		processing_objects.Remove(src)
+		return 1
 
 	// EXPAND DONG
 	if(isturf(T))
@@ -80,9 +88,9 @@
 					A = null
 				CHECK_TICK
 			T.ChangeTurf(type)
-			var/turf/unsimulated/wall/supermatter/SM = T
-			if(SM.avail_dirs)
-				SM.avail_dirs -= get_dir(T, src)
+			// No more available directions? Shut down process().
+			if(!avail_dirs.len)
+				processing_objects.Remove(src)
 
 /turf/unsimulated/wall/supermatter/attack_paw(mob/user as mob)
 	return attack_hand(user)
