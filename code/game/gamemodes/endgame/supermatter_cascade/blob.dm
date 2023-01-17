@@ -54,7 +54,7 @@
 		return 1
 
 	// We're checking, reset the timer.
-	next_check = world.time+5 SECONDS
+	next_check = world.time+3 SECONDS
 
 	// Choose a direction.
 	var/turf/T
