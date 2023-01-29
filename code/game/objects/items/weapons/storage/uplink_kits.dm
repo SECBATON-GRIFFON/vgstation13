@@ -520,11 +520,47 @@
 		/obj/item/weapon/grenade/iedcasing/preassembled/withshrapnel = 4,
 	)
 
+/obj/item/weapon/storage/box/syndie_kit/nukie_helper
+	name = "Nuclear operative assistant"
+	items_to_spawn = list(
+		/obj/item/clothing/shoes/magboots/syndie,
+		/obj/item/clothing/suit/space/rig/syndi,
+		/obj/item/weapon/pinpointer,
+		/obj/item/weapon/tank/jetpack/oxygen,
+	)
 
+/obj/item/weapon/storage/box/syndie_kit/nukie_helper/New()
+	..()
+	if(prob(25))
+		new /obj/item/weapon/implanter/explosive/nuclear(src)
+	switch(rand(1,7))
+		if(1 to 2) //medical
+			new /obj/item/clothing/glasses/hud/health/prescription(src)
+			new /obj/item/weapon/gun/syringe/rapidsyringe(src)
+			new /obj/item/weapon/reagent_containers/hypospray(src)
+			new /obj/item/weapon/storage/pill_bottle/hyperzine(src)
+			new /obj/item/weapon/storage/pill_bottle/inaprovaline(src)
+		if(3 to 4) //engineer
+			new /obj/item/clothing/glasses/scanner/meson/prescription(src)
+			new /obj/item/weapon/c4(src)
+			new /obj/item/clothing/glasses/welding/superior(src)
+			new /obj/item/weapon/melee/energy/sword(src)
+		if(5) // stealth
+			new /obj/item/clothing/glasses/thermal/syndi(src)
+			new /obj/item/clothing/mask/gas/voice(src)
+			new /obj/item/weapon/gun/projectile/silenced(src)
+			new /obj/item/ammo_storage/magazine/c45(src)
+			new /obj/item/weapon/card/emag(src)
+			new /obj/item/weapon/pen/paralysis(src)
+			new /obj/item/weapon/gun/energy/crossbow(src)
+		if(6) // ship and cameras
+			new /obj/item/clothing/glasses/thermal/syndi(src)
+			new /obj/item/device/encryptionkey/binary(src)
+			new /obj/item/device/megaphone/madscientist(src)
 
 /obj/item/weapon/storage/box/syndicate_team/New()
 	..()
-	var/team_kit = pickweight(list("sniperspotter" = 100, "scammers" = 100, "workplaceshooter" = 100,"nukies" = 25))
+	var/team_kit = pickweight(list("sniperspotter" = 100, "scammers" = 100, "workplaceshooter" = 100, "nukies" = 25))
 	switch(team_kit)
 		if("sniperspotter")
 			new /obj/item/weapon/storage/box/syndie_kit/sniper(src)
@@ -539,5 +575,6 @@
 			new /obj/item/weapon/storage/box/syndie_kit/shooteruzis(src)
 
 		if("nukies")
-			new /obj/item/weapon/storage/box/syndicate(src,forced_bundle="Nukie")
-			new /obj/item/weapon/storage/box/syndicate(src,forced_bundle="Nukie")
+			new /obj/item/weapon/storage/box/syndie_kit/nukie_helper(src)
+			var/obj/item/weapon/storage/box/syndicate/S = new(src,forced_bundle="Nukie")
+			S.name = "Nuclear operative leader"
