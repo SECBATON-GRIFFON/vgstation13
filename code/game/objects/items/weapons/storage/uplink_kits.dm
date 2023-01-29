@@ -2,7 +2,7 @@
 	..()
 	var/tagname
 	if(!forced_bundle)
-		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50, "Plague Doctor" = 50, "Nukie" = 25))
+		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50, "Plague" = 50, "Doktor" = 100, "Nukie" = 25))
 	else
 		tagname = forced_bundle
 
@@ -239,7 +239,7 @@
 			new /obj/item/weapon/pitchfork(src)
 			new /obj/item/weapon/crossbow(src)
 
-		if("Plague Doctor")
+		if("Plague")
 			new /obj/item/weapon/virusdish/random/harmful(src)
 			new /obj/item/weapon/virusdish/random/harmful(src)
 			new /obj/item/weapon/virusdish/random/harmful(src)
@@ -247,6 +247,18 @@
 			new /obj/item/clothing/suit/bio_suit(src)
 			new /obj/item/clothing/glasses/science(src)
 			new /obj/item/weapon/reagent_containers/syringe(src) // in case it needs blood to spread
+
+		if("Doktor")
+			new /obj/item/weapon/switchtool/surgery(src)
+			new /obj/item/roller/surgery(src)
+			new /obj/item/weapon/reagent_containers/hypospray/autoinjector/paralytic_injector(src)
+			new /obj/item/weapon/reagent_containers/glass/bottle/chloralhydrate(src)
+			new /obj/item/weapon/organ_remover/traitor(src)
+			new /obj/item/weapon/storage/pill_bottle/random(src)
+			var/list/organtypes = subtypesof(/obj/item/organ/external) + subtypesof(/obj/item/organ/internal)
+			for(var/i in 1 to 3)
+				var/organtype = pick(organtypes)
+				new organtype(src)
 
 		if("Nukie")//nuke code not included
 			new /obj/item/clothing/shoes/magboots/syndie(src)
@@ -280,7 +292,7 @@
 						new /obj/item/weapon/grenade/syndigrenade(src)
 						new /obj/item/weapon/grenade/syndigrenade(src)
 						new /obj/item/weapon/grenade/syndigrenade(src)
-				if(6 to 7) // melee
+				if(6 to 7) // melee, with only either the dual esword or machete
 					new /obj/item/weapon/grenade/spawnergrenade/manhacks(src)
 					if(prob(50))
 						new /obj/item/weapon/melee/energy/sword/dualsaber(src)
@@ -533,18 +545,22 @@
 	..()
 	if(prob(25))
 		new /obj/item/weapon/implanter/explosive/nuclear(src)
-	switch(rand(1,6))
+	switch(rand(1,6)) // stealth and ship/cameras are 50% less likely
 		if(1 to 2) //medical
 			new /obj/item/clothing/glasses/hud/health/prescription(src)
 			new /obj/item/weapon/gun/syringe/rapidsyringe(src)
 			new /obj/item/weapon/reagent_containers/hypospray(src)
 			new /obj/item/weapon/storage/pill_bottle/hyperzine(src)
 			new /obj/item/weapon/storage/pill_bottle/inaprovaline(src)
+			new /obj/item/weapon/reagent_containers/syringe/syndi(src)
+			new /obj/item/weapon/reagent_containers/syringe/syndi(src)
+			new /obj/item/weapon/reagent_containers/syringe/syndi(src)
 		if(3 to 4) //engineer
 			new /obj/item/clothing/glasses/scanner/meson/prescription(src)
 			new /obj/item/weapon/c4(src)
 			new /obj/item/clothing/glasses/welding/superior(src)
 			new /obj/item/weapon/melee/energy/sword(src)
+			new /obj/item/weapon/switchtool/engineering(src)
 		if(5) // stealth
 			new /obj/item/clothing/glasses/thermal/syndi(src)
 			new /obj/item/clothing/mask/gas/voice(src)
