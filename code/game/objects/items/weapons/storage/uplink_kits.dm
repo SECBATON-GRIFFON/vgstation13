@@ -2,7 +2,7 @@
 	..()
 	var/tagname
 	if(!forced_bundle)
-		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50))
+		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50, "Plague Doctor" = 50, "Nukie" = 25))
 	else
 		tagname = forced_bundle
 
@@ -238,6 +238,65 @@
 			new /obj/item/weapon/pitchfork(src)
 			new /obj/item/weapon/pitchfork(src)
 			new /obj/item/weapon/crossbow(src)
+
+		if("Plague Doctor")
+			new /obj/item/weapon/virusdish/random/harmful(src)
+			new /obj/item/weapon/virusdish/random/harmful(src)
+			new /obj/item/weapon/virusdish/random/harmful(src)
+			new /obj/item/clothing/head/bio_hood(src)
+			new /obj/item/clothing/suit/bio_suit(src)
+			new /obj/item/clothing/glasses/science(src)
+			new /obj/item/weapon/reagent_containers/syringe(src) // in case it needs blood to spread
+
+		if("Nukie")//nuke code not included
+			new /obj/item/clothing/shoes/magboots/syndie(src)
+			new /obj/item/clothing/suit/space/rig/syndi(src)
+			new /obj/item/weapon/pinpointer(src)
+			new /obj/item/weapon/tank/jetpack/oxygen(src)
+			switch(rand(1,10)) // demolitions and ship/camera ones are 50% less likely
+				if(1 to 2) // ballistics, with only either the c20r or beretta
+					if(prob(50))
+						new /obj/item/weapon/gun/projectile/automatic/c20r(src)
+						new /obj/item/ammo_storage/magazine/a12mm/ops(src)
+						new /obj/item/ammo_storage/magazine/a12mm/ops(src)
+					else
+						new /obj/item/weapon/gun/projectile/beretta(src)
+						new /obj/item/ammo_storage/magazine/beretta(src)
+						new /obj/item/ammo_storage/magazine/beretta(src)
+				if(3 to 4) // energy
+					new /obj/item/weapon/gun/energy/laser(src)
+					new /obj/item/weapon/gun/energy/ionrifle/ioncarbine(src)
+					new /obj/item/weapon/grenade/empgrenade(src)
+				if(5) // demolition, with only either the rockets or grenades
+					if(prob(50))
+						new /obj/item/weapon/gun/projectile/rocketlauncher(src)
+						new /obj/item/ammo_casing/rocket_rpg(src)
+						new /obj/item/ammo_casing/rocket_rpg(src)
+						new /obj/item/ammo_casing/rocket_rpg(src)
+					else
+						new /obj/item/weapon/gun/grenadelauncher/syndicate(src)
+						new /obj/item/weapon/grenade/syndigrenade(src)
+						new /obj/item/weapon/grenade/syndigrenade(src)
+						new /obj/item/weapon/grenade/syndigrenade(src)
+				if(6 to 7) // melee
+					new /obj/item/weapon/grenade/spawnergrenade/manhacks(src)
+					if(prob(50))
+						new /obj/item/weapon/melee/energy/sword/dualsaber(src)
+					else
+						new /obj/item/weapon/melee/energy/hfmachete(src)
+					new /obj/item/weapon/shield/energy(src)
+				if(8 to 9) // stealth
+					new /obj/item/clothing/glasses/thermal/syndi(src)
+					new /obj/item/clothing/mask/gas/voice(src)
+					new /obj/item/weapon/gun/projectile/silenced(src)
+					new /obj/item/ammo_storage/magazine/c45(src)
+					new /obj/item/weapon/card/emag(src)
+					new /obj/item/weapon/pen/paralysis(src)
+					new /obj/item/weapon/gun/energy/crossbow(src)
+				if(10) // ship and cameras
+					new /obj/item/clothing/glasses/thermal/syndi(src)
+					new /obj/item/device/encryptionkey/binary(src)
+					new /obj/item/device/megaphone/madscientist(src)
 	tag = tagname
 
 

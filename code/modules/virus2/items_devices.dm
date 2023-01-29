@@ -306,31 +306,44 @@ var/list/virusdishes = list()
 
 /obj/item/weapon/virusdish/random
 	name = "growth dish"
-
-/obj/item/weapon/virusdish/random/New(loc)
-	..(loc)
-	if (loc)//because fuck you /datum/subsystem/supply_shuttle/Initialize()
-		contained_virus = get_random_weighted_disease(WDISH)
-		var/list/anti = list(
+	var/list/str = list(50,90)
+	var/list/rob = list(10,100)
+	var/list/anti = list(
 			ANTIGEN_BLOOD	= 1,
 			ANTIGEN_COMMON	= 1,
 			ANTIGEN_RARE	= 0,
 			ANTIGEN_ALIEN	= 0,
 			)
-		var/list/bad = list(
-			EFFECT_DANGER_HELPFUL	= 1,
-			EFFECT_DANGER_FLAVOR	= 2,
-			EFFECT_DANGER_ANNOYING	= 2,
-			EFFECT_DANGER_HINDRANCE	= 2,
-			EFFECT_DANGER_HARMFUL	= 2,
-			EFFECT_DANGER_DEADLY	= 0,
-			)
-		contained_virus.makerandom(list(50,90),list(10,100),anti,bad,src)
+	var/list/bad = list(
+		EFFECT_DANGER_HELPFUL	= 1,
+		EFFECT_DANGER_FLAVOR	= 2,
+		EFFECT_DANGER_ANNOYING	= 2,
+		EFFECT_DANGER_HINDRANCE	= 2,
+		EFFECT_DANGER_HARMFUL	= 2,
+		EFFECT_DANGER_DEADLY	= 0,
+		)
+
+/obj/item/weapon/virusdish/random/New(loc)
+	..(loc)
+	if (loc)//because fuck you /datum/subsystem/supply_shuttle/Initialize()
+		contained_virus = get_random_weighted_disease(WDISH)
+		contained_virus.makerandom(str,rob,anti,bad,src)
 		growth = rand(5, 50)
 		name = "growth dish (Unknown [contained_virus.form])"
 		update_icon()
 	else
 		virusdishes.Remove(src)
+
+/obj/item/weapon/virusdish/random/harmful
+	bad = list(
+		EFFECT_DANGER_HELPFUL	= 0,
+		EFFECT_DANGER_FLAVOR	= 1,
+		EFFECT_DANGER_ANNOYING	= 2,
+		EFFECT_DANGER_HINDRANCE	= 2,
+		EFFECT_DANGER_HARMFUL	= 2,
+		EFFECT_DANGER_DEADLY	= 2,
+		)
+	rob = list(50,100)
 
 /obj/item/weapon/virusdish/open
 	icon_state = "virusdish1"
