@@ -79,6 +79,9 @@
 	desc = "A small device used to apply implants to people. This one has a microphone and some circuitry attached for some reason."
 	imp_type = /obj/item/weapon/implant/explosive
 
+/obj/item/weapon/implanter/explosive/nuclear
+	imp_type = /obj/item/weapon/implant/explosive/nuclear
+
 /obj/item/weapon/implanter/adrenalin
 	name = "implanter-adrenalin"
 	desc = "A small device used to apply implants to people. This one has a microphone and some circuitry attached for some reason."
