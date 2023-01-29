@@ -533,7 +533,7 @@
 	..()
 	if(prob(25))
 		new /obj/item/weapon/implanter/explosive/nuclear(src)
-	switch(rand(1,7))
+	switch(rand(1,6))
 		if(1 to 2) //medical
 			new /obj/item/clothing/glasses/hud/health/prescription(src)
 			new /obj/item/weapon/gun/syringe/rapidsyringe(src)
