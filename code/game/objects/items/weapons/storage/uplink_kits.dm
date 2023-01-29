@@ -578,3 +578,6 @@
 			new /obj/item/weapon/storage/box/syndie_kit/nukie_helper(src)
 			var/obj/item/weapon/storage/box/syndicate/S = new(src,forced_bundle="Nukie")
 			S.name = "Nuclear operative leader"
+			S.desc = "A sleek, sturdy box."
+			S.icon_state = "box_of_doom"
+			S.item_state = "box_of_doom"
