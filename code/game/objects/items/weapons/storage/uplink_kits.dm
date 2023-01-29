@@ -522,7 +522,7 @@
 
 /obj/item/weapon/storage/box/syndicate_team/New()
 	..()
-	var/team_kit = pick("sniperspotter", "scammers", "workplaceshooter")
+	var/team_kit = pickweight(list("sniperspotter" = 100, "scammers" = 100, "workplaceshooter" = 100,"nukies" = 25))
 	switch(team_kit)
 		if("sniperspotter")
 			new /obj/item/weapon/storage/box/syndie_kit/sniper(src)
@@ -536,4 +536,6 @@
 			new /obj/item/weapon/storage/box/syndie_kit/shootershotty(src)
 			new /obj/item/weapon/storage/box/syndie_kit/shooteruzis(src)
 
-
+		if("nukies")
+			new /obj/item/weapon/storage/box/syndicate(src,forced_bundle="Nukie")
+			new /obj/item/weapon/storage/box/syndicate(src,forced_bundle="Nukie")
