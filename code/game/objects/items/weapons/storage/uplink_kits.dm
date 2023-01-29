@@ -253,6 +253,7 @@
 			new /obj/item/clothing/suit/space/rig/syndi(src)
 			new /obj/item/weapon/pinpointer(src)
 			new /obj/item/weapon/tank/jetpack/oxygen(src)
+			new /obj/item/weapon/implanter/explosive(src)
 			switch(rand(1,10)) // demolitions and ship/camera ones are 50% less likely
 				if(1 to 2) // ballistics, with only either the c20r or beretta
 					if(prob(50))
