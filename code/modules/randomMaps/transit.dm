@@ -56,7 +56,7 @@
 	for(var/turf/T in block(locate(t_loc.x, t_loc.y, t_loc.z), locate(t_loc.x+new_transit.width, t_loc.y+new_transit.height, t_loc.z)))
 		T.ChangeTurf(/turf/space/transit)
 		var/turf/space/transit/t_turf = T
-		t_turf.pushdirection = direction
+		t_turf.spritedirection = direction
 		t_turf.update_icon()
 
 	//Transit turfs placed - place the docking port!
