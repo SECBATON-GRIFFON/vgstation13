@@ -85,16 +85,17 @@
 						dirstocheck[direction] = 0
 						break
 					dirstocheck[direction]++
-			var/tostep
-			if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] > dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
-				tostep = clockwise_perpendicular_dirs(spritedirection)
-			else if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] < dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
-				tostep = counterclockwise_perpendicular_dirs[spritedirection]
-			else
-				tostep = pick(dirstocheck)
-			sleep(1)
-			if(A in src)
-				step(A,tostep)*/
+			if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] || dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
+				var/tostep
+				if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] > dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
+					tostep = clockwise_perpendicular_dirs(spritedirection)
+				else if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] < dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
+					tostep = counterclockwise_perpendicular_dirs[spritedirection]
+				else
+					tostep = pick(dirstocheck)
+				sleep(1)
+				if(A in src)
+					step(A,tostep)*/
 
 /turf/space/transit/north // moving to the north
 
