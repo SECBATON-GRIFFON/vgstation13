@@ -76,19 +76,22 @@
 		if(check.Cross(null,check) && check.Cross(A))
 			A.throw_at(get_edge_target_turf(src, opposite_dirs[spritedirection]), 3, 3)
 		/*else // possible behavior for being on the side, uncomment if you can get this working better
-			var/westdist = 0
-			for(check = get_step(src, opposite_dirs[spritedirection]); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,counterclockwise_perpendicular_dirs[spritedirection]))
-				westdist++
-			var/eastdist = 0
-			for(check = get_step(src, opposite_dirs[spritedirection]); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,clockwise_perpendicular_dirs(spritedirection)))
-				eastdist++
+			var/list/dirstocheck = list(counterclockwise_perpendicular_dirs[spritedirection] = 0,clockwise_perpendicular_dirs(spritedirection) = 0)
+			var/turf/sideturfnearus
+			for(var/direction in dirstocheck)
+				for(check = get_step(src, opposite_dirs[spritedirection]); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,direction))
+					sideturfnearus = get_step(check,spritedirection)
+					if(!sideturfnearus.Cross(A) || !sideturfnearus.Cross(null,check))
+						dirstocheck[direction] = 0
+						break
+					dirstocheck[direction]++
 			var/tostep
-			if(westdist > eastdist)
+			if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] > dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
 				tostep = clockwise_perpendicular_dirs(spritedirection)
-			else if(eastdist > westdist)
+			else if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] < dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
 				tostep = counterclockwise_perpendicular_dirs[spritedirection]
 			else
-				tostep = pick(list(clockwise_perpendicular_dirs(spritedirection),counterclockwise_perpendicular_dirs[spritedirection]))
+				tostep = pick(dirstocheck)
 			sleep(1)
 			if(A in src)
 				step(A,tostep)*/
