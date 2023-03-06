@@ -133,6 +133,13 @@ Class Procs:
 		T.dbg(invalid_zone)
 	#endif
 
+/turf/proc/rebuild_zone()
+	return
+
+/turf/simulated/rebuild_zone()
+	if(zone)
+		zone.rebuild()
+
 /zone/proc/rebuild()
 	if(invalid)
 		return //Short circuit for explosions where rebuild is called many times over.

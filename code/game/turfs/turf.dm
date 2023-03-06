@@ -337,10 +337,7 @@
 	//Rebuild turf
 	var/turf/T = src
 	env = T.air //Get the air before the change
-	if(istype(src,/turf/simulated))
-		var/turf/simulated/S = src
-		if(S.zone)
-			S.zone.rebuild()
+	rebuild_zone()
 
 	if(ispath(N, /turf/simulated/floor))
 		//if the old turf had a zone, connect the new turf to it as well - Cael
