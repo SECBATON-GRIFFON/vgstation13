@@ -145,6 +145,7 @@ var/explosion_shake_message_cooldown = 0
 	var/list/affected_turfs = spiral_block(offcenter,max_range)
 	var/list/cached_exp_block = CalculateExplosionBlock(affected_turfs)
 
+	var/destroytime = world.time
 	for(var/turf/T in affected_turfs)
 		if(whitelist && (T in whitelist))
 			continue
@@ -204,6 +205,10 @@ var/explosion_shake_message_cooldown = 0
 		T.ex_act(dist,null,whodunnit)
 
 		CHECK_TICK
+	destroytime = world.time - destroytime
+	if(destroytime > 0)
+		log_debug("Explosion destruction at [epicenter] took [destroytime/10] seconds.")
+
 
 	explosion_destroy_multi_z(epicenter, offcenter, devastation_range / 2, heavy_impact_range / 2, light_impact_range / 2, flash_range / 2, explosion_time)
 	explosion_destroy_multi_z(epicenter, offcenter, devastation_range / 2, heavy_impact_range / 2, light_impact_range / 2, flash_range / 2, explosion_time, whodunnit)

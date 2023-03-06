@@ -342,15 +342,6 @@
 		if(S.zone)
 			S.zone.rebuild()
 
-	if(istype(src,/turf/simulated/floor))
-		var/turf/simulated/floor/F = src
-		//No longer phazon, not a teleport destination
-		if(F.material=="phazon")
-			phazontiles -= src
-		if(F.floor_tile)
-			QDEL_NULL(F.floor_tile)
-		F = null
-
 	if(ispath(N, /turf/simulated/floor))
 		//if the old turf had a zone, connect the new turf to it as well - Cael
 		//Adjusted by SkyMarshal 5/10/13 - The air master will handle the addition of the new turf.

@@ -593,6 +593,14 @@ var/global/list/turf/simulated/floor/phazontiles = list()
 			return 1
 	return 0
 
+/turf/simulated/floor/ChangeTurf(var/turf/N, var/tell_universe=1, var/force_lighting_update = 0, var/allow = 1)
+//No longer phazon, not a teleport destination
+	if(material=="phazon")
+		phazontiles -= src
+	if(floor_tile)
+		QDEL_NULL(floor_tile)
+	..()
+
 /turf/simulated/floor/cultify()
 	if((icon_state != "cult")&&(icon_state != "cult-narsie"))
 		//No longer phazon, not a teleport destination
