@@ -17,7 +17,7 @@
 		if(src && user && genes && choice && choice == "Yes" && user.get_active_hand() == src)
 			to_chat(user, "You wipe the disk data.")
 			name = initial(name)
-			desc = initial(name)
+			desc = initial(desc)
 			genes = list()
 			genesource = "unknown"
 
@@ -191,6 +191,7 @@
 	var/list/data = list()
 	var/static/list/gene_tag_list = list(
 		list("tag" = GENE_PHYTOCHEMISTRY),
+		list("tag" = GENE_BIOMOLECULES),
 		list("tag" = GENE_MORPHOLOGY),
 		list("tag" = GENE_BIOLUMINESCENCE),
 		list("tag" = GENE_ECOLOGY),
@@ -282,8 +283,7 @@
 		if(loaded_seed && loaded_seed.seed)
 			genetics = loaded_seed.seed
 
-		qdel(loaded_seed)
-		loaded_seed = null
+		QDEL_NULL(loaded_seed)
 
 	if(href_list["get_gene"])
 

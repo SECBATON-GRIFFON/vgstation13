@@ -34,11 +34,9 @@
 
 /obj/machinery/media/transmitter/broadcast/Destroy()
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 	if(power_connection)
-		qdel(power_connection)
-		power_connection = null
+		QDEL_NULL(power_connection)
 	. = ..()
 
 /obj/machinery/media/transmitter/broadcast/proc/cable_power_change(var/list/args)
@@ -103,7 +101,7 @@
 		if(!S.remove_fuel(4,user))
 			return
 		playsound(loc, 'sound/items/Welder.ogg', 100, 1)
-		if(do_after(user, src,40))
+		if(do_after(user, src,4 SECONDS * S.work_speed))
 			playsound(loc, 'sound/items/Welder.ogg', 100, 1)
 			integrity = 100
 			to_chat(user, "<span class='notice'>You repair the blown fuses on [src].</span>")

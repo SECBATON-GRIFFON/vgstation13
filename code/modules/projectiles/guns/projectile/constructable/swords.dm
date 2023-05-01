@@ -68,8 +68,7 @@
 
 /obj/item/weapon/sword/weaponcraft/Destroy()
 	if(hypo)
-		qdel(hypo)
-		hypo = null
+		QDEL_NULL(hypo)
 	..()
 
 /obj/item/weapon/sword/venom
@@ -83,6 +82,9 @@
 	var/min_inject_amount = 5
 	var/max_inject_amount = 20
 	var/inject_amount = 20 //The amount of reagents injected from the beaker each hit
+
+/obj/item/weapon/sword/venom/splashable()
+	return FALSE
 
 /obj/item/weapon/sword/venom/verb/set_inject_amount()
 	set name = "Set injection amount"
@@ -107,11 +109,9 @@
 
 /obj/item/weapon/sword/venom/Destroy()
 	if(beaker)
-		qdel(beaker)
-		beaker = null
+		QDEL_NULL(beaker)
 	if(HY)
-		qdel(HY)
-		HY = null
+		QDEL_NULL(HY)
 	..()
 
 /obj/item/weapon/sword/venom/proc/update_color()

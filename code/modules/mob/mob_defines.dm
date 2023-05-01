@@ -78,6 +78,7 @@
 	var/other = 0.0
 	var/eye_blind = null	//Carbon
 	var/eye_blurry = null	//Carbon
+	var/nearsightedness = 0
 	var/ear_deaf = null		//Carbon
 	var/say_mute = null
 	var/ear_damage = null	//Carbon
@@ -274,6 +275,7 @@
 	var/list/languages[0]
 
 	var/list/alphas = list()
+	var/alpha_override = FALSE	
 	var/spell/spell_channeling // The spell that's currently being channeled
 
 	var/see_in_dark_override = 0	//for general guaranteed modification of these variables

@@ -9,6 +9,7 @@
 	var/hitsound = null
 	var/miss_sound = 'sound/weapons/punchmiss.ogg'
 	var/armor_penetration = 0 // Chance from 0 to 100 to reduce absorb by one, and then rolls the same value. Check living_defense.dm
+	var/uncountable //TRUE means the item's examine description will use "It is" even if the item's gender is PLURAL.
 
 	w_class = W_CLASS_MEDIUM
 	var/attack_delay = 10 //Delay between attacking with this item, in 1/10s of a second (default = 1 second)
@@ -84,6 +85,8 @@
 	var/luckiness //How much luck or unluck the item confers while held
 	var/luckiness_validity	//Flags for where the item has to be to confer its luckiness to the bearer. e.g. held in the hand, carried somewhere in the inventory, etc.: see luck.dm.
 
+	var/is_cookvessel //If true, the item is a cooking vessel.
+
 /obj/item/New()
 	..()
 	for(var/path in actions_types)
@@ -121,10 +124,10 @@
 	return return_cover_protection(body_parts_covered) * (1 - heat_conductivity)
 
 /obj/item/acid_melt()
-	if (acidable())
-		var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(loc)
-		I.desc = "Looks like this was \a [src] some time ago."
-		qdel(src)
+	var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(loc)
+	I.desc = "Looks like this was \a [src] some time ago."
+	visible_message("<span class='warning'>\The [src] melts.</span>")
+	qdel(src)
 
 /obj/item/hide(i)
 	if(isturf(loc))
@@ -209,6 +212,19 @@
 /obj/item/blob_act()
 	..()
 	qdel(src)
+
+var/global/objects_thrown_when_explode = FALSE
+
+/obj/item/throw_impact(atom/impacted_atom, speed, mob/user)
+	..()
+	if(isturf(impacted_atom))
+		var/turf/T = impacted_atom
+		if(objects_thrown_when_explode || (T.arcanetampered && T.arcanetampered != user))
+			playsound(T, get_sfx("explosion_small"), 100, 1, get_rand_frequency(), falloff = 5)
+			T.turf_animation('icons/effects/96x96.dmi',"explosion_small",-WORLD_ICON_SIZE, -WORLD_ICON_SIZE, 13)
+			qdel(src)
+			return 1
+	return 0
 
 /obj/item/Topic(href, href_list)
 	.=..()
@@ -308,11 +324,11 @@
 
 	//if (clumsy_check(usr) && prob(50)) t = "funny-looking"
 	var/pronoun
-	if (gender == PLURAL)
+	if ((gender == PLURAL) && !uncountable)
 		pronoun = "They are"
 	else
 		pronoun = "It is"
-	size = " [pronoun] a [size] item."
+	size = " [pronoun] [size]."
 	..(user, size, show_name)
 	if(price && price > 0)
 		to_chat(user, "You read '[price] space bucks' on the tag.")
@@ -1071,8 +1087,7 @@
 		wielded.wielding = null
 		user.u_equip(wielded,1)
 		if(wielded)
-			qdel(wielded)
-			wielded = null
+			QDEL_NULL(wielded)
 	update_wield(user)
 
 /obj/item/proc/update_wield(mob/user)
@@ -1579,21 +1594,7 @@ var/global/list/image/blood_overlays = list()
 		usr.put_in_hand(OI.hand_index, src)
 		add_fingerprint(usr)
 
-/obj/item/proc/pre_throw()
-	return
-
-/**
-	Attempt to heat this object from a presumed heat source.
-	@args:
-		A: Atom: The source of the heat
-		user: mob: Whomever may be trying to heat this object
-
-	@return:
-		TRUE if succesful
-		FALSE if not succesful
-		NULL if override not defined
-**/
-/obj/item/proc/attempt_heating(atom/A, mob/user)
+/obj/item/proc/pre_throw(atom/movable/target)
 	return
 
 /obj/item/proc/recharger_process(var/obj/machinery/recharger/charger)

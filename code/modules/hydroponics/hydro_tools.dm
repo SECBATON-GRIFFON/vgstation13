@@ -62,7 +62,8 @@
 		return
 
 	form_title = "[grown_seed.seed_name] (#[grown_seed.uid])"
-	user.visible_message("<span class='notice'>[user] runs the scanner over [target].</span>")
+	if(loc == user) //Don't show this message if we are not inhand
+		user.visible_message("<span class='notice'>[user] runs the scanner over [target].</span>")
 
 	var/dat = list()
 	dat += "<h3>Plant data for [form_title]</h3>"
@@ -76,6 +77,7 @@
 	dat += "<tr><td><b>Maturation time</b></td><td>[round(grown_seed.maturation, 0.01)]</td></tr>"
 	dat += "<tr><td><b>Production time</b></td><td>[round(grown_seed.production, 0.01)]</td></tr>"
 	dat += "<tr><td><b>Potency</b></td><td>[round(grown_seed.potency, 0.01)]</td></tr>"
+	dat += "<tr><td><b>Primary Molecules</b></td><td>[jointext(grown_seed.molecule_type, ", ")]</td></tr>"
 	dat += "</table>"
 
 	if(grown_reagents && grown_reagents.reagent_list && grown_reagents.reagent_list.len)
@@ -267,7 +269,7 @@
 
 /obj/item/weapon/hatchet
 	name = "hatchet"
-	desc = "A very sharp axe blade upon a short fibremetal handle. It has a long history of chopping things, but now it is used for chopping wood."
+	desc = "A very sharp axe blade upon a short wooden handle. It has a long history of chopping things, but now it is used for chopping wood."
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "hatchet"
 	flags = FPRINT
@@ -295,6 +297,12 @@
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "unathiknife"
 	attack_verb = list("rips", "tears", "cuts")
+
+/obj/item/weapon/hatchet/metalhandle
+	name = "hatchet"
+	desc = "A soulless attempt at upgrading the traditional hatchet, clearly a mass produced inferior tool compared to the ones made by elder botanist master-crafstmen."
+	icon = 'icons/obj/weapons.dmi'
+	icon_state = "lamehatchet"
 
 /obj/item/weapon/scythe
 	icon_state = "scythe0"
@@ -351,8 +359,7 @@
 		to_chat(user, "<span class='warning'>You cannot plant \the [O] in \the [src].</span>")
 
 /obj/item/claypot/throw_impact(atom/hit_atom)
-	..()
-	if(prob(40))
+	if(!..() && prob(40))
 		playsound(loc, 'sound/effects/hit_on_shattered_glass.ogg', 75, 1)
 		new/obj/effect/decal/cleanable/clay_fragments(src.loc)
 		src.visible_message("<span class='warning'>\The [src.name] has been smashed.</span>","<span class='warning'>You hear a crashing sound.</span>")

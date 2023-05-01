@@ -268,6 +268,15 @@ var/list/uplink_items = list()
 	item = /obj/item/weapon/grenade/spawnergrenade/manhacks/syndicate
 	cost = 6
 
+/datum/uplink_item/dangerous/caber //around 25 brute self damage and bleed if used without armor, generally crit if exploded against an unarmored victim
+	name = "Ullapool Caber"
+	desc = "A modern replica of the legendary weapon held by Tavish DeGroot, scanned after the DeGroot family so generously let us inspect them for mass production. This potato-masher grenade will explode when swung, but not when thrown. The safety grip makes dropping or throwing the Caber impossible whilst enabled and will not explode with the safeties disabled. EOD Suit not included."
+	item = /obj/item/weapon/caber/
+	cost = 10
+	discounted_cost = 8
+	//jobs_with_discount = list("Assistant")
+	//would've liked to add a discount for dark skinned or nearsighted characters (closest to one eyed we have) but dunno how
+
 // STEALTHY WEAPONS
 // Any Syndicate item with applying lethal force to people without being easily detected (Ex: Syndicate Soap, Parapen, E-Bow)
 
@@ -550,6 +559,30 @@ var/list/uplink_items = list()
 	discounted_cost = 12
 	jobs_with_discount = list("Grey")
 
+/datum/uplink_item/ayylmao/harmor
+	name = "MDF Heavy Armor"
+	desc = "A set of cumbersome but sturdy alien armor that excels at protecting the wearer from energy weapons and melee attacks. The armor plates were measured for a grey, but can be adjusted to fit a human as well. Not guaranteed to fit any other species. A soldier's uniform and boots are included with the kit."
+	item = /obj/item/weapon/storage/box/syndie_kit/ayylmao_harmor
+	cost = 4
+	discounted_cost = 3
+	jobs_with_discount = list("Grey")
+
+/datum/uplink_item/ayylmao/mdfbelt
+	name = "MDF Gear Belt"
+	desc = "A mothership soldier's belt. Loaded with an ion pistol, first aid supplies, binoculars, and an extended oxygen supply tank for operating in breached areas. Keep away from water."
+	item = /obj/item/weapon/storage/belt/mothership/partial_gear
+	cost = 5
+	discounted_cost = 4
+	jobs_with_discount = list("Grey")
+
+/datum/uplink_item/ayylmao/sdrone_grenade
+	name = "Saucer Drone Grenade"
+	desc = "A single grenade containing a payload of four mothership saucer drones. The drones are fragile, but equipped with a small cannon capable of firing scorch bolts. The drones will attack all unidentified lifeforms in the area except the grenade operator."
+	item = /obj/item/weapon/grenade/spawnergrenade/mothershipdrone
+	cost = 6
+	discounted_cost = 4
+	jobs_with_discount = list("Grey")
+
 // IMPLANTS
 // Any Syndicate item that gets implanted into the body goes here
 
@@ -747,7 +780,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/jobspecific/medical/antisocial
 	name = "Explosive Hug Chemical"
-	desc = "30 units of Bicarodyne, a special chemical that causes a devastating explosion when exposed to endorphins released in the body by a hug. Metabolizes quite slowly."
+	desc = "30 units of Bicarodyne, a special chemical that causes a devastating explosion when exposed to endorphins released in the body by a hug. Metabolizes quite slowly. Converts Bicaridine into more of this substance."
 	item = /obj/item/weapon/storage/box/syndie_kit/explosive_hug //Had to be put in a box because it didn't play well with reagent creation
 	cost = 9
 	discounted_cost = 8
@@ -755,7 +788,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/jobspecific/medical/hypozinebottle
 	name = "Lethal Speed Chemical"
-	desc = "30 units of Hypozine, a special chemical that causes the body to seamlessly synthesize Hyperzine, but also causes increases in muscle activity to levels that rapidly tear the user's body apart, causing catastrophic ligament failure. Metabolizes quite slowly."
+	desc = "30 units of Hypozine, a special chemical that causes the body to seamlessly synthesize Hyperzine, but also causes increases in muscle activity to levels that rapidly tear the user's body apart, causing catastrophic ligament failure. Metabolizes quite slowly. Converts Hyperzine into more of this substance."
 	item = /obj/item/weapon/storage/box/syndie_kit/lethal_hyperzine
 	cost = 5
 	discounted_cost = 4

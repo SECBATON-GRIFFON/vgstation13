@@ -53,6 +53,24 @@
 /obj/item/weapon/reagent_containers/food/drinks/bite_act(mob/user)
 	return try_consume(user)
 
+/obj/item/weapon/reagent_containers/food/drinks/arcane_act(mob/user)
+	..()
+	cant_drop = 1
+	return prob(50) ? "D'TA EX'P'GED!" : "R'D'CTED!"
+
+/obj/item/weapon/reagent_containers/food/drinks/bless()
+	..()
+	cant_drop = 0
+
+/obj/item/weapon/reagent_containers/food/drinks/pickup(mob/user as mob)
+	..()
+	if(ishuman(user) && arcanetampered) // wizards turn it into SCP-198
+		var/mob/living/carbon/human/H = user
+		reagents.clear_reagents()
+		H.audible_scream()
+		H.adjustHalLoss(50)
+		H.vessel.trans_to(reagents,reagents.maximum_volume)
+
 /obj/item/weapon/reagent_containers/food/drinks/attack(mob/living/M as mob, mob/user as mob, def_zone)
 	var/datum/reagents/R = src.reagents
 	var/fillevel = gulp_size
@@ -236,6 +254,11 @@
 		lit = 0
 
 	..()
+
+	if(arcanetampered && ishuman(user) && !reagents.total_volume)
+		var/mob/living/carbon/human/H = user
+		H.vessel.trans_to(reagents,reagents.maximum_volume)
+		return 0
 
 /obj/item/weapon/reagent_containers/food/drinks/New()
 	..()
@@ -642,16 +665,6 @@
 	user.drop_from_inventory(src)
 	qdel(src)
 
-/obj/item/weapon/reagent_containers/food/drinks/discount_sauce
-	name = "Discount Dan's Special Sauce"
-	desc = "Discount Dan brings you his very own special blend of delicious ingredients in one discount sauce!"
-	icon_state = "discount_sauce"
-	volume = 3
-
-/obj/item/weapon/reagent_containers/food/drinks/discount_sauce/New()
-	..()
-	reagents.add_reagent(DISCOUNT, 3)
-
 
 /obj/item/weapon/reagent_containers/food/drinks/beer
 	name = "Space Beer"
@@ -1020,7 +1033,6 @@
 	..()
 	reagents.add_reagent(CAFE_LATTE, 50)
 
-
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/cannedcopcoffee
 	name = "HOSS Rainbow Donut Blend"
 	desc = "All the essentials, for on the go."
@@ -1028,6 +1040,22 @@
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/cannedcopcoffee/New()
 	..()
 	reagents.add_reagent(SECCOFFEE, 50)
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee
+	name = "Energizer"
+	desc = "Smells a bit like Battery Acid"
+	icon_state = "engicoffee"
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee/New()
+	..()
+	reagents.add_reagent(ENGICOFFEE, 50)
+
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee_shard
+	name = "Supermatter Sea Salt Soda "
+	desc = "Mmmmm Blurple"
+	icon_state = "engicoffee_shard"
+/obj/item/weapon/reagent_containers/food/drinks/soda_cans/engicoffee_shard/New()
+	..()
+	reagents.add_reagent(ENGICOFFEE, 50)
 
 /obj/item/weapon/reagent_containers/food/drinks/soda_cans/lifeline_white
 	name = "Picomed: White edition"
@@ -1790,8 +1818,7 @@
 
 //smashing when thrown
 /obj/item/weapon/reagent_containers/food/drinks/throw_impact(atom/hit_atom, var/speed, mob/user)
-	..()
-	if(isGlass && isturf(loc)) // don't shatter if we got caught mid-flight
+	if(!..() && isGlass && isturf(loc)) // don't shatter if we got caught mid-flight
 		isGlass = 0 //to avoid it from hitting the wall, then hitting the floor, which would cause two broken bottles to appear
 		visible_message("<span  class='warning'>The [smashtext][name] shatters!</span>","<span  class='warning'>You hear a shatter!</span>")
 		playsound(src, 'sound/effects/hit_on_shattered_glass.ogg', 70, 1)
@@ -1846,8 +1873,7 @@
 /obj/item/weapon/reagent_containers/food/drinks/attackby(var/obj/item/I, mob/user as mob)
 	if(istype(I, /obj/item/weapon/reagent_containers/glass/rag) && molotov == -1)  //check if it is a molotovable drink - just beer and ale for now - other bottles require different rag overlay positions - if you can figure this out then go for it
 		to_chat(user, "<span  class='notice'>You stuff the [I] into the mouth of the [src].</span>")
-		qdel(I)
-		I = null //??
+		QDEL_NULL(I) //??
 		var/obj/item/weapon/reagent_containers/food/drinks/dummy = /obj/item/weapon/reagent_containers/food/drinks/molotov
 		molotov = initial(dummy.molotov)
 		flags = initial(dummy.flags)

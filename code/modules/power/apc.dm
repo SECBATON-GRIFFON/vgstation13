@@ -74,7 +74,6 @@
 	var/chargecount = 0
 	var/locked = 1
 	var/coverlocked = 1
-	var/aidisabled = 0
 	var/tdir = null
 	var/lastused_light = 0
 	var/lastused_equip = 0
@@ -567,16 +566,14 @@
 			user.visible_message(\
 				"<span class='warning'>[user.name] cut the cables and dismantled the power terminal.</span>",\
 				"You cut the cables and dismantle the power terminal.")
-			qdel(terminal)
-			terminal = null
+			QDEL_NULL(terminal)
 	else if (istype(W, /obj/item/weapon/circuitboard/power_control) && opened && has_electronics==0 && !((stat & BROKEN) || malfhack))
 		to_chat(user, "You begin to insert the power control board into the frame...")
 		playsound(src, 'sound/items/Deconstruct.ogg', 50, 1)
 		if (do_after(user, src, 10) && opened && has_electronics == 0 && !((stat & BROKEN) || malfhack))
 			has_electronics = 1
 			to_chat(user, "You place the power control board inside the frame.")
-			qdel(W)
-			W = null
+			QDEL_NULL(W)
 	else if (istype(W, /obj/item/weapon/circuitboard/power_control) && opened && has_electronics==0 && ((stat & BROKEN) || malfhack))
 		to_chat(user, "<span class='warning'>You cannot put the board inside, the frame is damaged.</span>")
 		return
@@ -608,8 +605,7 @@
 		user.visible_message(\
 			"<span class='warning'>[user.name] has replaced the damaged APC frontal panel with a new one.</span>",\
 			"You replace the damaged APC frontal panel with a new one.")
-		qdel(W)
-		W = null
+		QDEL_NULL(W)
 		update_icon()
 	else if (istype(W, /obj/item/mounted/frame/apc_frame) && opened && ((stat & BROKEN) || malfhack))
 		if (has_electronics)
@@ -620,8 +616,7 @@
 			user.visible_message(\
 				"<span class='warning'>[user.name] has replaced the damaged APC frame with new one.</span>",\
 				"You replace the damaged APC frame with new one.")
-			qdel(W)
-			W = null
+			QDEL_NULL(W)
 			stat &= ~BROKEN
 			if(malfai)
 				var/datum/role/malfAI/M = malfai.mind.GetRole(MALF)
@@ -634,6 +629,8 @@
 	else if(istype(W, /obj/item/weapon/kitchen/utensil/fork) && opened) // Sticking fork in open APC shocks you
 		to_chat(user, "<span class='warning'>That was really, really dumb of you.</span>") // Why would you even do this
 		shock(user, 75, W.siemens_coefficient)
+	else if (istype(W, /obj/item/weapon/storage/bag/gadgets/part_replacer))
+		exchange_parts(user, W)
 	else
 		// The extra crowbar thing fixes MoMMIs not being able to remove APCs.
 		// They can just pop them off with a crowbar.
@@ -660,6 +657,25 @@
 				"<span class='warning'>You hit the [src.name] with your [W.name]!</span>", \
 				"You hear bang")*/
 			..() //Sanity
+
+/obj/machinery/power/apc/exchange_parts(mob/user, obj/item/weapon/storage/bag/gadgets/part_replacer/W)
+	if (W.bluespace || wiresexposed || opened)
+		var/obj/item/weapon/cell/max_cell
+		for(var/obj/item/weapon/cell/component in W.contents)
+			if (!max_cell || (max_cell.rating < component.rating))
+				max_cell = component
+
+
+		if (max_cell && max_cell.rating > cell.rating)
+			W.remove_from_storage(max_cell, src)
+			W.handle_item_insertion(cell, 1)
+			to_chat(user, "<span class='notice'>[cell.name] replaced with [max_cell.name].</span>")
+			cell = max_cell
+			cell_type = max_cell.maxcharge
+			max_cell.forceMove(null)
+			W.play_rped_sound()
+		else
+			to_chat(user, "<span class='notice'>No power cell of higher grade detected.</span>")
 
 // attack with hand - remove cell (if cover open) or interact with the APC
 
@@ -772,6 +788,8 @@
 		"isOperating" = operating,
 		"externalPower" = main_status,
 		"powerCellStatus" = cell ? cell.percent() : null,
+		"powerCellCharge" = cell ? round(cell.charge) : null,
+		"powerCellMaxCharge" = cell ? cell.maxcharge : null,
 		"chargeMode" = chargemode,
 		"chargingStatus" = charging,
 		"totalLoad" = lastused_equip + lastused_light + lastused_environ,
@@ -834,6 +852,8 @@
 
 /obj/machinery/power/apc/proc/update()
 	var/area/this_area = get_area(src)
+	if(!this_area)
+		return
 	if(operating && !shorted)
 		this_area.power_light = (lighting > 1)
 		this_area.power_equip = (equipment > 1)
@@ -870,26 +890,12 @@
 	if (istype(user, /mob/living/silicon))
 		var/mob/living/silicon/ai/AI = user
 		var/mob/living/silicon/robot/robot = user
-		if (                                                             \
-			src.aidisabled ||                                            \
-			malfhack && istype(malfai) &&                                \
-			(                                                            \
-				(istype(AI) && (malfai!=AI && malfai != AI.parent)) ||   \
-				(istype(robot) && (robot in malfai.connected_robots))    \
-			)                                                            \
-		)
+		if((src.stat & NOAICONTROL) || malfhack && istype(malfai) && ((istype(AI) && (malfai!=AI && malfai != AI.parent)) || (istype(robot) && (robot in malfai.connected_robots))))
 			if(!loud)
 				to_chat(user, "<span class='warning'>\The [src] have AI control disabled!</span>")
 				nanomanager.close_user_uis(user, src)
 
 			return 0
-	else if(isobserver(user))
-		if(malfhack && istype(malfai) && !isAdminGhost(user))
-			if(!loud)
-				to_chat(user, "<span class='warning'>\The [src] have AI control disabled!</span>")
-				nanomanager.close_user_uis(user, src)
-			return 0
-
 	else
 		if ((!is_in_range(user) || !istype(src.loc, /turf)))
 			nanomanager.close_user_uis(user, src)
@@ -924,7 +930,7 @@
 			usr.unset_machine()
 		return 1
 	if(!isobserver(usr))
-		if((!aidisabled) && malflocked && (usr != malfai && usr.loc != src)) //exclusive control enabled
+		if(!(stat & NOAICONTROL) && malflocked && (usr != malfai && usr.loc != src)) //exclusive control enabled
 			to_chat(usr, "Access refused.")
 			return 0
 	if(!can_use(usr, 1))
@@ -1017,8 +1023,7 @@
 	malf.mind.transfer_to(src.occupant)
 	src.occupant.eyeobj.name = "[src.occupant.name] (AI Eye)"
 	if(malf.parent)
-		qdel(malf)
-		malf = null
+		QDEL_NULL(malf)
 	src.occupant.add_spell(new /spell/aoe_turf/corereturn, "malf_spell_ready",/obj/abstract/screen/movable/spell_master/malf)
 	src.occupant.cancel_camera()
 	if (seclevel2num(get_security_level()) == SEC_LEVEL_DELTA)
@@ -1398,12 +1403,10 @@
 		malfvacate(1)
 
 	if(cell)
-		qdel(cell)
-		cell = null
+		QDEL_NULL(cell)
 
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 
 	if(malfimage)
 		qdel(malfimage)

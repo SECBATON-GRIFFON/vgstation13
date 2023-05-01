@@ -185,7 +185,6 @@
 	pressure = temp_first.return_pressure()/2
 
 	var/range = (pressure-TANK_FRAGMENT_PRESSURE)/TANK_FRAGMENT_SCALE
-
 	var/dev = round(range*0.25)
 
 	return dev

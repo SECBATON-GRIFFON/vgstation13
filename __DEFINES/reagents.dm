@@ -78,6 +78,9 @@
 #define ALUMINUM 			"aluminum"
 #define SILICON 			"silicon"
 #define FUEL 			"fuel"
+#define FUELBOMB 			"fuelbomb"
+#define PLASMABOMB 			"plasmabomb"
+#define ANFOBOMB 			"anfobomb"
 #define VOMIT 			"vomit"
 #define CLEANER 			"cleaner"
 #define BLEACH 				"bleach"
@@ -113,6 +116,7 @@
 #define PHYTOCARISOL			"phytocarisol"
 #define HYPERZINE 			"hyperzine"
 #define HYPOZINE 			"hypozine"
+#define LIQUIDPCP 			"liquidpcp"
 #define CRYOXADONE 			"cryoxadone"
 #define CLONEXADONE 			"clonexadone"
 #define REZADONE 			"rezadone"
@@ -142,6 +146,7 @@
 #define SALINE				"saline"
 #define GLUE 			"glue"
 #define DIETHYLAMINE 			"diethylamine"
+#define AMMONIUMNITRATE         "ammoniumnitrate"
 #define ETHYLREDOXRAZINE 			"ethylredoxrazine"
 #define CHLORALHYDRATE 			"chloralhydrate"
 #define SUX					"suxameth"
@@ -360,6 +365,7 @@
 #define DOPPIO 			"doppio"
 #define PASSIONE 			"passione"
 #define SECCOFFEE 			"seccoffee"
+#define ENGICOFFEE			"engicoffee"
 #define MEDCOFFEE 			"medcoffee"
 #define DETCOFFEE 			"detcoffee"
 #define ETANK 			"etank"
@@ -427,6 +433,7 @@
 #define RAGSTORICHES	"ragstoriches"
 #define WAIFU			"waifu"
 #define HUSBANDO		"husbando"
+#define TOMBOY			"tomboy"
 #define BEEPSKY_CLASSIC	"beepsky_classic"
 #define SMOKYROOM		"smokyroom"
 #define BAD_TOUCH		"bad_touch"
@@ -548,11 +555,12 @@ var/list/cheartstopper = list(/*"potassium_chloride",*/ CHEESYGLOOP) //this stop
 #define IMPEDREZENES list(IMPEDREZENE, HYOSCYAMINE)
 #define LEXORINS list(LEXORIN, CORIAMYRTIN)
 #define DEXALINS list(DEXALIN, THYMOL)
-#define PETRITRICINCURES list(SACID, PACID, FORMIC_ACID, PACID, PHENOL, ACIDSPIT, ACIDTEA)
-#define WATERS list(WATER, HOLYWATER)
+#define ACIDS list(SACID, PACID, FORMIC_ACID, PACID, PHENOL, ACIDSPIT, ACIDTEA)
+#define WATERS list(WATER, HOLYWATER, ICE)
 #define CORES list(SOFTCORES, MEDCORES)
 #define ALLNANITES list(NANITES, AUTISTNANITES)
 #define SUGARS list(SUGAR, CORNSYRUP)
+#define GUNKS list(CHEMICAL_WASTE, TOXICWASTE, VOMIT, TOXIN, SOLANINE, RADIUM, MUTAGEN, UNTABLE_MUTAGEN, SPIDERS)
 
 #define SLIPPABLES list(LUBE, WATER, CORNOIL)
 #define MILDSLIPPABLES list(WATER, CORNOIL)
@@ -571,3 +579,10 @@ var/list/cheartstopper = list(/*"potassium_chloride",*/ CHEESYGLOOP) //this stop
 #define INCENSE_CRAVE		"vales"
 #define INCENSE_CORNOIL 	"cornoils"
 #define INCENSE_MUSTARDPLANT "mustardplant"
+
+#define GLUCOSE "Glucose"
+#define CELLULOSE "Cellulose"
+#define PROTEIN "Protein"
+#define STARCH "Starch"
+#define CHITIN "Chitin"
+#define XENOPHYLL "Xenophyll"

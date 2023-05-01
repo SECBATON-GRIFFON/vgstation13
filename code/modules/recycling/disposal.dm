@@ -25,6 +25,9 @@
 	var/template_path = "disposalsbin.tmpl"
 	var/deconstructable = TRUE	//Set to FALSE for disposal machinery that can be used for transporting players or things, but not tinkered with by players.
 
+/obj/machinery/disposal/splashable()
+	return FALSE
+
 /obj/machinery/disposal/supports_holomap()
 	return TRUE
 
@@ -1547,6 +1550,8 @@
 	desc = "An outlet for the pneumatic disposal system."
 	icon = 'icons/obj/pipes/disposal.dmi'
 	icon_state = "outlet"
+	plane = ABOVE_HUMAN_PLANE
+	layer = DISPOSALS_CHUTE_LAYER
 	density = 1
 	anchored = 1
 	var/active = 0
@@ -1567,7 +1572,6 @@
 
 /obj/structure/disposaloutlet/New()
 	. = ..()
-
 	spawn(1)
 		target = get_ranged_target_turf(src, dir, 10)
 

@@ -36,9 +36,7 @@
 		var/mob/living/carbon/Ca = src
 		Ca.dropBorers(1)//sanity checking for borers that haven't been qdel'd yet
 	if(client)
-		for(var/obj/abstract/screen/movable/spell_master/spell_master in spell_masters)
-			qdel(spell_master)
-		spell_masters = null
+		QDEL_LIST_NULL(spell_masters)
 		remove_screen_objs()
 		for(var/atom/movable/AM in client.screen)
 			var/obj/abstract/screen/screenobj = AM
@@ -57,17 +55,14 @@
 	attack_delayer = null
 	special_delayer = null
 	throw_delayer = null
-	qdel(hud_used)
-	hud_used = null
+	QDEL_NULL(hud_used)
 	for(var/atom/movable/leftovers in src)
 		qdel(leftovers)
 
 	if(transmogged_from)
-		qdel(transmogged_from)
-		transmogged_from = null
+		QDEL_NULL(transmogged_from)
 	if(transmogged_to)
-		qdel(transmogged_to)
-		transmogged_to = null
+		QDEL_NULL(transmogged_to)
 	if(control_object.len)
 		for(var/A in control_object)
 			qdel(A)
@@ -247,14 +242,14 @@
 /mob/Del()
 	if(flags & HEAR_ALWAYS)
 		if(virtualhearer)
-			qdel(virtualhearer)
-			virtualhearer = null
+			QDEL_NULL(virtualhearer)
 	..()
 
 /mob/proc/is_muzzled()
 	return 0
 
 /mob/proc/store_position()
+	//updates the players' origin_ vars so they retain their location when the round starts.
 	origin_x = x
 	origin_y = y
 	origin_z = z
@@ -564,8 +559,7 @@
 	if(!W.mob_can_equip(src, slot, disable_warning))
 		switch(act_on_fail)
 			if(EQUIP_FAILACTION_DELETE)
-				qdel(W)
-				W = null
+				QDEL_NULL(W)
 			if(EQUIP_FAILACTION_DROP)
 				W.forceMove(get_turf(src)) //Should this be using drop_from_inventory instead?
 			else
@@ -611,11 +605,8 @@
 		B.handle_item_insertion(W,1)
 
 //The list of slots by priority. equip_to_appropriate_slot() uses this list. Doesn't matter if a mob type doesn't have a slot.
-var/list/slot_equipment_priority = list( \
-		slot_back,\
+var/static/list/slot_equipment_priority = list( \
 		slot_wear_id,\
-		slot_w_uniform,\
-		slot_wear_suit,\
 		slot_wear_mask,\
 		slot_head,\
 		slot_shoes,\
@@ -625,7 +616,10 @@ var/list/slot_equipment_priority = list( \
 		slot_belt,\
 		slot_s_store,\
 		slot_l_store,\
-		slot_r_store\
+		slot_r_store,\
+		slot_w_uniform,\
+		slot_wear_suit,\
+		slot_back\
 	)
 
 /*Equips accessories.
@@ -650,14 +644,23 @@ Use this proc preferably at the end of an equipment loadout
 	if(!istype(W))
 		return 0
 
+	var/list/backup_slots = list()
 	for(var/slot in slot_equipment_priority)
 		if(!is_holding_item(W) && !override)
 			return 0
 		var/obj/item/S = get_item_by_slot(slot)
 		if(S && S.can_quick_store(W))
-			return S.quick_store(W)
+			return S.quick_store(W,src)
+		if((slot in list(slot_l_store,slot_r_store)) && W.mob_can_equip(src, slot, 1) == CAN_EQUIP_BUT_SLOT_TAKEN)
+			backup_slots.Add(slot)
+		else if(equip_to_slot_if_possible(W, slot, 0, 1, 1, 0)) //act_on_fail = 0; disable_warning = 0; redraw_mob = 1
+			return 1
+	for(var/slot in backup_slots)
 		if(equip_to_slot_if_possible(W, slot, 0, 1, 1, 0)) //act_on_fail = 0; disable_warning = 0; redraw_mob = 1
 			return 1
+	for(var/obj/item/I in held_items)
+		if(I.can_quick_store(W))
+			return I.quick_store(W,src)
 
 	return 0
 
@@ -1165,6 +1168,8 @@ Use this proc preferably at the end of an equipment loadout
 
 	face_atom(A)
 	A.examine(src)
+	if(A.admin_desc && src.client?.holder?.admin_examine)
+		to_chat(src, "<span class='rough'>Admin-only: [A.admin_desc]</span>")
 
 	if(istype(src,/mob/living))
 		var/mob/living/L = src
@@ -1266,8 +1271,7 @@ Use this proc preferably at the end of an equipment loadout
 	var/mob/new_player/M = new /mob/new_player()
 	if(!client)
 		log_game("[usr.key] AM failed due to disconnect.")
-		qdel(M)
-		M = null
+		QDEL_NULL(M)
 		return
 
 	M.key = key
@@ -1610,6 +1614,23 @@ Use this proc preferably at the end of an equipment loadout
 	set hidden = 1
 	return directionface(SOUTH)
 
+/mob/proc/check_dark_vision()
+	if (dark_plane && dark_plane.alphas.len)
+		var/max_alpha = 0
+		for (var/key in dark_plane.alphas)
+			max_alpha = max(dark_plane.alphas[key], max_alpha)
+		animate(dark_plane, alpha = max_alpha, color = dark_plane.colours, time = 10)
+	else if (dark_plane)
+		animate(dark_plane, alpha = initial(dark_plane.alpha), color = dark_plane.colours, time = 10)
+
+	if (self_vision)
+		if (isturf(loc))
+			var/turf/T = loc
+			if (T.get_lumcount() <= 0 && (dark_plane.alpha <= 15) && (master_plane.blend_mode == BLEND_MULTIPLY))
+				animate(self_vision, alpha = self_vision.target_alpha, time = 10)
+			else
+				animate(self_vision, alpha = 0, time = 10)
+
 //Like forceMove(), but for dirs! used in atoms_movable.dm, mainly with chairs and vehicles
 /mob/change_dir(new_dir, var/changer)
 	INVOKE_EVENT(src, /event/before_move)
@@ -1863,6 +1884,8 @@ Use this proc preferably at the end of an equipment loadout
 /mob/attack_pai(mob/user as mob)
 	ShiftClick(user)
 
+
+
 /mob/proc/teleport_to(var/atom/A)
 	forceMove(get_turf(A))
 
@@ -1910,8 +1933,8 @@ Use this proc preferably at the end of an equipment loadout
 			mind.heard_before[M.name] = M.mind
 			M.heard_by |= mind
 
-/mob/acidable()
-	return 1
+/mob/dissolvable()
+	return PACID
 
 /mob/proc/get_view_range()
 	if(client)
@@ -2130,6 +2153,8 @@ Use this proc preferably at the end of an equipment loadout
 		regenerate_icons()
 
 /mob/proc/handle_alpha()	//uses the lowest alpha on the mob
+	if(alpha_override == TRUE)
+		return
 	if(alphas.len < 1)
 		alpha = 255
 	else

@@ -212,8 +212,8 @@
 
 	update_mutantrace()
 
-	register_event(/event/equipped, src, .proc/update_name)
-	register_event(/event/unequipped, src, .proc/update_name)
+	register_event(/event/equipped, src, src::update_name())
+	register_event(/event/unequipped, src, src::update_name())
 
 /mob/living/carbon/human/proc/update_name()
 	name = get_visible_name()
@@ -256,8 +256,7 @@
 
 		if (internal)
 			if (!internal.air_contents)
-				qdel(internal)
-				internal = null
+				QDEL_NULL(internal)
 			else
 				stat("Internal Atmosphere Info", internal.name)
 				stat("Tank Pressure", internal.air_contents.return_pressure())
@@ -295,7 +294,6 @@
 	return FALSE
 
 /mob/living/carbon/human/var/co2overloadtime = null
-/mob/living/carbon/human/var/temperature_resistance = T0C+75 //but why is this here
 
 // called when something steps onto a human
 // this could be made more general, but for now just handle mulebot
@@ -695,6 +693,9 @@
 	return
 
 /mob/living/carbon/human/proc/vomit(hairball = 0, instant = 0)
+	if(species && species.flags & SPECIES_NO_MOUTH)
+		return
+
 	if(!lastpuke)
 		lastpuke = 1
 		to_chat(src, "<spawn class='warning'>You feel nauseous...</span>")
@@ -1376,7 +1377,15 @@
 	return id
 
 /mob/living/carbon/human/update_perception()
-	if(client && client.darkness_planemaster)
+	if (dark_plane)
+		dark_plane.alphas = list()
+		dark_plane.colours = null
+		dark_plane.blend_mode = BLEND_ADD
+
+	if (master_plane)
+		master_plane.blend_mode = BLEND_MULTIPLY
+
+	if(client && dark_plane)
 		var/datum/organ/internal/eyes/E = src.internal_organs_by_name["eyes"]
 		if(E)
 			E.update_perception(src)
@@ -1384,9 +1393,21 @@
 		for(var/ID in virus2)
 			var/datum/disease2/disease/D = virus2[ID]
 			for (var/datum/disease2/effect/catvision/catvision in D.effects)
-				if (catvision.count)//if catulism has activated at least once, we can see much better in the dark.
-					client.darkness_planemaster.alpha = min(100, client.darkness_planemaster.alpha)
+				if (catvision.count)
+					dark_plane.alphas["cattulism"] = clamp(15 + (catvision.count * 20),15,155) // The more it activates, the better we see, until we see as well as a tajaran would.
 					break
+
+	if (istype(glasses))
+		glasses.update_perception(src)
+		if (dark_plane && glasses.my_dark_plane_alpha_override && glasses.my_dark_plane_alpha_override_value)
+			dark_plane.alphas["[glasses.my_dark_plane_alpha_override]"] = glasses.my_dark_plane_alpha_override_value
+
+	if (mind)
+		for (var/key in mind.antag_roles)
+			var/datum/role/R = mind.antag_roles[key]
+			R.update_perception()
+
+	check_dark_vision()
 
 /mob/living/carbon/human/assess_threat(var/obj/machinery/bot/secbot/judgebot, var/lasercolor)
 	if(judgebot.emagged == 2)
@@ -1695,6 +1716,7 @@
 	var/area/this_area = get_area(src)
 	if(istype(this_area) && this_area.project_shadows)
 		update_shadow()
+	loc.adjust_layer(src)
 
 /mob/living/carbon/human/set_hand_amount(new_amount) //Humans need hand organs to use the new hands. This proc will give them some
 	if(new_amount > held_items.len)

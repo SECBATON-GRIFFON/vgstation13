@@ -186,6 +186,7 @@ var/global/list/airalarm_presets = list(
 	"Plasmaman" = new /datum/airalarm_preset/plasmaman,
 	"Vacuum" = new /datum/airalarm_preset/vacuum,
 )
+var/global/list/air_alarms = list()
 
 /obj/machinery/alarm
 	desc = "An alarm used to control the area's atmospherics systems."
@@ -301,8 +302,7 @@ var/global/list/airalarm_presets = list(
 
 /obj/machinery/alarm/Destroy()
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 	for(var/obj/machinery/computer/atmoscontrol/AC in atmos_controllers)
 		if(AC.current == src)
 			AC.current = null
@@ -310,6 +310,7 @@ var/global/list/airalarm_presets = list(
 	var/area/this_area = get_area(src)
 	if(src in this_area.air_alarms)
 		this_area.air_alarms.Remove(src)
+	air_alarms -= src
 	..()
 
 /obj/machinery/alarm/proc/first_run()
@@ -317,6 +318,7 @@ var/global/list/airalarm_presets = list(
 	area_uid = this_area.uid
 	name = "[this_area.name] Air Alarm"
 	this_area.air_alarms.Add(src)
+	air_alarms += src
 
 	// breathable air according to human/Life()
 	/*
@@ -1180,11 +1182,14 @@ FIRE ALARM
 	idle_power_usage = 2
 	active_power_usage = 6
 	power_channel = ENVIRON
+	machine_flags = EMAGGABLE
 	var/last_process = 0
 	var/wiresexposed = 0
 	var/buildstage = 2 // 2 = complete, 1 = no wires,  0 = circuit gone
 	var/shelter = 1
 	var/alarm = 0
+	var/last_alarm_time = 0
+	var/alarm_delay = 10 SECONDS
 
 /obj/machinery/firealarm/empty
 	shelter = 0
@@ -1257,6 +1262,7 @@ FIRE ALARM
 		attackby(AM,user)
 
 /obj/machinery/firealarm/attackby(obj/item/W as obj, mob/user as mob)
+	..()
 	src.add_fingerprint(user)
 
 	if (istype(W,/obj/item/inflatable/shelter))
@@ -1264,7 +1270,6 @@ FIRE ALARM
 		shelter = TRUE
 		update_icon()
 		return
-
 	if (W.is_screwdriver(user) && buildstage == 2)
 		wiresexposed = !wiresexposed
 		to_chat(user, "The wires have been [wiresexposed ? "exposed" : "unexposed"].")
@@ -1443,13 +1448,19 @@ FIRE ALARM
 	alarm = 0
 
 /obj/machinery/firealarm/proc/alarm()
-	if (!( src.working ))
+	if (!( src.working ) || alarm || (stat & (NOPOWER|BROKEN|FORCEDISABLE)))
 		return
 	var/area/this_area = get_area(src)
 	this_area.firealert()
 	update_icon()
 	alarm = 1
-	//playsound(src, 'sound/ambience/signal.ogg', 75, 0)
+	if(world.time - last_alarm_time < alarm_delay)
+		return
+	if(emagged)
+		playsound(src, 'sound/misc/imperial_alert.ogg', 75, 0, 5)
+	else
+		playsound(src, 'sound/misc/fire_alarm.ogg', 75, 0, 5)
+	last_alarm_time = world.time
 
 var/global/list/firealarms = list() //shrug
 
@@ -1488,6 +1499,11 @@ var/global/list/firealarms = list() //shrug
 		shelter = FALSE
 		update_icon()
 		visible_message("<span class='notice'>\The shelter detaches from \the [src]!</span>")
+
+/obj/machinery/firealarm/emag_act(mob/user as mob)
+	emagged = TRUE
+	to_chat(user, "You scramble \the [src]'s audio processor.")
+	..()
 
 /obj/machinery/partyalarm
 	name = "\improper PARTY BUTTON"

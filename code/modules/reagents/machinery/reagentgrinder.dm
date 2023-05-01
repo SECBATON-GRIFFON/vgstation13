@@ -121,6 +121,9 @@ var/global/list/juice_items = list (
 		return FALSE
 	return ..()
 
+/obj/machinery/reagentgrinder/splashable()
+	return FALSE
+
 /obj/machinery/reagentgrinder/attackby(var/obj/item/O as obj, var/mob/user as mob)
 
 	if(..())
@@ -344,7 +347,7 @@ var/global/list/juice_items = list (
 			list("Detach Beaker", "radial_detachbeaker")
 		)
 
-		var/task = show_radial_menu(usr,loc,choices,custom_check = new /callback(src, .proc/radial_check, user))
+		var/task = show_radial_menu(usr,loc,choices,custom_check = new /callback(src, src::radial_check(), user))
 		if(!radial_check(user))
 			return
 
@@ -420,8 +423,7 @@ var/global/list/juice_items = list (
 
 /obj/machinery/reagentgrinder/proc/remove_object(var/obj/item/O)
 	holdingitems -= O
-	qdel(O)
-	O = null
+	QDEL_NULL(O)
 
 /obj/machinery/reagentgrinder/proc/juice()
 	power_change()

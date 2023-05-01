@@ -166,7 +166,7 @@ var/const/MAX_SAVE_SLOTS = 16
 	var/credits_volume = 75
 	var/window_flashing = 1
 	var/antag_objectives = 0 //If set to 1, solo antag roles will get the standard objectives. If set to 0, will give them a freeform objective instead.
-	var/typing_indicator = 0
+	var/typing_indicator = 1
 
 		//Mob preview
 	var/icon/preview_icon = null
@@ -198,6 +198,7 @@ var/const/MAX_SAVE_SLOTS = 16
 
 	var/nanotrasen_relation = "Neutral"
 	var/bank_security = 1			//for bank accounts, 0-2, no-pin,pin,pin&card
+	var/wage_ratio = 50
 
 
 	// 0 = character settings, 1 = game preferences
@@ -232,13 +233,13 @@ var/const/MAX_SAVE_SLOTS = 16
 	var/jingle = JINGLE_CLASSIC
 
 	// Runscape-like chat
-	var/mob_chat_on_map = FALSE
+	var/mob_chat_on_map = TRUE
 	var/max_chat_length = CHAT_MESSAGE_MAX_LENGTH
 	var/obj_chat_on_map = FALSE
 	var/no_goonchat_for_obj = FALSE
 
 	var/tgui_fancy = TRUE
-	var/fps = 0
+	var/fps = -1
 
 	var/client/client
 	var/saveloaded = 0
@@ -269,8 +270,7 @@ var/const/MAX_SAVE_SLOTS = 16
 	for(var/entry in subsections)
 		var/datum/preferences_subsection/prefs_ss = subsections[entry]
 		if(prefs_ss && !prefs_ss.gcDestroyed)
-			qdel(prefs_ss)
-	subsections = null
+			QDEL_NULL(prefs_ss)
 	..()
 
 /datum/preferences/proc/try_load_save_sqlite(var/theckey, var/theclient, var/theslot)
@@ -321,6 +321,7 @@ var/const/MAX_SAVE_SLOTS = 16
 	<b>Character records:</b>
 	[jobban_isbanned(user, "Records") ? "Banned" : "<a href=\"byond://?src=\ref[user];preference=records;record=1\">Set</a>"]<br>
 	<b>Bank account security preference:</b><a href ='?_src_=prefs;preference=bank_security;task=input'>[bank_security_num2text(bank_security)]</a> <br>
+	<b>Percent of wages sent to ID virtual wallet:</b><a href ='?_src_=prefs;preference=wage_ratio;task=input'>[wage_ratio]</a> <br>
 	</td><td valign='top' width='21%'>
 	<h3>Hair Style</h3>
 	<a href='?_src_=prefs;preference=h_style;task=input'>[h_style]</a><BR>
@@ -932,7 +933,7 @@ var/const/MAX_SAVE_SLOTS = 16
 					if(new_name)
 						real_name = new_name
 					else
-						to_chat(user, "<span class='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and .</span>")
+						to_chat(user, "<span class='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ', some diacritics, and .</span>")
 				if("next_hair_style")
 					h_style = next_list_item(h_style, valid_sprite_accessories(hair_styles_list, null, species)) //gender intentionally left null so speshul snowflakes can cross-hairdress
 				if("previous_hair_style")
@@ -950,22 +951,11 @@ var/const/MAX_SAVE_SLOTS = 16
 					if(new_age)
 						age = max(min( round(text2num(new_age)), AGE_MAX),AGE_MIN)
 				if("species")
-
-					var/list/new_species = list("Human")
 					var/prev_species = species
-					var/whitelisted = 0
-
-					if(config.usealienwhitelist) //If we're using the whitelist, make sure to check it!
-						for(var/S in whitelisted_species)
-							if(is_alien_whitelisted(user,S))
-								new_species += S
-								whitelisted = 1
-						if(!whitelisted)
-							alert(user, "You cannot change your species as you need to be whitelisted. If you wish to be whitelisted contact an admin in-game, on the forums, or on IRC.")
-					else //Not using the whitelist? Aliens for everyone!
-						new_species = whitelisted_species
-
-					species = input("Please select a species", "Character Generation", null) in new_species
+					if(check_rights(R_ADMIN,0))
+						species = input("Please select a species", "Character Generation", null) in whitelisted_species
+					else
+						species = input("Please select a species", "Character Generation", null) in playable_species
 
 					if(prev_species != species)
 						//grab one of the valid hair styles for the newly chosen species
@@ -1122,6 +1112,12 @@ var/const/MAX_SAVE_SLOTS = 16
 					var/new_bank_security = input(user, BANK_SECURITY_EXPLANATION, "Character Preference")  as null|anything in bank_security_text2num_associative
 					if(!isnull(new_bank_security))
 						bank_security = bank_security_text2num_associative[new_bank_security]
+
+				if("wage_ratio")
+					var/new_wage_ratio = input(user, "Input what % of wages end up in virtual wallets, from 0-100", "Character Preference",wage_ratio) as num
+					if(!isnull(new_wage_ratio))
+						new_wage_ratio = clamp(new_wage_ratio,0,100)
+						wage_ratio = new_wage_ratio
 
 				if("flavor_text")
 					flavor_text = input(user,"Set the flavor text in your 'examine' verb. This can also be used for OOC notes and preferences!","Flavor Text",html_decode(flavor_text)) as message
@@ -1505,7 +1501,7 @@ Values up to 1000 are allowed.", "FPS", fps) as null|num
 
 	//Debugging report to track down a bug, which randomly assigned the plural gender to people.
 	if(character.gender in list(PLURAL, NEUTER))
-		if(isliving(character)) //Ghosts get neuter by default
+		if(isliving(character) && !ismushroom(character)) //Ghosts and mushroom people are neuter by default
 			message_admins("[character] ([character.ckey]) has spawned with their gender as plural or neuter. Please notify coders.")
 			character.setGender(MALE)
 

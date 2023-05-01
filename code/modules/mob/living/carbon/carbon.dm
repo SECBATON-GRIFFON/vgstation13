@@ -1,3 +1,6 @@
+/mob/living/carbon
+	admin_desc = "The 'manual_emote_sound_override' variable can be set to 1 to enable a character to scream audibly whenever they want."
+
 /mob/living/carbon/Login()
 	..()
 	update_hud()
@@ -23,7 +26,6 @@
 	if(istype(AM, /mob/living/carbon))
 		var/mob/living/carbon/C = AM
 		C.handle_symptom_on_touch(src, AM, BUMP)
-	INVOKE_EVENT(src, /event/to_bump, "bumper" = src, "bumped" = AM)
 
 /mob/living/carbon/Bumped(var/atom/movable/AM)
 	..()
@@ -73,6 +75,9 @@
 				user.delayNextMove(10) //no just holding the key for an instant gib
 
 /mob/living/carbon/gib(animation = FALSE, meat = TRUE)
+	if(status_flags & BUDDHAMODE)
+		adjustBruteLoss(200)
+		return
 	dropBorers(1)
 	if(stomach_contents && stomach_contents.len)
 		drop_stomach_contents()
@@ -215,7 +220,7 @@
 					num_injuries++
 
 			if(num_injuries == 0)
-				if(hallucinating())
+				if(hallucinating() || Holiday == APRIL_FOOLS_DAY)
 					to_chat(src, "<span class = 'orange'>My legs are OK.</span>")
 				else
 					to_chat(src, "My limbs are [pick("okay","OK")].")
@@ -644,13 +649,10 @@
 	. = ..()
 	if(!istype(loc, /turf/space))
 		for(var/obj/item/I in get_all_slots())
-			if(I.slowdown <= 0)
-				testing("[I] HAD A SLOWDOWN OF <=0 OH DEAR")
-			else
-				if(I.flags & SLOWDOWN_WHEN_CARRIED)
-					. *= max(1,I.slowdown / 2) // heavy items worn on the back. those shouldn't slow you down as much.
-				else
-					. *= I.slowdown
+			if(I == src.back)
+				. *= max(1,I.slowdown / 2) // heavy items worn on the back. those shouldn't slow you down as much.
+			else if(!isclothing(I) || (isclothing(I) && (I in get_clothing_items())))
+				. *= I.slowdown
 
 		for(var/obj/item/I in held_items)
 			if(I.flags & SLOWDOWN_WHEN_CARRIED)
@@ -732,3 +734,19 @@
 				return FALSE
 
 	return TRUE
+
+
+/mob/living/carbon/proc/check_can_revive() // doesn't check suicides
+	if (!isDead())
+		return CAN_REVIVE_NO
+	if (!mind)
+		return CAN_REVIVE_NO
+	if (client)
+		return CAN_REVIVE_IN_BODY
+	var/mob/dead/observer/ghost = mind_can_reenter(mind)
+	if (!ghost)
+		return CAN_REVIVE_NO
+	var/mob/ghostmob = ghost.get_top_transmogrification()
+	if (!ghostmob)
+		return CAN_REVIVE_NO
+	return CAN_REVIVE_GHOSTING

@@ -2,6 +2,8 @@
 	var/preattached = FALSE
 	body_parts_covered = HEAD|EARS|EYES|MASKHEADHAIR
 	species_fit = list()
+	autoignition_temperature = AUTOIGNITION_PROTECTIVE
+	on_armory_manifest = TRUE
 
 /obj/item/clothing/head/helmet/tactical/New()
 	..()
@@ -42,7 +44,7 @@
 	desc = "A helmet that excels in protecting the wearer against energy projectiles."
 	icon_state = "laserproof"
 	item_state = "laserproof"
-	
+
 	armor = list(melee = 10, bullet = 10, laser = 80,energy = 50, bomb = 0, bio = 0, rad = 0)
 	eyeprot = 0
 	body_parts_covered = FULL_HEAD|BEARD|MASKHEADHAIR
@@ -55,7 +57,7 @@
 	desc = "A helmet that excels in protecting the wearer against high-velocity solid projectiles."
 	icon_state = "bulletproof"
 	item_state = "bulletproof"
-	
+
 	armor = list(melee = 10, bullet = 80, laser = 10,energy = 10, bomb = 0, bio = 0, rad = 0)
 	eyeprot = 0
 	body_parts_covered = FULL_HEAD|BEARD|MASKHEADHAIR
@@ -74,11 +76,12 @@
 	siemens_coefficient = 0.5
 	eyeprot = 1
 	body_parts_visible_override = FACE
-	
-	
+
+
 /obj/item/clothing/head/helmet/tactical/antichrist
 	name = "blue helmet"
 	desc = "It has some markings at the front."
 	item_state = "antichrist"
 	icon_state = "antichrist"
 	body_parts_covered = HEAD|EARS|MASKHEADHAIR
+	species_fit = list(VOX_SHAPED)

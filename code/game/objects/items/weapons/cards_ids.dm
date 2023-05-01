@@ -19,6 +19,7 @@
 	var/associated_account_number = 0
 
 	var/list/files = list(  )
+	autoignition_temperature = AUTOIGNITION_PLASTIC
 
 /obj/item/weapon/card/data
 	name = "data disk"
@@ -181,6 +182,10 @@
 		return
 	if(istype(target,/obj/machinery))
 		return // Handled in machine attackby()
+	if(arcanetampered && prob(50))
+		target.arcane_act(user)
+		if(prob(50))
+			return
 	target.emag_act(user)
 
 
@@ -227,10 +232,16 @@ var/list/global/id_cards = list()
 	..()
 
 	if(Adjacent(user))
-		user.show_message(text("The current assignment on the card is [src.assignment]."),1)
-		user.show_message("The blood type on the card is [blood_type].",1)
-		user.show_message("The DNA hash on the card is [dna_hash].",1)
-		user.show_message("The fingerprint hash on the card is [fingerprint_hash].",1)
+		if (assignment)
+			user.show_message(text("The current assignment on the card is [assignment]."),1)
+		else
+			user.show_message(text("No assignment has been set. Use an identification computer to edit."),1)
+		if (dna_hash == "\[UNSET\]")
+			user.show_message(text("No biometric data referenced. Use a body scanner at Medbay to imprint."),1)
+		else
+			user.show_message("Blood Type: [blood_type].",1)
+			user.show_message("DNA: [dna_hash].",1)
+			user.show_message("Fingerprint: [fingerprint_hash].",1)
 
 /obj/item/weapon/card/id/attack_self(var/mob/user)
 	if(user.attack_delayer.blocked())
@@ -241,6 +252,8 @@ var/list/global/id_cards = list()
 	add_fingerprint(user)
 
 /obj/item/weapon/card/id/GetAccess()
+	if(arcanetampered)
+		return ..()
 	return (access | base_access)
 
 /obj/item/weapon/card/id/GetID()

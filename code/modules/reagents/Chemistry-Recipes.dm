@@ -457,8 +457,16 @@
 	name = "Hyperzine"
 	id = HYPERZINE
 	result = HYPERZINE
-	required_reagents = list(SUGARS = 1, PHOSPHORUS = 1, SULFUR = 1,)
+	required_reagents = list(SUGARS = 1, PHOSPHORUS = 1, SULFUR = 1)
 	result_amount = 3
+
+/datum/chemical_reaction/PCP
+	name = "Liquid PCP"
+	id = LIQUIDPCP
+	result = LIQUIDPCP
+	required_reagents = list(HYPERZINES = 5, MINDBREAKER = 5)
+	required_temp = T0C + 200
+	result_amount = 5
 
 /datum/chemical_reaction/ryetalyn
 	name = "Ryetalyn"
@@ -568,6 +576,61 @@
 	required_reagents = list(GLYCEROL = 1, SACIDS = 1, WATER = 3)
 	required_catalysts = list(NITROGEN = 5)
 	result_amount = 5
+
+/datum/chemical_reaction/fuelbomb
+	name = "Fuel bomb"
+	id = FUELBOMB
+	result = null
+	required_reagents = list(FUEL = 1)
+	required_temp = AUTOIGNITION_WELDERFUEL
+	result_amount = 1
+	var/fire_temp = AUTOIGNITION_WELDERFUEL
+	var/power = 0
+
+/datum/chemical_reaction/fuelbomb/on_reaction(var/datum/reagents/holder, var/created_volume)
+	if(holder.my_atom.is_open_container())
+		if(!is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
+			var/turf/location = get_turf(holder.my_atom.loc)
+
+			for(var/turf/simulated/floor/target_tile in range(0,location))
+				spawn(0)
+					target_tile.hotspot_expose(fire_temp, created_volume, surfaces = 1)
+
+		for(var/reagent in required_reagents)
+			holder.del_reagent(reagent)
+	else
+		var/datum/effect/system/reagents_explosion/e = new()
+		if(created_volume > 500)
+			e.set_up(15, holder.my_atom, 0, 0, null, 1+power, 2+(power*2), 4+(power*2))
+		else if(created_volume > 100)
+			e.set_up(9, holder.my_atom, 0, 0, null, 0+power, 1+power, 3+power)
+		else
+			e.set_up(9, holder.my_atom, 0, 0, null, -1+power, 1, 2+power)
+		e.holder_damage(holder.my_atom)
+		if(isliving(holder.my_atom))
+			e.amount *= 0.5
+			var/mob/living/L = holder.my_atom
+			if(L.stat!=DEAD)
+				e.amount *= 0.5
+		e.start()
+		holder.clear_reagents()
+
+
+/datum/chemical_reaction/fuelbomb/plasma
+	name = "Plasma bomb"
+	id = PLASMABOMB
+	required_reagents = list(PLASMA = 1)
+	required_temp = AUTOIGNITION_WELDERFUEL
+	fire_temp = AUTOIGNITION_WELDERFUEL
+	power = 1
+
+/datum/chemical_reaction/fuelbomb/anfo
+	name = "AN/FO bomb"
+	id = ANFOBOMB
+	required_reagents = list(AMMONIUMNITRATE = 16, FUEL = 1)  // rough approximation of the 94%-6% mix
+	required_temp = AUTOIGNITION_WELDERFUEL-1 // just for priority and to stop recipe conflicts
+	fire_temp = AUTOIGNITION_WELDERFUEL
+	power = 1
 
 /datum/chemical_reaction/sodiumchloride
 	name = "Sodium Chloride"
@@ -926,6 +989,26 @@
 /datum/chemical_reaction/solidification/phazon/product_to_spawn()
 	return /obj/item/stack/sheet/mineral/phazon
 
+/datum/chemical_reaction/solidification/glass
+	name = "Solid Glass"
+	id = "solidglass"
+	result = null
+	required_reagents = list(SILICATE = 20, CAPSAICIN = 10) //You melt the silicate to make glass
+	result_amount = 1 //amount of sheets created per the above reagents
+
+/datum/chemical_reaction/solidification/glass/product_to_spawn()
+	return /obj/item/stack/sheet/glass/glass
+
+/datum/chemical_reaction/solidification/plasmaglass
+	name = "Solid Plasma Glass"
+	id = "solidplasmaglass"
+	result = null
+	required_reagents = list(SILICATE = 20, CONDENSEDCAPSAICIN = 10, PLASMA = 20) //You need even stronger heat to make plasmaglass
+	result_amount = 1 //amount of sheets created per the above reagents
+
+/datum/chemical_reaction/solidification/plasmaglass/product_to_spawn()
+	return /obj/item/stack/sheet/glass/plasmaglass
+
 /datum/chemical_reaction/solidification/plasteel
 	name = "Solid Plasteel"
 	id = "solidplasteel"
@@ -991,6 +1074,22 @@
 		holder.del_reagent(PARACETAMOL)
 	else
 		holder.clear_reagents()
+
+/datum/chemical_reaction/more_bicarodyne
+	name = "Bicarodyne"
+	id = BICARODYNE
+	result = BICARODYNE
+	required_reagents = list(BICARIDINES = 1)
+	required_catalysts = list(BICARODYNE = 1)
+	result_amount = 1
+
+/datum/chemical_reaction/more_hypozine
+	name = "Hypozine"
+	id = HYPOZINE
+	result = HYPOZINE
+	required_reagents = list(HYPERZINES = 1)
+	required_catalysts = list(HYPOZINE = 1)
+	result_amount = 1
 
 /datum/chemical_reaction/nanobots
 	name = "Nanobots"
@@ -1133,6 +1232,13 @@
 	result = AMMONIA
 	required_reagents = list(HYDROGEN = 3, NITROGEN = 1)
 	result_amount = 3
+
+/datum/chemical_reaction/ammoniumnitrate
+	name = "Ammonium Nitrate"
+	id = AMMONIUMNITRATE
+	result = AMMONIUMNITRATE
+	required_reagents = list(AMMONIA = 5, CLEANER = 3, NITROGEN = 2, OXYGEN = 5)
+	result_amount = 18
 
 /datum/chemical_reaction/diethylamine
 	name = "Diethylamine"
@@ -2168,8 +2274,7 @@
 						M.client.screen += blueeffect
 						sleep(20)
 						M.client.screen -= blueeffect
-						qdel(blueeffect)
-						blueeffect = null
+						QDEL_NULL(blueeffect)
 	..()
 
 /datum/chemical_reaction/slime_extract/slimecrystal
@@ -2815,7 +2920,7 @@
 	result_amount = 5
 
 /datum/chemical_reaction/beepsky_smash
-	name = "Beepksy Smash"
+	name = "Beepsky Smash"
 	id = BEEPSKYSMASH
 	result = BEEPSKYSMASH
 	required_reagents = list(LIMEJUICE = 2, WHISKEY = 2, IRON = 1)
@@ -3511,6 +3616,13 @@
 	required_reagents = list(COFFEE = 5, SPRINKLES = 1, BEEPSKYSMASH = 5)
 	result_amount = 10
 
+/datum/chemical_reaction/engicoffee
+	name = "NT Standard Battery Acid"
+	id = ENGICOFFEE
+	result = ENGICOFFEE
+	required_reagents = list(COFFEE = 5, FUEL = 1, SULFURIC = 5)
+	result_amount = 10
+
 /datum/chemical_reaction/medcoffee
 	name = "Lifeline"
 	id = MEDCOFFEE
@@ -3728,6 +3840,13 @@
 	result = HUSBANDO
 	required_reagents = list(MANLYDORF = 1, KARMOTRINE = 4)
 	result_amount = 5
+
+/datum/chemical_reaction/tomboy
+	name = "Tomboy"
+	id = TOMBOY
+	result = TOMBOY
+	required_reagents = list(HUSBANDO = 1, WAIFU = 1)
+	result_amount = 2
 
 /datum/chemical_reaction/beepskyclassic
 	name = "Beepsky Classic"

@@ -439,8 +439,8 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 
 /datum/command_alert/malf_win/announce()
 	alert = pick(static_list)
-	alert_title = Gibberish("ERROR: SYSTEM OVERRIDE", 90)
-	message = Gibberish("Warning: Device safeties disabled, decontamination procedure unlocked. Activate device to contain outbreak.", 90)
+	alert_title = "ERROR"
+	message = Gibberish("CRITICAL ERROR: STATION SUBROUTINES OVERRIDDEN. RECOMMEND IMMEDIATE EVACUATION. DEVICE SAFETIES DISABLED.", 100)
 	..()
 
 
@@ -460,9 +460,9 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 /datum/command_alert/meteor_round/announce()
 	meteor_delay = rand(4500, 6000)
 	if(prob(70)) //slightly off-scale
-		message = "A meteor storm has been detected in proximity of [station_name()] and is expected to strike within [round((rand(meteor_delay - 600, meteor_delay + 600))/600)] minutes. A backup emergency shuttle is being dispatched and emergency gear should be teleported into your station's Bar area in [supply_delay/10] seconds."
+		message = "A meteor storm has been detected in proximity of [station_name()] and is expected to strike within [round((rand(meteor_delay - 600, meteor_delay + 600))/600)] minutes. A backup emergency shuttle is being dispatched and emergency gear should be teleported into your station's Bar area in [supply_delay/10] seconds. Access requirements for non-critical areas has been lifted."
 	else
-		message = "A meteor storm has been detected in proximity of [station_name()] and is expected to strike within [round((rand(meteor_delay - 1800, meteor_delay + 1800))/600)] minutes. A backup emergency shuttle is being dispatched and emergency gear should be teleported into your station's Bar area in [supply_delay/10] seconds."
+		message = "A meteor storm has been detected in proximity of [station_name()] and is expected to strike within [round((rand(meteor_delay - 1800, meteor_delay + 1800))/600)] minutes. A backup emergency shuttle is being dispatched and emergency gear should be teleported into your station's Bar area in [supply_delay/10] seconds. Access requirements for non-critical areas has been lifted."
 	..()
 
 ////small meteor storm
@@ -760,7 +760,7 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 
 /datum/command_alert/prisoner_transfer
 	alert_title = "Prisoner Transfer"
-	message = "A suspected agent of the syndicate has been assigned to your station. The transport shuttle will dock at your station in approximately three minutes. Crew payrolls will recieve a bonus as long as the prisoner is alive."
+	message = "A suspected agent of the syndicate has been assigned to your station. The transport shuttle will dock at your station in approximately three minutes. Crew payrolls will receive a bonus as long as the prisoner is alive."
 
 /datum/command_alert/ancientpod
 	name = "Ancient Cryogenic Pod"
