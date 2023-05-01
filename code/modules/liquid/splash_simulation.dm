@@ -151,7 +151,6 @@ var/puddle_text = FALSE
 		qdel(src)
 		return
 
-<<<<<<< HEAD
 	debug_text = image(loc = turf_on, layer = ABOVE_LIGHTING_LAYER)
 	debug_text.plane = ABOVE_LIGHTING_PLANE
 	turf_on.liquid.liquid_objects += src
@@ -159,20 +158,6 @@ var/puddle_text = FALSE
 		qdel(turf_on.current_puddle)
 	turf_on.current_puddle = src
 	for(var/direction in cardinal)
-=======
-	for( var/obj/effect/liquid/L in loc )
-		if(L != src)
-			QDEL_NULL(L)
-
-/obj/effect/liquid/proc/spread()
-
-
-//	to_chat(world, "DEBUG: liquid spread!")
-	var/surrounding_volume = 0
-	var/list/spread_directions = cardinal
-	var/turf/loc_turf = loc
-	for(var/direction in spread_directions)
->>>>>>> Bleeding-Edge
 		var/turf/T = get_step(src,direction)
 		if(!T.current_puddle)
 			turf_on.liquid.edge_objects += src
