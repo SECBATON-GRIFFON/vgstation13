@@ -168,7 +168,7 @@ var/puddle_text = FALSE
 	for(var/client/C in admins)
 		C.images -= debug_text
 	if(turf_on.liquid)
-		if(turf_on.liquid.reagents && turf_on.liquid.reagents.total_volume)
+		if(turf_on.liquid.reagents?.total_volume)
 			turf_on.liquid.reagents.remove_all(min(turf_on.liquid.reagents.total_volume,50))
 		turf_on.liquid.liquid_objects -= src
 		if(src in turf_on.liquid.edge_objects)
@@ -290,7 +290,7 @@ var/puddle_text = FALSE
 /obj/effect/liquid/update_icon()
 	for(var/client/C in admins)
 		C.images -= debug_text
-	if(turf_on && turf_on.liquid && turf_on.liquid.reagents)
+	if(turf_on?.liquid?.reagents)
 		if(turf_on.liquid.reagents.reagent_list.len)
 			color = mix_color_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
 			alpha = mix_alpha_from_reagents(turf_on.liquid.reagents.reagent_list,TRUE)
@@ -317,7 +317,7 @@ var/puddle_text = FALSE
 
 /obj/effect/liquid/relativewall()
 	// Circle value as to have some breathing room
-	if(turf_on.liquid && turf_on.liquid.reagents && turf_on.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME)
+	if(turf_on.liquid?.reagents?.total_volume >= CIRCLE_PUDDLE_VOLUME)
 		var/junction=findSmoothingNeighbors()
 		icon_state = "puddle[junction]"
 	else
@@ -332,7 +332,7 @@ var/puddle_text = FALSE
 /obj/effect/liquid/isSmoothableNeighbor(atom/A)
 	if(isturf(A))
 		var/turf/T = A
-		if(!T.can_accept_liquid(get_dir(A,src)) || !T.can_leave_liquid(get_dir(src,A)) || (T.liquid && T.liquid.reagents && T.liquid.reagents.total_volume >= CIRCLE_PUDDLE_VOLUME))
+		if(!T.can_accept_liquid(get_dir(A,src)) || !T.can_leave_liquid(get_dir(src,A)) || (T.liquid?.reagents?.total_volume >= CIRCLE_PUDDLE_VOLUME))
 			return ..()
 	else if(istype(A,/obj)) // This was somehow letting all movable atoms count when isobj(), THANKS BYOND
 		var/obj/O = A
