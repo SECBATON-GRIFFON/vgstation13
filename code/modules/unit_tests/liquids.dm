@@ -2,6 +2,8 @@
 	var/turf/centreturf
 
 /datum/unit_test/liquids/New()
+	if(SSliquid)
+		SSliquid.pause()
 	centreturf = locate(101, 100, 1) // Nice place with a good atmosphere
 	ASSERT(centreturf)
 	centreturf.add_to_liquid(WATER,250)
@@ -14,5 +16,11 @@
 	ASSERT(centreturf.liquid.liquid_objects.len)
 
 /datum/unit_test/liquids/Destroy()
-	for(var/obj/O in puddles)
-		qdel(O)
+	for(var/datum/liquid/L in puddles)
+		qdel(L)
+
+/datum/unit_test/liquids/process/New()
+	..()
+	for(var/datum/liquid/L in puddles)
+		L.process()
+	// TODO: checks here

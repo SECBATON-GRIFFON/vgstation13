@@ -24,13 +24,13 @@ var/list/datum/liquid/puddles = list()
 
 
 // This is to allow the near identical fast liquids process to use it.
-/datum/subsystem/liquid/proc/get_currenrun()
+/datum/subsystem/liquid/proc/get_currentrun()
 	return puddles.Copy()
 
 
 /datum/subsystem/liquid/fire(resumed = FALSE)
 	if (!resumed)
-		currentrun = get_currenrun()
+		currentrun = get_currentrun()
 
 	while (currentrun.len)
 		var/datum/liquid/L = currentrun[currentrun.len]
