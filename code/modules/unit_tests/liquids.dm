@@ -8,6 +8,7 @@
 	ASSERT(centreturf.liquid)
 	ASSERT(centreturf.liquid.reagents)
 	assert_eq(centreturf.liquid.reagents.total_volume, 250)
+	assert_eq(centreturf.liquid.reagents.maximum_volume, 1000)
 	ASSERT(centreturf.current_puddle)
 	ASSERT(puddles.len)
 	ASSERT(centreturf.liquid.liquid_objects.len)
