@@ -52,17 +52,19 @@
 		else
 			to_chat(usr, "<span class='warning'>You turn off [src].</span>")
 			pullcounter = 1
+		attack_self(usr)
 	else if(href_list["magfield"])
 		magnetic_field = input(usr,"Set magnetic field range, from 1 to 7","Field range",magnetic_field) as num
 		if(!magnetic_field)
 			magnetic_field = 1
 		magnetic_field = clamp(magnetic_field,1,7)
+		attack_self(usr)
 	else if(href_list["interval"])
 		pull_interval = input(usr,"Set magnetic pull interval","Pull interval",pull_interval) as num
 		if(!pull_interval)
 			pull_interval = 1
 		pull_interval = max(pull_interval,1)
-	updateUsrDialog()
+		attack_self(usr)
 
 /obj/item/device/handheld_magnet/attack_hand(mob/user)
 	if (cover_open && power_src && user.is_holding_item(src))
