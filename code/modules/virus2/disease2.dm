@@ -930,3 +930,24 @@ var/global/list/virusDB = list()
 // Override with additional checks if needed.
 /datum/disease2/disease/proc/CanInfect(var/mob/living/body)
 	return TRUE
+
+var/global/list/virology_machines = list()
+
+/obj/machinery/disease2/New()
+	. = ..()
+	virology_machines += src
+
+/obj/machinery/disease2/Destroy()
+	virology_machines -= src
+	. = ..()
+
+/obj/machinery/disease2/proc/update_holosign()
+	var/area/this_area = get_area(src)
+	for(var/obj/machinery/holosign/virology/sign in holosigns)
+		var/area/sign_area = get_area(sign)
+		if(this_area != sign_area)
+			continue
+		if(sign.should_update)
+			continue
+		sign.should_update = TRUE
+		processing_objects += sign

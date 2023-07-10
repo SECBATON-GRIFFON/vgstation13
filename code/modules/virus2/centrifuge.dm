@@ -167,6 +167,7 @@
 		if (vial_datum != null)
 			add_vial_sprite(vial_datum.vial, i)
 
+	update_holosign()
 
 /obj/machinery/disease2/centrifuge/proc/add_vial_sprite(var/obj/item/weapon/reagent_containers/glass/beaker/vial/vial, var/slot)
 	var/spin = on

@@ -13,6 +13,7 @@ var/list/obj/machinery/holosign/holosigns = list()
 	ghost_write = 0
 	var/lit = 0
 	var/on_icon = ""
+	var/should_update = FALSE
 	var/image/overlay
 
 	light_color = "#6496FA"
@@ -67,12 +68,40 @@ var/list/obj/machinery/holosign/holosigns = list()
 	id_tag = "virology"
 	light_color = "#59FF79"
 
+/obj/machinery/holosign/virology/process()
+	var/area/this_area = get_area(src)
+	var/acceptable_condition = FALSE
+	for(var/obj/machinery/disease2/VM in virology_machines)
+		var/area/viromachine_area = get_area(VM)
+		if(viromachine_area != this_area)
+			continue
+		if(istype(VM,/obj/machinery/disease2/centrifuge))
+			var/obj/machinery/disease2/centrifuge/VC = VM
+			if(VC.on)
+				for(var/vial in VC.vial_data)
+					if(!isnull(vial))
+						acceptable_condition = TRUE
+						break
+		else if(istype(VM,/obj/machinery/disease2/incubator))
+			var/obj/machinery/disease2/incubator/VI = VM
+			if(VI.on)
+				for(var/dish in VI.dish_data)
+					if(!isnull(dish))
+						acceptable_condition = TRUE
+						break
+		if(acceptable_condition)
+			toggle(TRUE)
+			should_update = FALSE
+			return PROCESS_KILL
+	toggle(FALSE)
+	should_update = FALSE
+	return PROCESS_KILL
+
 /obj/machinery/holosign/morgue
 	name = "morgue holosign"
 	desc = "Small wall-mounted holographic projector. This one reads MORGUE."
 	on_icon = "morgue"
 	id_tag = "morgue"
-	var/should_update = FALSE
 
 /obj/machinery/holosign/morgue/process()
 	var/area/this_area = get_area(src)

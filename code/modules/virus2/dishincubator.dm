@@ -338,6 +338,7 @@
 		if (dish_data[i] != null)
 			add_dish_sprite(dish_data[i], i)
 
+	update_holosign()
 
 /obj/machinery/disease2/incubator/proc/add_dish_sprite(var/dish_incubator_dish/dish_datum, var/slot)
 	var/obj/item/weapon/virusdish/dish = dish_datum.dish
