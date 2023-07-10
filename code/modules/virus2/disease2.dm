@@ -942,10 +942,13 @@ var/global/list/virology_machines = list()
 	. = ..()
 
 /obj/machinery/disease2/proc/update_holosign()
-	var/area/this_area = get_area(src)
+	var/area/viro = get_area(src)
+	var/area/virobreak = get_area(src)
+	if(istype(viro,/area/medical/virology))
+		virobreak = locate(/area/medical/virology_break) || get_area(src)
 	for(var/obj/machinery/holosign/virology/sign in holosigns)
 		var/area/sign_area = get_area(sign)
-		if(this_area != sign_area)
+		if(sign_area != viro && sign_area != virobreak)
 			continue
 		if(sign.should_update)
 			continue

@@ -14,6 +14,7 @@ var/list/obj/machinery/holosign/holosigns = list()
 	var/lit = 0
 	var/on_icon = ""
 	var/should_update = FALSE
+	var/additional_areatype
 	var/image/overlay
 
 	light_color = "#6496FA"
@@ -67,13 +68,17 @@ var/list/obj/machinery/holosign/holosigns = list()
 	on_icon = "virology"
 	id_tag = "virology"
 	light_color = "#59FF79"
+	additional_areatype = /area/medical/virology_break
 
 /obj/machinery/holosign/virology/process()
 	var/area/this_area = get_area(src)
+	var/area/other_area = locate(additional_areatype)
+	if(!other_area || !additional_areatype)
+		other_area = this_area
 	var/acceptable_condition = FALSE
 	for(var/obj/machinery/disease2/VM in virology_machines)
 		var/area/viromachine_area = get_area(VM)
-		if(viromachine_area != this_area)
+		if(viromachine_area != this_area && viromachine_area != other_area)
 			continue
 		if(istype(VM,/obj/machinery/disease2/centrifuge))
 			var/obj/machinery/disease2/centrifuge/VC = VM
