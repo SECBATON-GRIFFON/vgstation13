@@ -1031,10 +1031,13 @@ var/list/uplink_items = list()
 /datum/uplink_item/jobspecific/service/traitor_bible
 	name = "Feldbischof's Bible"
 	desc = "A copy of the station's holy book of choice, with a little ballistic discount on conversions in the form of a genuine, Chinese-made Luger pistol. 88 rapid, eight in the gun, eight in the extra mag."
-	item = /obj/item/weapon/storage/bible/traitor_gun
+	item = /obj/item/weapon/storage/bible/traitor
 	cost = 14
 	discounted_cost = 10
 	jobs_with_discount = list("Chaplain")
+
+/datum/uplink_item/jobspecific/cargo/service/traitor_bible/new_uplink_item(var/new_item, var/turf/location, mob/user)
+	return new new_item(location, user)
 
 /datum/uplink_item/jobspecific/service/occultbook
 	name = "Occult Book"

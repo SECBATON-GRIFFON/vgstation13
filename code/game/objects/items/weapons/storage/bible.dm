@@ -66,7 +66,7 @@
 	)
 
 //Even more "Special" Bible with a nicer gift on introduction
-/obj/item/weapon/storage/bible/traitor_gun
+/obj/item/weapon/storage/bible/traitor
 
 	autoignition_temperature = 0 //Not actually paper
 	fire_fuel = 0
@@ -74,6 +74,13 @@
 		/obj/item/weapon/gun/projectile/luger/small,
 		/obj/item/ammo_storage/magazine/mc9mm,
 	)
+
+/obj/item/weapon/storage/bible/traitor/New(loc, mob/user)
+	if(user && user.mind && user.mind.faith)
+		switch(user.mind.faith.name)
+			if("Stuffgoeshere")
+				items_to_spawn = list()
+	. = ..()
 
 //What happens when you slap things with the Bible in general
 /obj/item/weapon/storage/bible/attack(mob/living/M as mob, mob/living/user as mob)
