@@ -179,6 +179,7 @@
 		/obj/item/weapon/veilrender/vealrender = 50000,	//One day, 30 years from now, someone will win the lottery in a round this is rolled
 		/obj/item/phylactery = 750,
 		/obj/item/clothing/shoes/blindingspeed = 1800,
+		/obj/item/canned_heat/budget = 500, //Spessmart has it at 250 so we're making it pricier
 	)
 
 /obj/machinery/vending/old_vendotron/New()

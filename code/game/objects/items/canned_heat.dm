@@ -22,7 +22,10 @@
 		open = TRUE
 		playsound(user, pick(open_sounds), 50, 1)
 		update_icon()
-		heat_up(user)
+		if(heat != T20C)
+			heat_up(user)
+		else
+			to_chat(user, "\the [src] lets out a pathetic fizzle, as if there was not much in it to begin with.")
 	else if (user.a_intent == I_HURT)
 		var/turf/T = get_turf(user)
 		user.drop_item(src, T, 1)
@@ -76,3 +79,11 @@
 				if (U in target_zone.contents)
 					M.playsound_local(U,'sound/items/canned_heat.ogg', 30, 0, null, FALLOFF_SOUNDS, 0)
 					to_chat(M, "<span class='warning'>You feel canned heat in your heels tonight!</span>")
+
+/obj/item/canned_heat/budget
+	name = "budget canned heat"
+	desc = "1000K to be precise. Not safe for your heels. This can feels a little shoddy, as if the heat may not have been packed securely."
+
+/obj/item/canned_heat/budget/New()
+	. = ..()
+	heat = pick(T20C,T20C,500,750,1000)
