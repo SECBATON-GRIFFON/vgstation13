@@ -312,3 +312,7 @@
 	name = "\improper Le Patron des Arts recharge pack"
 	targetvendomat = /obj/machinery/vending/art
 	icon_state = "circus"
+
+/obj/structure/vendomatpack/janitor
+	name = "\improper Janivend recharge pack"
+	targetvendomat = /obj/machinery/vending/janitor

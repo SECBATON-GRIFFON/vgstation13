@@ -548,6 +548,32 @@
 		beakers += B2
 	..()
 
+/obj/item/weapon/grenade/chem_grenade/filther
+	name = "Filther Grenade"
+	desc = "BLAEM!-brand foaming space \"cleaner\". In a special applicator for rapid \"cleaning\" of wide areas."
+	stage = GRENADE_STAGE_COMPLETE
+	path = PATH_STAGE_CONTAINER_INSERTED
+
+/obj/item/weapon/grenade/chem_grenade/filter/New()
+	..()
+	var/obj/item/weapon/reagent_containers/glass/beaker/B1 = new(src)
+	var/obj/item/weapon/reagent_containers/glass/beaker/B2 = new(src)
+
+	B1.reagents.add_reagent(FLUOROSURFACTANT, 20)
+	B1.reagents.add_reagent(FLOUR, 10)
+	B1.reagents.add_reagent(CARBON, 10)
+	B1.reagents.add_reagent(BLOOD, 10)
+	B2.reagents.add_reagent(WATER, 20)
+	B2.reagents.add_reagent(FLOUR, 10)
+	B2.reagents.add_reagent(CARBON, 10)
+	B2.reagents.add_reagent(BLOOD, 10)
+
+	detonator = new/obj/item/device/assembly_holder/timer_igniter(src)
+
+	beakers += B1
+	beakers += B2
+	icon_state = initial(icon_state) +"_locked"
+
 /obj/item/weapon/grenade/chem_grenade/wind
 	name = "wind grenade"
 	desc = "Designed to perfectly bring an empty five-by-five room back into a filled, breathable state. Larger rooms will require additional gas sources."

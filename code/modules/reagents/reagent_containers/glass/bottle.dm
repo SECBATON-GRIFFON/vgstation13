@@ -711,3 +711,12 @@ var/datum/disease2/disease/wizarditis = null
 /obj/item/weapon/reagent_containers/glass/bottle/carppheromones/New()
 	..()
 	reagents.add_reagent(CARPPHEROMONES, 30)
+
+/obj/item/weapon/reagent_containers/glass/bottle/spacecleaner
+	name = "Space Cleaner Bottle"
+	desc = "A bottle filled with space cleaner."
+	icon = 'icons/obj/chemical.dmi'
+
+/obj/item/weapon/reagent_containers/glass/bottle/spacecleaner/New()
+	..()
+	reagents.add_reagent(CLEANER, 30)

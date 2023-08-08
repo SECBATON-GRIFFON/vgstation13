@@ -4173,3 +4173,31 @@ var/global/list/obj/item/weapon/paper/lotto_numbers/lotto_papers = list()
 	..()
 	if(stat & BROKEN)
 		to_chat(user, "<span class='warning'>It's no longer art!</span>")
+
+/obj/machinery/vending/janitor
+	name = "\improper Janivend"
+	desc = "A vendor for a world clean."
+	products = list (
+		/obj/item/weapon/storage/box/mousetraps = 3,
+		/obj/item/weapon/storage/box/lights/mixed = 3,
+		/obj/item/weapon/soap = 3,
+		/obj/item/weapon/reagent_containers/glass/bottle/spacecleaner = 10,
+		/obj/item/weapon/grenade/chem_grenade/cleaner = 3,
+		/obj/item/weapon/caution = 5
+		)
+
+	contraband = list(
+		/obj/item/weapon/soap/syndie = 3,
+		/obj/item/weapon/beartrap = 3,
+		/obj/item/weapon/grenade/chem_grenade/filther = 3
+		)
+
+	premium = list(
+		/obj/item/weapon/reagent_containers/spray/cleaner = 1,
+		/obj/item/weapon/mop = 1,
+		/obj/item/clothing/shoes/galoshes = 1,
+		/obj/item/device/lightreplacer = 1,
+		/obj/item/weapon/storage/box/lights/he = 3
+		)
+
+	slogan_languages = list(LANGUAGE_HUMAN)
