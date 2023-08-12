@@ -343,18 +343,12 @@
 
 /obj/item/weapon/storage/fancy/incensebox/variety/New()
 	..()
-	new /obj/item/incense_stick/harebells(src)
-	new /obj/item/incense_stick/poppies(src)
-	new /obj/item/incense_stick/sunflowers(src)
-	new /obj/item/incense_stick/novaflowers(src)
-	new /obj/item/incense_stick/moonflowers(src)
-	new /obj/item/incense_stick/dense(src)
-	new /obj/item/incense_stick/vapor(src)
-	new /obj/item/incense_stick/booze(src)
-	new /obj/item/incense_stick/banana(src)
-	new /obj/item/incense_stick/cabbage(src)
-	new /obj/item/incense_stick/vale(src)
-	new /obj/item/incense_stick/cornoil(src)
+	for(var/sticktype in (subtypesof(/obj/item/incense_stick) - /obj/item/incense_stick/unholy))
+		new sticktype(src)
+
+/obj/item/weapon/storage/fancy/incensebox/variety/antag/New()
+	..()
+	new /obj/item/incense_stick/unholy(src)
 
 /obj/item/incense_oilbox
 	name = "incense oil container"

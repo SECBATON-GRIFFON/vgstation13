@@ -10023,8 +10023,9 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 
 	if(iscarbon(holder.my_atom))
 		var/mob/living/carbon/M = holder.my_atom
-		if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
-			M.adjustHalLoss(40)
+		spawn(2 SECONDS)
+			if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY) && !M.reagents.has_reagent(src.id) && M.getHalLoss() < 80)
+				M.adjustHalLoss(80)
 	return 1
 
 /datum/reagent/incense/sunflowers//flavor text, does nothing
@@ -10060,7 +10061,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(..())
 		return 1
 	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
-		holder.add_reagent(HYPOZINE, 0.5)
+		holder.add_reagent(HYPOZINE, 0.08)
 	else if(holder.get_reagent_amount(HYPERZINE) < 2)
 		holder.add_reagent(HYPERZINE, 0.5)
 
@@ -10096,12 +10097,15 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(isanimal(M) || ismonkey(M))
 		if(istype(M,/mob/living/simple_animal/hostile))
 			var/mob/living/simple_animal/hostile/H = M
+			if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY) && istype(M,/mob/living/simple_animal/hostile/retaliate)) //unholy incense makes retaliating hostile mobs retaliate!
+				var/mob/living/simple_animal/hostile/retaliate/R = M
+				R.Retaliate()
 			switch(H.stance)
 				if(HOSTILE_STANCE_ATTACK,HOSTILE_STANCE_ATTACKING)
 					if(istype(M,/mob/living/simple_animal/hostile/retaliate/goat))
 						var/mob/living/simple_animal/hostile/retaliate/goat/G = M
 						G.Calm()
-					else if(!M.reagents || !M.reagents.has_reagent(INCENSE_UNHOLY)) //unholy incense attracts hostile mobs too!
+					else
 						return
 		M.start_walk_to(get_turf(data["source"]),1,6)
 
@@ -10118,7 +10122,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(M.eye_blurry < 22)
 		M.eye_blurry += 10
 	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
-		M.reagents.add_reagent(ETHANOL,1)
+		M.reagents.add_reagent(ETHANOL,0.8)
 
 /datum/reagent/incense/vapor
 	name = "Airy Incense"
@@ -10129,7 +10133,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	for(var/turf/simulated/T in view(2,location))
 		if(unholy)
 			T.wet(5 SECONDS,TURF_WET_LUBE)
-		if(T.is_wet())
+		else if(T.is_wet())
 			T.dry(TURF_WET_LUBE)
 			T.turf_animation('icons/effects/water.dmi',"dry_floor",0,0,TURF_LAYER)
 
@@ -10144,10 +10148,10 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(unholy)
 		smoke = new /datum/effect/system/smoke_spread/chem()
 		var/datum/effect/system/smoke_spread/chem/C = smoke
-		C.chemholder.reagents.add_reagent(CONDENSEDCAPSAICIN)
+		C.chemholder.reagents.add_reagent(CONDENSEDCAPSAICIN,5)
 	else
 		smoke = new /datum/effect/system/smoke_spread()
-	smoke.set_up(2, 0, location) //Make 2 drifting clouds of smoke, direction
+	smoke.set_up(n = 2, loca = location) //Make 2 drifting clouds of smoke, direction
 	smoke.start()
 
 /datum/reagent/incense/dense/on_mob_life(var/mob/living/M)
