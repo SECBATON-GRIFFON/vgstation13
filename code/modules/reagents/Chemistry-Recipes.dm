@@ -784,6 +784,11 @@
 			S.start()
 	holder.clear_reagents()
 
+/datum/chemical_reaction/chemsmoke/bleach/incense_mustard_gas // Okay, now it has a connection to mustard gas
+	name = "Unholy Mustard Gas"
+	id = "unholymustardgas"
+	required_reagents = list(INCENSE_UNHOLY = 1, INCENSE_DENSE = 1, INCENSE_MUSTARDPLANT = 1)
+
 /datum/chemical_reaction/chloralhydrate
 	name = "Chloral Hydrate"
 	id = CHLORALHYDRATE

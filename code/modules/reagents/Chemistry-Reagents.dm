@@ -10017,6 +10017,16 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 				to_chat(H, "<span class='notice'>You doze off for a second.</span>")
 				H.sleeping += 1
 
+/datum/reagent/incense/poppies/on_removal(amount)
+	if(!..(amount))
+		return 0
+
+	if(iscarbon(holder.my_atom))
+		var/mob/living/carbon/M = holder.my_atom
+		if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+			M.adjustHalLoss(40)
+	return 1
+
 /datum/reagent/incense/sunflowers//flavor text, does nothing
 	name = "Incense"
 	id = INCENSE_SUNFLOWERS
@@ -10036,7 +10046,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/incense/moonflowers/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
-	if (M.hallucination < 22)
+	if (M.hallucination < 22 || (M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY)))
 		M.hallucination += 10
 
 /datum/reagent/incense/novaflowers//Converts itself to hyperzine, but makes you hungry
@@ -10051,7 +10061,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		return 1
 	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
 		holder.add_reagent(HYPOZINE, 0.5)
-	if(holder.get_reagent_amount(HYPERZINE) < 2)
+	else if(holder.get_reagent_amount(HYPERZINE) < 2)
 		holder.add_reagent(HYPERZINE, 0.5)
 
 /datum/reagent/incense/banana
@@ -10107,6 +10117,8 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		M.slurring += 10
 	if(M.eye_blurry < 22)
 		M.eye_blurry += 10
+	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+		M.reagents.add_reagent(ETHANOL,1)
 
 /datum/reagent/incense/vapor
 	name = "Airy Incense"
@@ -10151,6 +10163,13 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	sport = SPORTINESS_SPORTS_DRINK
 	custom_metabolism = 0.15
 
+/datum/reagent/incense/vale/on_mob_life(var/mob/living/M)
+	if(..())
+		return 1
+	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+		if(M.reagents.get_reagent_amount(CREATINE) <= 25)
+			M.reagents.add_reagent(CREATINE,0.2)
+
 /datum/reagent/incense/cornoil
 	name = "Corn Oil Incense"
 	id = INCENSE_CORNOIL
@@ -10159,9 +10178,18 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/incense/cornoil/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
-	if(prob(5))
-		to_chat(M,"<span class='warning'>[pick("You feel fuller.", "You no longer feel snackish.")]</span>")
-		M.reagents.add_reagent(NUTRIMENT, 2)
+	var/unholy = M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY)
+	if(prob(5) || unholy)
+		if(!unholy || prob(5))
+			to_chat(M,"<span class='warning'>[pick("You feel fuller.", "You no longer feel snackish.")]</span>")
+		M.reagents.add_reagent(NUTRIMENT, unholy ? 0.4 : 2)
+	if(unholy && M.overeatduration > 400)
+		M.reagents.add_reagent(MINTTOXIN, 0.02)
+		if(prob(5))
+			if(M.overeatduration > 450)
+				to_chat(M,"<span class='danger'>[pick("You feel like you could burst, oh god!","You feel like you're collapsing under your own weight!")]</span>")
+			else
+				to_chat(M,"<span class='warning'>[pick("You start feeling a bit too full.", "You feel kind of bloated.")]</span>")
 
 /datum/reagent/incense/unholy
 	name = "Unholy Incense"
@@ -10171,28 +10199,28 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/incense/unholy/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
-	var/totalholystuff = M.reagents.get_reagent_amount(HOLYWATER)
-	if(M.reagents.has_reagent(INCENSE_HAREBELLS))
-		totalholystuff *= 2
-	if(M.reagents.has_reagent(INCENSE_SUNFLOWERS)) //the one that does nothing... makes this do nothing!
-		totalholystuff = 0
-	if(totalholystuff)
-		M.reagents.add_reagent(HOLYWATER,2) //cancels out metabolism
-		M.eye_blurry = max(M.eye_blurry, min(30,totalholystuff/3))
-		M.Dizzy(min(30,totalholystuff/3))
-		if(totalholystuff > 20)
-			M.stuttering = max(M.stuttering, min(30,totalholystuff/3))
-		if(totalholystuff > 40)
-			M.Jitter(min(30,totalholystuff/3))
-		if(totalholystuff > 60)
-			totalholystuff -= 60 //for ease of calculations
-			if (prob(min(20,totalholystuff/2)))
-				M.Knockdown(min(4,totalholystuff/10))
-			else if (prob(min(20,totalholystuff/2)))
-				M.confused = min(6,totalholystuff/15)
-			M.adjustOxyLoss(min(4,totalholystuff/10))
-			if(totalholystuff > 20) // actually 80, see above
-				M.adjustToxLoss(min(2,totalholystuff/20))
+
+	if(M.reagents && !M.reagents.has_reagent(INCENSE_SUNFLOWERS)) //the one that does nothing... makes this do nothing!
+		var/totalholystuff = M.reagents.get_reagent_amount(HOLYWATER)
+		if(M.reagents.has_reagent(INCENSE_HAREBELLS))
+			totalholystuff *= 2
+		if(totalholystuff)
+			M.reagents.add_reagent(HOLYWATER,2) //cancels out metabolism
+			M.eye_blurry = max(M.eye_blurry, min(30,totalholystuff/3))
+			M.Dizzy(min(30,totalholystuff/3))
+			if(totalholystuff > 20)
+				M.stuttering = max(M.stuttering, min(30,totalholystuff/3))
+			if(totalholystuff > 40)
+				M.Jitter(min(30,totalholystuff/3))
+			if(totalholystuff > 60)
+				totalholystuff -= 60 //for ease of calculations
+				if (prob(min(20,totalholystuff/2)))
+					M.Knockdown(min(4,totalholystuff/10))
+				else if (prob(min(20,totalholystuff/2)))
+					M.confused = min(6,totalholystuff/15)
+				M.adjustOxyLoss(min(4,totalholystuff/10))
+				if(totalholystuff > 20) // actually 80, see above
+					M.adjustToxLoss(min(2,totalholystuff/20))
 
 /datum/reagent/dsyrup
 	name = "Delightful Mix"
