@@ -17,3 +17,8 @@
 /datum/blesscurse/mimevowbreak
 	blesscurse_name = "vow-of-silence-breaker curse"
 	blesscurse_strength = -250
+
+//Curse when someone with unholy incense in them leaves their religion.
+/datum/blesscurse/unholyapostate
+	blesscurse_name = "unholy apostate curse"
+	blesscurse_strength = -500

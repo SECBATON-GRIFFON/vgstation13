@@ -192,7 +192,7 @@ var/list/tgui_religion_data
 	if (R.leadsThisReligion(src))
 		to_chat(src, "<span class='warning'>You are the leader of this flock and cannot forsake them. If you have to, pray to the Gods for release.</span>")
 		return
-	if (alert("Do you wish to renounce [R.name]?","Renouncing a religion","Yes","No") != "Yes")
+	if (alert("Do you wish to renounce [R.name]?[reagents && reagents.has_reagent(INCENSE_UNHOLY) ? " This could have dire consequences for your mortal flesh." : ""]","Renouncing a religion","Yes","No") != "Yes")
 		return
 
 	R.renounce(src)
@@ -354,6 +354,14 @@ var/list/tgui_religion_data
 	to_chat(subject, "<span class='notice'>You renounce [name].</span>")
 	adepts -= subject.mind
 	subject.mind.faith = null
+	if(subject.reagents && subject.reagents.has_reagent(INCENSE_UNHOLY))
+		if(prob(90))
+			to_chat(subject, "<span class='sinister'>You have been reduced to a pile of ash for your apostasy!</span>")
+			subject.dust()
+		else
+			to_chat(subject, "<span class='sinister'>You have been spared dusting, at the cost of a life of bad luck and misfortune.</span>")
+			var/datum/blesscurse/unholyapostate/unholycurse = new /datum/blesscurse/unholyapostate
+			subject.add_blesscurse(unholycurse)
 
 // interceptPrayer: Called when anyone (not necessarily one of our adepts!) whispers a prayer.
 // Return 1 to CANCEL THAT GUY'S PRAYER (!!!), or return null and just do something fun.

@@ -10208,6 +10208,10 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		var/totalholystuff = M.reagents.get_reagent_amount(HOLYWATER)
 		if(M.reagents.has_reagent(INCENSE_HAREBELLS))
 			totalholystuff *= 2
+		if(M.mind && M.mind.faith && holder && holder.my_atom)
+			var/mob/living/incenser = get_holder_of_type(holder.my_atom,/mob/living)
+			if(incenser && incenser.mind && incenser.mind.faith == M.mind.faith)
+				totalholystuff /= 2 //full power is reserved for infidels
 		if(totalholystuff)
 			M.reagents.add_reagent(HOLYWATER,2) //cancels out metabolism
 			M.eye_blurry = max(M.eye_blurry, min(30,totalholystuff/3))
