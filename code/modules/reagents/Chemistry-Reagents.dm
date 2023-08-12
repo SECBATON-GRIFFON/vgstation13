@@ -9984,7 +9984,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(!src.data["source"]) //src is necessary because of this terrible var name, but consistency!
 		src.data["source"] = holder.my_atom
 
-/datum/reagent/incense/proc/OnDisperse(var/turf/location)
+/datum/reagent/incense/proc/OnDisperse(var/turf/location,var/unholy)
 
 /datum/reagent/incense/harebells//similar effects as holy water to cultists and vampires
 	name = "Holy Incense"
@@ -10049,6 +10049,8 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/incense/novaflowers/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
+	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+		holder.add_reagent(HYPOZINE, 0.5)
 	if(holder.get_reagent_amount(HYPERZINE) < 2)
 		holder.add_reagent(HYPERZINE, 0.5)
 
@@ -10062,6 +10064,8 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 		return 1
 	if(prob(5))
 		to_chat(M,"<span class='warning'>[pick("You feel like giggling!", "You feel clumsy!", "You want to honk!")]</span>")
+	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+		M.adjustBrainLoss(2)
 
 /datum/reagent/incense/cabbage
 	name = "Leafy Incense"
@@ -10087,7 +10091,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 					if(istype(M,/mob/living/simple_animal/hostile/retaliate/goat))
 						var/mob/living/simple_animal/hostile/retaliate/goat/G = M
 						G.Calm()
-					else
+					else if(!M.reagents || !M.reagents.has_reagent(INCENSE_UNHOLY)) //unholy incense attracts hostile mobs too!
 						return
 		M.start_walk_to(get_turf(data["source"]),1,6)
 
@@ -10109,8 +10113,10 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	id = INCENSE_VAPOR
 	description = "It burns your nostrils a little. The incense smells... clean."
 
-/datum/reagent/incense/vapor/OnDisperse(var/turf/location)
+/datum/reagent/incense/vapor/OnDisperse(var/turf/location,var/unholy)
 	for(var/turf/simulated/T in view(2,location))
+		if(unholy)
+			T.wet(5 SECONDS,TURF_WET_LUBE)
 		if(T.is_wet())
 			T.dry(TURF_WET_LUBE)
 			T.turf_animation('icons/effects/water.dmi',"dry_floor",0,0,TURF_LAYER)
@@ -10121,8 +10127,14 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	description = "This isn't really a fragrance so much as tactical smoke."
 	custom_metabolism = 0.25
 
-/datum/reagent/incense/dense/OnDisperse(var/turf/location)
-	var/datum/effect/system/smoke_spread/smoke = new /datum/effect/system/smoke_spread()
+/datum/reagent/incense/dense/OnDisperse(var/turf/location,var/unholy)
+	var/datum/effect/system/smoke_spread/smoke
+	if(unholy)
+		smoke = new /datum/effect/system/smoke_spread/chem()
+		var/datum/effect/system/smoke_spread/chem/C = smoke
+		C.chemholder.reagents.add_reagent(CONDENSEDCAPSAICIN)
+	else
+		smoke = new /datum/effect/system/smoke_spread()
 	smoke.set_up(2, 0, location) //Make 2 drifting clouds of smoke, direction
 	smoke.start()
 
@@ -10150,6 +10162,37 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(prob(5))
 		to_chat(M,"<span class='warning'>[pick("You feel fuller.", "You no longer feel snackish.")]</span>")
 		M.reagents.add_reagent(NUTRIMENT, 2)
+
+/datum/reagent/incense/unholy
+	name = "Unholy Incense"
+	id = INCENSE_UNHOLY
+	description = "This fragrance fills you with dread only known to the likes of the most occult creatures."
+
+/datum/reagent/incense/unholy/on_mob_life(var/mob/living/M)
+	if(..())
+		return 1
+	var/totalholystuff = M.reagents.get_reagent_amount(HOLYWATER)
+	if(M.reagents.has_reagent(INCENSE_HAREBELLS))
+		totalholystuff *= 2
+	if(M.reagents.has_reagent(INCENSE_SUNFLOWERS)) //the one that does nothing... makes this do nothing!
+		totalholystuff = 0
+	if(totalholystuff)
+		M.reagents.add_reagent(HOLYWATER,2) //cancels out metabolism
+		M.eye_blurry = max(M.eye_blurry, min(30,totalholystuff/3))
+		M.Dizzy(min(30,totalholystuff/3))
+		if(totalholystuff > 20)
+			M.stuttering = max(M.stuttering, min(30,totalholystuff/3))
+		if(totalholystuff > 40)
+			M.Jitter(min(30,totalholystuff/3))
+		if(totalholystuff > 60)
+			totalholystuff -= 60 //for ease of calculations
+			if (prob(min(20,totalholystuff/2)))
+				M.Knockdown(min(4,totalholystuff/10))
+			else if (prob(min(20,totalholystuff/2)))
+				M.confused = min(6,totalholystuff/15)
+			M.adjustOxyLoss(min(4,totalholystuff/10))
+			if(totalholystuff > 20) // actually 80, see above
+				M.adjustToxLoss(min(2,totalholystuff/20))
 
 /datum/reagent/dsyrup
 	name = "Delightful Mix"

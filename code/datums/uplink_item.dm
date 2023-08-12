@@ -1036,6 +1036,14 @@ var/list/uplink_items = list()
 	discounted_cost = 10
 	jobs_with_discount = list("Chaplain")
 
+/datum/uplink_item/jobspecific/service/unholy_incense
+	name = "Unholy Incense Stick"
+	desc = "A stick of incense to be burnt in a thurible, this one gives victims symptoms similar to the effects of holy water on occult beings. Effect is intensified by holy water present in their system, or being hit by a null rod. Power increased by combining with holy incense, may cause unintended effects with other types."
+	item = /obj/item/incense_stick/unholy
+	cost = 14
+	discounted_cost = 10
+	jobs_with_discount = list("Chaplain")
+
 /datum/uplink_item/jobspecific/service/occultbook
 	name = "Occult Book"
 	desc = "A reproduction of a forbidden and occult book. Causes brain damage, eye damage and hallucinations to anyone unfortunate or stupid enough to attempt to read it. Use a pen to change its title."

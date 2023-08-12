@@ -56,6 +56,30 @@
 					V.nullified = min(5, V.nullified + 2)
 				V.smitecounter += 30 //Smite the shit out of him. Four strikes and he's out
 
+	if(M.reagents && M.reagents.has_reagent(INCENSE_UNHOLY))
+		M.reagents.add_reagent(HOLYWATER,15)
+		var/totalholystuff = M.reagents.get_reagent_amount(HOLYWATER)
+		if(M.reagents.has_reagent(INCENSE_HAREBELLS))
+			totalholystuff *= 2
+		if(totalholystuff)
+			if(isliving(M))
+				var/mob/living/L = M
+				L.adjustFireLoss(min(15,totalholystuff / 6))
+			M.dizziness = max(5, M.dizziness + min(8,totalholystuff / 12))
+			if(totalholystuff > 90 || (prob(35) && totalholystuff > 30))
+				M.confused = max(totalholystuff/10, M.confused)
+			if(totalholystuff > 90 && !M.on_fire && prob(35))
+				M.visible_message("<span class='danger'>[M]'s skin sizzles!</span>", "<span class='danger'>Your skin sizzles!</span>")
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				if(totalholystuff > 60 && prob(8))
+					H.vomit()
+				if(totalholystuff > 100)
+					if(!H.on_fire)
+						to_chat(H, "<span class='danger'>Your skin catches fire with holy flames!</span>")
+					H.fire_stacks += 5
+					H.IgniteMob()
+
 	. = ..() //Whack their shit regardless. It's an obsidian rod, it breaks skulls
 
 /obj/item/weapon/nullrod/afterattack(var/atom/A, var/mob/user, var/prox_flag, var/params)

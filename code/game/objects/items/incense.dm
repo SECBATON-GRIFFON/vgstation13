@@ -96,6 +96,11 @@
 	adjective = "hunger-inducing"
 	color = "#361b11"
 
+/obj/item/incense_stick/unholy
+	fragrance = INCENSE_UNHOLY
+	adjective = "<span class='sinister'>unholy</span>"
+	color = "#6633ff"
+
 /obj/item/incense_stick/examine(mob/user)
 	..()
 	to_chat(user, "\The [src] is [lit ? "":"un"]lit.")
@@ -178,6 +183,7 @@
 				if (location.zone)//is there a simulated atmosphere where we are?
 
 					var/list/potential_breathers = list()
+					var/unholy = FALSE
 					for(var/turf/simulated/T in location.zone.contents)//are they in that same atmospheric zone?
 						for (var/mob/living/C in T)
 							if(!iscarbon(C) && !isanimal(C))
@@ -185,6 +191,9 @@
 							if (get_dist(location, C) <= 7)//are they relatively close?
 								if (!ishuman(C))
 									potential_breathers += C
+									if(!unholy)
+										if(arcanetampered || (C.reagents && C.reagents.has_reagent(INCENSE_UNHOLY)))
+											unholy = TRUE
 								else
 									var/mob/living/carbon/human/H = C
 									if(H.species && H.species.flags & NO_BREATHE)//can they breath?
@@ -198,10 +207,13 @@
 									if(H.internal)//are their internals off?
 										continue
 									potential_breathers += C
+									if(!unholy)
+										if(arcanetampered || H.reagents.has_reagent(INCENSE_UNHOLY))
+											unholy = TRUE
 
 					var/datum/reagent/incense/D = chemical_reagents_list[fragrance]
 					if(D)
-						D.OnDisperse(location)
+						D.OnDisperse(location,unholy)
 					for (var/mob/living/C in potential_breathers)
 						reagents.clear_reagents()
 						reagents.add_reagent(fragrance,0.5) //Create a new fragrance inside, then move it to the target.
