@@ -1038,7 +1038,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/jobspecific/service/unholy_incense
 	name = "Unholy Incense Stick"
-	desc = "A stick of incense to be burnt in a thurible, this one gives victims symptoms similar to the effects of holy water on occult beings. Effect is intensified by holy water present in their system, or being hit by a null rod. Power increased by combining with holy incense, may cause unintended effects with other types."
+	desc = "A stick of incense to be burnt in a thurible, this one gives victims symptoms similar to the effects of holy water on occult beings. Effect is intensified by holy water present in their system, or being hit by a null rod. May cause unintended effects with other types of incense."
 	item = /obj/item/incense_stick/unholy
 	cost = 14
 	discounted_cost = 10
