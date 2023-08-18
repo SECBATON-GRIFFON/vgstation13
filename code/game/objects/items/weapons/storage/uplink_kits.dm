@@ -366,6 +366,14 @@
 		/obj/item/clothing/shoes/jackboots/mothership
 	)
 
+//Syndicate Ayy Lmao Psionic Powers
+//The mothership sends its warmest regards
+/obj/item/weapon/storage/box/syndie_kit/psionic_stones
+	name = "MDF Trooper Psionic Stones Kit"
+	items_to_spawn = list(
+		/obj/item/weapon/spellbook/oneuse/psistone = 4,
+	)
+
 //Syndicate Experimental Gear
 //Contains unique gear not found anywhere else
 /obj/item/weapon/storage/box/syndicate_experimental/New()

@@ -589,6 +589,14 @@ var/list/uplink_items = list()
 	discounted_cost = 4
 	jobs_with_discount = list("Grey")
 
+/datum/uplink_item/ayylmao/psionic_stones
+	name = "MDF Trooper Psionic Stone Kit"
+	desc = "A box containing 4 strange, glowing stones used to train and give psionic power to members of the MDF in battle. Shatters after one use, but can also be thrown to shatter in an area for a more ranged effect when not used. The power granting ability is only compatiable with grey minds, any other species may have adverse effects from use attempts."
+	item = /obj/item/weapon/storage/box/syndie_kit/psionic_stones
+	cost = 16
+	discounted_cost = 14
+	jobs_with_discount = list("Grey")
+
 // IMPLANTS
 // Any Syndicate item that gets implanted into the body goes here
 

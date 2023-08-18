@@ -566,6 +566,91 @@
 	desc = "This book glows with sinister energy."
 	disabled_from_bundle = 1
 
+/obj/item/weapon/spellbook/oneuse/psistone
+	name = "psionic power stone"
+	spell = /spell/targeted/psionic
+	icon = 'icons/obj/wizard.dmi'
+	icon_state = "glow_stone_active"
+	item_state = ""
+	desc = "This stone glows with extraterrerstrial energy."
+	disabled_from_bundle = 1
+
+/obj/item/weapon/spellbook/oneuse/psistone/New()
+	..()
+	spell = pick(subtypesof(/spell/targeted/psionic))
+	var/spell/S = spell
+	name = "[initial(S.name)] power stone"
+
+
+/obj/item/weapon/spellbook/oneuse/psistone/proc/do_effect(mob/living/user,mob/living/L)
+	switch(spell)
+		if(/spell/targeted/psionic/drain)
+			if(isgrey(L))
+				if(user)
+					to_chat(user, "<span class='danger'>You drain health from [L] to add to your own.</span>")
+					to_chat(L, "<span class='userdanger'>[user] drains some of your health to add to theirs!</span>")
+				L.adjustBruteLoss(20)
+				L.adjustFireLoss(20)
+				if(user)
+					user.heal_organ_damage(20,20)
+		if(/spell/targeted/psionic/heal)
+			if(isgrey(L))
+				if(user)
+					to_chat(L, "<span class='notice'>[user == L ? "You" : "[user]"] mend[user == L ? "" : "s"] your wounds!<</span>")
+				L.heal_organ_damage(10,10)
+		if(/spell/targeted/psionic/brainloss) //Minor brain damage
+			to_chat(L, "<span class='userdanger'>You get a blindingly painful headache.</span>")
+			L.adjustBrainLoss(10)
+			L.eye_blurry = max(L.eye_blurry, 5)
+		if(/spell/targeted/psionic/stun) //Brief knockdown
+			to_chat(L, "<span class='userdanger'>You suddenly lose your sense of balance!</span>")
+			L.emote("me", 1, "collapses!")
+			L.Knockdown(2)
+		if(/spell/targeted/psionic/knockout) //Target gets put to sleep for a few seconds
+			to_chat(L, "<span class='userdanger'>You feel exhausted...</span>")
+			L.drowsyness += 8
+		if(/spell/targeted/psionic/hallucinate) //Minor hallucinations and jittering
+			to_chat(L, "<span class='userdanger'>Your mind feels less stable, and you feel nervous.</span>")
+			L.hallucination += 60 // For some reason it has to be this high at least or seemingly nothing happens
+			L.Jitter(20)
+			L.stuttering += 20
+		if(/spell/targeted/psionic/disarm) //Ranged disarm
+			to_chat(L, "<span class='userdanger'>Your arm jerks involuntarily, and you drop what you're holding!</span>")
+			L.drop_item()
+		if(/spell/targeted/psionic/pacify)
+			to_chat(L, "<span class='userdanger'>You feel strangely calm and passive. What's the point in fighting?</span>")
+			L.reagents.add_reagent(CHILLWAX, 1)
+
+/obj/item/weapon/spellbook/oneuse/psistone/throw_impact(atom/impacted_atom, speed, mob/user)
+	. = ..()
+	for(var/mob/living/L in view(src,3))
+		if(!(L.isUnconscious() || L.is_wearing_item(/obj/item/clothing/head/tinfoil) || (M_PSY_RESIST in L.mutations)))
+			do_effect(user,L)
+	shatter()
+
+/obj/item/weapon/spellbook/oneuse/psistone/attack_self(mob/user)
+	if(!isgrey(user))
+		recoil(user)
+	else
+		..()
+
+/obj/item/weapon/spellbook/oneuse/psistone/onlearned(mob/user)
+	. = ..()
+	shatter()
+
+/obj/item/weapon/spellbook/oneuse/psistone/proc/shatter()
+	visible_message("<span class='warning'>\the [src] shatters!</span>","<span class='warning'>You hear a shatter!</span>")
+	playsound(src, 'sound/effects/hit_on_shattered_glass.ogg', 70, 1)
+	qdel(src)
+
+/obj/item/weapon/spellbook/oneuse/psistone/recoil(mob/user)
+	. = ..()
+	if(isliving(user))
+		var/mob/living/L = user
+		to_chat(user,"<span class='warning'>This is not compatiable with your mind!</span>")
+		L.adjustToxLoss(50)
+		do_effect(user,user)
+		shatter()
 
 ///// ANCIENT SPELLBOOK /////
 
