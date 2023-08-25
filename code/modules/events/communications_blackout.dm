@@ -20,7 +20,8 @@
 
 /datum/event/communications_blackout/start()
 	for(var/obj/machinery/telecomms/T in telecomms_list)
-		T.emp_act(1)
+		if(T.z == zlevel)
+			T.emp_act(1)
 
 /proc/communications_blackout(var/silent = 1)
 	if(!silent)

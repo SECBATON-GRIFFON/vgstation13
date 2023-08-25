@@ -226,15 +226,21 @@ var/global/list/accessable_z_levels = list()
 
 	name = "space"
 	movementChance = ZLEVEL_BASE_CHANCE * ZLEVEL_SPACE_MODIFIER
-	event_whitelist = list(/datum/event/thing_storm/meaty_gore,/datum/event/old_vendotron_crash)
+	event_whitelist = list(
+		/datum/event/meteor_wave,
+		/datum/event/meteor_shower,
+		/datum/event/meteor_shower/meteor_quiet,
+		/datum/event/thing_storm/meaty_gore,
+		/datum/event/old_vendotron_crash,
+		)
 
 /datum/zLevel/mining
 	name = "mining"
-	event_whitelist = list(/datum/event/thing_storm/meaty_gore)
+	event_whitelist = list(TRUE) // not enough stuff for now
 
 /datum/zLevel/krakenroid
 	name = "krakenroid"
-	event_whitelist = list(/datum/event/thing_storm/meaty_gore,/datum/event/old_vendotron_crash)
+	event_whitelist = list(TRUE) // not enough stuff for now
 
 /datum/zLevel/krakenroid/blur_holomap(var/area/aera, var/turf/truf)
 	if (istype(aera, /area/mine/explored) && !istype(truf, /turf/unsimulated/floor/airless))
