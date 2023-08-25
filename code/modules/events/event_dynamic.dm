@@ -64,10 +64,10 @@ var/list/event_last_fired = list()
 	event_last_fired[picked_event] = world.time
 
 	// Debug code below here, very useful for testing so don't delete please.
-	var/debug_message = "Firing random event. "
+	var/debug_message = "Firing random event on [src.name] z-level. Active roles: "
 	for(var/V in active_with_role)
 		debug_message += "#[V]:[active_with_role[V]] "
-	debug_message += "||| "
+	debug_message += "||| Possible events: "
 	for(var/V in possibleEvents)
 		debug_message += "[V]:[possibleEvents[V]]"
 	debug_message += "|||Picked:[picked_event]"
