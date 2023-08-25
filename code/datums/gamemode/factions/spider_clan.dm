@@ -47,7 +47,7 @@
 	if(spaceninja.get_item_by_slot(slot_shoes))
 		var/obj/item/clothing/shoes/ninja/apprentice/ninja_shoes = spaceninja.get_item_by_slot(slot_shoes)
 		ninja_shoes.activateMagnets()
-	spaceninja.ThrowAtStation()
+	spaceninja.ThrowAtCenterZ()
 
 /obj/structure/button/ninja/teleporter
 	name = "teleporter button"

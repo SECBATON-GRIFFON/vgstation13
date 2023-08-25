@@ -7,7 +7,8 @@
 	severity = rand(5, 10)
 
 /datum/event/wallrot/announce()
-	command_alert(/datum/command_alert/wall_fungi)
+	if(..())
+		command_alert(/datum/command_alert/wall_fungi)
 
 /datum/event/wallrot/can_start()
 	for(var/area/A in the_station_areas)

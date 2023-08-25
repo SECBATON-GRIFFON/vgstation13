@@ -12,7 +12,8 @@
 	endWhen = announceWhen + 1
 
 /datum/event/viral_outbreak/announce()
-	biohazard_alert(level)
+	if(..())
+		biohazard_alert(level)
 
 /datum/event/viral_outbreak/start()
 	var/datum/disease2/disease/D = get_random_weighted_disease(WOUTBREAK)

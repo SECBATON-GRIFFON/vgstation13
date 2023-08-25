@@ -18,11 +18,12 @@
 	endWhen = rand(45, 90) //More drawn out than the shower, but not too powerful. Supposed to be a devastating event
 
 /datum/event/meteor_wave/announce()
-	command_alert(/datum/command_alert/meteor_wave)
+	if(..())
+		command_alert(/datum/command_alert/meteor_wave)
 
 //Two to three waves. So 40 to 120
 /datum/event/meteor_wave/tick()
-	meteor_wave(rand(20, 40), max_size = 2, offset_origin = 150, offset_dest = 230) //Large waves, panic is mandatory
+	meteor_wave(rand(20, 40), max_size = 2, offset_origin = 150, offset_dest = 230, zlevel = src.zlevel) //Large waves, panic is mandatory
 
 /datum/event/meteor_wave/end()
 	spawn(45 SECONDS)
@@ -42,16 +43,18 @@
 	endWhen	= rand(45, 60) //From thirty seconds to one minute
 
 /datum/event/meteor_shower/announce()
-	command_alert(/datum/command_alert/meteor_storm)
+	if(..())
+		command_alert(/datum/command_alert/meteor_storm)
 
 //Meteor showers are lighter and more common
 //Sometimes a single wave, most likely two, so anywhere from 10 to 30 small meteors
 /datum/event/meteor_shower/tick()
-	meteor_wave(rand(10, 15), max_size = 1, offset_origin = 150, offset_dest = 230) //Much more clement
+	meteor_wave(rand(10, 15), max_size = 1, offset_origin = 150, offset_dest = 230, zlevel = src.zlevel) //Much more clement
 
 /datum/event/meteor_shower/end()
-	spawn(45 SECONDS)
-		command_alert(/datum/command_alert/meteor_wave_end)
+	if(zlevel == map.zMainStation)
+		spawn(45 SECONDS)
+			command_alert(/datum/command_alert/meteor_wave_end)
 
 //Meteor wave that doesn't trigger an announcement. Perfect for adminbus involving extended meteor bombardments without spamming the crew with Meteor alerts.
 /datum/event/meteor_shower/meteor_quiet
@@ -61,7 +64,7 @@
 /datum/event/meteor_shower/meteor_quiet/announce()
 
 /datum/event/meteor_shower/meteor_quiet/tick()
-	meteor_wave(rand(7, 10), max_size = 2, offset_origin = 150, offset_dest = 230) //Good balance of sizes and abundance between shower and storm
+	meteor_wave(rand(7, 10), max_size = 2, offset_origin = 150, offset_dest = 230, zlevel = src.zlevel) //Good balance of sizes and abundance between shower and storm
 
 /datum/event/meteor_shower/meteor_quiet/end()
 
@@ -153,12 +156,13 @@ var/global/list/thing_storm_types = list(
 	storm_name=pick(possible_names)
 
 /datum/event/thing_storm/announce()
-	command_alert(/datum/command_alert/meteor_storm)
+	if(..())
+		command_alert(/datum/command_alert/meteor_storm)
 
 //Meteor showers are lighter and more common
 //Since this isn't rocks of pure pain and explosion, we have more, anywhere from 10 to 40 items
 /datum/event/thing_storm/tick()
-	meteor_wave(rand(10, 20), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230) //Much more clement
+	meteor_wave(rand(10, 20), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230, zlevel = src.zlevel) //Much more clement
 
 /datum/event/thing_storm/end()
 	spawn(45 SECONDS)
@@ -177,7 +181,8 @@ var/global/list/thing_storm_types = list(
 	meteor_wave(rand(45, 60), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230)
 
 /datum/event/thing_storm/meaty_gore/announce()
-	command_alert("The station is about to pass through an unknown organic debris field. No hull breaches are likely.", "Organic Debris Field")
+	if(..())
+		command_alert("The station is about to pass through an unknown organic debris field. No hull breaches are likely.", "Organic Debris Field")
 
 /datum/event/thing_storm/meaty_gore/end()
 	spawn(45 SECONDS)
@@ -198,7 +203,8 @@ var/global/list/thing_storm_types = list(
 	meteor_wave(rand(12, 24), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230)
 
 /datum/event/thing_storm/blob_shower/announce()
-	command_alert(/datum/command_alert/blob_storm)
+	if(..())
+		command_alert(/datum/command_alert/blob_storm)
 
 /datum/event/thing_storm/blob_shower/end()
 	spawn(45 SECONDS)
@@ -238,7 +244,8 @@ var/global/list/thing_storm_types = list(
 		C.AssignMob(candidate.mob)
 
 /datum/event/thing_storm/blob_storm/announce()
-	command_alert(/datum/command_alert/blob_storm/overminds)
+	if(..())
+		command_alert(/datum/command_alert/blob_storm/overminds)
 
 /datum/event/thing_storm/blob_storm/end()
 	spawn(45 SECONDS)
@@ -249,7 +256,7 @@ var/global/list/thing_storm_types = list(
 	storm_name="fireworks"
 
 /datum/event/thing_storm/fireworks/tick()
-	meteor_wave(rand(45, 60), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230)
+	meteor_wave(rand(45, 60), types = thing_storm_types[storm_name], offset_origin = 150, offset_dest = 230, zlevel = src.zlevel)
 
 /datum/event/thing_storm/fireworks/announce()
 	command_alert("The station is about to be bombarded by light-based distraction projectiles. Source unknown. No hull breaches are likely.", "Firework Fiasco")

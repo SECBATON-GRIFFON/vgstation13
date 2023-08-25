@@ -27,7 +27,8 @@
 			D.disabled = rand(15, 60)
 
 /datum/event/rogue_drone/announce()
-	command_alert(/datum/command_alert/rogue_drone)
+	if(..())
+		command_alert(/datum/command_alert/rogue_drone)
 
 /datum/event/rogue_drone/tick()
 	return

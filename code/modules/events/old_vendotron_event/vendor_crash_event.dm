@@ -9,17 +9,18 @@
 	startWhen = rand(5, 15)
 
 /datum/event/old_vendotron_crash/announce()
-	command_alert(/datum/command_alert/old_vendotron_crash)
+	if(..())
+		command_alert(/datum/command_alert/old_vendotron_crash)
 
 /datum/event/old_vendotron_crash/start()
 	launchVendor()
 
 /datum/event/old_vendotron_crash/proc/launchVendor()
-	var/turf/startPoint = random_start_turf(1)
+	var/turf/startPoint = random_start_turf(zlevel)
 	var/obj/item/projectile/immovablerod/vending/vRod = new /obj/item/projectile/immovablerod/vending(startPoint)
 	var/obj/machinery/vending/old_vendotron/theVend = new /obj/machinery/vending/old_vendotron(vRod)
 	vRod.myVend = theVend
-	var/turf/endPoint = locate(map.center_x, map.center_y, 1)
+	var/turf/endPoint = locate(map.center_x, map.center_y, zlevel)
 	vRod.throw_at(endPoint)
 
 /obj/item/projectile/immovablerod/vending

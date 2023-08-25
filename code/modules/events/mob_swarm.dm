@@ -14,7 +14,7 @@
                                             /area/medical/cmo,
                                             /area/crew_quarters/theatre)
 
-/datum/event/mob_swarm/New(var/mob = /mob/living/simple_animal/corgi, var/amount = 10)
+/datum/event/mob_swarm/New(var/start_event = TRUE, var/zlevel = 1, var/mob = /mob/living/simple_animal/corgi, var/amount = 10)
     mob_to_spawn = mob
     spawn_amount = round(amount)
     . = ..()
@@ -49,4 +49,5 @@
 
 
 /datum/event/mob_swarm/announce()
-    command_alert(new /datum/command_alert/mob_swarm(mob_name))
+	if(..())
+		command_alert(new /datum/command_alert/mob_swarm(mob_name))

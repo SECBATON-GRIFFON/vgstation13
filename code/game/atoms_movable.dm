@@ -1132,7 +1132,7 @@
 /atom/movable/proc/can_be_pushed(mob/user)
 	return 1
 
-/atom/movable/proc/ThrowAtStation(var/radius = 30, var/throwspeed = null, var/startside = null) //throws a thing at the station from the edges
+/atom/movable/proc/ThrowAtCenterZ(var/radius = 30, var/throwspeed = null, var/startside = null, var/zlevel = 1) //throws a thing at the station from the edges
 	var/startx = 0
 	var/starty = 0
 	var/endy = 0
@@ -1158,8 +1158,8 @@
 	//range of turfs determined by radius var
 	endx = rand((world.maxx/2)-radius,(world.maxx/2)+radius)
 	endy = rand((world.maxy/2)-radius,(world.maxy/2)+radius)
-	var/turf/startzone = locate(startx, starty, 1)
-	var/turf/endzone = locate(endx, endy, 1)
+	var/turf/startzone = locate(startx, starty, zlevel)
+	var/turf/endzone = locate(endx, endy, zlevel)
 	var/area/startzone_area = get_area(startzone)
 	if(!isspace(startzone_area))
 		return FALSE
@@ -1167,11 +1167,11 @@
 	throw_at(endzone, null, throwspeed)
 	return TRUE
 
-/mob/living/carbon/human/ThrowAtStation(var/radius = 30, var/throwspeed = null, var/startside = null, var/entry_vehicle = /obj/item/airbag)
+/mob/living/carbon/human/ThrowAtCenterZ(var/radius = 30, var/throwspeed = null, var/startside = null, var/entry_vehicle = /obj/item/airbag)
 	var/turf/prev_turf = get_turf(src)
 	var/obj/AB = new entry_vehicle(null, TRUE)
 	forceMove(AB)
-	if(AB.ThrowAtStation(radius, throwspeed, startside))
+	if(AB.ThrowAtCenterZ(radius, throwspeed, startside))
 		return TRUE
 	else
 		forceMove(prev_turf)

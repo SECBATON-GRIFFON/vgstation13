@@ -12,7 +12,8 @@
 	severity = rand(1, 4)
 
 /datum/event/organ_failure/announce()
-	command_alert(/datum/command_alert/biohazard_organ)
+	if(..())
+		command_alert(/datum/command_alert/biohazard_organ)
 
 /datum/event/organ_failure/start()
 	var/list/candidates = list()	//list of candidate keys

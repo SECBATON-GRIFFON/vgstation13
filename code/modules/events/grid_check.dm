@@ -11,7 +11,8 @@
 	power_failure(0)
 
 /datum/event/grid_check/announce()
-	command_alert(/datum/command_alert/power_disabled)
+	if(..())
+		command_alert(/datum/command_alert/power_disabled)
 
 /datum/event/grid_check/end()
 	if(universe.name != "Normal")

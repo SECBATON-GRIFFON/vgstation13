@@ -133,4 +133,5 @@
 
 
 /datum/event/hostile_infestation/announce()
-	command_alert(new /datum/command_alert/hostile_creatures(localestring, monsterstring))
+	if(..())
+		command_alert(new /datum/command_alert/hostile_creatures(localestring, monsterstring))

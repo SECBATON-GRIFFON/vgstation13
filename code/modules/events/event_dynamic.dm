@@ -1,7 +1,7 @@
 var/list/event_last_fired = list()
 
 //Always triggers an event when called, dynamically chooses events based on job population
-/proc/spawn_dynamic_event()
+/datum/zLevel/proc/spawn_dynamic_event()
 	if(!config.allow_random_events || map && map.dorf)
 		return
 
@@ -42,10 +42,11 @@ var/list/event_last_fired = list()
 	//It is this coder's thought that weighting events on job counts is dumb and predictable as hell. 10 Engies ? Hope you like Meteors
 	//Instead, weighting goes from 100 (boring and common) to 10 (exceptional)
 	for(var/type in subtypesof(/datum/event))
-		if((map.event_blacklist.len && map.event_blacklist.Find(type)) || (map.event_whitelist.len && !map.event_whitelist.Find(type)))
+		if((map.event_blacklist.len && map.event_blacklist.Find(type)) || (map.event_whitelist.len && !map.event_whitelist.Find(type)) ||\
+			(event_blacklist.len && event_blacklist.Find(type)) || (event_whitelist.len && !event_whitelist.Find(type)))
 			possibleEvents[type] = 0
 			continue
-		var/datum/event/E = new type(FALSE)
+		var/datum/event/E = new type(FALSE,src.z)
 		var/value = E.can_start(active_with_role)
 		if(value > 0)
 			possibleEvents[type] = value
@@ -79,9 +80,10 @@ var/list/event_last_fired = list()
 	//and start working via the constructor.
 	new picked_event
 
-	score.eventsendured++
+	if(src.z == map.zMainStation)
+		score.eventsendured++
 
-	message_admins("[picked_event] firing. Time to have fun.")
+	message_admins("[picked_event] firing on [src.name] z-level. Time to have fun.")
 
 	return 1
 

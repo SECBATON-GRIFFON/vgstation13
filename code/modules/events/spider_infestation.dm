@@ -16,7 +16,8 @@
 	sent_spiders_to_station = 0
 
 /datum/event/spider_infestation/announce()
-	command_alert(/datum/command_alert/xenomorphs)
+	if(..())
+		command_alert(/datum/command_alert/xenomorphs)
 
 
 /datum/event/spider_infestation/start()

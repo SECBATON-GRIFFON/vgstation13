@@ -9,7 +9,8 @@
 	startWhen = rand(5, 15)
 
 /datum/event/old_vendotron_teleport/announce()
-	command_alert(/datum/command_alert/old_vendotron_teleport)
+	if(..())
+		command_alert(/datum/command_alert/old_vendotron_teleport)
 
 /datum/event/old_vendotron_teleport/start()
 	teleportVendor()

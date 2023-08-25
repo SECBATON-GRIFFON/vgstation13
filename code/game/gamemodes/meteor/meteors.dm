@@ -7,7 +7,7 @@
 /var/chosen_dir = 1
 
 //Call above constants to change
-/proc/meteor_wave(var/number = meteors_in_wave, var/max_size = 0, var/list/types = null, var/offset_origin = 0, var/offset_dest = 0)
+/proc/meteor_wave(var/number = meteors_in_wave, var/max_size = 0, var/list/types = null, var/offset_origin = 0, var/offset_dest = 0, var/zlevel = 1)
 
 	if(!ticker || meteor_wave_active)
 		return
@@ -15,19 +15,20 @@
 	meteor_wave_delay = (rand(30, 45)) * 10 //Between 30 and 45 seconds, engineers need time to shuffle in relative safety
 	chosen_dir = pick(cardinal) //Pick a direction
 	max_meteor_size = max_size
-	//Generate a name for our wave
-	var/greek_alphabet = list("Alpha", "Beta", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu", \
-						 "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega")
-	var/wave_final_name = "[number > 25 ? "Major":"Minor"] Meteor [pick("Wave", "Cluster", "Group")] [pick(greek_alphabet)]-[rand(1, 999)]"
-	var/datum/meteor_warning/warning = new (meteor_wave_delay, chosen_dir, max_size, number, wave_final_name, types == null)
-	output_information(warning)
+	if(zlevel == map.zMainStation)
+		//Generate a name for our wave
+		var/greek_alphabet = list("Alpha", "Beta", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu", \
+							"Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega")
+		var/wave_final_name = "[number > 25 ? "Major":"Minor"] Meteor [pick("Wave", "Cluster", "Group")] [pick(greek_alphabet)]-[rand(1, 999)]"
+		var/datum/meteor_warning/warning = new (meteor_wave_delay, chosen_dir, max_size, number, wave_final_name, types == null)
+		output_information(warning)
 	spawn(meteor_wave_delay)
 		for(var/i = 0 to number)
 			sleep(rand(1, 3)) //0.1 to 0.3 seconds between meteors
 			var/meteor_type = null
 			if(types != null)
 				meteor_type = pick(types)
-			spawn_meteor(chosen_dir, meteor_type, offset_origin, offset_dest)
+			spawn_meteor(chosen_dir, meteor_type, offset_origin, offset_dest, zlevel)
 		sleep(50) //Five seconds for the chat to scroll
 		meteor_wave_active = 0
 	return chosen_dir
@@ -146,7 +147,7 @@ var/list/meteor_warnings = list()
 	spawn(warning.delay + 30 SECONDS)
 		qdel(warning)
 
-/proc/spawn_meteor(var/chosen_dir, var/meteorpath = null, var/offset_origin = 0, var/offset_dest = 0)
+/proc/spawn_meteor(var/chosen_dir, var/meteorpath = null, var/offset_origin = 0, var/offset_dest = 0, var/zlevel = 1)
 
 	var/startx
 	var/starty
@@ -183,8 +184,8 @@ var/list/meteor_warnings = list()
 				endy = rand(TRANSITIONEDGE + offset_dest, world.maxy - TRANSITIONEDGE - offset_dest)
 				endx = world.maxx - (TRANSITIONEDGE + 2)
 
-		pickedstart = locate(startx, starty, 1)
-		pickedgoal = locate(endx, endy, 1)
+		pickedstart = locate(startx, starty, zlevel)
+		pickedgoal = locate(endx, endy, zlevel)
 		max_i--
 		if(max_i <= 0)
 			return

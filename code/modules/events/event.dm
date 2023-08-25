@@ -3,7 +3,7 @@
 	var/announceWhen	= 0	//When in the lifetime to call announce().
 	var/endWhen			= 0	//When in the lifetime the event should end.
 	var/oneShot			= 0	//If true, then the event removes itself from the list of potential events on creation.
-
+	var/zlevel			= 1 //Z level to fire event on, if applicable
 	var/activeFor		= 0	//How long the event has existed. You don't need to change this.
 
 //Called by event dynamic, returns the percent chance to fire if successful, 0 otherwise.
@@ -28,7 +28,9 @@
 //Allows you to announce before starting or vice versa.
 //Only called once.
 /datum/event/proc/announce()
-	return
+	if(zlevel == map.zMainStation)
+		return 1
+	return 0
 
 //Called on or after the tick counter is equal to startWhen.
 //You can include code related to your event or add your own
@@ -81,7 +83,8 @@
 
 //Adds the event to the global events list, and removes it from the list
 //of potential events.
-/datum/event/New(var/start_event = TRUE)
+/datum/event/New(var/start_event = TRUE, var/zlevel = 1)
+	src.zlevel = zlevel
 	if(start_event)
 		setup()
 		events.Add(src)

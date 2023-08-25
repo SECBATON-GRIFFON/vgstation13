@@ -36,4 +36,5 @@ var/list/events = list()
 		if (MC_TICK_CHECK)
 			return
 
-	checkEvent()
+	for(var/datum/zLevel/ZL in map.zLevels)
+		ZL.checkEvent()

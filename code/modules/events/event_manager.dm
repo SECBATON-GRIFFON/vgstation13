@@ -4,7 +4,7 @@ var/eventTimeLower = 20 //minutes
 var/eventTimeUpper = 40
 var/scheduledEvent = null
 
-/proc/checkEvent()
+/datum/zLevel/proc/checkEvent()
 	if(!scheduledEvent)
 		//The more players, the merrier
 		var/playercount_modifier = 1
@@ -42,7 +42,7 @@ var/scheduledEvent = null
 
 		var/next_event_delay = round(rand(eventTimeLower, eventTimeUpper)*playercount_modifier*roundlength_modifier,1) MINUTES
 		scheduledEvent = world.timeofday + next_event_delay  //in deciseconds
-		message_admins("Random event call. Next event call in [next_event_delay/600] minutes.")
+		message_admins("Random event call on [src.name] z-level. Next event call in [next_event_delay/600] minutes.")
 
 	else if(world.timeofday > scheduledEvent)
 		var/event_executed = FALSE

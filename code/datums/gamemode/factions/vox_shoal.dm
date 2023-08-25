@@ -275,7 +275,7 @@ var/list/potential_bonus_items = list(
 		to_chat(src, "<span class='danger'>After hours of aimlessly wandering through space in hostile Vox territory, the shuttle quickly ran out of fuel. You and your companions decided to abandon the ship and throw escape shelters in the general direction of the station.</span>")
 		var/obj/structure/inflatable/shelter/S = new(get_turf(src))
 		forceMove(S)
-		S.ThrowAtStation()
+		S.ThrowAtCenterZ()
 		return
 	to_chat(src, "<span class='warning'>You can't really remember the details, but somehow, you managed to escape. Your situation is still far from ideal, however.</span>")
 	delete_all_equipped_items()
@@ -288,7 +288,7 @@ var/list/potential_bonus_items = list(
 		put_in_hands(R)
 	var/obj/structure/inflatable/shelter/S = new(get_turf(src))
 	forceMove(S)
-	S.ThrowAtStation()
+	S.ThrowAtCenterZ()
 
 /obj/item/weapon/paper/vox_paper
 	name = "Shoal objectives"

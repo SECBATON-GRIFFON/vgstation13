@@ -23,27 +23,28 @@ var/list/all_rods = list()
 	return 0
 
 /datum/event/immovable_rod/announce()
-	command_alert(/datum/command_alert/immovable_rod)
+	if(..())
+		command_alert(/datum/command_alert/immovable_rod)
 
 /datum/event/immovable_rod/start()
-	immovablerod()
+	immovablerod(0,zlevel)
 /datum/event/immovable_rod/big/start()
-	immovablerod(1)
+	immovablerod(1,zlevel)
 /datum/event/immovable_rod/hyper/start()
-	immovablerod(2)
+	immovablerod(2,zlevel)
 
-/proc/immovablerod(var/rodlevel = 0)
+/proc/immovablerod(var/rodlevel = 0, var/z = 1)
 	var/obj/item/projectile/immovablerod/myrod
 	switch(rodlevel)
 		if(0)
-			myrod = new /obj/item/projectile/immovablerod(locate(1,1,1))
+			myrod = new /obj/item/projectile/immovablerod(locate(1,1,z))
 		if(1)
-			myrod = new /obj/item/projectile/immovablerod/big(locate(1,1,1))
+			myrod = new /obj/item/projectile/immovablerod/big(locate(1,1,z))
 		if(2)
-			myrod = new /obj/item/projectile/immovablerod/hyper(locate(1,1,1))
+			myrod = new /obj/item/projectile/immovablerod/hyper(locate(1,1,z))
 
 	myrod.starting = myrod.loc
-	myrod.ThrowAtStation()
+	myrod.ThrowAtCenterZ(zlevel = z)
 
 /obj/item/projectile/immovablerod
 	name = "\improper Immovable Rod"

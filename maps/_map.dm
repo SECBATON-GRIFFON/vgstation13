@@ -188,6 +188,8 @@ var/global/list/accessable_z_levels = list()
 	var/z //Number of the z-level (the z coordinate)
 	var/z_above //The linked zLevel Z above, for multiZ
 	var/z_below //Same, with below
+	var/list/event_blacklist = list()
+	var/list/event_whitelist = list()
 
 /datum/zLevel/proc/post_mapload()
 	return
@@ -218,17 +220,21 @@ var/global/list/accessable_z_levels = list()
 	teleJammed = 1
 	movementJammed = 1
 	bluespace_jammed = 1
+	event_whitelist = list(TRUE) // no events here
 
 /datum/zLevel/space
 
 	name = "space"
 	movementChance = ZLEVEL_BASE_CHANCE * ZLEVEL_SPACE_MODIFIER
+	event_whitelist = list(/datum/event/thing_storm/meaty_gore,/datum/event/old_vendotron_crash)
 
 /datum/zLevel/mining
 	name = "mining"
+	event_whitelist = list(/datum/event/thing_storm/meaty_gore)
 
 /datum/zLevel/krakenroid
 	name = "krakenroid"
+	event_whitelist = list(/datum/event/thing_storm/meaty_gore,/datum/event/old_vendotron_crash)
 
 /datum/zLevel/krakenroid/blur_holomap(var/area/aera, var/turf/truf)
 	if (istype(aera, /area/mine/explored) && !istype(truf, /turf/unsimulated/floor/airless))
@@ -257,6 +263,7 @@ var/global/list/accessable_z_levels = list()
 	teleJammed = 1
 	movementJammed = 1
 	base_turf = /turf/unsimulated/beach/sand
+	event_whitelist = list(TRUE) // no events here
 
 /datum/zLevel/snowmine //not used on snaxi
 	name = "belowMine"
@@ -265,6 +272,7 @@ var/global/list/accessable_z_levels = list()
 	movementJammed = TRUE
 	transitionLoops = TRUE
 	movementChance = ZLEVEL_BASE_CHANCE * ZLEVEL_SPACE_MODIFIER
+	event_whitelist = list(TRUE) // no events here
 
 /datum/zLevel/snow //not used on snaxi
 	name = "snow"

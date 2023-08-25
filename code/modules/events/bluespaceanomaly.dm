@@ -34,7 +34,8 @@
 
 
 /datum/event/bluespace_anomaly/announce()
-	command_alert(new /datum/command_alert/bluespace_anomaly(impact_area.name))
+	if(..())
+		command_alert(new /datum/command_alert/bluespace_anomaly(impact_area.name))
 
 
 /datum/event/bluespace_anomaly/start()

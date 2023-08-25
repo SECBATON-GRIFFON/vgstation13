@@ -98,8 +98,9 @@
 					L.product_records.Remove(R)
 
 /datum/event/money_lotto/announce()
-	var/datum/command_alert/lotto_announce/LA = new
-	LA.message = "A lotto number draw is scheduled to happen within the next [startWhen / 60] minutes. The station's lottery machines now have an exclusive type of ticket available for purchase. All nearby entertainment monitors will be broadcasting the results!"
-	command_alert(LA)
-	for(var/obj/machinery/vending/lotto/V in machines)
-		V.build_inventory(list(/obj/item/weapon/paper/lotto_numbers = 20))
+	if(..())
+		var/datum/command_alert/lotto_announce/LA = new
+		LA.message = "A lotto number draw is scheduled to happen within the next [startWhen / 60] minutes. The station's lottery machines now have an exclusive type of ticket available for purchase. All nearby entertainment monitors will be broadcasting the results!"
+		command_alert(LA)
+		for(var/obj/machinery/vending/lotto/V in machines)
+			V.build_inventory(list(/obj/item/weapon/paper/lotto_numbers = 20))

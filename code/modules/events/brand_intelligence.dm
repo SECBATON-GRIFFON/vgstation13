@@ -11,7 +11,8 @@
 	return 30
 
 /datum/event/brand_intelligence/announce()
-	command_alert(/datum/command_alert/vending_machines)
+	if(..())
+		command_alert(/datum/command_alert/vending_machines)
 
 
 /datum/event/brand_intelligence/start()

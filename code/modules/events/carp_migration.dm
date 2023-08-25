@@ -13,7 +13,8 @@
 	endWhen = rand(600,1200)
 
 /datum/event/carp_migration/announce()
-	command_alert(/datum/command_alert/carp)
+	if(..())
+		command_alert(/datum/command_alert/carp)
 
 /datum/event/carp_migration/start()
 	for(var/obj/effect/landmark/C in landmarks_list)

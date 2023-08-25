@@ -6,7 +6,8 @@
 	return 10
 
 /datum/event/electrical_storm/announce()
-	command_alert(/datum/command_alert/electrical_storm)
+	if(..())
+		command_alert(/datum/command_alert/electrical_storm)
 
 
 /datum/event/electrical_storm/start()

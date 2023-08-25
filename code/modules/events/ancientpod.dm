@@ -6,8 +6,9 @@
 	return 20
 
 /datum/event/ancientpod/start()
-    var/obj/machinery/cryopod/pod = new /obj/machinery/cryopod(random_start_turf(1))
-    pod.ThrowAtStation()
+    var/obj/machinery/cryopod/pod = new /obj/machinery/cryopod(random_start_turf(zlevel))
+    pod.ThrowAtCenterZ(zlevel = src.zlevel)
 
 /datum/event/ancientpod/announce()
-    command_alert(/datum/command_alert/ancientpod)
+	if(..())
+		command_alert(/datum/command_alert/ancientpod)
