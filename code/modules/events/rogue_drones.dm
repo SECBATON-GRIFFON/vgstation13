@@ -43,7 +43,23 @@
 		qdel(D) // Drone deletion handles removal from drones list
 		num_recovered++
 
-	if(num_recovered > drones_list.len * 0.75)
-		command_alert(/datum/command_alert/drones_recovered)
-	else
-		command_alert(/datum/command_alert/drones_recovered/failure)
+	if(zlevel == map.zMainStation)
+		if(num_recovered > drones_list.len * 0.75)
+			command_alert(/datum/command_alert/drones_recovered)
+		else
+			command_alert(/datum/command_alert/drones_recovered/failure)
+
+/datum/event/rogue_drone/deep_space/can_start()
+	if(zlevel != map.zMainStation)
+		return 20
+	return 0
+
+/datum/event/rogue_drone/deep_space/start()
+	for(var/i in 1 to rand(2,6))
+		var/turf/spaceturf = locate(rand(1,world.maxx),rand(1,world.maxy),zlevel)
+		if(isspace(spaceturf))
+			var/mob/living/simple_animal/hostile/retaliate/malf_drone/D = new(spaceturf)
+			D.from_event = src
+			drones_list.Add(D)
+			if(prob(25))
+				D.disabled = rand(15, 60)

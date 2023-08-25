@@ -28,3 +28,15 @@
 			var/turf/T = get_turf(C)
 			if(istype(T, /turf/space))
 				QDEL_NULL(C)
+
+/datum/event/carp_migration/deep_space/can_start()
+	if(zlevel != map.zMainStation)
+		return 40
+	return 0
+
+/datum/event/carp_migration/deep_space/start()
+	for(var/i in 1 to rand(25,35))
+		var/turf/spaceturf = locate(rand(1,world.maxx),rand(1,world.maxy),zlevel)
+		if(isspace(spaceturf))
+			spawned_carp.Add(new /mob/living/simple_animal/hostile/carp(spaceturf))
+

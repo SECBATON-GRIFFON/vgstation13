@@ -232,6 +232,11 @@ var/global/list/accessable_z_levels = list()
 		/datum/event/meteor_shower/meteor_quiet,
 		/datum/event/thing_storm/meaty_gore,
 		/datum/event/old_vendotron_crash,
+		/datum/event/immovable_rod,
+		/datum/event/immovable_rod/big,
+		/datum/event/immovable_rod/hyper,
+		/datum/event/carp_migration/deep_space,
+		/datum/event/rogue_drone/deep_space,
 		)
 
 /datum/zLevel/mining
