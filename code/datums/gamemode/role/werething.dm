@@ -1,6 +1,6 @@
 /datum/role/werething
 	name = "werething"
-	var/mob/living/carbon/human/host
+	var/mob/host
 
 /datum/role/werething/OnPostSetup(laterole)
 	if(istype(antag.current,/mob/camera/werething))
@@ -33,9 +33,12 @@
 
 /datum/role/werething/process()
 	. = ..()
-	if(!host)
+	if(!host && istype(antag.current,/mob/camera/werething))
 		to_chat(antag.current,"<span class='sinister'>Your host no longer exists, so you have been released from them...</span>")
 		qdel(antag.current)
+	else if(!antag.current && !isliving(host))
+		to_chat(host,"<span class='sinister'>Your were-form no longer exists, so you have been released from them...</span>")
+		qdel(host)
 
 /datum/role/werething/ForgeObjectives()
 	if(antag.current.client.prefs.antag_objectives && living_mob_list.len)
@@ -54,6 +57,7 @@
 	var/mob/living/carbon/human/attached_mob
 	var/datum/action/werething/werething_transform_button
 	var/transform_type = /datum/species/tajaran
+	var/old_species_type
 
 /mob/camera/werething/New(loc, mob/living/carbon/human/attach_mob, ishost = FALSE)
 	. = ..()
@@ -67,6 +71,39 @@
 		if(!ishost)
 			werething_transform_button = new()
 			werething_transform_button.Grant(src)
+
+/mob/camera/werething/proc/activate()
+	attached_mob.visible_message("<span class='danger'>[attached_mob] has shifted and contorted into becoming a were-thing!</span>","<span class='sinister'>You have been taken over by your were-thing form! Now, all you can do is watch as its carnage unfolds...</span>")
+	var/mob/dummy = new(attached_mob.loc)
+	attached_mob.mind.transfer_to(dummy)
+	src.mind.transfer_to(attached_mob)
+	dummy.mind.transfer_to(src)
+	qdel(dummy)
+	old_species_type = src.attached_mob.species.name
+	if(ispath(transform_type,/datum/species))
+		var/datum/species/S = transform_type
+		if(initial(S.name) == "Human")
+			// TODO: random appearance
+		else
+			attached_mob.set_species(initial(S.name))
+	else if(ispath(transform_type,/mob/living))
+		attached_mob.transmogrify(transform_type)
+	var/datum/role/werething/WR =  attached_mob.mind.GetRole(WERETHING)
+	if(WR)
+		WR.host = src
+
+/mob/camera/werething/proc/deactivate()
+	attached_mob = attached_mob.completely_untransmogrify()
+	attached_mob.set_species(old_species_type)
+	var/mob/dummy = new(attached_mob.loc)
+	attached_mob.mind.transfer_to(dummy)
+	src.mind.transfer_to(attached_mob)
+	dummy.mind.transfer_to(src)
+	qdel(dummy)
+	attached_mob.visible_message("<span class='notice'>[attached_mob] has shifted and contorted back into their original form.</span>","<span class='sinister'>You have returned to your original form. Hopefully not too much damage happened while you were out...</span>")
+	var/datum/role/werething/WR =  attached_mob.mind.GetRole(WERETHING)
+	if(WR)
+		WR.host = attached_mob
 
 /*/mob/camera/werething/Stat()
 	if(werething_transform_button && statpanel("Status"))
@@ -85,32 +122,9 @@
 	if(istype(owner,/mob/camera/werething))
 		var/mob/camera/werething/ownerWT = owner
 		time_since_last_done = world.time
-		ownerWT.attached_mob.visible_message("<span class='danger'>[ownerWT.attached_mob] has shifted and contorted into becoming a were-thing!</span>","<span class='sinister'>You have been taken over by your were-thing form! Now, all you can do is watch as its carnage unfolds...</span>")
-		var/mob/dummy = new(ownerWT.attach_mob.loc)
-		ownerWT.attach_mob.mind.transfer_to(dummy)
-		owner.mind.transfer_to(ownerWT.attach_mob)
-		dummy.mind.transfer_to(owner)
-		qdel(dummy)
-		var/oldspeciestype = owner.attached_mob.species.name
-		var/mob/newmob = owner.attached_mob
-		if(ispath(ownerWT.transform_type,/datum/species))
-			var/datum/species/S = ownerWT.transform_type
-			if(initial(S.name) == "Human")
-				// TODO: random appearance
-			else
-				ownerWT.attached_mob.set_species(initial(S.name))
-		else if(ispath(ownerWT.transform_type,/mob/living))
-			newmob = ownerWT.attached_mob.transmogrify(ownerWT.transform_type)
+		ownerWT.activate()
 		Remove(owner)
 		spawn(5 MINUTES)
-			if(!ishuman(newmob) || newmob != ownerWT.attached_mob)
-				newmob.completely_untransmogrify()
-			else
-				ownerWT.attached_mob.set_species(oldspeciestype)
-			var/mob/dummy = new(ownerWT.attach_mob.loc)
-			ownerWT.attach_mob.mind.transfer_to(dummy)
-			owner.mind.transfer_to(ownerWT.attach_mob)
-			dummy.mind.transfer_to(owner)
-			qdel(dummy)
-			ownerWT.attached_mob.visible_message("<span class='notice'>[ownerWT.attached_mob] has shifted and contorted back into their original form.</span>","<span class='sinister'>You have returned to your original form. Hopefully not too much damage happened while you were out...</span>")
-			Grant(owner)
+			if(ownerWT)
+				ownerWT.deactivate()
+				Grant(owner)
