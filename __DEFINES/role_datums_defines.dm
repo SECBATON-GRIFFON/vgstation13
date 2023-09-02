@@ -84,6 +84,7 @@
 #define TAG_MIME "tag mime"
 #define JUDGE "judge"
 #define GRUE "grue"
+#define WERETHING "werething"
 #define NANOTRASENOFFICIAL "nanotrasen official"
 
 #define GREET_DEFAULT		"default"

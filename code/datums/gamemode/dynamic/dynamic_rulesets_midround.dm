@@ -683,6 +683,43 @@
 		return FALSE
 	return TRUE
 
+
+//////////////////////////////////////////////
+//                                          //
+//               WERETHING                  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                          //
+//////////////////////////////////////////////
+
+/datum/dynamic_ruleset/midround/from_ghosts/werething
+	name = "Werething"
+	role_category = /datum/role/werething
+	required_candidates = 1
+	weight = BASE_RULESET_WEIGHT
+	weight_category = "Werething"
+	cost = 10
+	requirements = list(50,40,30,20,10,10,10,10,10,10)
+	high_population_requirement = 10
+	logo = "catbeast-logo"
+
+/datum/dynamic_ruleset/midround/from_ghosts/werething/ready(var/forced=0)
+	if (forced)
+		return ..()
+	var/list/living_human_mobs = prune_list_to_type(living_mob_list,/mob/living/carbon/human)
+	if(!living_human_mobs.len)
+		message_admins("Rejected werething ruleset, no living humans.")
+		return FALSE
+	if(!..())
+		return FALSE
+	return TRUE
+
+/datum/dynamic_ruleset/midround/from_ghosts/werething/generate_ruleset_body(var/mob/applicant)
+	var/mob/living/carbon/human/H = pick(living_mob_list)
+	if(istype(H))
+		var/mob/camera/werething/WT = new(H,H)
+		WT.key = applicant.key
+		WT.transform_type = pick(/datum/species/unathi,/datum/species/tajaran)
+		return WT
+
 //////////////////////////////////////////////
 //                                          //
 //          Vox Heist			 (MIDROUND) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
