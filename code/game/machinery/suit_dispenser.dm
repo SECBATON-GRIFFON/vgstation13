@@ -307,7 +307,7 @@ var/list/dispenser_presets = list()
 
 /obj/machinery/suit_dispenser/nukeops
 	name = "Loadout Dispenser"
-	desc = "A bootleg of a industrial U-Tak-It Dispenser unit designed to fetch all kinds of syndicate gear."
+	desc = "A bootleg of an industrial U-Tak-It Dispenser unit designed to fetch all kinds of syndicate gear."
 	suits = list(/datum/suit/nukie/ballistics,
 				/datum/suit/nukie/energy,
 				/datum/suit/nukie/demolition,
