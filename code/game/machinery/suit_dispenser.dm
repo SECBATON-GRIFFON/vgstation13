@@ -304,3 +304,118 @@ var/list/dispenser_presets = list()
 	desc = "An industrial U-Tak-It Dispenser unit designed to fetch a specific mass produced suit."
 	dispenser_flags = SD_ONESUIT|SD_NOGREED|SD_UNLIMITED
 	one_suit = /datum/suit/dorf/standard
+
+/obj/machinery/suit_dispenser/nukeops
+	name = "Loadout Dispenser"
+	desc = "A bootleg of a industrial U-Tak-It Dispenser unit designed to fetch all kinds of syndicate gear."
+	suits = list(/datum/suit/nukie/ballistics,
+				/datum/suit/nukie/energy,
+				/datum/suit/nukie/demolition,
+				/datum/suit/nukie/melee,
+				/datum/suit/nukie/medical,
+				/datum/suit/nukie/engineering,
+				/datum/suit/nukie/stealth,
+				/datum/suit/nukie/shipcameras)
+
+/obj/machinery/suit_dispenser/nukeops/can_use(var/mob/living/carbon/human/user)
+	if(!..())
+		return
+	if(!isnukeop(user))
+		to_chat(user,"<span class='warning'>Access Denied. You aren't a Nuclear Operative.</span>")
+		return 0
+	return 1
+
+// With the original comments on what each spec does for authencity.
+
+ // Classic Ballistics setup. C20R rifle with ammo, and Beretta handgun also with ammo as a backup
+/datum/suit/nukie/ballistics
+	name = "Ballistics"
+	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription, //Changed to prescription sunglasses for near-sighted players
+		/obj/item/weapon/gun/projectile/automatic/c20r,
+		/obj/item/ammo_storage/magazine/a12mm/ops,
+		/obj/item/ammo_storage/magazine/a12mm/ops,
+		/obj/item/weapon/gun/projectile/beretta,
+		/obj/item/ammo_storage/magazine/beretta,
+		/obj/item/ammo_storage/magazine/beretta
+		)
+
+// Classic alternate setup with a twist. Laser Rifle as a primary, but ion carbine as a backup and extra EMP nades for those ENERGY needs. Zap-zap the borgs
+/datum/suit/nukie/energy
+	name = "Energy"
+	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription,
+		/obj/item/weapon/gun/energy/laser/rifle/syndie,
+		/obj/item/weapon/gun/energy/ionrifle/ioncarbine,
+		/obj/item/weapon/grenade/empgrenade,
+		/obj/item/weapon/grenade/empgrenade
+		)
+
+// Boom boom, shake the room as the kids say. RPG as primary and grenade launcher as secondary, with C4 and nades reserve. He blows
+/datum/suit/nukie/demolition
+	name = "Demolition"
+	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription,
+		/obj/item/weapon/gun/projectile/rocketlauncher,
+		/obj/item/weapon/gun/grenadelauncher/syndicate,
+		/obj/item/ammo_casing/rocket_rpg,
+		/obj/item/ammo_casing/rocket_rpg,
+		/obj/item/ammo_casing/rocket_rpg,
+		/obj/item/weapon/storage/box/syndigrenades,
+		/obj/item/weapon/storage/box/syndigrenades
+		)
+
+// Really powerful melee weapons and energy shield, along with random extra goods and eviscerator nades. A dream come true
+/datum/suit/nukie/melee
+	name = "Melee"
+	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription,
+		/obj/item/weapon/grenade/spawnergrenade/manhacks,
+		/obj/item/weapon/melee/energy/sword/dualsaber,
+		/obj/item/weapon/melee/energy/hfmachete,
+		/obj/item/weapon/shield/energy,
+		)
+
+//The good guy who just wants to help their dumb fucking teammates not die horribly. Has some fancy gear like the mobile surgery table. Main gun is a VERY lethal syringe gun
+/datum/suit/nukie/medical
+	name = "Medical"
+	to_spawn = list(/obj/item/clothing/glasses/hud/health/prescription,
+		/obj/item/weapon/gun/syringe/rapidsyringe,
+		/obj/item/weapon/storage/firstaid/adv,
+		/obj/item/weapon/reagent_containers/hypospray,
+		/obj/item/weapon/storage/pill_bottle/hyperzine,
+		/obj/item/weapon/storage/pill_bottle/inaprovaline,
+		/obj/item/roller/surgery,
+		)
+
+//Mister deconstruction, C4 and efficient. Engineers have shotguns because stereotype, and eswords for utility
+/datum/suit/nukie/engineering
+	name = "Engineering"
+	to_spawn = list(/obj/item/clothing/glasses/scanner/meson/prescription,
+		/obj/item/weapon/gun/projectile/shotgun/pump/combat/shorty,
+		/obj/item/weapon/storage/belt/utility/complete,
+		/obj/item/weapon/storage/box/lethalshells,
+		/obj/item/weapon/melee/energy/sword,
+		/obj/item/weapon/c4,
+		/obj/item/weapon/c4,
+		/obj/item/weapon/c4,
+		/obj/item/clothing/glasses/welding/superior,
+		/obj/item/clothing/shoes/magboots/syndie/elite,
+		)
+
+//WE STELT. Has an energy crossbow primary and a silenced pistol with magazines, along with a basic kit of infiltration items you could need to not nuke the Ops' credits
+/datum/suit/nukie/stealth
+	name = "Stealth"
+	to_spawn = list(/obj/item/clothing/glasses/thermal/syndi,
+		/obj/item/clothing/mask/gas/voice,
+		/obj/item/weapon/gun/projectile/silenced,
+		/obj/item/ammo_storage/magazine/c45,
+		/obj/item/weapon/card/emag,
+		/obj/item/weapon/pen/paralysis,
+		/obj/item/weapon/gun/energy/crossbow,
+		)
+
+//The guy who stays on the shuttle and goes braindead. This kit is basically useless outside of giving you the coveted teleporter board, saving your team 40 points if you use it
+/datum/suit/nukie/shipcameras
+	name = "Ship and Cameras"
+	to_spawn = list(/obj/item/clothing/glasses/thermal/syndi,
+		/obj/item/device/encryptionkey/binary,
+		/obj/item/device/megaphone/madscientist,
+		/obj/item/weapon/circuitboard/teleporter,
+		)
