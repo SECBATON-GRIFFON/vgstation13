@@ -325,6 +325,12 @@ var/list/dispenser_presets = list()
 		return 0
 	return 1
 
+/obj/machinery/suit_dispenser/nukeops/emag_act(var/mob/user)
+	if(user)
+		user.visible_message("<span class='warning'>\The [user] slides a weird looking ID into \the [src], and sparks come flying out!</span>","<span class='warning'>You make some pretty sparks fly out of the machine for your own amusement.</span>")
+	playsound(src, pick(spark_sound), 75, 1)
+	spark(src,4)
+
 // With the original comments on what each spec does for authencity.
 
  // Classic Ballistics setup. C20R rifle with ammo, and Beretta handgun also with ammo as a backup
