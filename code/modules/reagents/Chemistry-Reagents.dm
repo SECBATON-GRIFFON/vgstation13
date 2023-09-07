@@ -1925,6 +1925,68 @@
 	..()
 	T.add_toxinlevel(20)
 
+/datum/reagent/supermatter
+	name = "Supermatter Dust"
+	id = SUPERMATTER
+	description = "A fine powder from supermatter, this substance generates large amounts of radiation by ashing almost anything it touches."
+	reagent_state = REAGENT_STATE_SOLID
+	color = "#cccc66"
+	density = 2
+	specheatcap = 0.1
+
+/datum/reagent/supermatter/on_introduced(var/data)
+	..()
+	if(!istype(holder.my_atom,/obj/item/weapon/reagent_containers/glass/beaker/large/supermatter))
+		holder.my_atom.visible_message("<span class='danger'>[holder.my_atom] disintegrates from adding supermatter to it!</span>")
+		on_consume(holder.my_atom, volume, SUPERMATTER_DELETE)
+
+/datum/reagent/supermatter/proc/on_consume(var/atom/movable/A, var/volume, var/type)
+	var/turf/T = get_turf(A)
+	playsound(T, 'sound/effects/supermatter.ogg', 50, 1)
+	var/datum/gas_mixture/G = new
+	G.temperature = T20C
+	G.adjust_gas(GAS_PLASMA,volume/10)
+	for(var/mob/living/l in range(holder.my_atom, round(density)))
+		var/rads = (density * 20) * sqrt(1/(max(get_dist(l, holder.my_atom), 1)))
+		l.apply_radiation(rads, RAD_EXTERNAL)
+	emitted_harvestable_radiation(T, isliving(A) ? 200*density : 100*density, range = 15)
+	A.supermatter_act(holder.my_atom, type)
+
+/datum/reagent/supermatter/on_mob_life(var/mob/living/M)
+
+	if(..())
+		return 1
+
+	on_consume(M, 1, SUPERMATTER_DUST)
+
+/datum/reagent/supermatter/reaction_mob(var/mob/living/M, var/method = TOUCH, var/volume, var/list/zone_sels = ALL_LIMBS)
+
+	if(..())
+		return 1
+
+	on_consume(M, volume, SUPERMATTER_DUST)
+
+/datum/reagent/supermatter/reaction_obj(var/obj/O, var/volume)
+	if(..())
+		return 1
+
+	if(O.dissolvable() != PACID)
+		return
+
+	if(istype(O,/obj/item) || istype(O,/obj/effect/glowshroom)|| istype(O,/obj/effect/plantsegment))
+		on_consume(O, volume, SUPERMATTER_DELETE)
+	else if(istype(O,/obj/effect/dummy/chameleon))
+		var/obj/effect/dummy/chameleon/projection = O
+		projection.disrupt()
+
+/datum/reagent/supermatter/oxygenated
+	name = "Oxygenated Supermatter Dust"
+	id = OXYSUPERMATTER
+	description = "A fine powder from supermatter enhanced with oxygen, this substance generates even larger amounts of radiation by ashing almost anything it touches."
+	color = "#cc9966"
+	density = 2.5
+	specheatcap = 0.05
+
 /datum/reagent/glycerol
 	name = "Glycerol"
 	id = GLYCEROL

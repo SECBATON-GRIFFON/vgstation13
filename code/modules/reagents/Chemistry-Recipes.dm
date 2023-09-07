@@ -314,6 +314,56 @@
 	required_reagents = list(SACIDS = 1, CHLORINE = 1, POTASSIUM = 1)
 	result_amount = 3
 
+/datum/chemical_reaction/oxysupermatter
+	name = "Oxygenated supermatter"
+	id = OXYSUPERMATTER
+	result = OXYSUPERMATTER
+	required_reagents = list(SUPERMATTER = 1)
+	required_catalysts = list(OXYGEN = 1)
+	result_amount = 1
+
+/datum/chemical_reaction/plasmasupermatter
+	name = "Plasma-enhanced supermatter"
+	id = "plasmamatter"
+	result = null
+	required_reagents = list(PLASMA = 1)
+	required_catalysts = list(SUPERMATTER = 1)
+	result_amount = 1
+	var/multiplier = 1
+
+/datum/chemical_reaction/plasmasupermatter/oxy
+	name = "Plasma-enhanced oxygenated supermatter"
+	id = "plasmaoxymatter"
+	required_catalysts = list(OXYSUPERMATTER = 1)
+	multiplier = 1.5
+
+/datum/chemical_reaction/plasmasupermatter/on_reaction(datum/reagents/holder, created_volume)
+	var/turf/T = get_turf(holder.my_atom)
+	if(!T)
+		return
+	var/datum/gas_mixture/G = new
+	G.temperature = T20C
+	G.adjust_gas(GAS_PLASMA,created_volume/10)
+	emitted_harvestable_radiation(T, created_volume*multiplier, range = 15)
+	holder.heating(created_volume/10,holder.chem_temp+multiplier)
+
+/datum/chemical_reaction/supermatter_bomb
+	name = "supermatter explosion"
+	id = "supermatterbomb"
+	result = null
+	required_reagents = list(SUPERMATTER = 1)
+	required_temp = T0C + 800
+	result_amount = 1
+
+/datum/chemical_reaction/supermatter_bomb/on_reaction(var/datum/reagents/holder, var/created_volume)
+	if(created_volume > 120)
+		var/datum/effect/system/reagents_explosion/e = new()
+		e.set_up(9, holder.my_atom, 0, 0, null, created_volume/120, created_volume/80, created_volume/40)
+		e.holder_damage(holder.my_atom)
+		e.start()
+		holder.clear_reagents()
+		empulse(get_turf(holder.my_atom), created_volume/20, created_volume/10)
+
 /datum/chemical_reaction/synaptizine
 	name = "Synaptizine"
 	id = SYNAPTIZINE

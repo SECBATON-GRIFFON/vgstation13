@@ -58,6 +58,8 @@
 #define CARAMEL 			"caramel"
 #define SACID 			"sacid"
 #define PACID 			"pacid"
+#define SUPERMATTER 	"supermatter"
+#define OXYSUPERMATTER 	"oxygenatedsupermatter"
 #define GLYCEROL 			"glycerol"
 #define NITROGLYCERIN 			"nitroglycerin"
 #define RADIUM 			"radium"
