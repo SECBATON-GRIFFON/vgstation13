@@ -587,6 +587,35 @@
 	update_icon()
 	windUp++
 
+/obj/item/weapon/gun/hookshot/whip/windup_box/bootbox/attackby(obj/item/A, mob/user)
+	. = ..()
+	if(istype(A,/obj/item/stack/sheet))
+		var/obj/item/stack/sheet/S = A
+		if(istype(S,/obj/item/stack/sheet/mineral/clown) && item_state != "clownbox" && S.use(1))
+			to_chat(user,"You add a sheet of bananium to \the [src] to make it look like a Punchline.")
+			var/obj/item/weapon/gun/hookshot/whip/windup_box/bootbox/clown/BC = new(user.loc)
+			user.put_in_hands(BC)
+			qdel(src)
+		else if(istype(S,/obj/item/stack/sheet/mineral/phazon) && item_state == "clownbox" && S.use(1))
+			to_chat(user,"You add a sheet of phazon to \the [src] to make a Punchline.")
+			var/obj/item/weapon/gun/hookshot/whip/windup_box/clownbox/CB = new(user.loc)
+			user.put_in_hands(CB)
+			qdel(src)
+
+/obj/item/weapon/gun/hookshot/whip/windup_box/bootbox/clown
+	name = "\improper Punchline-themed boot-in-a-box"
+	icon = 'icons/obj/wind_up.dmi'
+	icon_state = "clownbox-0"
+	item_state = "clownbox"
+	desc = "Given rich deposits of bananium beyond most spacemen's wildest dreams, they chose to make this."
+	fire_action = "slip open"
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/guns_experimental.dmi', "right_hand" = 'icons/mob/in-hand/right/guns_experimental.dmi')
+	fireSound = 'sound/effects/party_horn.ogg'
+	fireVolume = 100
+
+/obj/item/weapon/gun/hookshot/whip/windup_box/bootbox/clown/update_icon()
+	icon_state = "clownbox-[state]"
+
 /obj/item/weapon/gun/hookshot/whip/windup_box/clownbox
 	name = "\improper Punchline"
 	icon = 'icons/obj/wind_up.dmi'
