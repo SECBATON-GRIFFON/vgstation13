@@ -2140,8 +2140,9 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 
 /datum/supply_packs/chemkit
 	name = "Basic chemistry kit"
-	contains = list(/obj/item/weapon/reagent_containers/glass/beaker,
-					/obj/item/weapon/reagent_containers/glass/beaker,
+	contains = list(/obj/item/weapon/storage/box/beakers,
+					/obj/item/weapon/storage/box/syringes,
+					/obj/item/weapon/storage/fancy/vials,
 					/obj/item/weapon/reagent_containers/glass/bottle/carbon,
 					/obj/item/weapon/reagent_containers/glass/bottle/silicon,
 					/obj/item/weapon/reagent_containers/glass/bottle/sugar,
@@ -2149,8 +2150,10 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 					/obj/item/weapon/reagent_containers/glass/bottle/hydrogen,
 					/obj/item/weapon/reagent_containers/glass/bottle/nitrogen,
 					/obj/item/weapon/reagent_containers/glass/bottle/potassium,
+					/obj/item/weapon/reagent_containers/glass/beaker/large/erlenmeyer,
+					/obj/item/weapon/reagent_containers/glass/beaker/large/erlenmeyer,
 					/obj/item/weapon/reagent_containers/dropper)
-	cost = 80
+	cost = 50
 	containertype = /obj/structure/closet/crate/medical
 	containername = "basic chemistry kit"
 	group = "Medical"
@@ -2723,6 +2726,15 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 	cost = 15
 	containertype = /obj/structure/stackopacks
 	containername = "\improper Theatre, Bar, Kitchen stack of packs"
+	group = "Vending Machine packs"
+
+/datum/supply_packs/chemistrymachines
+	name = "Chemistry stack of packs"
+	contains = list(/obj/structure/vendomatpack/chemomat,
+					/obj/structure/vendomatpack/chemomat)
+	cost = 50
+	containertype = /obj/structure/stackopacks
+	containername = "\improper Chemistry stack of packs"
 	group = "Vending Machine packs"
 
 /datum/supply_packs/securitymachines

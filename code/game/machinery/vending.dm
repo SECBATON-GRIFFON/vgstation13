@@ -1383,6 +1383,69 @@ var/global/num_vending_terminals = 1
 	)
 	pack = /obj/structure/vendomatpack/boozeomat
 
+
+/obj/machinery/vending/chemomat
+	name = "\improper Chem-O-Mat"
+	desc = "A vending machine containing multiple bottles for chemical mixing. It looks hastily repurposed from something else."
+	req_access = list(access_chemistry)
+	icon_state = "boozeomat"
+	icon_deny = "boozeomat-deny"
+	products = list(
+		/obj/item/weapon/reagent_containers/glass/bottle/carbon = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/silicon = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/sugar = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/oxygen = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/nitrogen = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/hydrogen = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/potassium = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/sacid = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/inaprovaline = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/phosphorus = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/iron = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/radium = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/water = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/sodium = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/chlorine = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/ethanol = 10
+		)
+	contraband = list(
+		/obj/item/weapon/reagent_containers/food/drinks/coffee = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/fuel = 10,
+		/obj/item/weapon/reagent_containers/glass/bottle/toxin = 5,
+		/obj/item/weapon/reagent_containers/glass/bottle/pacid = 1,
+		/obj/item/weapon/reagent_containers/glass/bottle/chloralhydrate = 1,
+		/obj/item/weapon/electrolyzer = 1,
+		/obj/item/weapon/reagent_containers/glass/mortar = 1
+		)
+	premium = list(
+		/obj/item/weapon/reagent_containers/glass/bottle/dsyrup = 1,
+		/obj/item/weapon/reagent_containers/glass/bottle/plasma = 1
+	)
+	product_slogans = list(
+		"I hope nobody asks me for a bloody cup o' \[\[INAPROVALINE\]\]...",
+		"\[\[CHEMISTRY\]\] is humanity's friend. Would you abandon a friend?",
+		"Quite delighted to \[\[HEAL\]\] you!",
+		"Is nobody \[\[NEEDING MEDICAL ATTENTION\]\] on this station?"
+	)
+	product_ads = list(
+		"\[\[MIX\]\]  up!",
+		"\[\[MEDICINE\]\] is good for you!",
+		"\[\[CHEMISTRY\]\] is humanity's best friend.",
+		"Quite delighted to \[\[HEAL\]\] you!",
+		"Care for a nice, cold \[\[BOTTLE OF FROST OIL\]\]?",
+		"Nothing cures you like \[\[MEDICINE\]\]!",
+		"Have a sip\[\[OF SLEEP TOXIN\]\]!",
+		"Have a drink\[\[OF DYLOVENE\]\]!",
+		"Have a \[\[BOTTLE OF BICARIDINE\]\]!",
+		"Only the finest \[\[INAPROVALINE\]\]!",
+		"Best quality \[\[CHEMISTRY VENDING\]\] since 2053!",
+		"Award-winning \[\[ANTI-TOXIN\]\]!",
+		"Maximum \[\[HEALING\]\]!",
+		"Man loves \[\[BEING HEALED\]\].",
+		"A toast for \[\[SCIENCE\]\]!"
+	)
+	pack = /obj/structure/vendomatpack/chemomat
+
 /obj/machinery/vending/assist
 	name = "\improper StockPro"
 	desc = "A vending machine containing generic stock parts and assemblies."

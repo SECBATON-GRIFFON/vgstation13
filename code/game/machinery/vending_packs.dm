@@ -54,6 +54,11 @@
 	targetvendomat = /obj/machinery/vending/boozeomat
 	icon_state = "boozeomat"
 
+/obj/structure/vendomatpack/chemomat
+	name = "Chem-O-Mat recharge pack"
+	targetvendomat = /obj/machinery/vending/chemomat
+	icon_state = "vendomat"
+
 /obj/structure/vendomatpack/assist
 	name = "Vendomat recharge pack"
 	targetvendomat = /obj/machinery/vending/assist
