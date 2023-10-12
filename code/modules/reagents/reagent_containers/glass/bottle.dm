@@ -21,9 +21,9 @@
 /obj/item/weapon/reagent_containers/glass/bottle/New(loc,altvol)
 	if(altvol)
 		volume = altvol
+	..(loc)
 	if(chem2add)
 		reagents.add_reagent(chem2add, chem2addvol)
-	..(loc)
 
 //JUST
 /obj/item/weapon/reagent_containers/glass/bottle/mop_act(obj/item/weapon/mop/M, mob/user)
@@ -663,9 +663,26 @@ var/datum/disease2/disease/wizarditis = null
 	name = "Ethanol Bottle"
 	chem2add = ETHANOL
 
-/obj/item/weapon/reagent_containers/glass/bottle/ethanol
+/obj/item/weapon/reagent_containers/glass/bottle/lithium
+	name = "Lithium Bottle"
+	chem2add = LITHIUM
+
+/obj/item/weapon/reagent_containers/glass/bottle/tungsten
+	name = "Tungsten Bottle"
+	chem2add = TUNGSTEN
+
+/obj/item/weapon/reagent_containers/glass/bottle/mercury
+	name = "Mercury Bottle"
+	chem2add = MERCURY
+
+/obj/item/weapon/reagent_containers/glass/bottle/fuel
 	name = "Fuel Bottle"
 	chem2add = FUEL
+
+/obj/item/weapon/reagent_containers/glass/bottle/piccolyn
+	name = "Piccolyn Bottle"
+	desc = "Your daily dose."
+	chem2add = PICCOLYN
 
 /obj/item/weapon/reagent_containers/glass/bottle/carppheromones
 	name = "Carp Pheromones Bottle"
