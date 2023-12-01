@@ -76,7 +76,10 @@
 		/obj/item/weapon/pickaxe/drill/diamond = 500,
 		/obj/item/weapon/reagent_containers/food/snacks/monkeycube/mysterycube = 150,
 		/obj/item/weapon/storage/box/large/mystery_material = 150,
-		/obj/item/weapon/storage/pill_bottle/mint/homemade = 30
+		/obj/item/weapon/storage/pill_bottle/mint/homemade = 30,
+		/obj/item/weapon/dice/d4/cursed = 50,
+		/obj/item/weapon/dice/cursed = 75,
+		/obj/item/weapon/dice/d8/cursed = 100,
 	)
 
 	var/list/uncommonStock = list(
@@ -86,6 +89,8 @@
 		/obj/item/potion/stoneskin = 250,
 		/obj/item/potion/random = 150,
 		/obj/item/potion/invisibility/major = 350,
+		/obj/item/weapon/dice/d10/cursed = 125,
+		/obj/item/weapon/dice/d12/cursed = 150,
 		/obj/item/weapon/dice/d20/cursed = 250,
 		/obj/item/weapon/implanter/compressed = 400,
 		/obj/item/weapon/storage/box/syndie_kit/imp_freedom = 500,

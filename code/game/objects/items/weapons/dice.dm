@@ -9,18 +9,28 @@
 	var/result = null
 	var/multiplier = 0 //For modifying the result (d00 etc)
 	var/activated = 0 //Eventually the dice runs out of power, if cursed
+	var/curseoffset = 7 //For smaller dice
 	var/infinite = 0 //dice with 1 will not run out
 	autoignition_temperature = AUTOIGNITION_PLASTIC
 
+/obj/item/weapon/dice/pickup(mob/user as mob)
+	..()
+	if(activated)
+		to_chat(user, "<span class='sinister'>Are you feeling lucky?</span>")
+
 /obj/item/weapon/dice/New()
 	..()
+	if(activated) // was previously tied to the d20 variant, now with more existing this auto adds the new name desc and mech flags
+		name = "mysterious [name]"
+		desc = "Something about this dice seems wrong."
+		mech_flags = MECH_SCAN_ILLEGAL
 	result = rand(minsides, sides)
 	update_icon()
 
 /obj/item/weapon/dice/arcane_act(mob/user)
 	..()
 	activated = 1
-	sides = min(sides,12) // always cursed if a wiz made it, shmuck bait
+	sides = min(sides,12) // always unfair cursed if a wiz made it, shmuck bait
 	return "'RE Y' F'LIN L'KY!?"
 
 /obj/item/weapon/dice/bless()
@@ -34,24 +44,28 @@
 	desc = "A die with two sides. Coins are undignified!"
 	icon_state = "d2"
 	sides = 2
+	curseoffset = 12
 
 /obj/item/weapon/dice/d4
 	name = "d4"
 	desc = "A die with four sides. The nerd's caltrop."
 	icon_state = "d4"
 	sides = 4
+	curseoffset = 10
 
 /obj/item/weapon/dice/d8
 	name = "d8"
 	desc = "A die with eight sides. It feels... lucky."
 	icon_state = "d8"
 	sides = 8
+	curseoffset = 6
 
 /obj/item/weapon/dice/d10
 	name = "d10"
 	desc = "A die with ten sides. Useful for percentages."
 	icon_state = "d10"
 	sides = 10
+	curseoffset = 5
 
 /obj/item/weapon/dice/d00
 	name = "d00"
@@ -65,12 +79,14 @@
 	desc = "A die with twelve sides. There's an air of neglect about it."
 	icon_state = "d12"
 	sides = 12
+	curseoffset = 4
 
 /obj/item/weapon/dice/d20
 	name = "d20"
 	desc = "A die with twenty sides. The prefered die to throw at the GM."
 	icon_state = "d20"
 	sides = 20
+	curseoffset = 0
 
 /obj/item/weapon/dice/fudge
 	name = "fudge dice"
@@ -132,7 +148,7 @@
 			message_admins("[key_name(user)] has [thrown? "used" : "thrown"] a cursed dice and rolled [result]")
 			log_game("[key_name(user)] has [thrown? "used" : "thrown"] a cursed dice and rolled [result]")
 			var/mob/living/carbon/human/h = user
-			switch(result)
+			switch(result + curseoffset)
 				if(1)
 					to_chat(user, "<span class=sinister><B>A natural failure, your poor roll has cursed you. Better luck next time! </span></B>")
 					h.flash_eyes(visual = 1)
@@ -381,21 +397,58 @@
 
 
 /obj/item/weapon/dice/d20/cursed
-	name = "\improper Mysterious d20"
-	desc = "Something about this dice seems wrong."
-	mech_flags = MECH_SCAN_ILLEGAL
 	activated = 1
-
-/obj/item/weapon/dice/d20/pickup(mob/user as mob)
-	..()
-	if(activated)
-		to_chat(user, "<span class='sinister'>Are you feeling lucky?</span>")
 
 /obj/item/weapon/dice/d20/cursed/infinite
 	infinite = 1
 
 /obj/item/weapon/dice/d20/cursed/unfair
 	sides = 12 //unfair varient will never roll higher then 12, but it looks like a normal mysterious d20 and otherwise acts like one
+
+/obj/item/weapon/dice/cursed
+	activated = 1
+
+/obj/item/weapon/dice/cursed/infinite
+	infinite = 1
+
+/obj/item/weapon/dice/cursed/unfair
+	curseoffset = 6
+
+/obj/item/weapon/dice/d4/cursed
+	activated = 1
+
+/obj/item/weapon/dice/d4/cursed/infinite
+	infinite = 1
+
+/obj/item/weapon/dice/d4/cursed/unfair
+	curseoffset = 8
+
+/obj/item/weapon/dice/d8/cursed
+	activated = 1
+
+/obj/item/weapon/dice/d8/cursed/infinite
+	infinite = 1
+
+/obj/item/weapon/dice/d8/cursed/unfair
+	curseoffset = 4
+
+/obj/item/weapon/dice/d10/cursed
+	activated = 1
+
+/obj/item/weapon/dice/d10/cursed/infinite
+	infinite = 1
+
+/obj/item/weapon/dice/d10/cursed/unfair
+	curseoffset = 2
+
+/obj/item/weapon/dice/d12/cursed
+	activated = 1
+
+/obj/item/weapon/dice/d12/cursed/infinite
+	infinite = 1
+
+/obj/item/weapon/dice/d12/cursed/unfair
+	curseoffset = 0
 
 //####Borg Die
 /obj/item/weapon/dice/borg //8 in 1

@@ -936,7 +936,15 @@
 	responsive_reagent = MERCURY
 
 /datum/find/dice/spawn_item()
-	return new /obj/item/weapon/dice/d20/cursed
+	var/result = pick(
+		/obj/item/weapon/dice/cursed,
+		/obj/item/weapon/dice/d4/cursed,
+		/obj/item/weapon/dice/d8/cursed,
+		/obj/item/weapon/dice/d10/cursed,
+		/obj/item/weapon/dice/d12/cursed,
+		/obj/item/weapon/dice/d20/cursed,
+	)
+	return new result
 
 /datum/find/spacesuit
 	find_ID = ARCHAEO_SPACESUIT
