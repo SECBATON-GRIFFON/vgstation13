@@ -295,7 +295,7 @@
 		if(region_id != 5 && (access_change_ids in their_access)) // Skip anyone who can change access, ideally excluding checks on HoP and captain.
 			continue
 		for(var/access in their_access)
-			if(access in get_region_accesses(region_id))
+			if(access == main_accesses_by_region[region_id]) // Restrict it to people that can use the central area in this department
 				if(can_access(their_access,req_access,req_one_access,TRUE))
 					accessfound = TRUE
 					break
