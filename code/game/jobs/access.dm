@@ -67,7 +67,7 @@
 /var/const/access_salvage_captain = 65 // Salvage ship captain's quarters
 /var/const/access_weapons = 66 //Weapon authorization for secbots
 
-/var/const/access_shop = 68
+/var/const/access_service = 68
 /var/const/access_biohazard = 69 // Virology crates
 	//BEGIN CENTCOM ACCESS
 	/*Should leave plenty of room if we need to add more access levels.
@@ -328,7 +328,7 @@
 			return (get_all_accesses() | get_all_centcom_access())//Mr.Centcom gets station all access as well
 
 /proc/get_all_accesses()
-	return list(access_shop, access_security, access_sec_doors, access_brig, access_armory, access_forensics_lockers, access_court,
+	return list(access_service, access_security, access_sec_doors, access_brig, access_armory, access_forensics_lockers, access_court,
 	            access_medical, access_genetics, access_morgue, access_rd,
 	            access_rnd, access_tox_storage, access_chemistry, access_engine_major, access_engine_minor, access_maint_tunnels,
 	            access_external_airlocks, access_change_ids, access_ai_upload,
@@ -360,7 +360,7 @@
 		access_tcomsat, access_gateway,										//why not
 		)
 
-var/static/list/main_accesses_by_region = list(access_sec_doors,access_medical,access_science,access_engine_minor,access_heads,access_kitchen,access_cargo)
+var/static/list/main_accesses_by_region = list(access_sec_doors,access_medical,access_science,access_engine_minor,access_heads,access_service,access_cargo)
 
 /proc/get_region_accesses(var/code)
 	switch(code)
@@ -377,7 +377,7 @@ var/static/list/main_accesses_by_region = list(access_sec_doors,access_medical,a
 		if(5) //command
 			return list(access_heads, access_RC_announce, access_keycard_auth, access_change_ids, access_ai_upload, access_teleporter, access_eva, access_tcomsat, access_gateway, access_all_personal_lockers, access_heads_vault, access_hop, access_captain)
 		if(6) //station general
-			return list(access_shop, access_kitchen,access_bar, access_hydroponics, access_janitor, access_chapel_office, access_crematorium, access_library, access_theatre, access_lawyer, access_clown, access_mime)
+			return list(access_service, access_kitchen,access_bar, access_hydroponics, access_janitor, access_chapel_office, access_crematorium, access_library, access_theatre, access_lawyer, access_clown, access_mime)
 		if(7) //supply
 			return list(access_mailsorting, access_mining, access_mining_station, access_cargo, access_qm)
 
@@ -427,8 +427,8 @@ var/static/list/main_accesses_by_region = list(access_sec_doors,access_medical,a
 
 /proc/get_access_desc(A)
 	switch(A)
-		if(access_shop)
-			return "Shop"
+		if(access_service)
+			return "Service"
 		if(access_cargo)
 			return "Cargo Bay"
 		if(access_cargo_bot)

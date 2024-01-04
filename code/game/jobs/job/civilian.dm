@@ -7,7 +7,7 @@
 	supervisors = "the head of personnel"
 	wage_payout = 20
 	selection_color = "#dddddd"
-	access = list(access_hydroponics, access_bar, access_kitchen, access_morgue, access_weapons)
+	access = list(access_service, access_hydroponics, access_bar, access_kitchen, access_morgue, access_weapons)
 	minimal_access = list(access_bar,access_weapons)
 	outfit_datum = /datum/outfit/bartender
 	additional_information = "You can juggle most bottles and empty glasses by picking them up while on GRAB intent, so long as you remain unusually sober."
@@ -23,7 +23,7 @@
 	supervisors = "the head of personnel"
 	wage_payout = 20
 	selection_color = "#dddddd"
-	access = list(access_hydroponics, access_bar, access_kitchen, access_morgue)
+	access = list(access_service, access_hydroponics, access_bar, access_kitchen, access_morgue)
 	minimal_access = list(access_kitchen, access_morgue, access_bar)
 	alt_titles = list("Cook")
 	outfit_datum = /datum/outfit/chef
@@ -36,7 +36,7 @@
 	supervisors = "the head of personnel"
 	wage_payout = 20
 	selection_color = "#dddddd"
-	access = list(access_hydroponics, access_bar, access_kitchen, access_morgue) // Removed tox and chem access because STOP PISSING OFF THE CHEMIST GUYS // //Removed medical access because WHAT THE FUCK YOU AREN'T A DOCTOR YOU GROW WHEAT //Given Morgue access because they have a viable means of cloning.
+	access = list(access_service, access_hydroponics, access_bar, access_kitchen, access_morgue) // Removed tox and chem access because STOP PISSING OFF THE CHEMIST GUYS // //Removed medical access because WHAT THE FUCK YOU AREN'T A DOCTOR YOU GROW WHEAT //Given Morgue access because they have a viable means of cloning.
 	minimal_access = list(access_hydroponics, access_morgue) // Removed tox and chem access because STOP PISSING OFF THE CHEMIST GUYS // //Removed medical access because WHAT THE FUCK YOU AREN'T A DOCTOR YOU GROW WHEAT //Given Morgue access because they have a viable means of cloning.
 	alt_titles = list("Hydroponicist", "Beekeeper", "Gardener")
 	outfit_datum = /datum/outfit/hydro
