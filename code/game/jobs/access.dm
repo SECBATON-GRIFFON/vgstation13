@@ -223,7 +223,7 @@
 
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.
-/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null)
+/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null,var/recursive_call=FALSE)
 	// No perms set?  He's in.
 	if(!req_access  && !req_one_access)
 		return 1
@@ -240,9 +240,22 @@
 	if(!istype(L, /list))
 		return 0
 
+	// Check other players if applicable, if nobody else has it, let em in.
+	if(config.progressive_access && !recursive_call)
+		var/accessfound = FALSE
+		for(var/mob/living/P in player_list)
+			if(can_access(P.GetAccess(),req_access,req_one_access,TRUE))
+				accessfound = TRUE
+				break
+		if(!accessfound)
+			return 1
+
 	// Doesn't have a req_access
 	for(var/req in req_access)
 		if(!(req in L)) //doesn't have this access
+			// Check other players in department if applicable, if nobody else has it, let em in.
+			if(config.progressive_department_access && !recursive_call)
+				return progressive_department_access_check(req,req,list(),recursive_call)
 			return 0
 
 	// If he has at least one req_one access, he's in.
@@ -250,8 +263,31 @@
 		for(var/req in req_one_access)
 			if(req in L) //has an access from the single access list
 				return 1
+			// Check other players in department if applicable, if nobody else has it, let em in.
+			if(config.progressive_department_access && !recursive_call)
+				return progressive_department_access_check(req,list(),req,recursive_call)
 		return 0
 	return 1
+
+/proc/progressive_department_access_check(var/req,var/list/req_access=null,var/list/req_one_access=null,var/recursive_call=FALSE)
+	var/accessfound = FALSE
+	var/region_id = 0
+	for(var/id in 1 to 7)
+		if(req in get_region_accesses(id)) // Get region we want to search in
+			region_id = id
+			break
+	if(!region_id)
+		return 0
+	for(var/mob/living/P in player_list)
+		var/list/their_access = P.GetAccess()
+		if(region_id != 5 && (access_change_ids in their_access)) // Skip anyone who can change access, ideally excluding checks on HoP and captain.
+			continue
+		for(var/access in their_access)
+			if(access in get_region_accesses(region_id))
+				if(can_access(their_access,req_access,req_one_access,TRUE))
+					accessfound = TRUE
+				break
+	return !accessfound
 
 /proc/wpermit(var/mob/M) //weapons permit checking
 	var/list/L = M.GetAccess()
