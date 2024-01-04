@@ -229,7 +229,7 @@
 		return 1
 	// Fucked permissions set?  He's in.
 	if(!istype(req_access, /list))
-		WARN("Access granted (req_access was not a list)")
+		warning("Access granted (req_access was not a list)")
 		return 1
 	// Blank permissions set?  He's in.
 	if(!req_access.len && (!req_one_access || !req_one_access.len))
@@ -239,7 +239,7 @@
 	if(!L)
 		return 0
 	if(!istype(L, /list))
-		WARN("Access denied (access to check was not a list)")
+		warning("Access denied (access to check was not a list)")
 		return 0
 
 	// Check other players if applicable, if nobody else has it, let em in.
@@ -283,8 +283,8 @@
 		log_debug("Progressive department access denied ([get_access_desc(req)] was not in a region)")
 		return 0
 	var/in_dept = FALSE
-	for(var/access in your_access) // Check if your access actually overlaps with this department at all
-		if(access in get_region_accesses(region_id))
+	for(var/access in your_access) // Check if your access actually overlaps with the central area of your department at all
+		if(access == main_accesses_by_region[region_id])
 			in_dept = TRUE
 			break
 	if(!in_dept)
@@ -359,6 +359,8 @@
 		access_maint_tunnels,
 		access_tcomsat, access_gateway,										//why not
 		)
+
+var/static/list/main_accesses_by_region = list(access_sec_doors,access_medical,access_science,access_engine_minor,access_heads,access_kitchen,access_cargo)
 
 /proc/get_region_accesses(var/code)
 	switch(code)
