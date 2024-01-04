@@ -282,24 +282,16 @@
 	if(!region_id)
 		log_debug("Progressive department access denied ([get_access_desc(req)] was not in a region)")
 		return 0
-	var/in_dept = FALSE
-	for(var/access in your_access) // Check if your access actually overlaps with the central area of your department at all
-		if(access == main_accesses_by_region[region_id])
-			in_dept = TRUE
-			break
-	if(!in_dept)
+	if(!main_accesses_by_region[region_id] in your_access) // Check if your access actually overlaps with the central area of your department at all
 		log_debug("Progressive department access denied (user access was not in [get_region_accesses_name(region_id)])")
 		return 0
 	for(var/mob/living/P in player_list)
 		var/list/their_access = P.GetAccess()
 		if(region_id != 5 && (access_change_ids in their_access)) // Skip anyone who can change access, ideally excluding checks on HoP and captain.
 			continue
-		for(var/access in their_access)
-			if(access == main_accesses_by_region[region_id]) // Restrict it to people that can use the central area in this department
-				if(can_access(their_access,req_access,req_one_access,TRUE))
-					accessfound = TRUE
-					break
-		if(accessfound)
+		 // Restrict it to people that can use the central area in this department
+		if((main_accesses_by_region[region_id] in their_access) && can_access(their_access,req_access,req_one_access,TRUE))
+			accessfound = TRUE
 			log_debug("Progressive department access denied ([key_name(P)] had access to this door)")
 			break
 	return !accessfound
