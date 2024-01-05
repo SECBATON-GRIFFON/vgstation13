@@ -101,7 +101,7 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 			dat += "<li><A href='?src=\ref[src];triggerevent=Emergency Response Team'>Emergency Response Team</A></li>"
 		else
 			dat += "<li>Emergency Response Team (Disabled while below Code Red)</li>"
-		if(all_access_list.len)
+		if(access_maint_tunnels in all_access_list)
 			dat += "<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>"
 		else
 			dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>"
