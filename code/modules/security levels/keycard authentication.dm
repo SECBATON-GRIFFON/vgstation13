@@ -102,9 +102,9 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 		else
 			dat += "<li>Emergency Response Team (Disabled while below Code Red)</li>"
 		if(access_maint_tunnels in all_access_list)
-			dat += "<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>"
-		else
 			dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>"
+		else
+			dat += "<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>"
 		if(config.keycard_progressive_department_change)
 			if(config.progressive_department_access)
 				dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Department Access'>Revoke Department Access to Unmanned Areas</A></li>"
