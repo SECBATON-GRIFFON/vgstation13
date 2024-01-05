@@ -101,9 +101,21 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 			dat += "<li><A href='?src=\ref[src];triggerevent=Emergency Response Team'>Emergency Response Team</A></li>"
 		else
 			dat += "<li>Emergency Response Team (Disabled while below Code Red)</li>"
-		dat += {"<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>
-			<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>
-			</ul>"}
+		if(all_access_list.len)
+			dat += "<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>"
+		else
+			dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>"
+		if(config.keycard_progressive_department_change)
+			if(config.progressive_department_access)
+				dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Department Access'>Revoke Department Access to Unmanned Areas</A></li>"
+			else
+				dat += "<li><A href='?src=\ref[src];triggerevent=Grant Department Access'>Grant Department Access to Unmanned Areas</A></li>"
+		if(config.keycard_progressive_change)
+			if(config.progressive_access)
+				dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Unmanned Access'>Revoke All Access to Unmanned Areas</A></li>"
+			else
+				dat += "<li><A href='?src=\ref[src];triggerevent=Grant Unmanned Access'>Grant All Access to Unmanned Areas</A></li>"
+		dat += "</ul>"
 		user << browse(dat, "window=keycard_auth;size=500x300")
 	if(screen == 2)
 
@@ -187,6 +199,34 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 		if("Revoke Emergency Maintenance Access")
 			revoke_doors_all_access(list(access_maint_tunnels))
 			feedback_inc("alert_keycard_auth_maintRevoke",1)
+		if("Grant Department Access")
+			config.progressive_department_access = 1
+			for(var/mob/M in player_list)
+				if(!istype(M,/mob/new_player) && M.client)
+					to_chat(M, "<font size=4 color='red'>Attention!</font><span class='red'>All unmanned department area access requirements revoked.</span>")
+					M << 'sound/vox/_dadeda.wav'
+			feedback_inc("alert_keycard_auth_deptGrant",1)
+		if("Revoke Department Access")
+			config.progressive_department_access = 0
+			for(var/mob/M in player_list)
+				if(!istype(M,/mob/new_player) && M.client)
+					to_chat(M, "<font size=4 color='red'>Attention!</font><span class='red'>All unmanned department area access requirements readded.</span>")
+					M << 'sound/vox/_dadeda.wav'
+			feedback_inc("alert_keycard_auth_deptRevoke",1)
+		if("Grant Unmanned Access") // adminbus only for now
+			config.progressive_access = 1
+			for(var/mob/M in player_list)
+				if(!istype(M,/mob/new_player) && M.client)
+					to_chat(M, "<font size=4 color='red'>Attention!</font><span class='red'>All unmanned area access requirements revoked.</span>")
+					M << 'sound/vox/_dadeda.wav'
+			feedback_inc("alert_keycard_auth_deptGrant",1)
+		if("Revoke Unmanned Access") // as is this
+			config.progressive_access = 0
+			for(var/mob/M in player_list)
+				if(!istype(M,/mob/new_player) && M.client)
+					to_chat(M, "<font size=4 color='red'>Attention!</font><span class='red'>All unmanned area access requirements readded.</span>")
+					M << 'sound/vox/_dadeda.wav'
+			feedback_inc("alert_keycard_auth_deptRevoke",1)
 		if("Emergency Response Team")
 			var/datum/striketeam/ert/response_team = new()
 			response_team.mission = ert_reason

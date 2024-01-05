@@ -74,7 +74,9 @@
 	var/automute_on = 0					//enables automuting/spam prevention
 	var/jobs_have_minimal_access = 0	//determines whether jobs use minimal access or expanded access.
 	var/progressive_access = 0			//determines if the progressive action system is being used.
+	var/keycard_progressive_change = 0 //determines if this can be changed on keycard auths.
 	var/progressive_department_access = 0//determines if the above applies within departments too.
+	var/keycard_progressive_department_change = 0 //determines if this can be changed on keycard auths.
 	var/copy_logs = null
 	var/cargo_forwarding_on_roundstart = 0
 	var/cargo_forwarding_amount_override = 0
@@ -278,10 +280,16 @@
 					config.jobs_have_minimal_access = 1
 
 				if ("progressive_access")
-					config.jobs_have_minimal_access = 1
+					config.progressive_access = 1
+
+				if ("keycard_progressive_change")
+					config.keycard_progressive_change = 1
 
 				if ("progressive_department_access")
 					config.progressive_department_access = 1
+
+				if ("keycard_progressive_department_change")
+					config.keycard_progressive_department_change = 1
 
 				if ("cargo_forwarding_on_roundstart")
 					cargo_forwarding_on_roundstart = 1
