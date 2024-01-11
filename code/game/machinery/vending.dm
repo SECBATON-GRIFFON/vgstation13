@@ -1282,7 +1282,7 @@ var/global/num_vending_terminals = 1
 		if (moody_state)
 			update_moody_light('icons/lighting/moody_lights.dmi', moody_state)
 		set_light(light_range_on, light_power_on)
-	
+
 	overlays -= panel_icon
 	if(panel_open)
 		overlays += panel_icon
@@ -3889,6 +3889,7 @@ var/global/num_vending_terminals = 1
 		/obj/item/toy/lotto_ticket/supermatter_surprise = 5
 		)
 	prices = list(
+		/obj/item/weapon/paper/betting_slip = 10,
 		/obj/item/weapon/paper/lotto_numbers = 1,
 		/obj/item/toy/lotto_ticket/gold_rush = 5,
 		/obj/item/toy/lotto_ticket/diamond_hands = 10,
@@ -3906,6 +3907,19 @@ var/station_jackpot = 1000000
 	to_chat(user,"<span class='notice'>Today's winning jackpot is [station_jackpot >= 1000000 ? "[round(station_jackpot/1000000,0.1)]m" : station_jackpot] credits!</span>")
 	if(winning_numbers && winning_numbers.len)
 		to_chat(user,"<span class='notice'>The winning numbers are [english_list(winning_numbers)]</span>")
+
+/obj/item/weapon/paper/betting_slip
+	name = "Betting slip"
+	desc = "Paper used to make a bet on an upcoming event."
+	var/datum/event/money_betting/associated_event
+	var/value = 10
+
+/obj/item/weapon/paper/betting_slip/New()
+	for(var/datum/event/E in events)
+		if(E.type == /datum/event/money_betting)
+			associated_event = E
+			info = associated_event.slipinfo
+			break
 
 #define LOTTO_SAMPLE 6
 #define LOTTO_BALLCOUNT 32 //lottery is a topdefine/bottomdefine system
@@ -4011,6 +4025,30 @@ var/global/list/obj/item/weapon/paper/lotto_numbers/lotto_papers = list()
 			dispense_funds(final_jackpot)
 			log_admin("([user.ckey]/[user]) won [final_jackpot] credits from the lottery!")
 			qdel(LN)
+	if(istype(I, /obj/item/weapon/paper/betting_slip))
+		var/obj/item/weapon/paper/betting_slip/BS = I
+		if(BS.associated_event && BS.associated_event.winningteam != "nobody") // wait for game to end first
+			var/gibmoni = FALSE
+			var/payout = BS.value
+			var/list/lines = splittext(BS.info,"\n")
+			for(var/n = lines.len; n > 0; n--)
+				if(lowertext(lines[n]) in BS.associated_event.odds)
+					if(lowertext(lines[n]) == BS.associated_event.winningteam)
+						payout = ((1/BS.associated_event.odds[lowertext(lines[n])])/2)
+						gibmoni = TRUE
+						break
+					for(var/mob/M in BS.associated_event.team_players)
+						if(lowertext(M.name) == lowertext(lines[n]) && !M.isDead())
+							payout *= ((1/BS.associated_event.odds[lowertext(lines[n])])/2) // accumulators ho!
+							gibmoni = TRUE
+							break
+				else
+					break
+			if(gibmoni)
+				dispense_funds(BS.value + payout)
+			else
+				playsound(src, "buzz-sigh", 50, 1)
+				visible_message("<b>[src]</b>'s monitor flashes, \"This slip has no valid winning bet on it\"")
 	else
 		..()
 

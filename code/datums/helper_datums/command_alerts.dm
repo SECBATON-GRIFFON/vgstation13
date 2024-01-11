@@ -786,7 +786,11 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 
 /datum/command_alert/lotto_announce
 	alert_title = "Central Command Grand Slam -Stellar- Lottery"
-	message = "A lotto number draw is scheduled to happen within the next 5 minutes. All nearby entertainment monitors will be broadcasting the results."
+	message = "A lotto number draw is scheduled to happen within the next 5 minutes. The station's lottery machines now have an exclusive type of ticket available for purchase. All nearby entertainment monitors will be broadcasting the results."
+
+/datum/command_alert/bet_announce
+	alert_title = "Central Command Night Slamdown"
+	message = "A thunderdome fight is scheduled to happen within the next 5 minutes. The station's lottery machines now have an exclusive type of betting slip available for purchase. All nearby entertainment monitors will be broadcasting the results."
 
 /datum/command_alert/lotto_winner
 	alert_title = "Grand Slam -Stellar- Lottery Winner!"

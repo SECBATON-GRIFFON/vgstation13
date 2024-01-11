@@ -1663,6 +1663,7 @@
 #include "code\modules\events\masshallucination.dm"
 #include "code\modules\events\meteors.dm"
 #include "code\modules\events\mob_swarm.dm"
+#include "code\modules\events\money_betting.dm"
 #include "code\modules\events\money_hacker.dm"
 #include "code\modules\events\money_lotto.dm"
 #include "code\modules\events\money_spam.dm"
