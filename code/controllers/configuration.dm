@@ -27,6 +27,7 @@
 	var/log_pda = 0						// log pda messages
 	var/log_rc = 0						// log requests consoles
 	var/log_hrefs = 0					// logs all links clicked in-game. Could be used for debugging and tracking down exploits
+	var/log_feed = 0					// log certain expliotable parrots and other such fun things in a JSON file of feed phrases.
 	var/log_runtimes = 0                // Logs all runtimes.
 	var/sql_enabled = 0					// for sql switching
 	var/allow_admin_ooccolor = 0		// Allows admins with relevant permissions to have their own ooc colour
@@ -351,6 +352,9 @@
 
 				if ("log_hrefs")
 					config.log_hrefs = 1
+
+				if ("log_feed")
+					config.log_feed = 1
 
 				if("allow_admin_ooccolor")
 					config.allow_admin_ooccolor = 1

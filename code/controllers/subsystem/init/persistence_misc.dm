@@ -400,3 +400,13 @@ var/datum/subsystem/persistence_misc/SSpersistence_misc
 			continue
 		to_archive[T.id] = T.level
 	write_file(to_archive)
+
+/datum/persistence_task/polyfeed
+	execute = TRUE
+	name = "Poly speech feed"
+	file_path = "data/persistence/polyfeed.json"
+
+/datum/persistence_task/polyfeed/on_shutdown()
+	for(var/mob/living/simple_animal/parrot/Poly/P in living_mob_list)
+		feedize(P.speech_buffer, "polytalk")
+		break //Who's been duping the bird?!

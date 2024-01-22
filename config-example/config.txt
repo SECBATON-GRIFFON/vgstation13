@@ -79,6 +79,10 @@ LOG_RC
 ## log all Topic() calls (for use by coders in tracking down Topic issues)
 # LOG_HREFS
 
+## enables use of the proc feedize() that lets you take a large list of strings and turn it into a JSON file of strings.
+## As an example of how this could be """useful""" look towards Poly (https://twitter.com/Poly_the_Parrot)
+# LOG_FEED
+
 ## log admin warning messages
 ##LOG_ADMINWARN  ## Also duplicates a bunch of other messages.
 
