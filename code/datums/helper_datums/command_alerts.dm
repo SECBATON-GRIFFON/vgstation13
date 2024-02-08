@@ -814,3 +814,19 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 /datum/command_alert/archive_thanks/announce()
 	message = "The Research Archive Project extends its profound thanks to [english_list(important_archivists)] for completing the research archival work this shift. There will be an extra stipend in the next pay cycle."
 	..()
+
+/datum/command_alert/supply_shuttle_bomb
+	alert_title = "Centcomm Supply Shuttle Bomb Defusal Squad"
+	var/mob/guilty
+
+/datum/command_alert/supply_shuttle_bomb/disarmed/announce()
+	message = "Central Command has been alerted to the presence of an active dangerous powerful explosive on board a supply shuttle arriving inbound from your station, [station_name]. Thankfully, this bomb has been defused easily due to the lengthy arm time discovered. Forensic scans indicate [guilty ? "[guilty]'s" : "no detectable"] fibers and/or fingerprints on the device. Crew are to remain vigilant of all further shipments outbound from this station."
+	..()
+
+/datum/command_alert/supply_shuttle_bomb/wentoffcentcomm/announce()
+	message = "Central Command has been sustained powerful explosive damage originating from a device found on a supply shuttle arriving inbound from your station, [station_name]. Forensic scans indicate [guilty ? "[guilty]'s" : "no detectable"] fibers and/or fingerprints on the scattered wreckage of the device. Crew are to remain vigilant of all further shipments outbound from this station."
+	..()
+
+/datum/command_alert/supply_shuttle_bomb/wentoffshuttle/announce()
+	message = "Central Command has been alerted to powerful explosive damage on board a supply shuttle arriving inbound from your station, [station_name]. Forensic scans indicate [guilty ? "[guilty]'s" : "no detectable"] fibers and/or fingerprints on the scattered wreckage of the device. Crew are to remain vigilant of all further shipments outbound from this station."
+	..()

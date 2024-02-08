@@ -46,6 +46,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 	var/cargo_last_forward = 0
 	var/list/datum/cargo_forwarding/fulfilled_forwards = list() // For persistence
 	var/list/datum/cargo_forwarding/previous_forwards = list()
+	var/emagged = 0
 
 /datum/subsystem/supply_shuttle/New()
 	NEW_SS_GLOBAL(SSsupply_shuttle)
@@ -181,6 +182,64 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 	for(var/atom/movable/MA in cargo_shuttle.linked_area)
 		if(MA.anchored && !ismecha(MA))
 			continue
+
+		if(istype(MA,/obj/item/device/transfer_valve))
+#define GOES_OFF_CENTCOM 1
+#define GOES_OFF_SHUTTLE 2
+#define BOMB_DISARMED 3
+			var/goes_off = FALSE
+			var/obj/item/device/transfer_valve/TTV = MA
+			var/dev = TTV.simulate_merge()
+			if(dev > 1)
+				var/timevalue
+				if(istype(TTV.attached_device,/obj/item/device/assembly/timer))
+					var/obj/item/device/assembly/timer/TM = TTV.attached_device
+					if(TM.timing)
+						timevalue = clamp(TM.timing,600,1200)
+						switch(TM.time)
+							if(0 to 600)
+								goes_off = GOES_OFF_SHUTTLE
+							if(600 to 1200)
+								goes_off = GOES_OFF_CENTCOMM
+							if(1200 to INFINITY)
+								goes_off = BOMB_DISARMED
+				if(istype(TTV.attached_device,/obj/item/device/assembly/prox_sensor))
+					var/obj/item/device/assembly/prox_sensor/PS = TTV.attached_device
+					if(PS.scanning)
+						goes_off = GOES_OFF_CENTCOM
+						timevalue = 600
+					else if(PS.timing)
+						timevalue = clamp(PS.timing,600,1200)
+						if(PS.time < 1200)
+							goes_off = GOES_OFF_CENTCOMM
+						else
+							goes_off = BOMB_DISARMED
+				if(goes_off)
+					//if(!at_station && !moving && goes_off == GOES_OFF_SHUTTLE)
+						//goes_off = GOES_OFF_CENTCOM
+					spawn(timevalue)
+						var/datum/command_alert/supply_shuttle_bomb/CA
+						if(!emagged)
+							CA.guilty = TTV.fingerprintslast
+						var/turf/T
+						switch(goes_off)
+							if(BOMB_DISARMED)
+								CA = new /datum/command_alert/supply_shuttle_bomb/disarmed
+							if(GOES_OFF_CENTCOM)
+								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffcentcomm
+								var/area/centcom/evac/E = locate() in areas
+								T = pick(E.contents)
+							if(GOES_OFF_SHUTTLE)
+								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
+								T = pick(cargo_shuttle.linked_area.contents)
+						if(T)
+							explosion_destroy(T,T,dev,dev*2,dev*4)
+						if(!emagged)
+							CA.announce()
+#undef GOES_OFF_CENTCOM
+#undef GOES_OFF_SHUTTLE
+#undef BOMB_DISARMED
+
 
 		if(isobj(MA))
 			var/obj/O = MA

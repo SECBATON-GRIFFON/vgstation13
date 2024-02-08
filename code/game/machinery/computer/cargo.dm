@@ -216,6 +216,7 @@ For vending packs, see vending_packs.dm*/
 		to_chat(user, "<span class='notice'>Special supplies unlocked.</span>")
 		hacked = 1
 		can_order_contraband = 1
+		SSsupply_shuttle.emagged = 1
 		return
 	if(I.is_screwdriver(user))
 		I.playtoolsound(loc, 50)
