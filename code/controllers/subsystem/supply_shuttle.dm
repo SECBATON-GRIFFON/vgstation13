@@ -183,37 +183,39 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 		if(MA.anchored && !ismecha(MA))
 			continue
 
-		if(istype(MA,/obj/item/device/transfer_valve))
+		if(istype(MA,/obj/item/device/transfer_valve)) //TODO: if anyone cares to fluff out department jecties this could be a good idea for one
 #define GOES_OFF_CENTCOM 1
 #define GOES_OFF_SHUTTLE 2
 #define BOMB_DISARMED 3
 			var/goes_off = FALSE
 			var/obj/item/device/transfer_valve/TTV = MA
-			var/dev = TTV.simulate_merge()
-			if(dev > 1)
-				var/timevalue
-				if(istype(TTV.attached_device,/obj/item/device/assembly/timer))
-					var/obj/item/device/assembly/timer/TM = TTV.attached_device
-					if(TM.timing)
-						timevalue = clamp(TM.timing,600,1200)
-						switch(TM.time)
-							if(0 to 600)
-								goes_off = GOES_OFF_SHUTTLE
-							if(600 to 1200)
-								goes_off = GOES_OFF_CENTCOMM
-							if(1200 to INFINITY)
-								goes_off = BOMB_DISARMED
-				if(istype(TTV.attached_device,/obj/item/device/assembly/prox_sensor))
-					var/obj/item/device/assembly/prox_sensor/PS = TTV.attached_device
-					if(PS.scanning)
-						goes_off = GOES_OFF_CENTCOM
-						timevalue = 600
-					else if(PS.timing)
-						timevalue = clamp(PS.timing,600,1200)
-						if(PS.time < 1200)
-							goes_off = GOES_OFF_CENTCOMM
-						else
+			var/timevalue = 0
+			if(istype(TTV.attached_device,/obj/item/device/assembly/timer))
+				var/obj/item/device/assembly/timer/TM = TTV.attached_device
+				if(TM.timing)
+					timevalue = clamp(TM.timing,600,1200)
+					switch(TM.time)
+						if(0 to 600)
+							goes_off = GOES_OFF_SHUTTLE
+						if(600 to 1200)
+							goes_off = GOES_OFF_CENTCOM
+						if(1200 to INFINITY)
 							goes_off = BOMB_DISARMED
+			else if(istype(TTV.attached_device,/obj/item/device/assembly/prox_sensor))
+				var/obj/item/device/assembly/prox_sensor/PS = TTV.attached_device
+				if(PS.scanning)
+					goes_off = GOES_OFF_CENTCOM
+					timevalue = 600
+				else if(PS.timing)
+					timevalue = clamp(PS.timing,600,1200)
+					if(PS.time < 1200)
+						goes_off = GOES_OFF_CENTCOM
+					else
+						goes_off = BOMB_DISARMED
+			if(timevalue) // bomb has to be tickin to scare centcom
+				var/dev = TTV.simulate_merge()
+				if(!dev)
+					goes_off = BOMB_DISARMED
 				if(goes_off)
 					//if(!at_station && !moving && goes_off == GOES_OFF_SHUTTLE)
 						//goes_off = GOES_OFF_CENTCOM
@@ -229,13 +231,17 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffcentcomm
 								var/area/centcom/evac/E = locate() in areas
 								T = pick(E.contents)
+								for(var/turf/T2 in spiral_block(T,dev))
+									if(prob(dev*5) && istype(T2,/turf/unsimulated/floor))
+										var/mob/living/carbon/human/H = new(T2) // ded bodies
+										var/datum/outfit/special/with_id/nt_officer/NT = new
+										NT.equip(H)
+										H.death()
 							if(GOES_OFF_SHUTTLE)
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
 								T = pick(cargo_shuttle.linked_area.contents)
 						if(T)
 							explosion_destroy(T,T,dev,dev*2,dev*4)
-						if(!emagged)
-							CA.announce()
 #undef GOES_OFF_CENTCOM
 #undef GOES_OFF_SHUTTLE
 #undef BOMB_DISARMED
