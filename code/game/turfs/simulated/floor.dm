@@ -451,7 +451,7 @@ var/global/list/turf/simulated/floor/phazontiles = list()
 	if(!(locate(/obj/structure/table) in contents) && !(locate(/obj/structure/rack) in contents) && !(locate(/obj/structure/closet) in contents))
 		for(var/obj/item/I in contents)
 			// Hiding things under the tiles!
-			if(I.w_class == W_CLASS_TINY && !istype(I,/obj/item/projectile))
+			if((I.hides_under_tiles || I.w_class == W_CLASS_TINY) && !istype(I,/obj/item/projectile))
 				I.hide(intact)
 	update_icon()
 	update_paint_overlay()

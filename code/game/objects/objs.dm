@@ -20,6 +20,9 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 
 	var/w_class
 
+	//Bypass above check for hiding under floor tiles?
+	var/hides_under_tiles = FALSE
+
 	//Should we alert about reagents that should be logged?
 	var/log_reagents = 1
 

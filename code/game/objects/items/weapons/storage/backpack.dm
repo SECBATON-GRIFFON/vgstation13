@@ -126,6 +126,21 @@
 	..()
 	new /obj/item/weapon/storage/wallet/random( src )
 
+/obj/item/weapon/storage/backpack/satchel/flat
+	name = "smuggler's satchel"
+	desc = "A very slim satchel that can easily fit into tight spaces."
+	icon_state = "satchel" // TODO: sprite
+	w_class = W_CLASS_MEDIUM //Can fit in backpacks itself.
+	storage_slots = 5
+	max_combined_w_class = 15
+	hides_under_tiles = TRUE
+	cant_hold = list(/obj/item/weapon/storage/backpack/satchel_flat) //muh recursive backpacks
+
+/obj/item/weapon/storage/backpack/satchel/flat/New()
+	..()
+	new /obj/item/stack/tile/plasteel(src)
+	new /obj/item/weapon/crowbar(src)
+
 /obj/item/weapon/storage/backpack/satchel_norm
 	name = "satchel"
 	desc = "A trendy looking satchel."

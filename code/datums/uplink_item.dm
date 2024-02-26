@@ -433,6 +433,12 @@ var/list/discounted_items_of_the_round = list()
 	item = /obj/item/toy/balloon/decoy
 	cost = 1
 
+/datum/uplink_item/stealthy_tools/smugglersatchel
+	name = "Smuggler's Satchel"
+	desc = "This satchel is thin enough to be hidden in the gap between plating and tiling, great for stashing your stolen goods. Comes with a crowbar and a floor tile inside."
+	item = /obj/item/weapon/storage/backpack/satchel/flat
+	cost = 2
+
 // DEVICE AND TOOLS
 // Any Syndicate item that helps with hacking, low-key sabotage, damaging or subverting equipment (ex: Emag, camera bugs, EMP flashlight)
 
@@ -567,7 +573,7 @@ var/list/discounted_items_of_the_round = list()
 	cost = 12
 	discounted_cost = 10
 	jobs_with_discount = ENGINEERING_POSITIONS
- 
+
 /datum/uplink_item/sabotage_tools/reportintercom
 	name = "NT Central Command Report Falsifier"
 	desc = "A command report intercom stolen from Nanotrasen Command that allows for a single fake Command Update to be sent. Ensure tastefulness so that the crew actually falls for the message. Item is particular obvious and will have to be manually discarded after use."
