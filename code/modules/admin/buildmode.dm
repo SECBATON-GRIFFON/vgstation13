@@ -347,7 +347,7 @@ var/global/list/obj/effect/bmode/buildholder/buildmodeholders = list()
 						ME.file_path = "maps/[map.file_dir].dmm"
 					if(!fexists(file(ME.file_path)))
 						CRASH("Map file path for current map ([ME.file_path]) not found somehow! Cannot reset map segment.")
-				ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z, lag_override)
+				ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z, lag_override, 1)
 			else
 				for(var/turf/T in fillturfs)
 					if(areaAction == MASS_DELETE || areaAction == SELECTIVE_DELETE)
@@ -589,7 +589,7 @@ var/global/list/obj/effect/bmode/buildholder/buildmodeholders = list()
 										ME.file_path = "maps/[map.file_dir].dmm"
 									if(!fexists(file(ME.file_path)))
 										CRASH("Map file path for current map ([ME.file_path]) not found somehow! Cannot reset map segment.")
-								ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z)
+								ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z, 1, 1)
 							else
 								for(var/turf/T in fillturfs)
 									if(areaAction == MASS_DELETE || areaAction == SELECTIVE_DELETE)

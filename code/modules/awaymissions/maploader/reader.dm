@@ -61,7 +61,10 @@ var/list/map_dimension_cache = list()
  * A list of all atoms created
  *
  */
-/dmm_suite/load_map(var/dmm_file as file, var/z_offset as num, var/x_offset as num, var/y_offset as num, var/datum/map_element/map_element as null, var/rotate as num, var/overwrite as num, var/clipmin_x as num, var/clipmax_x as num, var/clipmin_y as num, var/clipmax_y as num, var/clipmin_z as num, var/clipmax_z as num, var/remove_lag_override)
+
+var/global/list/grid_model_cache = list()
+
+/dmm_suite/load_map(var/dmm_file as file, var/z_offset as num, var/x_offset as num, var/y_offset as num, var/datum/map_element/map_element as null, var/rotate as num, var/overwrite as num, var/clipmin_x as num, var/clipmax_x as num, var/clipmin_y as num, var/clipmax_y as num, var/clipmin_z as num, var/clipmax_z as num, var/remove_lag_override as num, var/cache as num)
 
 	clipmin_x = max(clipmin_x,1)
 	clipmin_y = max(clipmin_y,1)
@@ -87,6 +90,7 @@ var/list/map_dimension_cache = list()
 
 	var/quote = ascii2text(34)
 	var/tfile = file2text(dmm_file)//the map file we're creating
+	var/hash = md5(tfile)
 	var/tfile_len = length(tfile)
 	var/lpos = 1 // the models definition index
 
@@ -99,31 +103,36 @@ var/list/map_dimension_cache = list()
 	var/key_len = length(copytext(tfile, quote_index, findtext(tfile, quote, quote_index + 1, 0))) - 1
 	if(!key_len)
 		key_len = 1
+	if(grid_model_cache.Find(hash))
+		grid_models = grid_model_cache[hash]
+	else
+		var/model_contents = ""
+		var/model_key = ""
+		//proceed line by line
+		for(lpos=1; lpos<tfile_len; lpos=findtext(tfile,"\n",lpos,0)+1)
+			var/tline = copytext(tfile,lpos,findtext(tfile,"\n",lpos,0))
+			if(copytext(tline,1,3) == "//")//ignore comments
+				continue
+			if(tline == "")//we reached the map "layout"
+				if(model_key != "")
+					grid_models[model_key] = model_contents
+				break
+			if(copytext(tline,1,2) == quote)
+				if(model_key != "")
+					grid_models[model_key] = model_contents
+				model_key = copytext(tline,2,2+key_len)
+				model_contents = ""
+			var/model_line = replacetext(tline,"\"[model_key]\" = (","")
+			model_line = replacetext(model_line,")","")
+			model_line = replacetext(model_line,"\t","")
+			model_contents += model_line
+			if (remove_lag)
+				CHECK_TICK
+			else
+				sleep(-1)
 
-	var/model_contents = ""
-	var/model_key = ""
-	//proceed line by line
-	for(lpos=1; lpos<tfile_len; lpos=findtext(tfile,"\n",lpos,0)+1)
-		var/tline = copytext(tfile,lpos,findtext(tfile,"\n",lpos,0))
-		if(copytext(tline,1,3) == "//")//ignore comments
-			continue
-		if(tline == "")//we reached the map "layout"
-			if(model_key != "")
-				grid_models[model_key] = model_contents
-			break
-		if(copytext(tline,1,2) == quote)
-			if(model_key != "")
-				grid_models[model_key] = model_contents
-			model_key = copytext(tline,2,2+key_len)
-			model_contents = ""
-		var/model_line = replacetext(tline,"\"[model_key]\" = (","")
-		model_line = replacetext(model_line,")","")
-		model_line = replacetext(model_line,"\t","")
-		model_contents += model_line
-		if (remove_lag)
-			CHECK_TICK
-		else
-			sleep(-1)
+		if(cache) //in case of repeated readings of large dmm files, to speed up this part
+			grid_model_cache[hash] = grid_models.Copy()
 
 	///////////////////////////////////////////////////////////////////////////////////////
 	//now let's fill the map with turf and objects using the constructed model map
