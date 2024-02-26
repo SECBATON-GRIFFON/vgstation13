@@ -296,9 +296,11 @@ var/global/list/obj/effect/bmode/buildholder/buildmodeholders = list()
 			if(holder.warnings && alert("You're about to do a fill operation spanning [fillturfs.len] tiles, are you sure?","Panic","Yes","No") == "No")
 				return
 			var/areaAction
+			var/lag_override = FALSE
 			if(holder.deletemode)
 				areaAction = holder.selective ? SELECTIVE_DELETE : MASS_DELETE //2 : 1
 			else if(holder.resetmode)
+				lag_override = alert("Load the whole reset at once? Selecting no causes less server lag, but may result in tiny atmos leaks","Panic","Yes","No") == "No"
 				areaAction = MASS_RESET //4
 			else
 				areaAction = holder.selective ? SELECTIVE_FILL : MASS_FILL //3 : 0
@@ -345,7 +347,7 @@ var/global/list/obj/effect/bmode/buildholder/buildmodeholders = list()
 						ME.file_path = "maps/[map.file_dir].dmm"
 					if(!fexists(file(ME.file_path)))
 						CRASH("Map file path for current map ([ME.file_path]) not found somehow! Cannot reset map segment.")
-				ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z)
+				ME.load(0, 0, 1, 0, 1, 0, lowest_x, highest_x, lowest_y, highest_y, lowest_z, highest_z, lag_override)
 			else
 				for(var/turf/T in fillturfs)
 					if(areaAction == MASS_DELETE || areaAction == SELECTIVE_DELETE)

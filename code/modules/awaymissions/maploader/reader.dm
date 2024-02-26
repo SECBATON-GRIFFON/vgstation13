@@ -61,7 +61,7 @@ var/list/map_dimension_cache = list()
  * A list of all atoms created
  *
  */
-/dmm_suite/load_map(var/dmm_file as file, var/z_offset as num, var/x_offset as num, var/y_offset as num, var/datum/map_element/map_element as null, var/rotate as num, var/overwrite as num, var/clipmin_x as num, var/clipmax_x as num, var/clipmin_y as num, var/clipmax_y as num, var/clipmin_z as num, var/clipmax_z as num)
+/dmm_suite/load_map(var/dmm_file as file, var/z_offset as num, var/x_offset as num, var/y_offset as num, var/datum/map_element/map_element as null, var/rotate as num, var/overwrite as num, var/clipmin_x as num, var/clipmax_x as num, var/clipmin_y as num, var/clipmax_y as num, var/clipmin_z as num, var/clipmax_z as num, var/remove_lag_override)
 
 	clipmin_x = max(clipmin_x,1)
 	clipmin_y = max(clipmin_y,1)
@@ -75,7 +75,9 @@ var/list/map_dimension_cache = list()
 
 	//If this is true, the lag is reduced at the cost of slower loading speed, and tiny atmos leaks during loading
 	var/remove_lag
-	if(map_element?.load_at_once)
+	if(remove_lag_override)
+		remove_lag = TRUE
+	else if(map_element?.load_at_once)
 		remove_lag = FALSE
 	else if(ticker && ticker.current_state > GAME_STATE_PREGAME)
 		//Lag doesn't matter before the game
