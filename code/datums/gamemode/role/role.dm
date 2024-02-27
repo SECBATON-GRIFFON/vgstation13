@@ -680,3 +680,16 @@
 	for (var/ckey in former_minions)
 		dat += "<img src='data:image/png;base64,[icon2base64(logo_slave)]' style='position: relative; top: 10;'/> <b>[ckey]</b> as <b>[former_minions[ckey]]</b><br/>"
 	return jointext(dat, "")
+
+/datum/role/rioter
+	name = RIOTER
+	id = RIOTER
+	logo_state = "greytide-logo"
+
+/datum/role/rioter/Drop()
+	antag.current.visible_message("<span class='userdanger'>[antag.current] briefly convulses!</span>" ,"<span class='big danger'>Your desire to riot fades and vanishes. You are free of your actions again.</span>")
+	return ..()
+
+/datum/role/rioter/ForgeObjectives()
+	var/datum/objective/freeform/riot/R = new
+	AppendObjective(R)

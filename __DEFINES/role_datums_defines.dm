@@ -32,6 +32,7 @@
 #define CULT "generic cult"
 #define LEGACY_CULT "Ancient Cult of Nar-Sie"
 #define GREYTIDE_FAC "Greytide mindlink"
+#define RIOT_FAC "Riot"
 #define WIZARD_CONTRACT "wizard contract"
 #define TIMEAGENCY "time agency"
 // Role IDs
@@ -63,6 +64,7 @@
 #define BLOBCEREBRATE "blob cerebrate"
 #define IMPLANTSLAVE "Greytider"
 #define SURVIVOR "Survivor"
+#define RIOTER "Rioter"
 #define CRUSADER "Crusader"
 #define MAGICIAN "Magician"
 #define MAGICIAN_ARTIFACT "Magical Archeologist"

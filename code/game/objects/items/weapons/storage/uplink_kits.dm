@@ -141,6 +141,7 @@
 		if("Anarchist")//14+14+6=34, plus molotovs
 			new /obj/item/weapon/implanter/traitor(src)
 			new /obj/item/weapon/implanter/traitor(src)
+			new /obj/item/folding_chair/riotincite/longer(src)
 			new /obj/item/clothing/mask/bandana/red(src)
 			new /obj/item/clothing/mask/bandana/red(src)
 			new /obj/item/clothing/mask/bandana/red(src)
@@ -230,6 +231,7 @@
 			new /obj/item/weapon/implanter/traitor(src)
 			new /obj/item/weapon/implanter/traitor(src)
 			new /obj/item/weapon/implanter/traitor(src)
+			new /obj/item/folding_chair/riotincite/longer(src)
 			new /obj/item/device/flashlight/torch(src)
 			new /obj/item/device/flashlight/torch(src)
 			new /obj/item/device/flashlight/torch(src)

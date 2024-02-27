@@ -8,12 +8,12 @@
 /obj/item/weapon/grenade/flashbang/prime(banglet)
 	flashbangprime(delsrc = TRUE, isbanglet = banglet)
 
-/atom/proc/flashbangprime(var/delsrc = FALSE, var/ignore_protection = FALSE, isbanglet = FALSE)
+/atom/proc/flashbangprime(var/delsrc = FALSE, var/ignore_protection = FALSE, isbanglet = FALSE, range = world.view, blobdmg = TRUE)
 	var/turf/flashbang_turf = get_turf(src)
 	if(!flashbang_turf)
 		return
 
-	var/list/mobs_to_flash_and_bang = get_all_mobs_in_dview(flashbang_turf, ignore_types = list(/mob/living/carbon/brain, /mob/living/silicon/ai))
+	var/list/mobs_to_flash_and_bang = get_all_mobs_in_dview(flashbang_turf, range, list(/mob/living/carbon/brain, /mob/living/silicon/ai))
 
 	var/mob/living/holder = get_holder_of_type(src, /mob/living)
 	if(holder) //Holding a flashbang while it goes off is a bad idea.
@@ -28,11 +28,12 @@
 			continue
 		flashbang(flashbang_turf, M, ignore_protection, isbanglet)
 
-	for(var/obj/effect/blob/B in get_hear(8,flashbang_turf))     		//Blob damage here
-		var/damage = round(15/(get_dist(B,get_turf(src))+1))
-		B.health -= damage
-		B.update_health()
-		B.update_icon()
+	if(blobdmg)
+		for(var/obj/effect/blob/B in get_hear(8,flashbang_turf))     		//Blob damage here
+			var/damage = round(15/(get_dist(B,get_turf(src))+1))
+			B.health -= damage
+			B.update_health()
+			B.update_icon()
 	if(delsrc)
 		qdel(src)
 
@@ -159,6 +160,85 @@
 		if (M.ear_damage >= 5)
 			to_chat(M, "<span class='warning'>Your ears start to ring!</span>")
 	M.update_icons()
+
+/obj/item/folding_chair/riotincite
+	name = "riot inciting chair"
+	desc = "Guaranteed brief chaos when thrown into a crowd."
+	var/uses = 1
+	var/cooldown = 0 //in seconds
+	var/riotlength = 60 //in seconds
+	var/timeused = 0
+	var/popcorned = 0
+	var/riotrange = 4
+
+/obj/item/folding_chair/riotincite/reusable
+	uses = 5
+	cooldown = 300
+
+/obj/item/folding_chair/riotincite/reusable/infinite
+	uses = INFINITY
+
+/obj/item/folding_chair/riotincite/admin // for testing the item
+	name = "riot inquisiting chair"
+	desc = "Guaranteed brief scrimmage on every throw in!"
+	uses = INFINITY
+	riotlength = 1
+
+/obj/item/folding_chair/riotincite/longer
+	desc = "Guaranteed slightly lengthier chaos when thrown into a crowd."
+	riotlength = 300
+
+/obj/item/folding_chair/riotincite/infinite // gunk edition
+	desc = "Permanent chaos when thrown into a crowd."
+	uses = INFINITY
+	riotrange = 7
+	riotlength = 0
+
+/obj/item/folding_chair/riotincite/attack_self(mob/user)
+	. = ..()
+	if(!popcorned)
+		new /obj/item/weapon/reagent_containers/food/snacks/popcorn(get_turf(src)) // sit back and watch the chaos unfold!
+		popcorned = TRUE
+
+/obj/item/folding_chair/riotincite/throw_impact(atom/hit_atom)
+	if(!..() && uses && world.time - timeused >= cooldown)
+		uses--
+		flashbangprime(ignore_protection = TRUE, range = riotrange, blobdmg = FALSE) // this thing should not hurt the blob, even if that'd be pretty funny
+		timeused = world.time
+
+/obj/item/folding_chair/riotincite/flashbang(var/turf/T, var/mob/living/M, var/ignore_protection = 0, var/isbanglet = FALSE)
+	if(iscarbon(M) && M.mind)
+		if(prob(min(riotlength,300)/3)) // security are immune...sometimes (if the riot is over 5 minutes long it's absolute resistance)
+			for(var/obj/item/weapon/implant/I in M)
+				if(istype(I, /obj/item/weapon/implant/loyalty))
+					if(I.imp_in == M)
+						M.visible_message("<span class='userdanger'>[M] stands firm but wearily in front of the thrown chair.</span>", "<span class='danger'>You feel a strange sensation in your head that quickly dissipates.</span>")
+						return
+		var/datum/faction/F = find_active_faction_by_typeandmember(/datum/faction/syndicate/rioter, null, M.mind)
+		if(!F)
+			var/success
+			F = find_active_faction_by_type(/datum/faction/syndicate/rioter, null, M.mind)
+			if(!F)
+				F = ticker.mode.CreateFaction(/datum/faction/syndicate/rioter, 0, 1)
+				success = F.HandleNewMind(M.mind)
+			else
+				success = F.HandleRecruitedMind(M.mind)
+			if(success)
+				var/datum/role/rioter/R = M.mind.GetRole(RIOTER)
+				if(R)
+					M.visible_message("<span class='userdanger'>[M] briefly convulses!</span>","<span class='big danger'>The chair has activated something in your mind, a deep <i>seated</i> feeling of rebellion!</span>")
+					if(prob(20))
+						M.say(pick("Oh my god, a chair!","I'm mad!"))
+					R.Greet(M)
+					R.ForgeObjectives()
+					R.AnnounceObjectives()
+					update_faction_icons()
+					if(riotlength)
+						spawn((riotlength+(prob(10)*(riotlength/10))) SECONDS) // 10% chance for a rioter to riot about 10% longer than everyone else, for a little but of funny
+							if(R)
+								F.HandleRemovedRole(R)
+								R.Drop(0)
+								update_faction_icons()
 
 /obj/effect/smoke/flashbang
 	name = "illumination"

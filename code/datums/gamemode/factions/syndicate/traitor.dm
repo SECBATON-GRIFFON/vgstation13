@@ -41,3 +41,11 @@
 	var/datum/objective/target/protect/P = new(auto_target = FALSE)
 	P.set_target(leader.antag)
 	AppendObjective(P)
+
+/datum/faction/syndicate/rioter
+	name = "Greytide riot"
+	ID = RIOT_FAC
+	initroletype = /datum/role/rioter
+	roletype = /datum/role/rioter
+	logo_state = "greytidelink-logo"
+	hud_icons = list("greytide-logo", "greytide_leader-logo")
