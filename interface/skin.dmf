@@ -1043,8 +1043,8 @@ window "rpane"
 		is-pane = true
 	elem "round_end"
 		type = BUTTON
-		pos = 640,0
-		size = 224x32
+		pos = 720,0
+		size = 160x20
 		anchor1 = none
 		anchor2 = none
 		text-color = #ffffff
@@ -1056,8 +1056,8 @@ window "rpane"
 		group = "rpanemode"
 	elem "last_round_end"
 		type = BUTTON
-		pos = 664,0
-		size = 152x16
+		pos = 720,0
+		size = 160x20
 		anchor1 = none
 		anchor2 = none
 		text-color = #ffffff
@@ -1078,17 +1078,17 @@ window "rpane"
 		is-vert = false
 	elem "github"
 		type = BUTTON
-		pos = 468,0
-		size = 60x16
+		pos = 560,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
-		text = "BugReport"
+		text = "Report Bug"
 		command = "Github-Report"
 	elem "special_button"
 		type = BUTTON
-		pos = 531,0
-		size = 60x16
+		pos = 640,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1098,8 +1098,8 @@ window "rpane"
 		button-type = pushbox
 	elem "mapb"
 		type = BUTTON
-		pos = 386,0
-		size = 80x16
+		pos = 480,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1123,8 +1123,8 @@ window "rpane"
 		saved-params = ""
 	elem "rulesb"
 		type = BUTTON
-		pos = 253,0
-		size = 60x16
+		pos = 320,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1133,8 +1133,8 @@ window "rpane"
 		group = "rpanemode"
 	elem "changelog"
 		type = BUTTON
-		pos = 316,0
-		size = 67x16
+		pos = 400,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1143,8 +1143,8 @@ window "rpane"
 		group = "rpanemode"
 	elem "forumb"
 		type = BUTTON
-		pos = 190,0
-		size = 60x16
+		pos = 240,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1153,8 +1153,8 @@ window "rpane"
 		group = "rpanemode"
 	elem "wikib"
 		type = BUTTON
-		pos = 127,0
-		size = 60x16
+		pos = 160,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		saved-params = "is-checked"
@@ -1164,7 +1164,7 @@ window "rpane"
 	elem "textb"
 		type = BUTTON
 		pos = 0,0
-		size = 60x16
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		is-visible = false
@@ -1188,8 +1188,8 @@ window "rpane"
 		button-type = pushbox
 	elem "infob"
 		type = BUTTON
-		pos = 64,0
-		size = 60x16
+		pos = 80,0
+		size = 80x20
 		anchor1 = none
 		anchor2 = none
 		is-visible = false
@@ -1218,7 +1218,7 @@ window "browserwindow"
 		background-color = #ffffff
 		saved-params = ""
 		on-show = ".winset\"rpane.infob.is-visible=true?rpane.infob.pos=130,0;rpane.textb.is-visible=true;rpane.browseb.is-visible=true;rpane.browseb.is-checked=true;rpane.rpanewindow.pos=0,30;rpane.rpanewindow.size=0x0;rpane.rpanewindow.left=browserwindow\""
-		on-hide = ".winset\"rpane.infob.is-visible=true?rpane.infob.is-checked=true rpane.infob.pos=65,0 rpane.rpanewindow.left=infowindow:rpane.rpanewindow.left=textwindow rpane.textb.is-visible=true rpane.rpanewindow.pos=0,30 rpane.rpanewindow.size=0x0\""
+		on-hide = ".winset\"rpane.infob.is-visible=true?rpane.infob.is-checked=true rpane.infob.pos=80,0 rpane.rpanewindow.left=infowindow:rpane.rpanewindow.left=textwindow rpane.textb.is-visible=true rpane.rpanewindow.pos=0,30 rpane.rpanewindow.size=0x0\""
 
 window "infowindow"
 	elem "infowindow"
@@ -1240,7 +1240,7 @@ window "infowindow"
 		saved-params = ""
 		highlight-color = #00aa00
 		allow-html = false
-		on-show = ".winset\"rpane.infob.is-visible=true;rpane.browseb.is-visible=true?rpane.infob.pos=130,0:rpane.infob.pos=65,0 rpane.textb.is-visible=true rpane.infob.is-checked=true rpane.rpanewindow.pos=0,30 rpane.rpanewindow.size=0x0 rpane.rpanewindow.left=infowindow\""
+		on-show = ".winset\"rpane.infob.is-visible=true;rpane.browseb.is-visible=true?rpane.infob.pos=130,0:rpane.infob.pos=80,0 rpane.textb.is-visible=true rpane.infob.is-checked=true rpane.rpanewindow.pos=0,30 rpane.rpanewindow.size=0x0 rpane.rpanewindow.left=infowindow\""
 		on-hide = ".winset\"rpane.infob.is-visible=false;rpane.browseb.is-visible=true?rpane.browseb.is-checked=true rpane.rpanewindow.left=browserwindow:rpane.textb.is-visible=true rpane.rpanewindow.pos=0,30 rpane.rpanewindow.size=0x0 rpane.rpanewindow.left=\""
 
 window "window1"
