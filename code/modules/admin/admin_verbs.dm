@@ -1151,12 +1151,19 @@ var/list/admin_verbs_mod = list(
 	#define ML_CURRENT_LOC  "Use my current location"
 	#define ML_INPUT_COORDS "Input coordinates"
 	#define ML_LOAD_TO_Z2   "Find a suitable location at Z-level 2 (done automatically)"
+	#define ML_LOAD_TO_AREA "Find a suitable location in an area (done automatically)"
 	var/static/list/choices = list(
 	ML_CURRENT_LOC,
 	ML_INPUT_COORDS,
-	ML_LOAD_TO_Z2
+	ML_LOAD_TO_Z2,
+	ML_LOAD_TO_AREA
+	)
+	var/static/list/areatypes = list(
+		/area/random_vault = /proc/stay_in_vault_area,
+		/area/mine/unexplored = /proc/asteroid_can_be_placed
 	)
 	var/dungeoning = FALSE
+	var/populating = FALSE
 
 	switch(input(usr, "Select a location for the new map element", "Map element loading") as null|anything in choices)
 		if(ML_CURRENT_LOC)
@@ -1190,6 +1197,9 @@ var/list/admin_verbs_mod = list(
 				return
 
 			dungeoning = TRUE
+
+		if(ML_LOAD_TO_AREA)
+			populating = input(usr, "Select an area for the new map element", "Map element loading") as null|anything in get_list_of_keys(areatypes)
 
 	var/rotate = input(usr, "Set the rotation offset: (0, 90, 180 or 270) ", "Map element loading", "0") as null|num
 	if(rotate == null)
@@ -1228,6 +1238,10 @@ var/list/admin_verbs_mod = list(
 	message_admins("[key_name_admin(src)] is loading [ME.file_path] at [x_coord], [y_coord], [z_coord][rotatetext].")
 	if(dungeoning)
 		load_dungeon(ME, rotate, TRUE, clipmin_x, clipmax_x, clipmin_y, clipmax_y, clipmin_z, clipmax_z)
+	else if(populating)
+		var/success = populate_area_with_vaults(locate(populating), list(ME), 1, filter_function=areatypes[populating], overwrites=overwrite)
+		if(!success)
+			message_admins("[ME.file_path] could not be loaded in [populating]!")
 	else
 		//Reduce X and Y by 1 because these arguments are actually offsets, and they're added to 1;1 in the map loader. Without this, spawning something at 1;1 would result in it getting spawned at 2;2
 		ME.load(x_coord - 1, y_coord - 1, z_coord, rotate, overwrite, TRUE, clipmin_x, clipmax_x, clipmin_y, clipmax_y, clipmin_z, clipmax_z)
