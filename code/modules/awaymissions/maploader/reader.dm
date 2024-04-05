@@ -384,7 +384,7 @@ var/list/map_dimension_cache = list()
 		spawned_atoms.Add(new_atom)
 
 	if(!spawned_atoms.len)
-		log_debug("No atoms spawned in grid parse! (Model key: [model])")
+		WARNING("No atoms spawned in grid parse! (Model key: [model])")
 	return spawned_atoms
 
 ////////////////
