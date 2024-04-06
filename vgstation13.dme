@@ -2951,6 +2951,7 @@
 #include "maps\randomvaults\laundromat.dm"
 #include "maps\randomvaults\mothership_lab.dm"
 #include "maps\randomvaults\objects.dm"
+#include "maps\randomvaults\pulsedemon_lair.dm"
 #include "maps\randomvaults\sokoban.dm"
 #include "maps\randomvaults\spessmart.dm"
 #include "maps\randomvaults\mining\mining_surprise_items.dm"

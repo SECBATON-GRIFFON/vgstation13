@@ -1,0 +1,1132 @@
+//MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"ad" = (
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 8
+	},
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"an" = (
+/obj/machinery/door/airlock/external,
+/turf/simulated/floor/plating,
+/area/vault)
+"bI" = (
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"cD" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"cK" = (
+/obj/structure/table/plastic,
+/obj/machinery/cell_charger,
+/turf/simulated/floor,
+/area/vault)
+"dH" = (
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"eg" = (
+/obj/machinery/emancipation_grill/pdlair,
+/turf/simulated/floor/plating,
+/area/vault)
+"eF" = (
+/obj/structure/table/plastic,
+/obj/machinery/recharger,
+/turf/simulated/floor,
+/area/vault)
+"eY" = (
+/obj/structure/cable/freepower,
+/turf/simulated/floor/dark,
+/area/vault)
+"fF" = (
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 1
+	},
+/obj/effect/decal/warning_stripes/siding/gold,
+/turf/simulated/floor/wood,
+/area/vault)
+"fU" = (
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 8
+	},
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 1
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"gF" = (
+/obj/structure/cable/freepower{
+	d2 = 8;
+	icon_state = "0-8"
+	},
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"gH" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"gY" = (
+/obj/structure/cable/freepower{
+	d2 = 8;
+	icon_state = "0-8"
+	},
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"hZ" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"iA" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 8;
+	icon_state = "2-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"iO" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"je" = (
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 4
+	},
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 1
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"ly" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"lJ" = (
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 4;
+	icon_state = "2-4"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"mz" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"mY" = (
+/obj/structure/cable/freepower,
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"nj" = (
+/turf/simulated/floor/dark,
+/area/vault)
+"nC" = (
+/obj/structure/cable/freepower{
+	d2 = 8;
+	icon_state = "0-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"oy" = (
+/turf/simulated/wall/invulnerable/r_wall,
+/area/vault)
+"oP" = (
+/turf/simulated/floor/plating,
+/area/vault)
+"ph" = (
+/obj/structure/table/glass/plasma,
+/obj/item/weapon/switchtool/holo/maxed{
+	pixel_x = 8;
+	pixel_y = 8
+	},
+/obj/effect/decal/warning_stripes/siding/gold/full,
+/turf/simulated/floor/mineral/gold/gold_old,
+/area/vault)
+"pA" = (
+/turf/simulated/floor/wood,
+/area/vault)
+"rl" = (
+/turf/space,
+/area)
+"rY" = (
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"uB" = (
+/obj/effect/decal/warning_stripes/siding/gold,
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 8
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"vx" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"wi" = (
+/turf/simulated/floor/mineral/gold/gold_old,
+/area/vault)
+"wU" = (
+/obj/structure/cable/freepower{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"xW" = (
+/obj/structure/cable/freepower{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"yD" = (
+/obj/structure/cable/freepower,
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"yJ" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/plating,
+/area/vault)
+"zy" = (
+/obj/structure/cable/freepower{
+	d2 = 2;
+	icon_state = "0-2"
+	},
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"zz" = (
+/obj/structure/cable/freepower{
+	d2 = 2;
+	icon_state = "0-2"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"Ax" = (
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 8;
+	icon_state = "2-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"Ci" = (
+/obj/structure/cable/freepower{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"Eb" = (
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/plating,
+/area/vault)
+"HC" = (
+/mob/living/simple_animal/hostile/pulse_demon,
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"HR" = (
+/obj/structure/cable/freepower,
+/turf/simulated/floor/plating,
+/area/vault)
+"Iu" = (
+/obj/structure/cable/freepower{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"IJ" = (
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 4;
+	icon_state = "2-4"
+	},
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 8;
+	icon_state = "2-8"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"JE" = (
+/obj/effect/decal/warning_stripes/siding/gold,
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"Kb" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"Mc" = (
+/obj/structure/cable/freepower{
+	d2 = 2;
+	icon_state = "0-2"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"Mg" = (
+/obj/structure/cable/freepower,
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/plating,
+/area/vault)
+"MZ" = (
+/obj/structure/table/plastic,
+/obj/item/clothing/gloves/fyellow,
+/turf/simulated/floor,
+/area/vault)
+"Po" = (
+/obj/item/clothing/gloves/golden/insul,
+/obj/structure/table/glass/plasma,
+/obj/effect/decal/warning_stripes/siding/gold/full,
+/turf/simulated/floor/mineral/gold/gold_old,
+/area/vault)
+"Qx" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"Sd" = (
+/obj/effect/decal/warning_stripes/siding/gold,
+/obj/effect/decal/warning_stripes/siding/gold{
+	dir = 1
+	},
+/turf/simulated/floor/wood,
+/area/vault)
+"TB" = (
+/obj/item/weapon/cell/infinite,
+/obj/structure/table/glass/plasma,
+/obj/effect/decal/warning_stripes/siding/gold/full,
+/turf/simulated/floor/mineral/gold/gold_old,
+/area/vault)
+"TI" = (
+/obj/structure/cable/freepower{
+	d2 = 2;
+	icon_state = "0-2";
+	pixel_y = 1
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"TO" = (
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 4;
+	icon_state = "2-4"
+	},
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"TS" = (
+/obj/structure/cable/freepower{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"Ul" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/mob/living/simple_animal/hostile/pulse_demon,
+/turf/simulated/floor/mineral/silver/silver_old,
+/area/vault)
+"Ut" = (
+/obj/structure/cable/freepower{
+	d2 = 8;
+	icon_state = "0-8"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+"UT" = (
+/turf/simulated/floor,
+/area/vault)
+"XT" = (
+/obj/structure/cable/freepower{
+	d1 = 2;
+	d2 = 4;
+	icon_state = "2-4"
+	},
+/turf/simulated/floor/plating,
+/area/vault)
+"YM" = (
+/obj/structure/cable/freepower{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/turf/simulated/floor/dark,
+/area/vault)
+
+(1,1,1) = {"
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+rl
+"}
+(2,1,1) = {"
+oy
+oP
+oP
+nj
+nj
+nj
+nj
+nj
+oy
+Mc
+Qx
+Qx
+yJ
+Qx
+Qx
+HR
+oy
+XT
+HR
+oP
+wU
+oP
+wU
+oy
+oy
+"}
+(3,1,1) = {"
+oy
+oP
+Mc
+mz
+mz
+mz
+ly
+oP
+oy
+oP
+oP
+oP
+oP
+oP
+oP
+oP
+oy
+nC
+oP
+oP
+bI
+oP
+Ax
+HR
+oy
+"}
+(4,1,1) = {"
+oy
+oP
+nj
+nj
+nj
+nj
+bI
+oP
+oy
+oP
+XT
+Qx
+Qx
+Qx
+hZ
+oP
+oy
+oP
+oP
+oP
+bI
+oP
+oP
+oP
+oy
+"}
+(5,1,1) = {"
+oy
+nj
+lJ
+Qx
+HR
+nj
+bI
+oP
+an
+oP
+IJ
+Qx
+Qx
+Qx
+iO
+oP
+an
+oP
+oP
+oP
+Eb
+oP
+oP
+oP
+oy
+"}
+(6,1,1) = {"
+oy
+nj
+TS
+oP
+nj
+nj
+TS
+nj
+oy
+oP
+Ax
+Qx
+Qx
+Qx
+cD
+oP
+oy
+oP
+oP
+oP
+bI
+oP
+oP
+oP
+oy
+"}
+(7,1,1) = {"
+oy
+nj
+TS
+nj
+zz
+mz
+vx
+nj
+oy
+oP
+oP
+oP
+oP
+oP
+oP
+oP
+oy
+wU
+oP
+oP
+nC
+oP
+XT
+HR
+oy
+"}
+(8,1,1) = {"
+oy
+nj
+Ut
+nj
+nj
+zz
+iA
+Mg
+oy
+Mc
+Qx
+Qx
+yJ
+Qx
+Qx
+HR
+oy
+Ax
+HR
+oP
+oP
+oP
+nC
+oy
+oy
+"}
+(9,1,1) = {"
+oy
+oy
+oy
+oy
+an
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+an
+oy
+oy
+oy
+rl
+"}
+(10,1,1) = {"
+oy
+xW
+dH
+dH
+dH
+dH
+dH
+dH
+oy
+wi
+wi
+wi
+TB
+wi
+wi
+wi
+oy
+eF
+UT
+UT
+oP
+oP
+oy
+rl
+rl
+"}
+(11,1,1) = {"
+oy
+gF
+dH
+zy
+yD
+dH
+zy
+Ul
+oy
+wi
+wi
+wi
+Sd
+wi
+wi
+wi
+oy
+UT
+UT
+oP
+oP
+oy
+oy
+rl
+rl
+"}
+(12,1,1) = {"
+oy
+dH
+dH
+dH
+dH
+dH
+dH
+gY
+oy
+wi
+wi
+fU
+pA
+uB
+wi
+wi
+oy
+UT
+UT
+oP
+oy
+oy
+oy
+rl
+rl
+"}
+(13,1,1) = {"
+oy
+zy
+Kb
+yD
+dH
+zy
+yD
+dH
+an
+ad
+ad
+pA
+Po
+pA
+ad
+ph
+oy
+MZ
+UT
+oP
+an
+eg
+an
+rl
+rl
+"}
+(14,1,1) = {"
+oy
+dH
+dH
+dH
+dH
+dH
+dH
+dH
+oy
+wi
+wi
+je
+pA
+JE
+wi
+wi
+oy
+UT
+UT
+oP
+oy
+oy
+oy
+rl
+rl
+"}
+(15,1,1) = {"
+oy
+zy
+mY
+dH
+zy
+yD
+Iu
+dH
+oy
+wi
+wi
+wi
+fF
+wi
+wi
+wi
+oy
+UT
+UT
+oP
+oP
+oy
+oy
+rl
+rl
+"}
+(16,1,1) = {"
+oy
+dH
+dH
+dH
+dH
+dH
+gY
+dH
+oy
+wi
+wi
+wi
+TB
+wi
+wi
+wi
+oy
+cK
+UT
+UT
+oP
+oP
+oy
+rl
+rl
+"}
+(17,1,1) = {"
+oy
+oy
+oy
+oy
+an
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+an
+oy
+oy
+oy
+rl
+"}
+(18,1,1) = {"
+oy
+nj
+nj
+Ci
+nj
+wU
+XT
+Mg
+oy
+Mc
+Qx
+Qx
+yJ
+Qx
+Qx
+HR
+oy
+XT
+HR
+oP
+oP
+oP
+wU
+oy
+oy
+"}
+(19,1,1) = {"
+oy
+zz
+mz
+YM
+nj
+Ax
+gH
+nj
+oy
+oP
+oP
+oP
+wU
+oP
+oP
+oP
+oy
+nC
+oP
+oP
+oP
+oP
+Ax
+HR
+oy
+"}
+(20,1,1) = {"
+oy
+nj
+nj
+nj
+nj
+nj
+TO
+eY
+oy
+oP
+wU
+oP
+bI
+oP
+wU
+oP
+oy
+oP
+oP
+oP
+oP
+oP
+oP
+oP
+oy
+"}
+(21,1,1) = {"
+oy
+nj
+lJ
+mz
+Qx
+Qx
+rY
+oP
+an
+oP
+bI
+oP
+bI
+oP
+bI
+oP
+an
+oP
+TI
+Qx
+HC
+Qx
+Qx
+HR
+oy
+"}
+(22,1,1) = {"
+oy
+nj
+TS
+nj
+nj
+oP
+bI
+oP
+oy
+oP
+bI
+oP
+nC
+oP
+bI
+oP
+oy
+oP
+oP
+oP
+oP
+oP
+oP
+oP
+oy
+"}
+(23,1,1) = {"
+oy
+nj
+Ut
+nj
+Ci
+oP
+nC
+oP
+oy
+oP
+nC
+oP
+oP
+oP
+nC
+oP
+oy
+wU
+oP
+oP
+oP
+oP
+XT
+HR
+oy
+"}
+(24,1,1) = {"
+oy
+nj
+nj
+nj
+Ut
+oP
+oP
+oP
+oy
+Mc
+Qx
+Qx
+yJ
+Qx
+Qx
+HR
+oy
+Ax
+HR
+oP
+oP
+oP
+nC
+oy
+oy
+"}
+(25,1,1) = {"
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+oy
+rl
+"}
