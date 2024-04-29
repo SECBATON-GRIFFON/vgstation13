@@ -1098,18 +1098,19 @@ its easier to just keep the beam vertical.
 			update_moody_light_overlay(light)
 
 /atom/proc/update_moody_light_overlay(var/image/light)
-	light.overlays.Cut()
-	var/turf/T = get_turf(src)
-	if(T)
-		var/image/overlayimg
-		for(var/atom/movable/AM in T)
-			if(AM.plane > src.plane && AM.layer > src.layer && AM.type != /atom/movable/lighting_overlay)
-				overlayimg = image(AM.icon,src,AM.icon_state)
-				overlayimg.color = "#000"
-				overlayimg.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
-				overlayimg.plane = LIGHTING_PLANE
-				overlayimg.blend_mode = BLEND_MULTIPLY
-				light.overlays += overlayimg
+	if(light)
+		light.overlays.Cut()
+		var/turf/T = get_turf(src)
+		if(T)
+			var/image/overlayimg
+			for(var/atom/movable/AM in T)
+				if(AM.plane > src.plane && AM.layer > src.layer && AM.type != /atom/movable/lighting_overlay)
+					overlayimg = image(AM.icon,src,AM.icon_state)
+					overlayimg.color = "#000"
+					overlayimg.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
+					overlayimg.plane = LIGHTING_PLANE
+					overlayimg.blend_mode = BLEND_MULTIPLY
+					light.overlays += overlayimg
 
 //Multi-overlay moody lights. don't combine both procs on a single atom, use one or the other.
 /atom/proc/update_moody_light_index(var/index, var/moody_icon = 'icons/lighting/moody_lights.dmi', var/moody_state = "white", moody_alpha = 255, moody_color = "#ffffff", offX = 0, offY = 0)
