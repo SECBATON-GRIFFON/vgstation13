@@ -59,7 +59,6 @@ var/global/list/ghdel_profiling = list()
 
 	var/image/moody_light
 	var/list/moody_lights = list()
-	var/list/moody_overlays = list()
 
 /atom/proc/beam_connect(var/obj/effect/beam/B)
 	if(!last_beamchecks)
