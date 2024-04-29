@@ -1089,28 +1089,6 @@ its easier to just keep the beam vertical.
 	luminosity = initial(luminosity)
 	moody_light = null
 
-/atom/proc/update_moody_light_overlays()
-	if(moody_light)
-		update_moody_light_overlay(moody_light)
-	if(moody_lights.len)
-		for(var/image/light in moody_lights)
-			update_moody_light_overlay(light)
-
-/atom/proc/update_moody_light_overlay(var/image/light)
-	if(light)
-		light.overlays.Cut()
-		var/turf/T = get_turf(src)
-		if(T)
-			var/image/overlayimg
-			for(var/atom/movable/AM in T)
-				if(AM.plane > src.plane && AM.layer > src.layer && AM.type != /atom/movable/lighting_overlay)
-					overlayimg = image(AM.icon,src,AM.icon_state)
-					overlayimg.color = "#000"
-					overlayimg.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
-					overlayimg.plane = LIGHTING_PLANE
-					overlayimg.blend_mode = BLEND_MULTIPLY
-					light.overlays += overlayimg
-
 //Multi-overlay moody lights. don't combine both procs on a single atom, use one or the other.
 /atom/proc/update_moody_light_index(var/index, var/moody_icon = 'icons/lighting/moody_lights.dmi', var/moody_state = "white", moody_alpha = 255, moody_color = "#ffffff", offX = 0, offY = 0)
 	if (!index)
@@ -1144,6 +1122,28 @@ its easier to just keep the beam vertical.
 		overlays -= moody_lights[i]
 		moody_lights.Remove(i)
 	luminosity = initial(luminosity)
+
+/atom/proc/update_moody_light_overlays()
+	if(moody_light)
+		update_moody_light_overlay(moody_light)
+	if(moody_lights.len)
+		for(var/image/light in moody_lights)
+			update_moody_light_overlay(light)
+
+/atom/proc/update_moody_light_overlay(var/image/light)
+	if(light)
+		light.overlays.Cut()
+		var/turf/T = get_turf(src)
+		if(T == loc)
+			var/image/overlayimg
+			for(var/atom/movable/AM in T)
+				if(AM.plane > src.plane && AM.layer > src.layer && AM.type != /atom/movable/lighting_overlay)
+					overlayimg = image(AM.icon,src,AM.icon_state,dir=AM.dir,pixel_x=AM.pixel_x,pixel_y=AM.pixel_y)
+					overlayimg.color = "#000"
+					overlayimg.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
+					overlayimg.plane = LIGHTING_PLANE
+					overlayimg.blend_mode = BLEND_MULTIPLY
+					light.overlays += overlayimg
 
 /atom/Crossed(O)
 	. = ..()
