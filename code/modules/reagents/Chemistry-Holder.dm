@@ -542,7 +542,10 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			//add secondary products
 			for(var/S in C.secondary_results)
 				add_reagent(S, C.result_amount * C.secondary_results[S] * multiplier, reagtemp = chem_temp)
-
+		if(C.result_type)
+			var/location = get_turf(my_atom)
+			for(var/i in 1 to (C.create_to_volume ? created_volume : 1))
+				new result_type(location)
 		if(C.quiet)
 			C.log_reaction(src, created_volume)
 		else

@@ -13,6 +13,8 @@
 	var/atom/required_container = null //The container required for the reaction to happen
 
 	var/result_amount = 0
+	var/result_type //If this spawns an items
+	var/create_to_volume = FALSE // create things up to the created volume?
 	var/secondary = 0 //Set to nonzero if secondary reaction
 	var/list/secondary_results = list() //Additional reagents produced by the reaction
 	var/is_cold_recipe = 0
@@ -106,11 +108,17 @@
 	required_reagents = list(POTASSIUM_HYDROXIDE = 20, NUTRIMENT = 5)
 	required_temp = T0C + 50
 	result_amount = 1
+	result_type = /obj/item/weapon/soap
+	create_to_volume = TRUE
 
-/datum/chemical_reaction/soap/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i=1 to created_volume)
-		new /obj/item/weapon/soap(location)
+/datum/chemical_reaction/bluespacecrystal
+	name = "Bluespace crystal"
+	id = "bluespacecrystal"
+	result = null
+	required_reagents = list(BLUESPACEJUICE = 100, SILICATE = 50, FROSTOIL = 50)
+	result_amount = 1
+	result_type = /obj/item/bluespace_crystal
+	required_container = /obj/item/weapon/reagent_containers/glass/beaker/bluespace
 
 /datum/chemical_reaction/creatine
 	name = "Creatine"
@@ -1137,11 +1145,10 @@
 	result = null
 	required_reagents = list(BICARIDINES = 10, CLONEXADONE = 10)
 	result_amount = 1
+	result_type = /obj/item/tool/FixOVein
 	required_container = /obj/item/weapon/reagent_containers/glass/beaker/vial //safety net and a case for the "crafting" of the tool
 
 /datum/chemical_reaction/fixoveinmake/on_reaction(var/datum/reagents/holder)
-	var/location = get_turf(holder.my_atom)
-	new /obj/item/tool/FixOVein(location)
 	qdel(holder.my_atom)
 
 /datum/chemical_reaction/bonegelmake
@@ -1150,11 +1157,10 @@
 	result = null
 	required_reagents = list(MILK = 10, CRYOXADONE = 10) //milk is good for the bones
 	result_amount = 1
+	result_type = /obj/item/tool/bonegel
 	required_container = /obj/item/weapon/reagent_containers/glass/beaker/vial
 
 /datum/chemical_reaction/bonegelmake/on_reaction(var/datum/reagents/holder)
-	var/location = get_turf(holder.my_atom)
-	new /obj/item/tool/bonegel(location)
 	qdel(holder.my_atom)
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1448,34 +1454,21 @@
 	id = "slimetile"
 	required_reagents = list(IRON = 5)
 	required_container = /obj/item/slime_extract/green
-
-/datum/chemical_reaction/slime_extract/slimetile/on_reaction(var/datum/reagents/holder)
-	var/obj/item/stack/tile/slime/T = new /obj/item/stack/tile/slime
-	T.amount = 20
-	T.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/stack/tile/slime/extract
 
 /datum/chemical_reaction/slime_extract/slimeheart
 	name = "slime heart"
 	id = "R_heart"
 	required_reagents = list(BLOOD = 5)
 	required_container = /obj/item/slime_extract/green
-
-/datum/chemical_reaction/slime_extract/slimeheart/on_reaction(var/datum/reagents/holder)
-	var/obj/item/slime_heart/S = new /obj/item/slime_heart
-	S.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/slime_heart
 
 /datum/chemical_reaction/slime_extract/slimecoat
 	name = "slime coat"
 	id = "R_coat"
 	required_reagents = list(WATER = 5)
 	required_container = /obj/item/slime_extract/green
-
-/datum/chemical_reaction/slime_extract/slimecoat/on_reaction(var/datum/reagents/holder)
-	var/obj/item/clothing/suit/storage/wintercoat/slimecoat/C = new /obj/item/clothing/suit/storage/wintercoat/slimecoat
-	C.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/clothing/suit/storage/wintercoat/slimecoat
 
 //Metal
 /datum/chemical_reaction/slime_extract/slimemetal
@@ -1852,11 +1845,7 @@
 	id = "m_nutrient"
 	required_reagents = list(BLOOD = 5)
 	required_container = /obj/item/slime_extract/darkblue
-
-/datum/chemical_reaction/slime_extract/slimenutrient/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimenutrient/P = new /obj/item/weapon/slimenutrient
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimenutrient
 
 //Orange
 /datum/chemical_reaction/slime_extract/slimecasp
@@ -1907,22 +1896,14 @@
 	id = "m_cell"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/yellow
-
-/datum/chemical_reaction/slime_extract/slimecell/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/obj/item/weapon/cell/slime/P = new /obj/item/weapon/cell/slime
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/cell/slime
 
 /datum/chemical_reaction/slime_extract/slimeglow
 	name = "Slime Glow"
 	id = "m_glow"
 	required_reagents = list(WATER = 5)
 	required_container = /obj/item/slime_extract/yellow
-
-/datum/chemical_reaction/slime_extract/slimeglow/on_reaction(var/datum/reagents/holder)
-	var/obj/item/device/flashlight/lamp/slime/P = new /obj/item/device/flashlight/lamp/slime
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/device/flashlight/lamp/slime
 
 //Purple
 /datum/chemical_reaction/slime_extract/slimepsteroid
@@ -1930,11 +1911,7 @@
 	id = "m_steroid"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/purple
-
-/datum/chemical_reaction/slime_extract/slimepsteroid/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimesteroid/P = new /obj/item/weapon/slimesteroid
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimesteroid
 
 /datum/chemical_reaction/slime_extract/slimejam
 	name = "Slime Jam"
@@ -1973,11 +1950,7 @@
 	id = "m_nutrient"
 	required_reagents = list(SUGARS = 5)
 	required_container = /obj/item/slime_extract/red
-
-/datum/chemical_reaction/slime_extract/slimeres/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimeres/P = new /obj/item/weapon/slimeres
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimeres
 
 /datum/chemical_reaction/slime_extract/slimebloodlust
 	name = "Bloodlust"
@@ -2001,11 +1974,7 @@
 	id = "m_potion"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/pink
-
-/datum/chemical_reaction/slime_extract/slimeppotion/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimepotion/P = new /obj/item/weapon/slimepotion
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimepotion
 
 //Black
 /datum/chemical_reaction/slime_extract/slimemutate2
@@ -2086,21 +2055,14 @@
 	id = "m_potion2"
 	required_container = /obj/item/slime_extract/lightpink
 	required_reagents = list(PLASMA = 5)
-
-/datum/chemical_reaction/slime_extract/slimepotion2/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimepotion2/P = new /obj/item/weapon/slimepotion2
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimepotion2
 
 /datum/chemical_reaction/slime_extract/slimeparalyze
 	name = "Slime Paralyzer"
 	id = "slimepara"
 	required_container = /obj/item/slime_extract/lightpink
 	required_reagents = list(BLOOD = 5)
-
-/datum/chemical_reaction/slime_extract/slimeparalyze/on_reaction(var/datum/reagents/holder)
-	new /obj/item/weapon/slimeparapotion(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimeparapotion
 
 //Adamantine
 /datum/chemical_reaction/slime_extract/slimegolem
@@ -2231,22 +2193,14 @@
 	id = "m_steroid2"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/cerulean
-
-/datum/chemical_reaction/slime_extract/slimepsteroid2/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimesteroid2/P = new /obj/item/weapon/slimesteroid2
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimesteroid2
 
 /datum/chemical_reaction/slime_extract/slimedupe
 	name = "Slime Duplicator"
 	id = "m_dupe"
 	required_reagents = list(BLOOD = 5)
 	required_container = /obj/item/slime_extract/cerulean
-
-/datum/chemical_reaction/slime_extract/slimedupe/on_reaction(var/datum/reagents/holder)
-	var/obj/item/weapon/slimedupe/P = new /obj/item/weapon/slimedupe
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/slimedupe
 
 //Sepia
 /datum/chemical_reaction/slime_extract/slimecamera
@@ -2254,22 +2208,14 @@
 	id = "m_camera"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/sepia
-
-/datum/chemical_reaction/slime_extract/slimecamera/on_reaction(var/datum/reagents/holder)
-	var/obj/item/device/camera/sepia/P = new /obj/item/device/camera/sepia
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = new /obj/item/device/camera/sepia
 
 /datum/chemical_reaction/slime_extract/slimefilm
 	name = "Slime Film"
 	id = "m_film"
 	required_reagents = list(BLOOD = 5)
 	required_container = /obj/item/slime_extract/sepia
-
-/datum/chemical_reaction/slime_extract/slimefilm/on_reaction(var/datum/reagents/holder)
-	var/obj/item/device/camera_film/P = new /obj/item/device/camera_film
-	P.forceMove(get_turf(holder.my_atom))
-	..()
+	result_type = new /obj/item/device/camera_film
 
 /datum/chemical_reaction/slime_extract/slimestop
 	name = "Slime timestop"
@@ -2289,20 +2235,14 @@
 	id = "s_paint"
 	required_reagents = list(PLASMA = 5)
 	required_container = /obj/item/slime_extract/pyrite
-
-/datum/chemical_reaction/slime_extract/slimepaint/on_reaction(var/datum/reagents/holder)
-	new /obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/reagent_containers/glass/metal_bucket/paint/filled/random
 
 /datum/chemical_reaction/slime_extract/slimenanopaint
 	name = "Slime Nano Paint"
 	id = "s_nanopaint"
 	required_reagents = list(PHAZON = 5)
 	required_container = /obj/item/slime_extract/pyrite
-
-/datum/chemical_reaction/slime_extract/slimenanopaint/on_reaction(var/datum/reagents/holder)
-	new /obj/item/weapon/reagent_containers/glass/metal_bucket/nanopaint/filled/vantablack(get_turf(holder.my_atom))
-	..()
+	result_type = /obj/item/weapon/reagent_containers/glass/metal_bucket/nanopaint/filled/vantablack
 
 /datum/chemical_reaction/slime_extract/slimecash
 	name = "Slime Cash"
@@ -2332,11 +2272,8 @@
 	required_reagents = list(SOYMILK = 10)
 	required_catalysts = list(ENZYME = 5)
 	result_amount = 1
-
-/datum/chemical_reaction/tofu/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
-		new /obj/item/weapon/reagent_containers/food/snacks/tofu(location)
+	result_type = /obj/item/weapon/reagent_containers/food/snacks/tofu
+	create_to_volume = TRUE
 
 /datum/chemical_reaction/chocolate_bar
 	name = "Chocolate Bar"
@@ -2344,23 +2281,11 @@
 	result = null
 	required_reagents = list(SOYMILK = 2, COCO = 2, SUGARS = 2)
 	result_amount = 1
+	result_type = /obj/item/weapon/reagent_containers/food/snacks/chocolatebar
+	create_to_volume = TRUE
 
-/datum/chemical_reaction/chocolate_bar/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
-		new /obj/item/weapon/reagent_containers/food/snacks/chocolatebar(location)
-
-/datum/chemical_reaction/chocolate_bar2
-	name = "Chocolate Bar"
-	id = "chocolate_bar"
-	result = null
+/datum/chemical_reaction/chocolate_bar/alt
 	required_reagents = list(MILK = 2, COCO = 2, SUGARS = 2)
-	result_amount = 1
-
-/datum/chemical_reaction/chocolate_bar2/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
-		new /obj/item/weapon/reagent_containers/food/snacks/chocolatebar(location)
 
 /datum/chemical_reaction/hot_coco
 	name = "Hot Coco"
@@ -2467,11 +2392,8 @@
 	required_reagents = list(MILK = 40)
 	required_catalysts = list(ENZYME = 5)
 	result_amount = 1
-
-/datum/chemical_reaction/cheesewheel/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i=1 to created_volume)
-		new /obj/item/weapon/reagent_containers/food/snacks/sliceable/cheesewheel(location)
+	result_type = /obj/item/weapon/reagent_containers/food/snacks/sliceable/cheesewheel
+	create_to_volume = TRUE
 
 /datum/chemical_reaction/butter
 	name = "Butter"
@@ -2480,11 +2402,8 @@
 	required_reagents = list(CREAM = 20, SODIUMCHLORIDE = 5)
 	required_catalysts = list(ENZYME = 5)
 	result_amount = 1
-
-/datum/chemical_reaction/butter/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i=1 to created_volume)
-		new /obj/item/weapon/reagent_containers/food/snacks/butter(location)
+	result_type = /obj/item/weapon/reagent_containers/food/snacks/butter
+	create_to_volume = TRUE
 
 /*
 		=Recipe for easy pancakes=
@@ -2524,11 +2443,8 @@
 	result = null
 	required_reagents = list(BLOOD = 5, CLONEXADONE = 1)
 	result_amount = 1
-
-/datum/chemical_reaction/syntiflesh/on_reaction(var/datum/reagents/holder, var/created_volume)
-	var/location = get_turf(holder.my_atom)
-	for(var/i=1 to created_volume)
-		new /obj/item/weapon/reagent_containers/food/snacks/meat/syntiflesh(location)
+	result_type = /obj/item/weapon/reagent_containers/food/snacks/meat/syntiflesh
+	create_to_volume = TRUE
 
 /datum/chemical_reaction/hot_ramen
 	name = "Hot Ramen"
@@ -3911,10 +3827,9 @@
 	required_reagents = list(NUTRIMENT = 1, AMINOMICIN = 1)
 	result_amount = 1
 	required_container = /obj/item/weapon/reagent_containers/food/snacks/cracker
+	result_type = /mob/living/simple_animal/parrot
 
 /datum/chemical_reaction/synthparrot/on_reaction(var/datum/reagents/holder)
-	var/location = get_turf(holder.my_atom)
-	new /mob/living/simple_animal/parrot(location)
 	qdel(holder.my_atom)
 
 /datum/chemical_reaction/synthmob //to cut down in duplicate code
@@ -4116,12 +4031,8 @@
 	result = null
 	required_reagents = list(ECTOPLASM = 1, CARAMEL = 5)
 	result_amount = 1
+	result_type = /mob/living/simple_animal/hostile/ginger/gingerboneman
 	required_container = /obj/item/weapon/reagent_containers/food/snacks/gingerbread_man
-
-/datum/chemical_reaction/synthgingerbone/on_reaction(var/datum/reagents/holder)
-	var/L = get_turf(holder.my_atom)
-	new /mob/living/simple_animal/hostile/ginger/gingerboneman(L)
-	qdel(holder.my_atom)
 
 /datum/chemical_reaction/midazoline
 	name = "Midazoline"

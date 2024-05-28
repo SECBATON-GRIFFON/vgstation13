@@ -707,7 +707,7 @@
 	plant_dmi = 'icons/obj/hydroponics/bluespacetomato.dmi'
 	products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/bluespacetomato)
 	mutants = null
-	chems = list(NUTRIMENT = list(1,20), SINGULO = list(1,5))
+	chems = list(NUTRIMENT = list(1,20), SINGULO = list(1,5), BLUESPACEJUICE = list(1))
 	teleporting = 1
 
 //Eggplants/varieties.

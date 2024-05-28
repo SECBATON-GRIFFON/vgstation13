@@ -204,6 +204,7 @@
 #define ORANGEJUICE 			"orangejuice"
 #define OPOKJUICE 			"opokjuice"
 #define TOMATOJUICE 			"tomatojuice"
+#define BLUESPACEJUICE 			"bluespacejuice"
 #define LIMEJUICE 			"limejuice"
 #define CARROTJUICE 			"carrotjuice"
 #define BERRYJUICE 			"berryjuice"

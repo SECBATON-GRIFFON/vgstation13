@@ -142,6 +142,28 @@
 	if(M.getFireLoss() && prob(20))
 		M.heal_organ_damage(0, 1)
 
+/datum/reagent/drink/tomatojuice/bluespacejuice
+	name = "Bluespace Juice"
+	id = BLUESPACEJUICE
+	description = "Bluespace tomato rinds made into juice. Would have been better to just throw them at clowns."
+	color = "#0080FF"
+	glass_desc = "NOT tomato juice. Or the curacao for that matter."
+	mug_desc = "NOT tomato juice. Or the curacao for that matter."
+
+/datum/reagent/drink/tomatojuice/bluespacejuice/on_mob_life(var/mob/living/M)
+	if(..())
+		return 1
+	if(prob(min(volume,100)))
+		var/picked = pick_rand_tele_turf(M, volume/15, volume/10)
+		if(!isturf(picked))
+			return 1
+		spark(M)
+		M.unlock_from()
+		M.forceMove(picked) //Send then to that location we picked previously
+		spawn()
+			spark(M) //Two set of sparks, one before the teleport and one after. //Sure then ?
+	return 0
+
 /datum/reagent/drink/limejuice
 	name = "Lime Juice"
 	id = LIMEJUICE

@@ -145,6 +145,8 @@
 	siemens_coefficient = 1
 	max_amount = 60
 
+/obj/item/stack/tile/slime/extract
+	amount = 20
 
 /obj/item/stack/tile/slime/adjust_slowdown(mob/living/L, current_slowdown)
 	if(isslimeperson(L) || isslime(L))
