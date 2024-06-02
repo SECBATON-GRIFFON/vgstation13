@@ -111,7 +111,6 @@
 	var/static/list/illegalChems = list(	//Just a bad idea
 		ADMINORDRAZINE,
 		PROCIZINE,
-		BLOCKIZINE,
 		AUTISTNANITES,
 		XENOMICROBES,
 		PAISMOKE

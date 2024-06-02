@@ -21,27 +21,32 @@
 	if(!T.has_dense_content() && volume >= 10 && !(locate(/obj/effect/decal/cleanable/pepper) in T))
 		new /obj/effect/decal/cleanable/pepper(T)
 
-/datum/reagent/blockizine
-	name = "Blockizine"
-	id = BLOCKIZINE
-	description = "Some type of material that preferentially binds to all possible chemical receptors in the body, but without any direct negative effects."
+/datum/reagent/stasizine
+	name = "Stasizine"
+	id = STASIZINE
+	description = "Some type of material that preferentially binds to all possible chemical receptors in the body, but without any direct negative effects. Also separates all other substances from interaction at a molecular level."
 	reagent_state = REAGENT_STATE_LIQUID
 	custom_metabolism = 0
 	color = "#B0B0B0"
 
-/datum/reagent/blockizine/on_mob_life(var/mob/living/carbon/human/H)
+/datum/reagent/stasizine/on_mob_life(var/mob/living/carbon/human/H)
 	if(..())
 		return 1
 	if(!data)
 		data = world.time+3000
 	if(world.time > data)
-		holder.del_reagent(BLOCKIZINE,volume) //needs to be del_reagent, because metabolism is 0
+		holder.del_reagent(STASIZINE,volume) //needs to be del_reagent, because metabolism is 0
 		return
 
 	if(istype(H) && volume >= 25)
-		holder.isolate_reagent(BLOCKIZINE)
+		holder.isolate_reagent(STASIZINE)
 		volume = holder.maximum_volume
 		holder.update_total()
+
+/datum/reagent/stasizine/anti
+	name = "Antistasizine"
+	id = ANTISTASIZINE
+	description = "The polarity inverted version of stasizine, some type of material that preferentially binds to all possible chemical receptors in the body, but without any direct negative effects. Also separates all other substances from interaction at a molecular level."
 
 /datum/reagent/bluegoo
 	name = "Blue Goo"

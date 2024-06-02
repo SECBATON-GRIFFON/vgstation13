@@ -4196,7 +4196,7 @@
 		var/datum/chemical_reaction/new_reaction = pick(chemical_reactions_list[our_id])
 		holder.handle_reaction(new_reaction,TRUE,created_volume)
 	else // Or else just spawn a new chem
-		var/list/blocked_chems = list(ADMINORDRAZINE, PROCIZINE, BLOCKIZINE, PAISMOKE) // Bad ideas to spawn
+		var/list/blocked_chems = list(ADMINORDRAZINE, PROCIZINE, PAISMOKE) // Bad ideas to spawn
 		var/list/allowed_reagents = chemical_reagents_list - blocked_chems
 		holder.add_reagent(pick(allowed_reagents),created_volume)
 
@@ -4207,6 +4207,13 @@
 	required_reagents = list(HYPERZINE = 10, FUEL = 10)
 	required_catalysts = list(ZOMBIEPOWDER = 5)
 	result_amount = 5
+
+/datum/chemical_reaction/stasis_neutralize
+	name = "Stasizine neutralization"
+	id = ANTISTASIZINE
+	result = null
+	required_reagents = list(STASIZINE = 1, ANTISTASIZINE = 1)
+	result_amount = 2
 
 #undef ALERT_AMOUNT_ONLY
 #undef ALERT_ALL_REAGENTS

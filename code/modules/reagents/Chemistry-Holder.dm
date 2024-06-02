@@ -441,6 +441,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		return //sanity check
 	if(my_atom.flags & NOREACT)
 		return //Yup, no reactions here. No siree.
+	if(has_reagent(STASIZINE) || has_reagent(ANTISTASIZINE))
+		return
 
 	var/any_reactions
 	var/reaction_occured
