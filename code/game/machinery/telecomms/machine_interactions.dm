@@ -240,6 +240,9 @@
 	if(href_list["delete_name"])
 		var/x = href_list["delete_name"]
 		temp = "<font color = #666633>-% Removed frequency name [x] %-</font color>"
+		var/indx = freq_names.Find(x)
+		if(indx && indx <= freq_listening.len)
+			update_radio_frequency("Unknown", freq_listening[indx], "#808080", usr)
 		freq_names.Remove(x)
 
 	if(href_list["input_name"])
