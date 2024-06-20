@@ -30,7 +30,8 @@
 		src.amount=amount
 	update_materials()
 	update_icon()
-	//forceMove(loc) // So that Crossed gets called, so that stacks can be merged
+	for(var/obj/item/stack/S in loc)
+		merge(S)
 	initial_thermal_mass = thermal_mass
 	thermal_mass = initial_thermal_mass * src.amount
 
@@ -327,7 +328,7 @@
 
 //Ported from -tg-station/#10973, credit to MrPerson
 /obj/item/stack/Crossed(obj/o)
-	if(src != o && istype(o, src.type) && !o.throwing)
+	if(!o.throwing)
 		merge(o)
 	return ..()
 
@@ -335,8 +336,7 @@
 	. = ..()
 	if(.)
 		return
-	if(src != AM && istype(AM, src.type))
-		merge(AM)
+	merge(AM)
 
 /obj/item/stack/proc/copy_evidences(obj/item/stack/from as obj)
 	src.blood_DNA = from.blood_DNA
