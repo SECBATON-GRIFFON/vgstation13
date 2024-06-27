@@ -83,6 +83,8 @@ Refactored AI modules by N3X15
 	lawchanges.Add("[time] : [log_entry]")
 	message_admins(log_entry)
 	log_game(log_entry)
+	if(sender?.client?.stats)
+		sender.client.stats.lawchanges++
 	score.lawchanges++
 	return 1
 

@@ -1694,6 +1694,8 @@ Thanks.
 	Stun(stun_amount)
 	Knockdown(weaken_amount)
 	score.slips++
+	if(client?.stats)
+		client.stats.slips++
 	return 1
 
 ///////////////////////DISEASE STUFF///////////////////////////////////////////////////////////////////

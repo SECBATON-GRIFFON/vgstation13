@@ -1037,7 +1037,7 @@ var/list/admin_verbs_mod = list(
 
 	to_chat(winner, "<span class='danger'>[bicon(award)] Congratulations to you, <b>[winner.name]</b>! You have won \"<b>[name]</b>\"!</span>")
 
-	var/datum/achievement = new /datum/achievement(award, winner.key, winner.name, name, desc)
+	var/datum/achievement = new /datum/achievement(award, winner, name, desc)
 	ticker.achievements.Add(achievement)
 
 /client/proc/shuttle_magic()

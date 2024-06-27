@@ -16,6 +16,7 @@
 		//OTHER//
 		/////////
 	var/datum/preferences/prefs = null
+	var/datum/stats/stats = null
 	var/moving			= null
 	var/adminobs		= null
 	var/area			= null

@@ -266,6 +266,8 @@
 
 //		to_chat(world, "<span class='notice'>Exploding Pressure: [pressure] kPa, intensity: [range]</span>")
 		var/mob/user = istype(src.loc,/obj/item/device/transfer_valve) ? get_mob_by_key(loc.fingerprintslast) : get_mob_by_key(fingerprintslast)
+		if(user?.client?.stats)
+			user.client.stats.largest_TTV = max(user.client.stats.largest_TTV, range)
 		explosion(epicenter, round(range*0.25), round(range*0.5), round(range), round(range*1.5), 1, whodunnit = user, true_range = cap)
 
 		if(istype(src.loc,/obj/item/device/transfer_valve))

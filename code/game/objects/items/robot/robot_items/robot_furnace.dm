@@ -71,6 +71,8 @@
 				for(var/ore_id in R.ingredients)
 					ore.removeAmount(ore_id, R.ingredients[ore_id])
 					score.oremined += 1 //Count this ore piece as processed for the scoreboard
+					if(user?.client?.stats)
+						user.client.stats.oremined += 1
 
 				new R.yieldtype(get_turf(loc))
 				sheets_this_tick++

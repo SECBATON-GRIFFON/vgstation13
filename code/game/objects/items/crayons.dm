@@ -219,6 +219,8 @@ var/global/list/all_graffitis = list(
 			"<span class='notice'>You bite a chunk out of \the [src].</span>")
 		user.nutrition += 5
 		score.foodeaten++
+		if(user?.client?.stats)
+			user.client.stats.foodeaten++
 		if(ispath(text2path("/datum/reagent/paint/[colourName]")) && M.reagents)
 			M.reagents.add_reagent("paint_[colourName]", 10)
 		if(uses)

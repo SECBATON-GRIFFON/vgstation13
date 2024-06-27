@@ -85,6 +85,11 @@
 				score.dmgestname = player.real_name
 				score.dmgestjob = player.job
 				score.dmgestkey = player.key
+			if(player?.client?.stats)
+				if(cashscore > player.client.stats.richestcash)
+					player.client.stats.richestcash = cashscore
+				if(dmgscore > player.client.stats.dmgestdamage)
+					player.client.stats.dmgestdamage = dmgscore
 		if(trader_account)
 			var/shoal_amount = 0
 			for(var/datum/transaction/TR in trader_account.transaction_log)
@@ -93,6 +98,9 @@
 			if(shoal_amount > 0)
 				var/datum/record/money/record = new(player.key, player.job, shoal_amount)
 				rich_shoals += record
+				if(player?.client?.stats)
+					if(shoal_amount > player.client.stats.biggestshoalcash)
+						player.client.stats.biggestshoalcash = shoal_amount
 				if(shoal_amount > score.biggestshoalcash)
 					score.biggestshoalcash = shoal_amount
 					score.biggestshoalname = player.real_name

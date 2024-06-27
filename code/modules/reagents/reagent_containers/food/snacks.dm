@@ -74,6 +74,8 @@
 	if(!reagentreference || !reagentreference.total_volume) //Are we done eating (determined by the amount of reagents left, here 0)
 		user.visible_message("<span class='notice'>[user] finishes eating \the [src].</span>", \
 		"<span class='notice'>You finish eating \the [src].</span>")
+		if(user?.client?.stats)
+			user.client.stats.foodeaten++
 		score.foodeaten++ //For post-round score
 
 		if(luckiness)

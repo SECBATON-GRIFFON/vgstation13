@@ -67,6 +67,9 @@ var/list/possibleEvents = list()
 	events.Add(picked_event)
 
 	score.eventsendured++
+	for (var/client/C in clients)
+		if(C.stats)
+			C.stats.eventsendured++
 
 	return 1
 

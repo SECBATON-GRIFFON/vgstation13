@@ -149,6 +149,8 @@
 		qdel(O)
 	container.reagents.clear_reagents() //Clear all the reagents we haven't transfered, for instance if we need to cook in water
 	score.meals++
+	if(user?.client?.stats)
+		user.client.stats.meals++
 	return result_obj
 
 

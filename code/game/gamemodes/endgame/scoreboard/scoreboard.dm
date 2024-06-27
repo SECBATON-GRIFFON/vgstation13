@@ -353,9 +353,11 @@ var/global/datum/controller/gameticker/scoreboard/score = new()
 	var/award_name
 	var/award_desc
 
-/datum/achievement/New(var/item, var/ckey, var/mob_name, var/award_name, var/award_desc)
+/datum/achievement/New(var/item, var/mob/winner, var/award_name, var/award_desc)
 	src.item = item
-	src.ckey = ckey
-	src.mob_name = mob_name
+	src.ckey = winner.ckey
+	src.mob_name = winner.name
 	src.award_name = award_name
 	src.award_desc = award_desc
+	if(winner.client?.stats)
+		winner.client.stats.achievements += src
