@@ -38,6 +38,9 @@
 		return 0//Cooldown check
 
 	timing = !timing
+	if(!silent)
+		spawn()
+			timesoundloop(clamp(3-time,0,3)*3)
 
 	update_icon()
 	return 0
@@ -77,10 +80,13 @@
 	if(!silent && timing && time > 0)
 		playsound(src,decrement >= 7 && speedsup == TICK_SPEEDUP ? 'sound/items/assemblytick1.ogg' : 'sound/items/assemblytick2.ogg',100,1,frequency = freq)
 		spawn(max(1,10 - decrement))
-			if(speedsup && time < 3)
+			if(speedsup && time <= 3)
 				decrement++
 				if(speedsup == TICK_PITCHUP)
-					freq *= 1.05
+					freq *= 1.03
+			else
+				decrement = 0
+				freq = 1
 			timesoundloop(decrement,freq)
 
 /obj/item/device/assembly/timer/update_icon()
@@ -128,7 +134,7 @@
 		update_icon()
 		if(!silent)
 			spawn()
-				timesoundloop()
+				timesoundloop(clamp(3-time,0,3)*3)
 
 	if(href_list["tp"])
 		var/tp = text2num(href_list["tp"])
@@ -143,7 +149,7 @@
 		silent = !silent
 	
 	if(href_list["toggle_speedup"])
-		speedsup = (speedsup + 1) % 2
+		speedsup = (speedsup + 1) % 3
 
 	if(href_list["close"])
 		usr << browse(null, "window=timer")
