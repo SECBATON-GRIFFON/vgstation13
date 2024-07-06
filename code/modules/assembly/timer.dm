@@ -6,6 +6,9 @@
 #define TIMEMODE_REPEAT "Repeat pulse and recount"
 #define TIMEMODE_ONCE "Pulse once and stop"
 
+#define TICK_SPEEDUP 1
+#define TICK_PITCHUP 2
+
 /obj/item/device/assembly/timer
 	name = "timer"
 	desc = "Used to time things. Works well with contraptions which have to count down. Tick tock."
@@ -22,6 +25,7 @@
 	var/time = 10
 	var/repeat = FALSE
 	var/default_time = 10
+	var/speedsup = TICK_PITCHUP
 
 	accessible_values = list(\
 		VALUE_REMAINING_TIME = "time;"+VT_NUMBER,\
@@ -69,6 +73,15 @@
 		time = default_time
 	return
 
+/obj/item/device/assembly/timer/proc/timesoundloop(decrement = 0,freq = 1)
+	if(!silent && timing && time > 0)
+		playsound(src,decrement >= 7 && speedsup == TICK_SPEEDUP ? 'sound/items/assemblytick1.ogg' : 'sound/items/assemblytick2.ogg',100,1,frequency = freq)
+		spawn(max(1,10 - decrement))
+			if(speedsup && time < 3)
+				decrement++
+				if(speedsup == TICK_PITCHUP)
+					freq *= 1.05
+			timesoundloop(decrement,freq)
 
 /obj/item/device/assembly/timer/update_icon()
 	overlays.len = 0
@@ -92,6 +105,8 @@
 	dat += "<BR><BR><A href='?src=\ref[src];set_default_time=1'>After countdown, reset time to [(default_time - default_time%60)/60]:[(default_time % 60)]</A>"
 	dat += {"<BR><BR><A href='?src=\ref[src];refresh=1'>Refresh</A>
 		<BR><BR><A href='?src=\ref[src];toggle_mode=1'>Mode: [repeat ? TIMEMODE_REPEAT : TIMEMODE_ONCE]</A>
+		<BR><BR><A href='byond://?src=\ref[src];toggle_silent=1'>Timer tick sound: O[silent ? "ff" : "n"]</A>
+		<BR><BR><A href='byond://?src=\ref[src];toggle_speedup=1'>Timer tick speedup: [speedsup == TICK_PITCHUP ? "Speed and pitch" : speedsup ? "Speed" : "None"]</A>
 		<BR><BR><A href='?src=\ref[src];close=1'>Close</A>"}
 	user << browse(dat, "window=timer")
 	onclose(user, "timer")
@@ -111,6 +126,9 @@
 		timing = text2num(href_list["time"])
 		message_admins("[key_name_admin(usr)] [timing ? "started" : "stopped"] a timer at [formatJumpTo(src)]")
 		update_icon()
+		if(!silent)
+			spawn()
+				timesoundloop()
 
 	if(href_list["tp"])
 		var/tp = text2num(href_list["tp"])
@@ -120,6 +138,12 @@
 	if(href_list["toggle_mode"])
 		repeat = !repeat
 		return
+		
+	if(href_list["toggle_silent"])
+		silent = !silent
+	
+	if(href_list["toggle_speedup"])
+		speedsup = (speedsup + 1) % 2
 
 	if(href_list["close"])
 		usr << browse(null, "window=timer")
@@ -144,3 +168,6 @@
 #undef VALUE_REMAINING_TIME
 #undef VALUE_DEFAULT_TIME
 #undef VALUE_TIMING
+
+#undef TICK_SPEEDUP
+#undef TICK_PITCHUP
