@@ -1723,7 +1723,10 @@ Note that amputating the affected organ does in fact remove the infection from t
 /datum/organ/external/head/droplimb(override, no_explode, spawn_limb, display_message)
 	. = ..()
 	owner.update_hair(1)
-	return .
+	var/datum/role/vampire/V = isvampire(owner)
+	if(V)
+		to_chat(owner,"<span class='sinister'>Your head has been removed from your body! If reattached after one minute, you will lose all vampiric powers and return to being a mere mortal!</span>")
+		V.time_decapitated = world.time
 
 /****************************************************
 			   EXTERNAL ORGAN ITEMS

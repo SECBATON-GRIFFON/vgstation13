@@ -24,6 +24,8 @@
 	var/blood_usable = STARTING_BLOOD
 	var/blood_total = STARTING_BLOOD
 
+	var/time_decapitated
+
 	var/list/feeders = list()
 
 	var/list/image/cached_images = list()

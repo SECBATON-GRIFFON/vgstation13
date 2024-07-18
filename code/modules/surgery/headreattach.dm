@@ -200,7 +200,10 @@
 	affected.attach(B)
 	target.decapitated = null
 	target.op_stage.head_reattach = 0
-
+	var/datum/role/vampire/V = isvampire(target)
+	if(V && (world.time - V.time_decapitated > 1 MINUTES))
+		to_chat(target,"Your head was reattached after a minute of decapitation, and you have been reverted to mortal status! You are no longer a vampire!")
+		V.RemoveFromRole(V.antag)
 
 /datum/surgery_step/head/attach/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/datum/organ/external/affected = target.get_organ(target_zone)
