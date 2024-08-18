@@ -1190,20 +1190,24 @@
 	desc =  "Causes the infected to be unable to perceive others at all."
 	stage = 4
 	badness = EFFECT_DANGER_DEADLY
+	var/list/image/null_images
 
 /datum/disease2/effect/loneliness/activate(var/mob/living/mob)
+	null_images = list()
 	if(mob.client)
 		to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you."))
 		for(var/mob/other in mob_list)
 			if(other != mob)
-				mob.client.images -= mob
+				var/image/I = image(null)
+				I.override = 1
+				I.loc = other
+				mob.client.images += I
+				null_images += I
 	
 /datum/disease2/effect/loneliness/deactivate(mob/living/carbon/mob)
 	if(mob.client)
 		to_chat(mob,pick("Everybody is back now","You feel more in with the crowd again."))
-		for(var/mob/other in mob_list)
-			if(other != mob)
-				mob.client.images |= mob
+		mob.client.images.Remove(null_images)
 
 /*
 /datum/disease2/effect/faithless
