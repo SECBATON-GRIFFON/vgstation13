@@ -108,12 +108,21 @@ var/list/trayhit_sound = list('sound/items/trayhit1.ogg', 'sound/items/trayhit2.
 				var/turf/portal/P1 = locate(/turf/portal) in player_turf.vis_locs
 				var/turf/portal/P2 = locate(/turf/portal) in turf_source.vis_locs
 				if((get_z_dist(player_turf, turf_source) <= Dist) || (P1 && get_z_dist(P1, turf_source) <= Dist) || (P2 && get_z_dist(player_turf, P2) <= Dist) || (P1 && P2 && get_z_dist(P1, P2) <= Dist))
-					player.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, gas_modified, channel,wait)
+					player.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, gas_modified, channel, wait, source)
 
 var/const/FALLOFF_SOUNDS = 1
 var/const/SURROUND_CAP = 7
 
 #define MIN_SOUND_PRESSURE	2 //2 kPa of pressure required to at least hear sound
+/mob/living/playsound_local(var/turf/turf_source, soundin, vol as num, vary, frequency, falloff, gas_modified, var/channel = 0,var/wait = FALSE, var/atom/source)
+	if(virus2.len)
+		for(var/ID in virus2)
+			var/datum/disease2/disease/V = virus2[ID]
+			for(var/datum/disease2/effect/e in V.effects)
+				if(e.type == /datum/disease2/effect/loneliness && ismob(source))
+					return
+	return ..()
+
 /mob/proc/playsound_local(var/turf/turf_source, soundin, vol as num, vary, frequency, falloff, gas_modified, var/channel = 0,var/wait = FALSE)
 	if(!src.client)
 		return

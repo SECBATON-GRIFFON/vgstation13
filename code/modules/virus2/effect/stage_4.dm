@@ -1185,6 +1185,26 @@
 		H.set_species("Grey", transfer_damage = TRUE)
 		H.regenerate_icons()
 
+/datum/disease2/effect/loneliness
+	name = "Loneliness Syndrome"
+	desc =  "Causes the infected to be unable to perceive others at all."
+	stage = 4
+	badness = EFFECT_DANGER_DEADLY
+
+/datum/disease2/effect/loneliness/activate(var/mob/living/mob)
+	if(mob.client)
+		to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you."))
+		for(var/mob/other in mob_list)
+			if(other != mob)
+				mob.client.images -= mob
+	
+/datum/disease2/effect/loneliness/deactivate(mob/living/carbon/mob)
+	if(mob.client)
+		to_chat(mob,pick("Everybody is back now","You feel more in with the crowd again."))
+		for(var/mob/other in mob_list)
+			if(other != mob)
+				mob.client.images |= mob
+
 /*
 /datum/disease2/effect/faithless
 	name = "Curse of the Faithless"
