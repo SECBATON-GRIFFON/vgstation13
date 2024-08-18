@@ -294,7 +294,9 @@
 
 /mob/proc/show_message(var/msg, var/type, var/alt, var/alt_type, var/mob/speaker, atom/source)//Message, type of message (1=visible or 2=hearable), alternative message, alt message type (1=if blind or 2=if deaf), and optionally the speaker
 	//Because the person who made this is a fucking idiot, let's clarify. 1 is sight-related messages (aka emotes in general), 2 is hearing-related (aka HEY DUMBFUCK I'M TALKING TO YOU)
-
+	if(loneliness_affected(source))
+		return
+	
 	if(!client) //We dun goof
 		return
 
@@ -334,15 +336,6 @@
 // self_drugged_message (optional) is shown to src mob if it's hallucinating
 // blind_drugged_message (optional) is shown to blind hallucinating people
 // ignore_self (optional) won't show the message to the mob sending the message
-
-/mob/living/show_message(var/msg, var/type, var/alt, var/alt_type, var/mob/speaker, atom/source)
-	if(virus2.len)
-		for(var/ID in virus2)
-			var/datum/disease2/disease/V = virus2[ID]
-			for(var/datum/disease2/effect/e in V.effects)
-				if(e.type == /datum/disease2/effect/loneliness && ismob(source))
-					return
-	return ..()
 
 /mob/visible_message(var/message, var/self_message, var/blind_message, var/drugged_message, var/self_drugged_message, var/blind_drugged_message, var/ignore_self = 0, var/range = 7)
 	var/hallucination = hallucinating()

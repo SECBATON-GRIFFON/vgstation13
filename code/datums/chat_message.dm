@@ -236,6 +236,10 @@ var/runechat_icon = null
 	// Display visual above source
 	new /datum/chatmessage(raw_message, speaker, src, extra_classes)
 
+/mob/living/create_chat_message(atom/movable/speaker, datum/language/message_language, raw_message, mode, list/existing_extra_classes)
+	if(!loneliness_affected(speaker))
+		..()
+
 // Tweak these defines to change the available color ranges
 #define CM_COLOR_SAT_MIN	0.6
 #define CM_COLOR_SAT_MAX	0.95

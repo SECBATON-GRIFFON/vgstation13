@@ -1230,6 +1230,18 @@
 	QDEL_LIST_CUT(null_images)
 	activated = 0
 
+/mob/proc/loneliness_affected(atom/source)
+	return FALSE
+
+/mob/living/loneliness_affected(atom/source)
+	if(virus2.len)
+		for(var/ID in virus2)
+			var/datum/disease2/disease/V = virus2[ID]
+			for(var/datum/disease2/effect/e in V.effects)
+				if(e.type == /datum/disease2/effect/loneliness && ismob(source))
+					return TRUE
+	return FALSE
+
 /*
 /datum/disease2/effect/faithless
 	name = "Curse of the Faithless"

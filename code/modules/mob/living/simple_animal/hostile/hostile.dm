@@ -168,13 +168,7 @@
 	return
 
 /mob/living/simple_animal/hostile/proc/isValidTarget(var/atom/A)//we should have made that proc long ago instead of expanding CanAttack()
-	if(virus2.len)
-		for(var/ID in virus2)
-			var/datum/disease2/disease/V = virus2[ID]
-			for(var/datum/disease2/effect/e in V.effects)
-				if(e.type == /datum/disease2/effect/loneliness && ismob(A))
-					return FALSE
-	return TRUE
+	return !loneliness_affected(A)
 
 /mob/living/simple_animal/hostile/proc/PickTarget(var/list/Targets)//Step 3, pick amongst the possible, attackable targets
 	if(target != null)//If we already have a target, but are told to pick again, calculate the lowest distance between all possible, and pick from the lowest distance targets
