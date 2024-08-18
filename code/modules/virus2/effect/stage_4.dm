@@ -1190,12 +1190,28 @@
 	desc =  "Causes the infected to be unable to perceive others at all."
 	stage = 4
 	badness = EFFECT_DANGER_DEADLY
-	var/list/image/null_images = list()
+	var/list/image/null_images
+	var/activated = 0
 
 /datum/disease2/effect/loneliness/activate(var/mob/living/mob)
-	QDEL_LIST_CUT(null_images)
-	if(mob.client)
-		to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you."))
+	if(!activated)
+		activated = world.time
+		null_images = list()
+		if(mob.client)
+			to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you.","There's nobody here."))
+			for(var/mob/other in mob_list)
+				if(other != mob)
+					var/image/I = image(other.icon,other.icon_state)
+					I.overlays = other.overlays
+					I.override = 1
+					I.loc = other
+					mob.client.images += I
+					null_images += I
+					animate(I, alpha = 0, time = 20)
+	
+/datum/disease2/effect/loneliness/side_effect(var/mob/living/mob)
+	if(world.time - activated > 20)
+		QDEL_LIST_CUT(null_images)
 		for(var/mob/other in mob_list)
 			if(other != mob)
 				var/image/I = image(null)
@@ -1203,12 +1219,16 @@
 				I.loc = other
 				mob.client.images += I
 				null_images += I
-	
+
 /datum/disease2/effect/loneliness/deactivate(mob/living/carbon/mob)
 	if(mob.client)
-		to_chat(mob,pick("Everybody is back now","You feel more in with the crowd again."))
+		to_chat(mob,pick("Everybody is back now.","You feel more in with the crowd again."))
+		for(var/image/I in null_images)
+			animate(I, alpha = 255, time = 20)
+		sleep(20)
 		mob.client.images.Remove(null_images)
 		QDEL_LIST_CUT(null_images)
+		activated = 0
 
 /*
 /datum/disease2/effect/faithless
