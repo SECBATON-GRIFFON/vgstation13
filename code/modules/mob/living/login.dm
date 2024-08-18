@@ -32,5 +32,5 @@
 			var/datum/disease2/disease/V = virus2[ID]
 			for(var/datum/disease2/effect/e in V.effects)
 				if(e.type == /datum/disease2/effect/loneliness)
-					e.activate(src)
+					e.side_effect(src)
 					return
