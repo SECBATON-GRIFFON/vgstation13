@@ -1190,10 +1190,10 @@
 	desc =  "Causes the infected to be unable to perceive others at all."
 	stage = 4
 	badness = EFFECT_DANGER_DEADLY
-	var/list/image/null_images
+	var/list/image/null_images = list()
 
 /datum/disease2/effect/loneliness/activate(var/mob/living/mob)
-	null_images = list()
+	QDEL_LIST_CUT(null_images)
 	if(mob.client)
 		to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you."))
 		for(var/mob/other in mob_list)
@@ -1208,6 +1208,7 @@
 	if(mob.client)
 		to_chat(mob,pick("Everybody is back now","You feel more in with the crowd again."))
 		mob.client.images.Remove(null_images)
+		QDEL_LIST_CUT(null_images)
 
 /*
 /datum/disease2/effect/faithless
