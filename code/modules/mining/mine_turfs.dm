@@ -707,6 +707,9 @@ var/list/icon_state_to_appearance = list()
 	dug = 1
 	//icon_plating = "asteroid_dug"
 	update_icon()
+	if(rand(1,1000) == 1)
+		visible_message("<span class='notice'>An old dusty safe was buried underneath!</span>")
+		new /obj/structure/safe/floor/roid(loc)
 
 //***Simulated version of asteroid floors for use inside of stations (roidstation)***
 

@@ -252,3 +252,16 @@ FLOOR SAFES
 	..()
 	var/I = pick(loot_list)
 	new I(src)
+
+/obj/structure/safe/floor/roid
+	name = "floor safe"
+	icon_state = "floorsafe"
+
+/obj/structure/safe/floor/roid/New()
+	..()
+	for(var/i in 1 to pick(1,1,1,2,2,3))
+		var/crate_type = pick(valid_abandoned_crate_types)
+		var/atom/cratepool = new crate_type
+		for(var/atom/movable/A in cratepool.contents)
+			A.forceMove(src)
+		qdel(cratepool)
