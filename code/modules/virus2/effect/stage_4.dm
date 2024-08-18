@@ -1194,11 +1194,11 @@
 	var/activated = 0
 
 /datum/disease2/effect/loneliness/activate(var/mob/living/mob)
+	to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you.","There's nobody here."))
 	if(!activated)
 		activated = world.time
 		null_images = list()
 		if(mob.client)
-			to_chat(mob,pick("Where did everybody go?","It's so lonely now.","It's just you.","There's nobody here."))
 			for(var/mob/other in mob_list)
 				if(other != mob)
 					var/image/I = image(other.icon,other.icon_state)
@@ -1221,14 +1221,14 @@
 				null_images += I
 
 /datum/disease2/effect/loneliness/deactivate(mob/living/carbon/mob)
+	to_chat(mob,pick("Everybody is back now.","You feel more in with the crowd again."))
 	if(mob.client)
-		to_chat(mob,pick("Everybody is back now.","You feel more in with the crowd again."))
 		for(var/image/I in null_images)
 			animate(I, alpha = 255, time = 20)
 		sleep(20)
 		mob.client.images.Remove(null_images)
-		QDEL_LIST_CUT(null_images)
-		activated = 0
+	QDEL_LIST_CUT(null_images)
+	activated = 0
 
 /*
 /datum/disease2/effect/faithless
