@@ -64,6 +64,7 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 	var/selection_type = "view"		//can be "range" or "view"
 	var/atom/movable/holder			//where the spell is. Normally the user, can be an item
 	var/duration = 0 //how long the spell lasts
+	var/list/valid_targets = list(/mob/living)
 
 	var/list/spell_levels = list(Sp_SPEED = 0, Sp_POWER = 0) //the current spell levels - total spell levels can be obtained by just adding the two values
 	var/list/level_max = list(Sp_TOTAL = 4, Sp_SPEED = 4, Sp_POWER = 0) //maximum possible levels in each category. Total does cover both.
@@ -140,6 +141,8 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 					charge_counter--
 			else
 				charge_counter++
+		if(charge_counter >= charge_max)
+			return
 		sleep(1)
 	return
 
@@ -153,10 +156,18 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 /spell/proc/choose_targets(mob/user = usr) //depends on subtype - see targeted.dm, aoe_turf.dm, dumbfire.dm, or code in general folder
 	return
 
-/spell/proc/is_valid_target(var/target, mob/user, options)
+/spell/proc/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
+	if(ismob(target))
+		var/mob/M = target
+		if(user in M.get_arcane_golems())
+			return FALSE
+		if(user.shares_arcane_golem_spell(M))
+			return FALSE
+	if(bypass_range && istype(target, /mob/living))
+		return TRUE
 	if(options)
 		return (target in options)
-	return ((target in view_or_range(range, user, selection_type)) && istype(target, /mob/living))
+	return ((target in view_or_range(range, user, selection_type)) && is_type_in_list(target, valid_targets))
 
 /spell/proc/perform(mob/user = usr, skipcharge = 0, list/target_override)
 	if(!holder)
@@ -222,20 +233,17 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 		if(!cast_check(skipcharge, user))
 			return 0
 		user.remove_spell_channeling() //In case we're swapping from an older spell to this new one
-		if(spell_flags & NO_TURNING)
-			user.register_event(/event/clickon, src, .proc/memorize_user_direction)
-		user.register_event(/event/uattack, src, .proc/channeled_spell)
+		user.register_event(/event/uattack, src, nameof(src::channeled_spell()))
 		user.spell_channeling = src
 		if(spell_flags & CAN_CHANNEL_RESTRAINED)
-			user.register_event(/event/ruattack, src, .proc/channeled_spell)
+			user.register_event(/event/ruattack, src, nameof(src::channeled_spell()))
 			user.spell_channeling = src
 		connected_button.name = "(Ready) [name]"
 		currently_channeled = 1
 		connected_button.add_channeling()
 	else
-		user.unregister_event(/event/clickon, src, .proc/memorize_user_direction)
-		user.unregister_event(/event/uattack, src, .proc/channeled_spell)
-		user.unregister_event(/event/ruattack, src, .proc/channeled_spell)
+		user.unregister_event(/event/uattack, src, nameof(src::channeled_spell()))
+		user.unregister_event(/event/ruattack, src, nameof(src::channeled_spell()))
 		user.spell_channeling = null
 		currently_channeled = 0
 		connected_button.remove_channeling()
@@ -253,15 +261,15 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 	if(holder)
 		user_dir = holder.dir
 
-/spell/proc/channeled_spell(atom/atom)
+/spell/proc/channeled_spell(atom/atom, bypassrange = 0)
 	var/list/target = list(atom)
 	var/mob/user = holder
 	user.attack_delayer.delayNext(0)
 	if(spell_flags & NO_TURNING)
 		holder.dir = user_dir
 		holder.update_dir()
-	if(cast_check(1, holder) && is_valid_target(atom, user))
-		target = before_cast(target, user) //applies any overlays and effects
+	if(cast_check(1, holder) && is_valid_target(atom, user, bypass_range = bypassrange))
+		target = before_cast(target, user, bypassrange) //applies any overlays and effects
 		if(!target.len) //before cast has rechecked what we can target
 			return
 		invocation(user, target)
@@ -325,12 +333,12 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 /////CASTING WRAPPERS//////
 ///////////////////////////
 
-/spell/proc/before_cast(list/targets, user)
+/spell/proc/before_cast(list/targets, user, bypass_range = 0)
 	var/list/valid_targets = list()
 	var/list/options = view_or_range(range,user,selection_type)
 	for(var/atom/target in targets)
 		// Check range again (fixes long-range EI NATH)
-		if(!is_valid_target(target, user, options))
+		if(!is_valid_target(target, user, options, bypass_range))
 			continue
 		valid_targets += target
 
@@ -346,8 +354,7 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 			spell.anchored = 1
 			spell.setDensity(FALSE)
 			spawn(overlay_lifespan)
-				qdel(spell)
-				spell = null
+				QDEL_NULL(spell)
 	return valid_targets
 
 /spell/proc/after_cast(list/targets)
@@ -427,7 +434,17 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 		if(!user.wearing_wiz_garb())
 			return 0
 
+	//gentling check
+	if((is_wizard_spell()) && (holder == user))
+		if(user.is_gentled())
+			return 0
+
 	return 1
+
+/spell/proc/is_wizard_spell()
+	if(user_type == USER_TYPE_WIZARD || USER_TYPE_SPELLBOOK)
+		return TRUE
+	return FALSE
 
 /spell/proc/check_charge(var/skipcharge, mob/user)
 	//Arcane golems have no cooldowns on their spells
@@ -627,8 +644,17 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 /spell/proc/get_upgrade_info(upgrade_type)
 	switch(upgrade_type)
 		if(Sp_SPEED)
-			return "Reduce this spell's cooldown."
+			if(spell_levels[Sp_SPEED] >= level_max[Sp_SPEED])
+				return "The spell can't be made any quicker than this!"
+			var/formula
+			if(cooldown_reduc)
+				formula = min(charge_max - cooldown_min, cooldown_reduc)
+			else
+				formula = round((initial_charge_max - cooldown_min)/level_max[Sp_SPEED], 1)
+			return "Reduce this spell's cooldown by [formula/10] seconds."
 		if(Sp_POWER)
+			if(spell_levels[Sp_POWER] >= level_max[Sp_POWER])
+				return "The spell can't be made any more powerful than this!"
 			return "Increase this spell's power."
 
 //Return a string that gets appended to the spell on the scoreboard
@@ -642,6 +668,9 @@ var/list/spells = typesof(/spell) //needed for the badmin verb for now
 	return
 
 /spell/proc/on_holder_death(mob/user)
+	return
+
+/spell/proc/on_transfer(mob/user)
 	return
 
 //To batch-remove wizard spells. Linked to mind.dm.
@@ -686,6 +715,15 @@ Made a proc so this is not repeated 14 (or more) times.*/
 		return 0
 	return 1
 */
+
+/mob/proc/is_gentled()
+	for(var/V in get_equipped_items())
+		if(isclothing(V))
+			var/obj/item/clothing/C = V
+			if(C.gentling)
+				to_chat(src, "<span class='warning'>You feel too humble to do that.</span>")
+				return TRUE
+	return FALSE
 
 //Atomizes what data the spell shows, that way different spells such as pulse demon and vampire spells can have their own descriptions.
 /spell/proc/generate_tooltip(var/previous_data = "")

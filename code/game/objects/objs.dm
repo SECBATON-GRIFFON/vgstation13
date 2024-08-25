@@ -11,6 +11,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 	var/sharpness_flags = 0 //Describe in which way this thing is sharp. Shouldn't sharpness be exclusive to obj/item?
 	var/heat_production = 0
 	var/source_temperature = 0
+	var/smoking = FALSE //is the obj emitting smoke particles
 	var/price = 0
 
 	var/in_use = 0 // If we have a user using us, this will be set on. We will check if the user has stopped using us, and thus stop updating and LAGGING EVERYTHING!
@@ -46,13 +47,20 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 	var/list/alphas_obj = list()
 	var/impactsound
 	var/current_glue_state = GLUE_STATE_NONE
+	var/last_glue_application = 0
 
 	//Does this item have a slime installed?
 	var/has_slime = 0
 
+	var/on_armory_manifest = FALSE // Does this get included in the armory manifest paper?
+	var/holds_armory_items = FALSE // Does this check inside the object for stuff to include?
+
 	//Cooking stuff:
 	var/is_cooktop //If true, the object can be used in conjunction with a cooking vessel, eg. a frying pan, to cook food.
 	var/obj/item/weapon/reagent_containers/pan/cookvessel //The vessel being used to cook food in. If generalized out to other types of vessels, make sure to also generalize the frying pan's cook_start(), etc. as well.
+
+	//Is the object covered in ash?
+	var/ash_covered = FALSE
 
 /obj/New()
 	..()
@@ -60,6 +68,24 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		breakable_init()
 	if(is_cooktop)
 		add_component(/datum/component/cooktop)
+	if(!thermal_mass)
+		switch(w_class)
+			if(W_CLASS_TINY, W_CLASS_SMALL)
+				thermal_mass = 0.1
+			if(W_CLASS_MEDIUM)
+				thermal_mass = 1.0
+			if(W_CLASS_LARGE)
+				thermal_mass = 5.0
+			if(W_CLASS_HUGE)
+				thermal_mass = 20.0
+			if(W_CLASS_GIANT)
+				thermal_mass = 50.0
+	if(thermal_mass)
+		initial_thermal_mass = thermal_mass
+	if(flammable)
+		var/turf/simulated/T = get_turf(src)
+		if(istype(T))
+			T.zone?.burnable_atoms |= src
 
 //More cooking stuff:
 /obj/proc/can_cook() //Returns true if object is currently in a state that would allow for food to be cooked on it (eg. the grill is currently powered on). Can (and generally should) be overriden to check for more specific conditions.
@@ -83,6 +109,9 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		cookvesselimage.pixel_x = offset_x
 		cookvesselimage.pixel_y = offset_y
 		overlays += cookvesselimage
+		adjust_particles(PVAR_POSITION, list(offset_x,offset_y))
+	else
+		adjust_particles(PVAR_POSITION, 0)
 
 /obj/proc/cook_temperature() //Returns the temperature the object cooks at.
 	return COOKTEMP_DEFAULT
@@ -115,8 +144,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		processing_objects -= src
 
 	if(integratedpai)
-		qdel(integratedpai)
-		integratedpai = null
+		QDEL_NULL(integratedpai)
 
 	material_type = null //Don't qdel, they're held globally
 	if(associated_forward)
@@ -125,7 +153,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 
 /obj/item/proc/is_used_on(obj/O, mob/user)
 
-/obj/proc/blocks_doors()
+/obj/proc/blocks_doors(var/obj/machinery/door/D)
 	return 0
 
 /obj/proc/install_pai(obj/item/device/paicard/P)
@@ -240,8 +268,7 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		verbs -= /obj/proc/remove_pai
 		var/obj/item/device/paicard/P = integratedpai
 		integratedpai = null
-		qdel(pAImove_delayer)
-		pAImove_delayer = null
+		QDEL_NULL(pAImove_delayer)
 		return P
 	return 0
 
@@ -263,6 +290,11 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 		return 1
 	return
 
+/obj/clean_act(var/cleanliness)
+	..()
+	if (cleanliness >= CLEANLINESS_WATER)
+		unglue()
+		ash_covered = FALSE
 
 /obj/proc/cultify()
 	qdel(src)
@@ -391,6 +423,30 @@ var/global/list/reagents_to_log = list(FUEL, PLASMA, PACID, SACID, AMUTATIONTOXI
 			playsound(user, 'sound/items/trayhit2.ogg', 50, 1)
 		user.visible_message("<span class='danger'>[user] strikes his head on \the [src]! It looks like \he's trying to commit suicide.</span>")
 		return SUICIDE_ACT_BRUTELOSS
+
+/obj/ignite()
+	if(..())
+		ash_covered = TRUE
+		remove_particles(PS_SMOKE)
+
+/obj/item/checkburn()
+	if(!flammable)
+		CRASH("[src] tried to burn despite not being flammable!")
+	if(on_fire)
+		return
+	var/datum/gas_mixture/G = return_air()
+	if(!G)
+		return
+	if(G.temperature >= (autoignition_temperature * 0.75))
+		if(!smoking)
+			add_particles(PS_SMOKE)
+			smoking = TRUE
+		var/rate = clamp(lerp(G.temperature,autoignition_temperature * 0.75,autoignition_temperature,0.1,1),0.1,1)
+		adjust_particles(PVAR_SPAWNING,rate,PS_SMOKE)
+	else
+		remove_particles(PS_SMOKE)
+		smoking = FALSE
+	..()
 
 /obj/singularity_act()
 	if(flags & INVULNERABLE)
@@ -529,6 +585,9 @@ a {
 	onclose(user, "mtcomputer")
 
 /obj/update_icon()
+	if(ash_covered)
+		cut_overlay(charred_overlay)
+		process_charred_overlay()
 	return
 
 /mob/proc/unset_machine()
@@ -674,7 +733,7 @@ a {
 		if(isrobot(user))
 			var/mob/living/silicon/robot/R = user
 			return HAS_MODULE_QUIRK(R, MODULE_IS_A_CLOWN)
-		return (M_CLUMSY in user.mutations) || user.reagents.has_reagent(INCENSE_BANANA) || user.reagents.has_reagent(HONKSERUM) || arcanetampered
+		return (M_CLUMSY in user.mutations) || (user.reagents?.has_reagent(INCENSE_BANANA)) || (user.reagents?.has_reagent(HONKSERUM)) || arcanetampered
 	return 0
 
 //Proc that handles NPCs (gremlins) "tampering" with this object.
@@ -941,3 +1000,20 @@ a {
 			display_name = "Coldsauce"
 		dat += {"<B>[display_name]:</B> [R.volume] unit\s<BR>"}
 	return dat
+
+/obj/get_heat_conductivity() //So keeping something in a closet can have an insulating effect.
+	return 0.5
+
+//This subtype is used by stuff that should generally not be disturbed by those procs
+/obj/abstract
+	anchored = TRUE
+/obj/abstract/cultify()
+	return
+/obj/abstract/ex_act()
+	return
+/obj/abstract/emp_act()
+	return
+/obj/abstract/blob_act()
+	return
+/obj/abstract/singularity_act()
+	return

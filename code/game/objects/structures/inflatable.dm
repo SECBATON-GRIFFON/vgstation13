@@ -3,6 +3,7 @@
 	w_class = W_CLASS_MEDIUM
 	icon = 'icons/obj/inflatable.dmi'
 	w_type = RECYK_PLASTIC
+	flammable = FALSE
 	melt_temperature = MELTPOINT_PLASTIC
 	starting_materials = list(MAT_PLASTIC = 1.5*CC_PER_SHEET_MISC)
 
@@ -385,8 +386,7 @@
 /obj/structure/inflatable/shelter/Destroy()
 	for(var/atom/movable/AM in src)
 		AM.forceMove(loc)
-	qdel(cabin_air)
-	cabin_air = null
+	QDEL_NULL(cabin_air)
 	..()
 
 /obj/structure/inflatable/shelter/remove_air(amount)

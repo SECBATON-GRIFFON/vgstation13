@@ -232,7 +232,10 @@
 		return FALSE
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		if (PD.charge < charge_cost) // Custom charge handling
+		if(PD.emp_lock)
+			to_chat(PD, "<span class='warning'>You cannot use this ability while unable to regenerate.</span>")
+			return FALSE
+		if(PD.charge < charge_cost) // Custom charge handling
 			to_chat(PD, "<span class='warning'>You are too low on power, this spell needs a charge of [charge_cost]W to cast.</span>")
 			return FALSE
 	else //only pulse demons allowed
@@ -292,7 +295,7 @@
 			speed_name = "Lightning-Fast "
 	return "[speed_name][power_name][original_name]"
 
-/spell/pulse_demon/is_valid_target(var/atom/target, mob/user, options)
+/spell/pulse_demon/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	return 1
 
 /spell/pulse_demon/generate_tooltip()
@@ -321,28 +324,6 @@
 	var/dat = "<BR>[desc]"
 	return dat
 
-/spell/pulse_demon/toggle_drain
-	name = "Toggle power drain"
-	desc = "Toggles the draining of power while in an APC, battery or cable"
-	abbreviation = "TD"
-	hud_state = "pd_toggle"
-	charge_max = 0
-	level_max = list()
-	invisible = 1
-
-/spell/pulse_demon/toggle_drain/choose_targets(var/mob/user = usr)
-	return list(user) // Self-cast
-
-/spell/pulse_demon/toggle_drain/cast(var/list/targets, var/mob/living/carbon/human/user)
-	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
-		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		PD.draining = !PD.draining
-		to_chat(user,"<span class='notice'>Draining power is [PD.draining ? "on" : "off"].</span>")
-
-/spell/pulse_demon/toggle_drain/generate_tooltip()
-	var/dat = "<BR>[desc]"
-	return dat
-	
 /spell/pulse_demon/remote_drain
 	name = "Remote Drain"
 	abbreviation = "RD"
@@ -359,7 +340,7 @@
 	empower_cost = 10000
 	quicken_cost = 100000
 
-/spell/pulse_demon/remote_drain/is_valid_target(var/atom/target)
+/spell/pulse_demon/remote_drain/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(target, /obj/machinery/power/apc) || istype(target, /obj/machinery/power/battery))
 		return 1
 	else
@@ -394,13 +375,13 @@
 	quicken_cost = 75000
 
 // Must be a cable or a clicked on turf with a cable
-/spell/pulse_demon/cable_zap/is_valid_target(var/target, mob/user, options)
+/spell/pulse_demon/cable_zap/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(options)
 		return (target in options)
 	var/turf/T = get_turf(target)
 	if(T)
 		if((target in view_or_range(range, user, selection_type)) && ((locate(/obj/structure/cable) in T.contents) ||  istype(target,/obj/structure/cable)))
-			var/obj/structure/cable/cable = locate() in target
+			var/obj/structure/cable/cable = locate() in T
 			var/datum/powernet/PN = cable.get_powernet()
 			if(PN) // We need actual power in the cable powernet to move
 				if(!PN.avail)
@@ -409,34 +390,44 @@
 					return TRUE
 	return FALSE
 
-
-
 /spell/pulse_demon/cable_zap/cast(list/targets, mob/user = usr)
-	var/turf/T = get_turf(user)
-	var/turf/target = get_turf(targets[1])
-	var/obj/structure/cable/cable = locate() in target
-	if(!cable || !istype(cable)) // Sanity
-		to_chat(user,"<span class='warning'>...Where's the cable?</span>")
+	..()
+	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
+		PD.zaptocable(targets[1])
+
+/obj/item/projectile/beam/lightning/pulsedemon
+	passdense = TRUE
+	yellow = TRUE
+
+/mob/living/simple_animal/hostile/pulse_demon/proc/zaptocable(atom/target)
+	var/turf/T = get_turf(src)
+	var/turf/TTarget = get_turf(target)
+	if(!T || !TTarget)
 		return
-	var/obj/item/projectile/beam/lightning/L = new /obj/item/projectile/beam/lightning(T)
+	var/obj/structure/cable/cable = locate() in TTarget
+	if(!cable || !istype(cable)) // Sanity
+		to_chat(src,"<span class='warning'>...Where's the cable?</span>")
+		return
+	var/obj/item/projectile/beam/lightning/pulsedemon/L = new /obj/item/projectile/beam/lightning/pulsedemon(T)
 	var/datum/powernet/PN = cable.get_powernet()
 	L.damage = PN.get_electrocute_damage()
 	// Ride the lightning
-	playsound(target, pick(lightning_sound), 75, 1)
-	L.tang = adjustAngle(get_angle(target,T))
+	playsound(TTarget, pick(lightning_sound), 75, 1)
+	L.tang = adjustAngle(get_angle(TTarget,T))
 	L.icon = midicon
 	L.icon_state = "[L.tang]"
-	L.firer = user
+	L.firer = src
 	L.def_zone = LIMB_CHEST
 	L.original = target
-	L.current = T
-	L.starting = T
-	L.yo = target.y - T.y
-	L.xo = target.x - T.x
-	spawn L.process()
-	user.forceMove(target)
-	..()
-	
+	L.current = TTarget
+	L.starting = TTarget
+	L.yo = TTarget.y - T.y
+	L.xo = TTarget.x - T.x
+	L.process()
+	unlock_from() // just in case
+	forceMove(TTarget)
+
 /spell/pulse_demon/remote_hijack
 	name = "Remote Hijack"
 	abbreviation = "RH"
@@ -453,7 +444,7 @@
 	empower_cost = 20000
 	quicken_cost = 20000
 
-/spell/pulse_demon/remote_hijack/is_valid_target(var/atom/target)
+/spell/pulse_demon/remote_hijack/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(target, /obj/machinery/power/apc))
 		var/obj/machinery/power/apc/A = target
 		if(!A.pulsecompromised)
@@ -487,7 +478,7 @@
 	quicken_cost = 200000
 
 
-/spell/pulse_demon/emag/is_valid_target(atom/target, mob/user)
+/spell/pulse_demon/emag/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -522,7 +513,7 @@
 	empower_cost = 50000
 	quicken_cost = 200000
 
-/spell/pulse_demon/emp/is_valid_target(atom/target, mob/user)
+/spell/pulse_demon/emp/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -587,7 +578,7 @@
 		if(PD.move_divide >= 2) //prevent going under 1 incase you upgrade it too much somehow
 			PD.move_divide *= 0.5
 		return temp
-		
+
 // Similar to malf one
 /spell/pulse_demon/overload_machine
 	name = "Overload Machine"
@@ -605,7 +596,7 @@
 	empower_cost = 100000
 	quicken_cost = 500000
 
-/spell/pulse_demon/overload_machine/is_valid_target(var/atom/target, mob/user)
+/spell/pulse_demon/overload_machine/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -630,3 +621,55 @@
 		explosion(get_turf(M), -1, 1, 2, 3, whodunnit = user) //C4 Radius + 1 Dest for the machine
 		qdel(M)
 	..()
+
+/datum/action/pd_toggle_drain
+	name = "Toggle power drain"
+	desc = "Toggles the draining of power while in an APC, battery or cable"
+	icon_icon = 'icons/mob/screen_spells.dmi'
+	button_icon_state = "pd_toggle"
+
+/datum/action/pd_toggle_drain/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		PD.draining = !PD.draining
+		to_chat(PD,"<span class='notice'>Draining power is [PD.draining ? "on" : "off"].</span>")
+
+/datum/action/pd_leave_item
+	name = "Leave posessed item"
+	desc = "Exit the item you are currently in."
+	icon_icon = 'icons/mob/screen_spells.dmi'
+	button_icon_state = "pd_hijack"
+
+/datum/action/pd_leave_item/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		if(PD.current_power)
+			PD.forceMove(PD.current_power.loc)
+		else
+			PD.forceMove(get_turf(PD))
+		PD.current_robot = null
+		PD.current_bot = null
+		PD.current_weapon = null
+		PD.change_sight(removing = SEE_TURFS | SEE_MOBS | SEE_OBJS)
+	else
+		owner.forceMove(get_turf(owner))
+	Remove(owner)
+
+/datum/action/pd_change_camera
+	name = "Change camera view"
+	desc = "Move to another camera in the area."
+	icon_icon = 'icons/mob/screen_ai.dmi'
+	button_icon_state = "camera"
+
+/datum/action/pd_change_camera/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		var/list/camstouse = list()
+		var/area/ourarea = get_area(PD)
+		for (var/obj/machinery/camera/C in cameranet.cameras)
+			if(get_area(C) == ourarea)
+				camstouse["[C.c_tag]"] += C
+		var/camtag = input(PD,"Choose a camera to jump to","Area cameras") as null|anything in camstouse
+		if(camtag)
+			var/obj/machinery/camera/ourcam = camstouse[camtag]
+			ourcam.attack_pulsedemon(PD)

@@ -31,14 +31,13 @@
 
 /obj/machinery/vaporizer/Destroy()
 	..()
-	qdel(mixing_chamber)
-	mixing_chamber = null
+	QDEL_NULL(mixing_chamber)
 
 /obj/machinery/vaporizer/proc/toggle_power()
 	on = !on
 	if(stat & (BROKEN|NOPOWER|FORCEDISABLE))
 		on = FALSE
-		visible_message("<span class='warning'>The [src] buzzes and shuts off.</span>")
+		visible_message("<span class='warning'>\The [src] buzzes and shuts off.</span>")
 	update_icon()
 
 /obj/machinery/vaporizer/update_icon()
@@ -59,7 +58,7 @@
 		nanomanager.update_uis(src)
 	if(mixing_chamber.reagents.get_reagent_amount(VAPORSALT)>50)
 		//We're not supposed to have more than 50u
-		visible_message("<span class='notice'>The [src]'s centrifugal limiter begins to whirr...</span>")
+		visible_message("<span class='notice'>\The [src]'s centrifugal limiter begins to whirr...</span>")
 		power_use_this_tick += 30
 		mixing_chamber.reagents.trans_id_to(reagents,VAPORSALT,mixing_chamber.reagents.get_reagent_amount(VAPORSALT)-50)
 	if(mixing_chamber.reagents.has_reagent(VAPORSALT))
@@ -76,7 +75,7 @@
 
 /obj/machinery/vaporizer/proc/handle_tanks(var/target, var/rid)
 	if(stat & (FORCEDISABLE|BROKEN|NOPOWER))
-		visible_message("<span class='warning'>The [src] buzzes and shuts off.</span>")
+		visible_message("<span class='warning'>\The [src] buzzes and shuts off.</span>")
 		on = 0
 		return
 	mixing_chamber.flags |= NOREACT

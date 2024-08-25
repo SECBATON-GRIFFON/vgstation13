@@ -22,7 +22,7 @@
 				show_message("[absorb_text]")
 			else
 				show_message("<span class='borange'>Your armor ABSORBS the blow!</span>")
-	else if(armor > 50)
+	else if(armor >= 50)
 		if(!quiet)
 			if(absorb_text)
 				show_message("[soften_text]",4)
@@ -46,7 +46,6 @@
 
 	return final_damage
 
-
 /mob/living/bullet_act(var/obj/item/projectile/P, var/def_zone)
 	var/obj/item/weapon/cloaking_device/C = locate(/obj/item/weapon/cloaking_device) in src
 	if(C && C.active)
@@ -65,7 +64,7 @@
 
 	var/absorb = run_armor_check(def_zone, P.flag, armor_penetration = P.armor_penetration)
 	if(absorb >= 100)
-		P.on_hit(src,2)
+		P.on_hit(src,100)
 		return PROJECTILE_COLLISION_BLOCKED
 	if(!P.nodamage)
 		var/damage = run_armor_absorb(def_zone, P.flag, P.damage)
@@ -81,11 +80,13 @@
 /mob/living/proc/thrown_defense(var/obj/O)
 	return 1
 
-/mob/living/hitby(atom/movable/AM as mob|obj,var/speed = 5,var/dir)//Standardization and logging -Sieve
+/mob/living/hitby(atom/movable/AM as mob|obj,var/speed = 5,var/dir,var/list/hit_whitelist)//Standardization and logging -Sieve
 	. = ..()
 	if(.)
 		return
 	if(flags & INVULNERABLE)
+		return
+	if(hit_whitelist && (src in hit_whitelist))
 		return
 	if(istype(AM,/obj/) && !istype(AM,/obj/effect/))
 		var/obj/O = AM
@@ -141,13 +142,12 @@
 			return
 		if(!O.fingerprintslast)
 			return
-			
+
 		var/client/assailant = directory[ckey(O.fingerprintslast)]
 		if(assailant && assailant.ckey && assailant.mob)
 			msg_admin_attack("[src.name] ([src.ckey]) was hit by a thrown [O], last touched by [assailant.mob.name] ([assailant.ckey]) (speed: [speed]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)")
 			src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been hit with a thrown [O], last touched by [assailant.mob.name] ([assailant.ckey]) (speed: [speed])</font>")
 			assailant.mob.attack_log += text("\[[time_stamp()]\] <font color='red'>Hit [src.name] ([src.ckey]) with a thrown [O] (speed: [speed])</font>")
-			src.LAssailant = assailant.mob
 			assaulted_by(assailant.mob)
 
 /*
@@ -322,7 +322,7 @@
 		ExtinguishMob() //If there's no oxygen in the tile we're on, put out the fire
 		return 1
 	var/turf/location = get_turf(src)
-	location.hotspot_expose(700, 50, 1,surfaces=1)
+	location.hotspot_expose(700, SMALL_FLAME, 1)
 
 /mob/living/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(mutations.Find(M_UNBURNABLE))

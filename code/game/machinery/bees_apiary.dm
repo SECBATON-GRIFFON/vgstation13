@@ -19,7 +19,7 @@ var/list/apiaries_list = list()
 /obj/machinery/apiary
 	name = "apiary tray"
 	icon = 'icons/obj/hydroponics/hydro_tools.dmi'
-	icon_state = "hydrotray3"
+	icon_state = "hydrotray"
 	density = 1
 	anchored = 1
 	pass_flags_self = PASSTABLE
@@ -333,11 +333,11 @@ var/list/apiaries_list = list()
 		H.reagents.clear_reagents()
 		H.reagents.add_reagent(NUTRIMENT, 0.5)
 		H.icon_state = "[species.prefix]honeycomb-base"
-		H.overlays.len = 0 // removing the one added in the honeycomb's New()
-		H.overlays += I
+		H.extra_food_overlay.overlays.len = 0 // removing the one added in the honeycomb's New()
+		H.extra_food_overlay.overlays += I
+		H.update_icon()
 		reagents.trans_to(H,reagents_per_honeycomb)
 		H.authentify()
-
 	return 1
 
 /obj/machinery/apiary/proc/empty_beehive()

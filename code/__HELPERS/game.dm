@@ -3,7 +3,6 @@
 	var/href
 	href_list = params2list("src=\ref[src]&[target]=1")
 	href = "src=\ref[src];[target]=1"
-	src:temphtml = null
 	src:Topic(href, href_list)
 	return null
 
@@ -26,6 +25,11 @@
 	if(!A)
 		return null
 	return format_text ? format_text(A.name) : A.name
+
+/proc/get_coordinates_string(var/atom/A)
+	var/turf/T = get_turf(A)
+	return T ? "[T.x],[T.y],[T.z]" : "nullspace"
+
 
 /proc/in_range(atom/source, mob/user)
 	if(source.Adjacent(user))
@@ -517,3 +521,12 @@
 		if(istype(A,department_type))
 			department_areas += A
 	return department_areas
+
+/proc/get_department_area_typepaths(atom/AM)
+	var/areapathtext = "[get_area(AM).type]"
+	var/secondslash = findtext(areapathtext, "/", 2)
+	if(secondslash)
+		var/thirdslash = findtext(areapathtext, "/", secondslash + 1)
+		if(thirdslash)
+			return typesof(text2path(copytext(areapathtext, 1, thirdslash)))
+	return typesof(text2path(areapathtext))

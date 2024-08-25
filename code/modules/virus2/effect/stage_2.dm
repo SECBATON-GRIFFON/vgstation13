@@ -170,22 +170,6 @@
 	if (prob(30))
 		mob.jitteriness += 10
 
-
-/datum/disease2/effect/drunk
-	name = "Glasgow Syndrome"
-	desc = "Causes the infected to synthesize pure ethanol."
-	encyclopedia = "Without a cure, the infected's liver is sure to die, also effect strength increases the rate at which ethanol is synthesized."
-	stage = 2
-	badness = EFFECT_DANGER_HARMFUL
-	multiplier = 3
-	max_multiplier = 7
-
-/datum/disease2/effect/drunk/activate(var/mob/living/mob)
-	to_chat(mob, "<span class='notice'>You feel like you had one hell of a party!</span>")
-	if (mob.reagents.get_reagent_amount(GLASGOW) < multiplier*5)
-		mob.reagents.add_reagent(GLASGOW, multiplier*5)
-
-
 /datum/disease2/effect/gaben
 	name = "Gaben Syndrome"
 	desc = "Makes the infected incredibly fat."
@@ -203,17 +187,27 @@
 	name = "Bearding"
 	desc = "Causes the infected to spontaneously grow a beard, regardless of gender. Only affects humans."
 	stage = 2
+	max_multiplier = 5
 	badness = EFFECT_DANGER_FLAVOR
 
 /datum/disease2/effect/beard/activate(var/mob/living/mob)
 	if(istype(mob, /mob/living/carbon/human))
 		var/mob/living/carbon/human/H = mob
-		if(H.species.name == "Human" && !(H.my_appearance.f_style == "Full Beard"))
-			to_chat(H, "<span class='warning'>Your chin and neck itch!.</span>")
+		if(H.species.name == "Human")
+			var/beard_name = ""
 			spawn(50)
-				H.my_appearance.f_style = "Full Beard"
-				H.update_hair()
-
+				if(multiplier >= 1 && multiplier < 2)
+					beard_name = "Full Beard"
+				if(multiplier >= 2 && multiplier < 3)
+					beard_name = "Long Beard"
+				if(multiplier >= 3 && multiplier < 4)
+					beard_name = "Very Long Beard"
+				if(multiplier >= 4)
+					beard_name = "Dwarf Beard"
+				if(beard_name != "" && H.my_appearance.f_style != beard_name)
+					H.my_appearance.f_style = beard_name
+					to_chat(H, "<span class='warning'>Your chin and neck itch!.</span>")
+					H.update_hair()
 
 /datum/disease2/effect/bloodynose
 	name = "Intranasal Hemorrhage"
@@ -759,32 +753,31 @@
 	if (mob.reagents.get_reagent_amount(ANTI_TOXIN) < 1)
 		mob.reagents.add_reagent(ANTI_TOXIN, 1)
 
-/datum/disease2/effect/cult_vomit
+/datum/disease2/effect/cult_confusion
 	name = "Hemoptysis"
 	desc = "Causes the infected to cough up blood."
 	stage = 2
 	restricted = 2
 	badness = EFFECT_DANGER_HINDRANCE
-	var/active = 0
 
-/datum/disease2/effect/cult_vomit/activate(mob/living/carbon/M)
-	if(!ishuman(M) || active)
-		return
+/datum/disease2/effect/cult_confusion/activate(mob/living/carbon/M)
 	if(istype(get_area(M), /area/chapel))
 		return
 	if(iscultist(M))
 		return
 
-	var/mob/living/carbon/human/mob = M
-	active = 1
-	to_chat(mob, "<span class='warning'>You feel a burning sensation in your throat.</span>")
-	sleep(10 SECONDS)
-	to_chat(mob, "<span class='danger'>You feel an agonizing pain in your throat!</span>")
-	sleep(10 SECONDS)
-	mob.visible_message("<span class='danger'>[mob] vomits up blood!</span>", "<span class='danger'>You vomit up blood!</span>")
-	var/obj/effect/decal/cleanable/blood/splatter/S = new(loc = get_turf(mob), color = mob.species.blood_color)
-	S.amount = 1
-	playsound(mob, 'sound/effects/splat.ogg', 50, 1)
-	mob.Stun(5)
-	mob.vessel.remove_reagent(BLOOD,8)
-	active = 0
+	new /obj/effect/cult_ritual/confusion(M,100,25,M)
+
+/datum/disease2/effect/limedisease
+	name = "Chronic Lime Disease"
+	desc = "Unrelated to its Lyme counterpart, causes the infected to vomit limes. Goes well with some salt and tequila."
+	stage = 2
+	badness = EFFECT_DANGER_ANNOYING
+
+/datum/disease2/effect/limedisease/activate(var/mob/living/mob)
+	if (prob(30))
+		mob.say(pick("I could go for some tequila right now.", "Could go for something sour."))
+	if (prob(15))
+		mob.emote("me",1,"vomits up a... lime?")
+		playsound(mob.loc, 'sound/effects/splat.ogg', 50, 1)
+		new /obj/item/weapon/reagent_containers/food/snacks/grown/lime(get_turf(mob))

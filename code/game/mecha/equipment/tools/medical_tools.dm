@@ -232,7 +232,7 @@
 	if(!S.chassis.has_charge(S.energy_drain))
 		S.set_ready_state(1)
 		S.log_message("Deactivated.")
-		S.occupant_message("[src] deactivated - no power.")
+		S.occupant_message("[S] deactivated - no power.")
 		S.go_out()
 		return stop()
 	var/mob/living/carbon/M = S.occupant
@@ -271,14 +271,14 @@
 
 /obj/item/mecha_parts/mecha_equipment/tool/cable_layer/attach()
 	..()
-	chassis.register_event(/event/moved, src, .proc/layCable)
+	chassis.register_event(/event/moved, src, nameof(src::layCable()))
 
 /obj/item/mecha_parts/mecha_equipment/tool/cable_layer/detach()
-	chassis.unregister_event(/event/moved, src, .proc/layCable)
+	chassis.unregister_event(/event/moved, src, nameof(src::layCable()))
 	return ..()
 
 /obj/item/mecha_parts/mecha_equipment/tool/cable_layer/Destroy()
-	chassis.unregister_event(/event/moved, src, .proc/layCable)
+	chassis.unregister_event(/event/moved, src, nameof(src::layCable()))
 	return ..()
 
 /obj/item/mecha_parts/mecha_equipment/tool/cable_layer/action(var/obj/item/stack/cable_coil/target)
@@ -374,7 +374,7 @@
 	if(!use_cable(1))
 		return reset()
 	var/obj/structure/cable/NC = new /obj/structure/cable(new_turf)
-	NC.cableColor("red")
+	NC.color = "#FF0000"
 	NC.d1 = 0
 	NC.d2 = fdirn
 	NC.update_icon()

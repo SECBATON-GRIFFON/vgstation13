@@ -13,8 +13,7 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/Destroy()
 	if(contained_mob && isdatum(contained_mob))
-		qdel(contained_mob)
-		contained_mob = null
+		QDEL_NULL(contained_mob)
 	..()
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/afterattack(obj/O, mob/user,proximity)
@@ -31,6 +30,7 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/after_consume(var/mob/M)
 
+	log_attack("[M]([M.ckey]) ate [src], last touched by [fingerprintslast]")
 	if(!contained_mob)
 		return
 	if(ispath(contained_mob))
@@ -148,3 +148,10 @@
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/cowcube
 	name = "cow cube"
 	contained_mob = /mob/living/simple_animal/cow
+
+/obj/item/weapon/reagent_containers/food/snacks/monkeycube/chococowcube
+	name = "chocolate cow cube"
+	contained_mob = /mob/living/simple_animal/cow/chocolate
+
+/obj/item/weapon/reagent_containers/food/snacks/monkeycube/cowcube/on_vending_machine_spawn()
+	reagents.chem_temp = FRIDGETEMP_FROZEN

@@ -2,6 +2,8 @@
 	name       = "\improper Rapid-Piping-Device (RPD)"
 	desc       = "A device used to rapidly pipe things."
 	icon_state = "rpd"
+	frequency = 1439
+	id = null
 	var/has_metal_slime = 0
 	var/has_yellow_slime = 0
 	starting_materials = list(MAT_IRON = 75000, MAT_GLASS = 37500)
@@ -81,14 +83,14 @@
 		to_chat(user, "<span class='notice'>The multilayering mode is currently [build_all ? "enabled" : "disabled"].</span>")
 	if(has_yellow_slime)
 		to_chat(user, "<span class='notice'>The automatic wrenching mode is currently [autowrench ? "enabled" : "disabled"].</span>")
-		
+
 /obj/item/device/rcd/rpd/pickup(var/mob/living/L)
 	..()
-	L.register_event(/event/clickon, src, .proc/mob_onclickon)
+	L.register_event(/event/clickon, src, nameof(src::mob_onclickon()))
 
 /obj/item/device/rcd/rpd/dropped(var/mob/living/L)
 	..()
-	L.unregister_event(/event/clickon, src, .proc/mob_onclickon)
+	L.unregister_event(/event/clickon, src, nameof(src::mob_onclickon()))
 	hook_key = null
 
 // If the RPD is held, some modifiers are removed.
@@ -101,6 +103,83 @@
 		return //If we're alt clicking a carbon, let's assume we want to interact with them.
 
 	modifiers -= list("alt", "shift", "ctrl")
+
+/obj/item/device/rcd/rpd/attack_self(var/mob/user)
+	..()
+	for(var/cat in schematics)
+		var/list/L = schematics[cat]
+		for(var/datum/rcd_schematic/C in L)
+			for(var/client/client in interface.clients)
+				C.send_list_assets(client)
+	
+
+/obj/item/device/rcd/rpd/rebuild_ui()
+	var/dat = ""
+	var/multitext=""
+	var/autotext=""
+	
+	if (has_metal_slime)//build_all
+		multitext=" <div style='margin-top:1em;'><b>Multilayer Mode: </b><a href='?src=\ref[interface];toggle_multi=1'><span class='[build_all? "schem_selected" : "schem"]'>[build_all ? "On" : "Off"]</span></a></div> "
+	if (has_yellow_slime)//build_all
+		autotext=" <div style='margin-top:1em;'><b>Autowrench: </b><a href='?src=\ref[interface];toggle_auto=1'><span class='[autowrench? "schem_selected" : "schem"]'>[autowrench ? "On" : "Off"]</span></a></div> "
+
+	dat += {"
+		<b>Selected:</b> <span id="selectedname"></span>
+		<h2>Options</h2>
+		<div id="schematic_options">
+		</div>
+		[multitext]
+		[autotext]
+		<h2>Available schematics</h2>
+		<div id='fav_list'></div>
+	"}
+	for(var/cat in schematics)
+		dat += "<b>[cat]:</b><ul style='list-style-type:disc'>"
+		var/list/L = schematics[cat]
+		for(var/datum/rcd_schematic/C in L)
+			for(var/client/client in interface.clients)
+				C.send_list_assets(client)
+			var/turf/T = get_turf(src)
+			if(!T || ((C.flags & RCD_Z_DOWN) && !HasBelow(T.z)) || ((C.flags & RCD_Z_UP) && !HasAbove(T.z)))
+				continue
+			dat += C.schematic_list_line(interface,FALSE,src.selected==C)
+		dat += "</ul>"
+
+	interface.updateLayout(dat)
+
+	if(selected)
+		update_options_menu()
+		interface.updateContent("selectedname", selected.name)
+
+	rebuild_favs()
+
+/obj/item/device/rcd/rpd/update_options_menu()
+	if(selected)
+		for(var/client/client in interface.clients)
+			selected.send_assets(client)
+		var/schematichtml=selected.get_HTML(args)
+		if (build_all)
+			schematichtml=replacetext(replacetext(schematichtml,"id=\"layer\"","id=\"layer_selected\""),"id=\"layer_center\"","id=\"layer_center_selected\"")
+		if (autowrench)
+			schematichtml=replacetext(replacetext(schematichtml,"id=\"layer_selected\"","id=\"layer_selectedauto\""),"id=\"layer_center_selected\"","id=\"layer_center_selectedauto\"")
+		interface.updateContent("schematic_options", schematichtml )
+	else
+		interface.updateContent("schematic_options", " ")
+
+
+/obj/item/device/rcd/rpd/Topic(var/href, var/list/href_list)
+	..()
+	if (href_list["toggle_auto"])
+		autowrench=has_yellow_slime ? !autowrench : 0
+		rebuild_ui()
+		return TRUE
+	if (href_list["toggle_multi"])
+		build_all=has_metal_slime ? !build_all : 0
+		rebuild_ui()
+		return TRUE
+	
+
+
 
 /obj/item/device/rcd/rpd/mech/Topic(var/href, var/list/href_list)
 	..()
@@ -142,7 +221,6 @@
 					favorites.Swap(index, index - 1)
 
 				rebuild_favs()
-
 		return 1
 
 	// The href didn't get handled by us so we pass it down to the selected schematic.
@@ -195,9 +273,9 @@
 				our_schematic.set_layer(layer)
 				if(layer != 5 )
 					spawn(-1)
-						our_schematic.attack(A, user)
+						our_schematic.attack(A, user, frequency, id)
 				else
-					var/t = our_schematic.attack(A, user)
+					var/t = our_schematic.attack(A, user, frequency, id)
 					if(!t) // No errors
 						if(~our_schematic.flags & RCD_SELF_COST) // Handle energy costs unless the schematic does it itself.
 							use_energy(our_schematic.energy_cost, user)
@@ -211,7 +289,7 @@
 			return 1
 
 	busy  = TRUE // Busy to prevent switching schematic while it's in use.
-	var/t = selected.attack(A, user)
+	var/t = selected.attack(A, user, frequency, id)
 	if(!t) // No errors
 		if(~selected.flags & RCD_SELF_COST) // Handle energy costs unless the schematic does it itself.
 			use_energy(selected.energy_cost, user)
@@ -233,6 +311,8 @@
 		return
 
 	src.build_all = !src.build_all
+	if (interface)
+		rebuild_ui() 
 	to_chat(usr, "You [build_all ? "enable" : "disable"] the multilayer mode.")
 
 /obj/item/device/rcd/rpd/proc/autowrench()
@@ -243,6 +323,8 @@
 		return
 
 	src.autowrench = !src.autowrench
+	if (interface)
+		rebuild_ui() 
 	to_chat(usr, "You [autowrench ? "enable" : "disable"] the automatic wrenching mode.")
 
 /obj/item/device/rcd/rpd/admin

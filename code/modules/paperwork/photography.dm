@@ -31,13 +31,13 @@
 	icon_state = "photo"
 	item_state = "paper"
 	w_class = W_CLASS_TINY
+	w_type = RECYK_PLASTIC
+	flammable = TRUE
 	var/icon/img		//Big photo image
 	var/scribble		//Scribble on the back.
 	var/blueprints = FALSE	//Does it include the blueprints?
 	var/info 			//Info on the camera about mobs or some shit
 	var/photo_size = 3 //Used to scale up bigger images, 3 is default
-	autoignition_temperature = 530 // Kelvin
-	fire_fuel = TRUE
 
 	var/list/double_agent_completion_ids = list()
 
@@ -193,8 +193,7 @@
 		flashbulb = new(src)
 
 /obj/item/device/camera/Destroy()
-	qdel(flashbulb)
-	flashbulb = null
+	QDEL_NULL(flashbulb)
 	..()
 
 /obj/item/device/camera/sepia
@@ -311,21 +310,10 @@
 	if(istype(I, /obj/item/stack/cable_coil))
 		if(!panelopen)
 			return
+		var/obj/item/device/blinder/Q = new(loc, empty = TRUE)
+		handle_blinder(Q)
 		var/obj/item/stack/cable_coil/C = I
-		if(C.amount < 5)
-			to_chat(user, "You don't have enough cable to alter \the [src].")
-			return
-		to_chat(user, "You attach [C.amount > 5 ? "some" : "the"] wires to \the [src]'s flash circuit.")
-		if(loc == user)
-			user.drop_item(src, force_drop = 1)
-			var/obj/item/device/blinder/Q = new(get_turf(user), empty = TRUE)
-			handle_blinder(Q)
-			user.put_in_hands(Q)
-		else
-			var/obj/item/device/blinder/Q = new(get_turf(loc), empty = TRUE)
-			handle_blinder(Q)
-		C.use(5)
-		qdel(src)
+		user.create_in_hands(src, Q, C, 5, "You attach [C.amount > 5 ? "some" : "the"] wires to \the [src]'s flash circuit.")
 
 	if(istype(I, /obj/item/device/camera_film))
 		if(pictures_left)
@@ -366,7 +354,7 @@
 
 	var/icon/res = get_base_photo_icon()
 
-	var/icon/img = getFlatIconDeluxe(sorted_data, center, (photo_size-1)/2)
+	var/icon/img = getFlatIconDeluxe(sorted_data, center, (photo_size-1)/2, large_canvas = TRUE)
 	res.Blend(img,ICON_OVERLAY)
 
 	return res
@@ -511,7 +499,7 @@
 		aipicture(user, temp, mobs, user, blueprints)
 
 /obj/item/device/camera/proc/printpicture(mob/user, icon/temp, mobs, flag) //Normal camera proc for creating photos
-	var/obj/item/weapon/photo/P = new/obj/item/weapon/photo()
+	var/obj/item/weapon/photo/P = new/obj/item/weapon/photo(loc)
 	user.put_in_hands(P)
 	var/icon/small_img = icon(temp)
 	var/icon/ic = icon('icons/obj/items.dmi',"photo")
@@ -556,7 +544,7 @@
 		double_agent_completion_ids = list()
 
 /obj/item/device/camera/sepia/printpicture(mob/user, icon/temp, mobs, flag) //Creates photos in sepia
-	var/obj/item/weapon/photo/P = new/obj/item/weapon/photo()
+	var/obj/item/weapon/photo/P = new/obj/item/weapon/photo(loc)
 	user.put_in_hands(P)
 	var/icon/small_img = icon(temp)
 	var/icon/ic = icon('icons/obj/items.dmi',"photo")
@@ -684,14 +672,13 @@
 		viewpichelper(src)
 
 /obj/item/device/camera/afterattack(atom/target, mob/user, flag)
-	if(!on || !pictures_left || (!isturf(target) && !isturf(target.loc)))
+	if(!on || pictures_left<=0 || (!isturf(target) && !isturf(target.loc)))
 		return
-
+	pictures_left--
 	captureimage(target, user, flag)
 
 	playsound(loc, "polaroid", 75, 1, -3)
 
-	pictures_left--
 	to_chat(user, "<span class='notice'>[pictures_left] photos left.</span>")
 	icon_state = icon_off
 	on = FALSE
@@ -807,7 +794,9 @@
 		return 1
 	return 0
 
-/obj/machinery/photobooth/Cross(atom/movable/mover, turf/target, height = 0)
+/obj/machinery/photobooth/Cross(atom/movable/mover, turf/target, height = 0, air_group = 0)
+	if(air_group)
+		return 0
 	if(get_dir(loc, target) == SOUTH || get_dir(loc, mover) == SOUTH)
 		return 1
 	return 0
@@ -869,7 +858,6 @@
 	result.Insert(getFlatIconDeluxe(sort_image_datas(get_content_image_datas(L)), override_dir = NORTH),  "", dir = NORTH)
 	result.Insert(getFlatIconDeluxe(sort_image_datas(get_content_image_datas(L)), override_dir = EAST),  "", dir = EAST)
 	result.Insert(getFlatIconDeluxe(sort_image_datas(get_content_image_datas(L)), override_dir = WEST),  "", dir = WEST)
-	result.Crop(1,1,32,32)
 	return result
 
 /obj/machinery/photobooth/proc/print_photo(var/mob/living/L)

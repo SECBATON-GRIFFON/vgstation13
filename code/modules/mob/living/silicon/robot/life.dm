@@ -111,6 +111,8 @@
 		ear_damage = max(ear_damage-0.05, 0)
 	if((sdisabilities & DEAF))
 		ear_deaf = TRUE
+	if(say_mute)
+		say_mute = max(say_mute-1, 0)
 
 	if(eye_blurry)
 		eye_blurry = max(eye_blurry-1,0)
@@ -133,7 +135,7 @@
 
 /mob/living/silicon/robot/proc/handle_sensor_modes()
 	change_sight(removing = SEE_TURFS|SEE_MOBS|SEE_OBJS|BLIND)
-	see_invisible = SEE_INVISIBLE_LEVEL_TWO
+	see_invisible = SEE_INVISIBLE_LEVEL_ONE
 	see_in_dark = 8
 
 	if(client)
@@ -142,38 +144,6 @@
 	if(isDead())
 		change_sight(adding = SEE_TURFS|SEE_MOBS|SEE_OBJS)
 		return
-
-	switch(sensor_mode)
-		if(NIGHT)
-			if(client)
-				client.color = list(0.33,0.33,0.33,0,
-									0.33,0.33,0.33,0,
-			 						0.33,0.33,0.33,0,
-				 					0,0,0,1,
-				 					-0.2,0,-0.2,0)
-			see_invisible = SEE_INVISIBLE_MINIMUM
-			dark_plane.alphas["robot_night_vision"] = 255
-			dark_plane.alphas -= "robot_mesons"
-			dark_plane.alphas -= "robot_thermal"
-		if(MESON_VISION)
-			change_sight(adding = SEE_TURFS)
-			see_invisible = SEE_INVISIBLE_MINIMUM
-			dark_plane.alphas["robot_mesons"] = 255
-			dark_plane.alphas -= "robot_night_vision"
-			dark_plane.alphas -= "robot_thermal"
-		if(THERMAL_VISION)
-			change_sight(adding = SEE_MOBS)
-			see_invisible = SEE_INVISIBLE_MINIMUM
-			dark_plane.alphas["robot_thermal"] = 255
-			dark_plane.alphas -= "robot_mesons"
-			dark_plane.alphas -= "robot_night_vision"
-			see_in_dark = 4
-		else // nothing
-			dark_plane.alphas -= "robot_night_vision"
-			dark_plane.alphas -= "robot_mesons"
-			dark_plane.alphas -= "robot_thermal"
-
-	check_dark_vision()
 
 /mob/living/silicon/robot/proc/process_killswitch()
 	if(scrambledcodes)
@@ -227,6 +197,5 @@
 		to_chat(src, "<span class='userdanger'>Your hardware detects that you have left your intended location. Initiating self-destruct.</span>")
 		spawn(rand(2,7) SECONDS)
 			if(mmi) //no sneaking brains away
-				qdel(mmi)
-				mmi = null
+				QDEL_NULL(mmi)
 			gib()

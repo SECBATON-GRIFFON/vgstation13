@@ -101,8 +101,7 @@
 	else
 		if(beam)
 			beam._re_emit = 0
-			qdel(beam)
-			beam = null
+			QDEL_NULL(beam)
 
 /obj/machinery/power/emitter/receive_signal(datum/signal/signal)
 	if(!signal.data["tag"] || (signal.data["tag"] != id_tag))
@@ -204,7 +203,7 @@
 
 /obj/machinery/power/emitter/forceMove(atom/destination, step_x = 0, step_y = 0, no_tp = FALSE, harderforce = FALSE, glide_size_override = 0)
 	if(active) // You just removed it from the power cable it was on, what did you think would happen?
-		visible_message("<span class='warning'>The [src] gets yanked off of its power source and turns off!</span>")
+		visible_message("<span class='warning'>\The [src] gets yanked off of its power source and turns off!</span>")
 		turn_off()
 	..()
 

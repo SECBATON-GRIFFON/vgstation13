@@ -295,17 +295,21 @@
 		if(C)
 			C.update_icon()
 			C.updateUsrDialog()
-			if(!M.client && M.mind)
-				var/mob/dead/observer/ghost = mind_can_reenter(M.mind)
-				if(ghost)
-					var/mob/ghostmob = ghost.get_top_transmogrification()
-					if(ghostmob)
-						ghostmob << 'sound/effects/adminhelp.ogg'
-						to_chat(ghostmob, "<span class='interface big'><span class='bold'>Your corpse has been placed into a cloning scanner. Return to your body if you want to be cloned!</span> \
-							(Verbs -> Ghost -> Re-enter corpse, or <a href='?src=\ref[ghost];reentercorpse=1'>click here!</a>)</span>")
-				break
+			M.ghost_reenter_alert("Your corpse has been placed into a cloning scanner. Return to your body if you want to be cloned!")
 			break
 	return TRUE
+
+/mob/proc/ghost_reenter_alert(var/message) //!M.client = mob has ghosted out of their body
+	if(!client && mind)
+		var/mob/dead/observer/ghost = mind_can_reenter(mind)
+		if(ghost)
+			var/mob/ghostmob = ghost.get_top_transmogrification()
+			if(ghostmob)
+				ghostmob << 'sound/effects/adminhelp.ogg'
+				to_chat(ghostmob, "<span class='interface big'><span class='bold'>[message]</span> \
+					(Verbs -> Ghost -> Re-enter corpse, or <a href='?src=\ref[ghost];reentercorpse=1'>click here!</a>)</span>")
+				return TRUE
+	return FALSE
 
 /obj/machinery/dna_scannernew/conveyor_act(var/atom/movable/AM, var/obj/machinery/conveyor/CB)
 	if(isliving(AM))
@@ -316,6 +320,16 @@
 	return FALSE
 
 #define DNASCANNER_MESSAGE_INTERVAL 1 SECONDS
+
+/obj/machinery/dna_scannernew/Exited(var/atom/movable/O) // Used for teleportation from within the scanner.
+	if (O == occupant)
+		occupant = null
+		icon_state = "scanner_0"
+		for(dir in cardinal)
+			var/obj/machinery/computer/cloning/C = locate(/obj/machinery/computer/cloning) in get_step(src, dir)
+			if(C)
+				C.update_icon()
+				C.updateUsrDialog()
 
 /obj/machinery/dna_scannernew/proc/go_out(var/exit = src.loc, var/mob/ejector)
 	if(!occupant)
@@ -363,14 +377,8 @@
 	return 0
 
 /obj/machinery/dna_scannernew/on_login(var/mob/M)
-	if(M.mind && !M.client && locate(/obj/machinery/computer/cloning) in range(src, 1)) //!M.client = mob has ghosted out of their body
-		var/mob/dead/observer/ghost = mind_can_reenter(M.mind)
-		if(ghost)
-			var/mob/ghostmob = ghost.get_top_transmogrification()
-			if(ghostmob)
-				ghostmob << 'sound/effects/adminhelp.ogg'
-				to_chat(ghostmob, "<span class='interface big'><span class='bold'>Your corpse has been placed into a cloning scanner. Return to your body if you want to be cloned!</span> \
-					(Verbs -> Ghost -> Re-enter corpse, or <a href='?src=\ref[ghost];reentercorpse=1'>click here!</a>)</span>")
+	if(locate(/obj/machinery/computer/cloning) in range(src, 1))
+		M.ghost_reenter_alert("Your corpse has been placed into a cloning scanner. Return to your body if you want to be cloned!")
 
 /obj/machinery/dna_scannernew/ex_act(severity)
 	//This is by far the oldest code I have ever seen, please appreciate how it's preserved in comments for distant posterity. Have some perspective of where we came from.
@@ -454,8 +462,7 @@
 	labels.Cut()
 	buffers.Cut()
 	if(disk)
-		qdel(disk)
-		disk = null
+		QDEL_NULL(disk)
 	..()
 
 /datum/block_label
@@ -515,11 +522,18 @@
 		arr += "[i]:[EncodeDNABlock(buffer[i])]"
 	return arr
 
-/obj/machinery/computer/scan_consolenew/proc/setInjectorBlock(var/obj/item/weapon/dnainjector/I, var/blk, var/datum/dna2/record/buffer)
+//So that we can get the number of the block.
+/obj/machinery/computer/scan_consolenew/proc/find_block_number(var/blk)
 	var/pos = findtext(blk,":")
 	if(!pos)
-		return 0
+		return
 	var/id = text2num(copytext(blk,1,pos))
+	if(!id)
+		return
+	return id
+
+/obj/machinery/computer/scan_consolenew/proc/setInjectorBlock(var/obj/item/weapon/dnainjector/I, var/blk, var/datum/dna2/record/buffer)
+	var/id = find_block_number(blk)
 	if(!id)
 		return 0
 	I.block = id
@@ -1075,7 +1089,7 @@
 				src.connected.occupant.dna.SE = buf.dna.SE
 				src.connected.occupant.dna.UpdateSE()
 				domutcheck(src.connected.occupant,src.connected)
-			src.connected.occupant.radiation += rand(20,50)
+			src.connected.occupant.radiation += rand(1,10)
 			return 1
 
 		if (bufferOption == "createInjector")
@@ -1086,6 +1100,7 @@
 				if(arcanetampered)
 					I.arcanetampered = arcanetampered
 				var/datum/dna2/record/buf = src.buffers[bufferId]
+				var/name_to_give = " ([buf.name])" //Will also add the block it has been
 				if(href_list["createBlockInjector"])
 					waiting_for_user_input=1
 					var/list/selectedbuf
@@ -1099,6 +1114,7 @@
 					else
 						qdel(I)
 						success = FALSE
+					name_to_give += " (Block [find_block_number(blk)])"
 
 
 				else
@@ -1106,7 +1122,7 @@
 				waiting_for_user_input=0
 				if(success)
 					I.forceMove(src.loc)
-					I.name += " ([buf.name])"
+					I.name += name_to_give
 					injector_ready = 0
 					spawn(connected.injector_cooldown)
 						setInjectorReady()

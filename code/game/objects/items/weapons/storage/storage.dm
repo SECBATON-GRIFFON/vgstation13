@@ -484,6 +484,11 @@
 		to_chat(user, "<span class='notice'>You [(storage_locked)? "" : "un"]lock \the [src] with \the [stkey].</span>")
 		return
 
+	if(istype(W, /obj/item/weapon/hand_labeler))
+		var/obj/item/weapon/hand_labeler/L = W
+		if(L.mode)
+			return
+
 	if(!can_be_inserted(W))
 		if(istype(W, /obj/item/weapon/glue))
 			return
@@ -690,17 +695,12 @@
 /obj/item/weapon/storage/Destroy()
 	close_all()
 	if(boxes)
-		qdel(boxes)
-		boxes = null
+		QDEL_NULL(boxes)
 	if(closer)
-		qdel(closer)
-		closer = null
+		QDEL_NULL(closer)
 	if(xtra)
-		qdel(xtra)
-		xtra = null
-	for(var/atom/movable/AM in contents)
-		qdel(AM)
-	contents = null
+		QDEL_NULL(xtra)
+	QDEL_LIST_NULL(contents)
 	..()
 
 /obj/item/weapon/storage/preattack(atom/target, mob/user, adjacent, params)
@@ -775,6 +775,13 @@
 
 /obj/item/weapon/storage/proc/is_full()
 	return (storage_slots && (contents.len >= storage_slots)) || (get_sum_w_class() >= max_combined_w_class)
+
+/obj/item/weapon/storage/ignite()
+	if(!istype(loc, /turf)) //worn or held items don't ignite (for now >:^) )
+		return 0
+	var/turf/T = get_turf(src)
+	mass_remove(T) //dump contents if it's burning
+	..()
 
 /obj/item/weapon/storage_key
 	name = "storage key"

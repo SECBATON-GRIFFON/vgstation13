@@ -43,6 +43,7 @@ var/datum/controller/gameticker/ticker
 	var/station_was_nuked
 	var/no_life_on_station
 	var/revolutionary_victory //If on, Castle can be voted if the conditions are right
+	var/malfunctioning_AI_victory //If on, will play a different credits song
 
 	var/list/datum/role/antag_types = list() // Associative list of all the antag types in the round (List[id] = roleNumber1) //Seems to be totally unused?
 
@@ -127,6 +128,7 @@ var/datum/controller/gameticker/ticker
 	theme.update_icon()
 
 /datum/controller/gameticker/proc/setup()
+	var/total_tick = get_game_time()
 	//Create and announce mode
 	if(master_mode=="secret")
 		hide_mode = 1
@@ -177,11 +179,14 @@ var/datum/controller/gameticker/ticker
 	//After antagonists have been removed from new_players in player_list, create crew
 	var/list/new_characters = list()	//list of created crew for transferring
 	var/list/new_players_ready = list() //unique list of people who have readied up, so we can delete mob/new_player later (ready is lost on mind transfer)
+	var/list/roundstart_occupied_area_paths = list() //List of typepaths of areas in departments that are occupied at roundstart, used to handle the lights being on or off.
+
 	for(var/mob/M in player_list)
 		if(!istype(M, /mob/new_player/))
 			var/mob/living/L = M
 			L.store_position()
 			M.close_spawn_windows()
+
 			continue
 		var/mob/new_player/np = M
 		if(!(np.ready && np.mind && np.mind.assigned_role))
@@ -198,6 +203,7 @@ var/datum/controller/gameticker/ticker
 				S.store_position()
 				log_admin("([key]) started the game as a [S.mind.assigned_role].")
 				new_characters[key] = S
+				roundstart_occupied_area_paths |= get_department_area_typepaths(S)
 			if("MODE")
 				//antags aren't new players
 			else
@@ -206,9 +212,35 @@ var/datum/controller/gameticker/ticker
 				EquipCustomItems(H)
 				H.update_icons()
 				new_characters[key] = H
-				if(H.mind.assigned_role != "Trader")
-					data_core.manifest_inject(H)
+				roundstart_occupied_area_paths |= get_department_area_typepaths(H)
 		CHECK_TICK
+
+	//Now that we have all of the occupied areas, we handle the lights being on or off, before actually putting the players into their bodies.
+	if(config.roundstart_lights_on || roundstart_occupied_area_paths.len)
+		var/light_tick = get_game_time()
+		var/area/A
+		for(var/obj/item/device/flashlight/lamp/lampychan in lamps)
+			A = get_area(lampychan)
+			if(config.roundstart_lights_on || (A.type in roundstart_occupied_area_paths))
+				lampychan.toggle_onoff(1)
+		for(var/obj/machinery/light_switch/LS in lightswitches)
+			A = get_area(LS)
+			if(config.roundstart_lights_on || (A.type in roundstart_occupied_area_paths))
+				LS.toggle_switch(1, FALSE, FALSE)
+				roundstart_occupied_area_paths -= A.type // lights are covered by this so skip these areas
+		if(roundstart_occupied_area_paths.len)
+			for(var/obj/machinery/light/lightykun in alllights)
+				A = get_area(lightykun)
+				if(config.roundstart_lights_on || (A.type in roundstart_occupied_area_paths))
+					lightykun.on = 1
+					lightykun.update()
+		//Force the lighting subsystem to update.
+		SSlighting.fire(FALSE, FALSE)
+		log_admin("Turned the lights on in [(get_game_time() - light_tick) / 10] seconds.")
+		message_admins("Turned the lights on in [(get_game_time() - light_tick) / 10] seconds.")
+
+	var/list/clowns = list()
+	var/already_an_ai = FALSE
 
 	//Transfer characters to players
 	for(var/i = 1, i <= new_characters.len, i++)
@@ -217,18 +249,31 @@ var/datum/controller/gameticker/ticker
 		M.key = key
 		if(istype(M, /mob/living/carbon/human/))
 			var/mob/living/carbon/human/H = M
+			if (H.client)
+				message_admins("[H.key]")
+				H.overlay_fullscreen("client_fadein", /obj/abstract/screen/fullscreen/client_fadein)
+				H.clear_fullscreen("client_fadein", 3 SECONDS)
 			job_master.PostJobSetup(H)
 		//minds are linked to accounts... And accounts are linked to jobs.
 		var/rank = M.mind.assigned_role
+		if(rank == "Clown")
+			clowns += M
+		if(rank == "AI" || isAI(M))
+			already_an_ai = TRUE
 		var/datum/job/job = job_master.GetJob(rank)
 		if(job)
 			job.equip(M, job.priority) // Outfit datum.
 
-	handle_lights()
+
 
 	//delete the new_player mob for those who readied
 	for(var/mob/np in new_players_ready)
 		qdel(np)
+
+	if(!already_an_ai && clowns.len >= 2 && prob(1))
+		var/mob/living/carbon/human/H = pick(clowns)
+		if(istype(H))
+			H.make_fake_ai()
 
 	if(ape_mode == APE_MODE_EVERYONE)	//this likely doesn't work properly, why does it only apply to humans?
 		for(var/mob/living/carbon/human/player in player_list)
@@ -244,6 +289,11 @@ var/datum/controller/gameticker/ticker
 		else
 			to_chat(world, "<B>The current game mode is - Secret!</B>")
 			to_chat(world, "<B>Possibilities:</B> [english_list(modes)]")
+
+	var/list/no_records = list("MODE","Mobile MMI","Trader","AI")
+	for(var/mob/living/carbon/human/player in player_list)
+		if(!(player.mind.assigned_role in no_records))
+			data_core.manifest_inject(player)
 
 	mode.PostSetup() //provides antag objectives
 	gamestart_time = world.time / 10
@@ -265,7 +315,78 @@ var/datum/controller/gameticker/ticker
 	Master.RoundStart()
 	wageSetup()
 	post_roundstart()
+	log_admin("Roundstart complete in [(get_game_time() - total_tick) / 10] seconds.")
+	message_admins("Roundstart complete in [(get_game_time() - total_tick) / 10] seconds.")
+	log_admin("Round started with [new_players_ready.len] players. There are [clients.len] players total. There are currently [admins.len] admins online")
 	return 1
+
+/mob/living/carbon/human/proc/make_fake_ai()
+	var/obj/effect/landmark/start/S = null
+	for(var/obj/effect/landmark/start/S2 in landmarks_list)
+		if(S2.name == "AI")
+			S = S2
+			break
+	if(!S)
+		message_admins("[formatJumpTo(key_name(src))] tried to become a fake AI but there was no AI spawn point to do it with!")
+		return
+	var/turf/T = get_turf(S)
+	ASSERT(T)
+	forceMove(T)
+	mind.assigned_role = "AI"
+	var/obj/structure/curtain/open/clownai/cc = new(T)
+	cc.name = src.name
+	qdel(head)
+	head = null
+	var/obj/item/clothing/head/cardborg/cb = new(T)
+	if(iswizard(src))
+		cb.wizard_garb = TRUE
+	equip_to_slot_or_drop(cb, slot_head)
+	var/obj/item/weapon/card/id/ID = null
+	var/obj/item/I = get_item_by_slot(slot_wear_id)
+	if(istype(I,/obj/item/weapon/card/id))
+		ID = I
+	else if(istype(I,/obj/item/device/pda))
+		var/obj/item/device/pda/P = I
+		ID = P.id
+	if(!ID)
+		ID = new(T)
+		ID.registered_name = src.real_name
+		equip_to_slot_or_drop(ID, slot_wear_id)
+	ID.assignment = "AI"
+	ID.UpdateName()
+	var/obj/item/device/radio/headset/H = get_item_by_slot(slot_ears)
+	if(!H)
+		H = new(T)
+		equip_to_slot_or_drop(H, slot_ears)
+	if(!iswizard(src)) // make it less unfair i guess
+		var/obj/item/device/encryptionkey/ai/EK
+		if(!H.keyslot1)
+			H.keyslot1 = new /obj/item/device/encryptionkey/ai(H)
+			EK = H.keyslot1
+		else
+			if(H.keyslot2)
+				EK = new /obj/item/device/encryptionkey/ai(T)
+			else
+				H.keyslot2 = new /obj/item/device/encryptionkey/ai(H)
+				EK = H.keyslot2
+		EK.translate_binary = TRUE // helps too
+		H.recalculateChannels()
+	var/turf_found = FALSE
+	for(var/dir in cardinal)
+		var/turf/T2 = get_step(src,dir)
+		if(T2.Cross(src)) // something that this user can pass through gets the security console
+			turf_found = TRUE
+			var/obj/structure/curtain/open/clownai/floor/F = new(T2)
+			F.closed_state = T2.icon_state // floor look consistency
+			var/obj/machinery/computer/security/SC = new(T2)
+			SC.density = 0 // makes exposing them a bit easier
+			break
+	if(!turf_found)
+		message_admins("[formatJumpTo(key_name(src))] tried to spawn a security cameras console nearby while becoming a fake AI but there was no room for one!")
+	to_chat(src,"<b>You [!iswizard(src) ? "have been assigned to be" : "are now"] the station's \"AI\"!</b>")
+	to_chat(src,"<b>You can open doors through the security cameras console in front of you by clicking on them. The curtains near you will also disguise you as the AI core itself. Alt-click the one on you to change the core appearance.</b>")
+	if(!iswizard(src))
+		to_chat(src,"<b>Since you are imitating a station AI, you are now more important for Game Progression. If you have to disconnect, please notify the admins via adminhelp.</b>")
 
 /datum/controller/gameticker
 	//station_explosion used to be a variable for every mob's hud. Which was a waste!
@@ -438,7 +559,6 @@ var/datum/controller/gameticker/ticker
 			else if(!delay_end)
 				sleep(restart_timeout)
 				if(!delay_end)
-					CallHook("Reboot",list())
 					world.Reboot()
 				else
 					to_chat(world, "<span class='notice'><B>An admin has delayed the round end</B></span>")
@@ -519,27 +639,27 @@ var/datum/controller/gameticker/ticker
 	if(platinum_tier.len)
 		text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(platinum)]'> <b>Platinum Trophy</b> (never removed his clothes, kept his bomb dispenser until the end, and escaped on the shuttle):"}
 		for (var/mob/M in platinum_tier)
-			var/icon/flat = getFlatIcon(M, SOUTH, 1, 1)
+			var/icon/flat = getFlatIconDeluxe(sort_image_datas(get_content_image_datas(M)), override_dir = SOUTH)
 			text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(flat)]'> <b>[M.key]</b> as <b>[M.real_name]</b>"}
 	if(gold_tier.len)
 		text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(gold)]'> <b>Gold Trophy</b> (kept his bomb dispenser until the end, and escaped on the shuttle):"}
 		for (var/mob/M in gold_tier)
-			var/icon/flat = getFlatIcon(M, SOUTH, 1, 1)
+			var/icon/flat = getFlatIconDeluxe(sort_image_datas(get_content_image_datas(M)), override_dir = SOUTH)
 			text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(flat)]'> <b>[M.key]</b> as <b>[M.real_name]</b>"}
 	if(silver_tier.len)
 		text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(silver)]'> <b>Silver Trophy</b> (kept his bomb dispenser until the end, and escaped in a pod):"}
 		for (var/mob/M in silver_tier)
-			var/icon/flat = getFlatIcon(M, SOUTH, 1, 1)
+			var/icon/flat = getFlatIconDeluxe(sort_image_datas(get_content_image_datas(M)), override_dir = SOUTH)
 			text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(flat)]'> <b>[M.key]</b> as <b>[M.real_name]</b>"}
 	if(bronze_tier.len)
 		text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(bronze)]'> <b>Bronze Trophy</b> (kept his bomb dispenser until the end):"}
 		for (var/mob/M in bronze_tier)
-			var/icon/flat = getFlatIcon(M, SOUTH, 1, 1)
+			var/icon/flat = getFlatIconDeluxe(sort_image_datas(get_content_image_datas(M)), override_dir = SOUTH)
 			text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(flat)]'> <b>[M.key]</b> as <b>[M.real_name]</b>"}
 	if(special_tier.len)
 		text += "<br><b>Special Mention</b> to those adorable MoMMis:"
 		for (var/mob/M in special_tier)
-			var/icon/flat = getFlatIcon(M, SOUTH, 1, 1)
+			var/icon/flat = getFlatIconDeluxe(sort_image_datas(get_content_image_datas(M)), override_dir = SOUTH)
 			text += {"<br><img class='icon' src='data:image/png;base64,[iconsouth2base64(flat)]'> <b>[M.key]</b> as <b>[M.name]</b>"}
 
 	return text
@@ -565,19 +685,6 @@ var/datum/controller/gameticker/ticker
 		if(player.mind && (player.mind.assigned_role in command_positions))
 			roles += player.mind.assigned_role
 	return roles
-
-/datum/controller/gameticker/proc/handle_lights()
-	var/list/discrete_areas = areas.Copy()
-	//Get department areas where there is a crewmember. This is used to turn on lights in occupied departments
-	for(var/mob/living/player in player_list)
-		discrete_areas -= get_department_areas(player)
-	//Toggle lightswitches and lamps on in occupied departments
-	for(var/area/DA in discrete_areas)
-		for(var/obj/machinery/light_switch/LS in DA)
-			LS.toggle_switch(0, playsound = FALSE)
-			break
-		for(var/obj/item/device/flashlight/lamp/L in DA)
-			L.toggle_onoff(0)
 
 /datum/controller/gameticker/proc/post_roundstart()
 	//Handle all the cyborg syncing
@@ -618,6 +725,8 @@ var/datum/controller/gameticker/ticker
 					qdel(obj)
 
 		to_chat(world, "<span class='notice'><B>Enjoy the game!</B></span>")
+		roundstart_timestamp = world.time
+
 		//Holiday Round-start stuff	~Carn
 		Holiday_Game_Start()
 
@@ -664,12 +773,16 @@ var/datum/controller/gameticker/ticker
 	tag_mode.name = "Tag mode"
 	tag_mode.calledBy = "[key_name(user)]"
 	forced_roundstart_ruleset += tag_mode
-	dynamic_forced_extended = TRUE
+	admin_disable_rulesets = TRUE
+	log_admin("Dynamic rulesets are disabled in Tag Mode.")
+	message_admins("Dynamic rulesets are disabled in Tag Mode.")
 
 /datum/controller/gameticker/proc/cancel_tag_mode(var/mob/user)
 	tag_mode_enabled = FALSE
 	to_chat(world, "<h1>Tag mode has been cancelled.<h1>")
-	dynamic_forced_extended = FALSE
+	admin_disable_rulesets = FALSE
+	log_admin("Dynamic rulesets have been re-enabled.")
+	message_admins("Dynamic rulesets have been re-enabled.")
 	forced_roundstart_ruleset = list()
 
 /world/proc/has_round_started()

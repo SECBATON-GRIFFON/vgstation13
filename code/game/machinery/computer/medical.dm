@@ -262,8 +262,7 @@
 
 			if (href_list["del_all2"])
 				for(var/datum/data/record/R in data_core.medical)
-					qdel(R)
-					R = null
+					QDEL_NULL(R)
 					//Foreach goto(494)
 				temp = "All records deleted."
 
@@ -460,8 +459,7 @@
 
 			if (href_list["del_r2"])
 				if (active2)
-					qdel(active2)
-					active2 = null
+					QDEL_NULL(active2)
 
 			if (href_list["d_rec"])
 				var/datum/data/record/R = locate(href_list["d_rec"])
@@ -587,8 +585,7 @@
 			continue
 
 		else if(prob(1))
-			qdel(R)
-			R = null
+			QDEL_NULL(R)
 			continue
 
 	..(severity)
@@ -598,7 +595,8 @@
 	name = "Medical Laptop"
 	desc = "A cheap laptop connected to the medical records."
 	icon_state = "medlaptop"
-	pass_flags = PASSTABLE
+	moody_state = "overlay_laptop"
+	pass_flags = PASSTABLE | PASSRAILING
 	machine_flags = 0
 
 	anchored = 0

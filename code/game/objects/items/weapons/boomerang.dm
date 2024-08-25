@@ -11,10 +11,9 @@
 
 	force = 7
 
-	autoignition_temperature = AUTOIGNITION_WOOD
-	fire_fuel = 3
 	starting_materials = list(MAT_WOOD = CC_PER_SHEET_WOOD * 6)
 	w_type = RECYK_WOOD
+	flammable = TRUE
 
 /obj/item/weapon/boomerang/Destroy()
 	..()
@@ -67,7 +66,10 @@
 		var/T = get_turf(target)
 
 		for(var/step_n = 1 to circle_radius)
-			T = get_step(T, m_dir)
+			if(circle_radius > 50)
+				return
+			else
+				T = get_step(T, m_dir)
 
 		points.Add(T)
 

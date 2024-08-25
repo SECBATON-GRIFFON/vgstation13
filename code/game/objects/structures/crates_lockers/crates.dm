@@ -16,6 +16,12 @@
 	var/sound_effect_open = 'sound/machines/click.ogg'
 	var/sound_effect_close = 'sound/machines/click.ogg'
 
+/obj/structure/closet/crate/proc/jiggle(var/obj/item/I)
+	var/jx = I.w_class == W_CLASS_TINY ? 7 : 3
+	var/jy = I.w_class == W_CLASS_TINY ? 3 : 1
+	I.pixel_x = rand(-jx,jx)
+	I.pixel_y = rand(-jy,jy)
+
 /obj/structure/closet/crate/basic
 	has_lock_type = /obj/structure/closet/crate/secure/basic
 
@@ -124,6 +130,9 @@
 	var/target_temp = T0C - 40
 	var/cooling_power = 40
 
+/obj/structure/closet/crate/freezer/get_heat_conductivity()
+	return HEAT_CONDUCTIVITY_REFRIGERATOR
+
 /obj/structure/closet/crate/freezer/return_air()
 	var/datum/gas_mixture/gas = (..())
 	if(!gas)
@@ -147,6 +156,39 @@
 	icon_opened = "surgeryfreezeropen"
 	icon_closed = "surgeryfreezer"
 
+/obj/structure/closet/crate/freezer/surgery/close(mob/user)
+	..()
+	update_icon()
+
+	var/list/inside = recursive_type_check(src, /mob/living/carbon/brain)
+	for(var/mob/living/carbon/brain/braine in inside)
+		if(braine.mind && !braine.client) //!braine.client = mob has ghosted out of their body
+			var/mob/dead/observer/ghost = mind_can_reenter(braine.mind)
+			if(ghost)
+				var/mob/ghostmob = ghost.get_top_transmogrification()
+				if(ghostmob)
+					to_chat(ghostmob, "<span class='interface'><span class='big bold'>Your brain has been placed into a surgery freezer.</span> \
+						Re-entering your corpse will cause the freezer's heart to pulse, which will let people know you're still there, and just maybe improve your chances of being revived. No promises.</span>")
+
+/obj/structure/closet/crate/freezer/surgery/update_icon()
+	..()
+
+	var/list/inside = recursive_type_check(src, /mob/living/carbon/brain)
+	for(var/mob/living/carbon/brain/brained in inside)
+		if(brained.mind && brained.mind.suiciding)
+			continue
+		if(brained && brained.client)
+			icon_state = "surgeryfreezerbrained"
+			return
+
+/obj/structure/closet/crate/freezer/surgery/on_login(var/mob/M)
+	..()
+	update_icon()
+
+/obj/structure/closet/crate/freezer/surgery/on_logout(var/mob/M)
+	..()
+	update_icon()
+
 /obj/structure/closet/crate/bin
 	desc = "A large bin."
 	name = "Large bin"
@@ -162,23 +204,6 @@
     ..()
 
 /obj/structure/closet/crate/bin/wrenchable()
-    return TRUE
-
-/obj/structure/closet/crate/ayybin
-	desc = "A large bin."
-	name = "Mothership Large bin"
-	icon = 'icons/obj/storage/storage.dmi'
-	icon_state = "ayybin"
-	density = 1
-	icon_opened = "ayybinopen"
-	icon_closed = "ayybin"
-
-/obj/structure/closet/crate/ayybin/attackby(var/obj/item/weapon/W, var/mob/user)
-    if(W.is_wrench(user) && wrenchable())
-        return wrenchAnchor(user, W)
-    ..()
-
-/obj/structure/closet/crate/ayybin/wrenchable()
     return TRUE
 
 /obj/structure/closet/crate/radiation
@@ -198,15 +223,6 @@
 	density = 1
 	icon_opened = "weaponcrateopen"
 	icon_closed = "weaponcrate"
-
-/obj/structure/closet/crate/secure/ayyweapon
-	desc = "A secure mothership weapons crate."
-	name = "Mothership Weapons crate"
-	icon = 'icons/obj/storage/storage.dmi'
-	icon_state = "ayyweaponcrate"
-	density = 1
-	icon_opened = "ayyweaponcrateopen"
-	icon_closed = "ayyweaponcrate"
 
 /obj/structure/closet/crate/secure/plasma
 	desc = "A secure plasma crate."
@@ -253,25 +269,6 @@
     ..()
 
 /obj/structure/closet/crate/secure/bin/wrenchable()
-    return TRUE
-
-/obj/structure/closet/crate/secure/ayybin
-	desc = "A secure bin."
-	name = "Mothership Secure bin"
-	icon_state = "ayybinsecure"
-	icon_opened = "ayybinsecureopen"
-	icon_closed = "ayybinsecure"
-	redlight = "largebinr"
-	greenlight = "largebing"
-	sparks = "largebinsparks"
-	emag = "largebinemag"
-
-/obj/structure/closet/crate/secure/ayybin/attackby(var/obj/item/weapon/W, var/mob/user)
-    if(W.is_wrench(user) && wrenchable())
-        return wrenchAnchor(user, W)
-    ..()
-
-/obj/structure/closet/crate/secure/ayybin/wrenchable()
     return TRUE
 
 /obj/structure/closet/crate/secure/large
@@ -483,6 +480,10 @@
 		return 0
 	playsound(src, sound_effect_open, 15, 1, -3)
 
+	for(var/obj/item/I in contents)
+		if(I.w_class <= W_CLASS_SMALL)
+			jiggle(I)
+
 	dump_contents()
 
 	icon_state = icon_opened
@@ -504,20 +505,21 @@
 	src.setDensity(TRUE)
 	return 1
 
-/obj/structure/closet/crate/insert(var/atom/movable/AM, var/include_mobs = 0)
+/obj/structure/closet/crate/insert(var/atom/movable/AM)
 
 	if(contents.len >= storage_capacity)
 		return -1
 
-	if(include_mobs && isliving(AM))
-		var/mob/living/L = AM
-		if(L.locked_to)
+	if(ishuman(AM))
+		var/mob/living/carbon/human/H = AM
+		if(!istype(H) || H.locked_to)
 			return 0
+		if(!(H.resting || H.stat)) /* We only want mobs that are human and are resting/dying to be able to get inside. */
+			return 0
+
 	else if(isobj(AM))
 		if(AM.density || AM.anchored || istype(AM,/obj/structure/closet))
 			return 0
-	else
-		return 0
 
 	if(istype(AM, /obj/structure/bed)) //This is only necessary because of rollerbeds and swivel chairs.
 		var/obj/structure/bed/B = AM
@@ -655,8 +657,7 @@
 
 		if(user.drop_item(W))
 			to_chat(user, "<span class='notice'>You rig [src].</span>")
-			qdel(W)
-			W = null
+			QDEL_NULL(W)
 			rigged = 1
 		return
 	else if(istype(W, /obj/item/device/radio/electropack))
@@ -768,7 +769,7 @@
 			new/obj/item/weapon/gun/projectile/hecate(src)
 			new/obj/item/ammo_storage/box/BMG50(src)
 			new/obj/item/device/radio/headset/headset_earmuffs(src)
-			new/obj/item/clothing/glasses/thermal(src)
+			new/obj/item/clothing/glasses/hud/thermal(src)
 		if("gravitywell")
 			new/obj/item/clothing/suit/radiation(src)
 			new/obj/item/clothing/head/radiation(src)

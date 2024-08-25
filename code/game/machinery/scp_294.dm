@@ -16,7 +16,7 @@
 	max_energy = 10
 	amount = 10
 	dispensable_reagents = null
-	var/list/prohibited_reagents = list(ADMINORDRAZINE, PROCIZINE)
+	var/list/prohibited_reagents = list(ADMINORDRAZINE, PROCIZINE, PANACEA)
 	var/list/emagged_only_reagents = list(XENOMICROBES, MEDNANOBOTS)
 
 	machine_flags = FIXED2WORK | EMAGGABLE | WRENCHMOVE
@@ -91,8 +91,7 @@
 			if(!X.gcDestroyed)
 				X.create_reagents(X.volume)
 			else
-				qdel(X)
-				X = null
+				QDEL_NULL(X)
 				return
 		var/space = U.maximum_volume - U.total_volume
 

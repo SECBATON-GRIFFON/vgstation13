@@ -35,8 +35,6 @@
 /turf/simulated/floor/vox/wood
 	icon_state = "wood"
 
-	autoignition_temperature = AUTOIGNITION_WOOD
-	fire_fuel = 10
 	soot_type = null
 	melt_temperature = 0 // Doesn't melt.
 
@@ -62,11 +60,11 @@
 /turf/simulated/floor/wood
 	name = "floor"
 	icon_state = "wood"
-
-	autoignition_temperature = AUTOIGNITION_WOOD
-	fire_fuel = 10
 	soot_type = null
 	melt_temperature = 0 // Doesn't melt.
+	flammable = TRUE
+	thermal_material = new/datum/thermal_material/wood()
+	thermal_mass = 5
 
 /turf/simulated/floor/wood/create_floor_tile()
 	floor_tile = new /obj/item/stack/tile/wood(null)
@@ -91,6 +89,7 @@
 	icon_plating = "engine"
 	thermal_conductivity = 0.025
 	heat_capacity = 325000
+	protect_infrastructure = TRUE
 
 	soot_type = null
 	melt_temperature = 0 // Doesn't melt.
@@ -123,22 +122,19 @@
 					to_chat(user, "<span class='warning'>Unsecure the [floor_tile.name] first!</span>")
 				else
 					to_chat(user, "<span class='notice'>You remove the [floor_tile.name].</span>")
+					floor_tile.forceMove(src)
+					floor_tile = null
 					make_plating()
 					// Can't play sounds from areas. - N3X
 					C.playtoolsound(src, 80)
 	if(istype(C, /obj/item/stack/tile/metal/plasteel) && !floor_tile)
 		var/obj/item/stack/tile/T = C
 		if(T.use(1))
-			if(floor_tile)
-				qdel(floor_tile)
-			floor_tile = null
-			floor_tile = new T.type(null)
-			material = floor_tile.material
-			intact = 1
-			plane = TURF_PLANE
-			update_icon()
-			levelupdate()
-			playsound(src, 'sound/weapons/Genhit.ogg', 50, 1)
+			make_tiled_floor(T)
+	if(istype(C, /obj/item/stack/bolts) && !floor_tile)
+		var/obj/item/stack/bolts/B = C
+		if(B.use(1))
+			ChangeTurf(/turf/simulated/floor/engine/bolted)
 	if(C.is_screwdriver(user) && floor_tile)
 		to_chat(user, "<span class='notice'>You start [secured ? "unsecuring" : "securing"] the [floor_tile.name].</span>")
 		C.playtoolsound(src, 80)
@@ -148,24 +144,52 @@
 			C.playtoolsound(src, 80)
 			update_icon()
 
+/turf/simulated/floor/engine/proc/explode_layers(var/layers = 1)
+	if(secured)		//plasteel tile, screwed in
+		secured = FALSE
+		update_icon()
+		layers -= 1
+		if(!layers)
+			return
+	if(floor_tile)	//plasteel tile, unscrewed
+		qdel(floor_tile)
+		floor_tile = null
+		icon_state = "engine"
+		update_icon()
+		layers -= 1
+		if(!layers)
+			return
+	//reinforced floor
+	new /obj/item/stack/rods(src, 1)
+	ChangeTurf(/turf/simulated/floor)
+	var/turf/simulated/floor/F = src
+	F.make_plating()
+	layers -= 1
+
+	//normal plating
+	if(!layers)
+		return
+
+	var/severity = 2
+	if(layers > 1)
+		severity = 1
+	for(var/obj/structure/cable/C in src)
+		C.ex_act(severity)
+	for(var/obj/machinery/atmospherics/pipe/P in src)
+		P.ex_act(severity)
+	for(var/obj/structure/disposalpipe/D in src)
+		D.ex_act(severity)
+	src.ex_act(severity)
+
 /turf/simulated/floor/engine/ex_act(severity)
 	switch(severity)
 		if(1.0)
-			if(prob(80 / (1 + secured)))
-				src.ReplaceWithLattice()
-			else if(prob(50 / (1 + secured)))
-				src.ChangeTurf(get_underlying_turf())
-			else
-				var/turf/simulated/floor/F = src
-				F.make_plating()
+			explode_layers(pick(2,3))
 		if(2.0)
-			if(prob(50 / (1 + secured)))
-				var/turf/simulated/floor/F = src
-				F.make_plating()
-			else
-				return
+			explode_layers(1)
 		if(3.0)
-			return
+			if(prob(10))
+				explode_layers(1)
 
 /turf/simulated/floor/engine/make_plating()
 	if(floor_tile)
@@ -175,19 +199,37 @@
 	broken = 0
 	burnt = 0
 	material = "metal"
-	plane = PLATING_PLANE
 
 	update_icon()
 	levelupdate()
 
 /turf/simulated/floor/engine/update_icon()
 	overlays.Cut()
+	icon_plating = "engine" //hotfix for now
 	..()
 	if(floor_tile)
 		if(secured)
 			overlays.Add(image('icons/turf/floors.dmi', icon_state = "r_floor"))
 		else
 			overlays.Add(image('icons/turf/floors.dmi', icon_state = "r_floor_unsec"))
+
+/turf/simulated/floor/engine/bolted
+	name = "bolted floor"
+	desc = "This floor has jutting bolts that would make crawling across it impossible."
+	icon_state = "boltedfloor"
+
+/turf/simulated/floor/engine/bolted/attackby(obj/item/C as obj, mob/user as mob)
+	if(!user || !C)
+		return
+	if(!C.is_wrench(user))
+		return
+	if(user.loc != src)
+		to_chat(user, "<span class='warning'>You must stand directly on the bolted floor to unbolt it.</span>")
+		return
+	C.playtoolsound(src, 80)
+	if(do_after(user, src, 6 SECONDS))
+		new /obj/item/stack/bolts(src)
+		ChangeTurf(/turf/simulated/floor/engine)
 
 // For mappers
 /turf/simulated/floor/engine/plated
@@ -213,6 +255,9 @@
 
 /turf/simulated/floor/engine/cult/cultify()
 	return
+
+/turf/simulated/floor/engine/cult/decultify()
+	ChangeTurf(/turf/simulated/floor/plating)
 
 /turf/simulated/floor/engine/cult/clockworkify()
 	return
@@ -254,8 +299,12 @@
 
 /turf/simulated/floor/plating/deck
 	name = "deck"
+	icon_state = "deck"
 	icon_plating = "deck"
 	desc = "Children love to play on this deck."
+	flammable = TRUE
+	thermal_material = new/datum/thermal_material/wood()
+	thermal_mass = 5
 
 /turf/simulated/floor/plating/deck/New()
 	..()
@@ -337,13 +386,20 @@
 
 /turf/simulated/floor/beach/water/New()
 	..()
-	var/image/water = image("icon"='icons/misc/beach.dmi',"icon_state"="water5")
-	water.plane = ABOVE_HUMAN_PLANE
-	overlays += water
+	if(!BW)
+		BW = new
+	vis_contents.Add(BW)
+
+/turf/simulated/floor/beach/water/Destroy()
+	vis_contents.Cut()
+	..()
 
 /turf/simulated/floor/grass
 	name = "Grass patch"
 	icon_state = "grass1"
+	flammable = TRUE
+	thermal_material = new/datum/thermal_material/wood()
+	thermal_mass = 5
 
 /turf/simulated/floor/grass/create_floor_tile()
 	floor_tile = new /obj/item/stack/tile/grass(null)
@@ -363,6 +419,9 @@
 	name = "Carpet"
 	icon_state = "carpet"
 	var/has_siding=1
+	flammable = TRUE
+	thermal_material = new/datum/thermal_material/fabric()
+	thermal_mass = 5
 
 /turf/simulated/floor/carpet/create_floor_tile()
 	floor_tile = new /obj/item/stack/tile/carpet(null)
@@ -386,10 +445,29 @@
 /turf/simulated/floor/arcade
 	name = "Arcade Carpet"
 	icon_state = "arcade"
+	flammable = TRUE
+	thermal_material = new/datum/thermal_material/fabric()
+	thermal_mass = 5
 
 /turf/simulated/floor/arcade/create_floor_tile()
 	floor_tile = new /obj/item/stack/tile/arcade(null)
 	..()
+
+/turf/simulated/floor/carpet/shag
+	name = "Shag Carpet"
+	icon_state = "shagcarpet-dark"
+	has_siding = FALSE
+
+/turf/simulated/floor/carpet/shag/update_icon()
+	if(broken || burnt)
+		icon_state = "carpet-broken"
+	else if(is_plating())
+		icon_state = icon_plating
+	else
+		icon_state = initial(icon_state)
+
+/turf/simulated/floor/carpet/shag/create_floor_tile()
+	floor_tile = new /obj/item/stack/tile/carpet/shag(null)
 
 /turf/simulated/floor/damaged
 	icon_state = "damaged1"

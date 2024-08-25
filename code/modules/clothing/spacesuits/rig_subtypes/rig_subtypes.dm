@@ -9,6 +9,8 @@
 	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	pressure_resistance = 200 * ONE_ATMOSPHERE
 	eyeprot = 3
+	dyeable_parts = list("visor","primary","secondary")
+	dye_base_iconstate_override = "rig0-engineering"
 
 /obj/item/clothing/suit/space/rig/engineer
 	name = "engineering hardsuit"
@@ -21,6 +23,7 @@
 	pressure_resistance = 200 * ONE_ATMOSPHERE
 	head_type = /obj/item/clothing/head/helmet/space/rig/engineer
 	initial_modules = list(/obj/item/rig_module/rad_shield)
+	dyeable_parts = list("visor","primary","secondary")
 
 //Chief Engineer's rig
 /obj/item/clothing/head/helmet/space/rig/engineer/elite
@@ -33,6 +36,7 @@
 	species_restricted = list("exclude",VOX_SHAPED)
 	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
 	clothing_flags = PLASMAGUARD
+	dyeable_parts = list()
 
 /obj/item/clothing/suit/space/rig/engineer/elite
 	name = "advanced hardsuit"
@@ -46,11 +50,13 @@
 	allowed = list(/obj/item/device/flashlight,/obj/item/weapon/tank,/obj/item/weapon/storage/bag/ore,/obj/item/device/t_scanner,/obj/item/weapon/pickaxe, /obj/item/device/rcd, /obj/item/tool/wrench/socket, /obj/item/tool/irons)
 	cell_type = /obj/item/weapon/cell/super
 	head_type = /obj/item/clothing/head/helmet/space/rig/engineer/elite
+	dyeable_parts = list()
 
 /obj/item/clothing/head/helmet/space/rig/engineer/elite/test
 	name = "prototype advanced hardsuit helmet"
 	desc = "A bleeding-edge helmet designed to protect its wearer against extreme environments. The armored padding in this helmet was totally removed to give place for its experimental plasmovsky alloy."
 	armor = list(melee = 0, bullet = 0, laser = 0, energy = 100, bomb = 100, bio = 100, rad = 100)
+	dyeable_parts = list()
 
 //Self-charging, auto-refiller high-test suit.
 /obj/item/clothing/suit/space/rig/engineer/elite/test
@@ -63,6 +69,7 @@
 	tank_type = /obj/item/weapon/tank/oxygen
 	cell_type = /obj/item/weapon/cell/rad/large
 	initial_modules = list(/obj/item/rig_module/health_readout, /obj/item/rig_module/tank_refiller)
+	dyeable_parts = list()
 
 //Mining rig
 /obj/item/clothing/head/helmet/space/rig/mining
@@ -243,6 +250,7 @@
 	item_state = "lichking_armour"
 	species_restricted = list(UNDEAD_SHAPED)
 	body_parts_covered = ARMS|LEGS|FULL_TORSO|HANDS
+	head_type=/obj/item/clothing/head/helmet/space/rig/wizard/lich_king
 
 //Medical Rig
 /obj/item/clothing/head/helmet/space/rig/medical
@@ -306,6 +314,7 @@
 	siemens_coefficient = 0.7
 	pressure_resistance = 40 * ONE_ATMOSPHERE
 	head_type = /obj/item/clothing/head/helmet/space/rig/security
+	on_armory_manifest = TRUE
 
 /obj/item/clothing/suit/space/rig/security/fat
 	name = "expanded security hardsuit"
@@ -331,6 +340,7 @@
 
 /obj/item/clothing/head/helmet/space/rig/security/stormtrooper
 	icon_state = "rig0-storm"
+	item_state = "rig0-storm"
 	_color = "storm"
 	name = "stormtrooper helmet"
 	desc = "Even with the finest vision enhancement tech, you still can't hit shit."
@@ -338,6 +348,7 @@
 
 /obj/item/clothing/suit/space/rig/security/stormtrooper
 	icon_state = "rig-storm"
+	item_state = "rig-storm"
 	name = "stormtrooper hardsuit"
 	desc = "Now even more vulnerable to teddy bears!"
 	head_type = /obj/item/clothing/head/helmet/space/rig/security/stormtrooper
@@ -354,6 +365,8 @@
 	clothing_flags = PLASMAGUARD
 	armor = list(melee = 40, bullet = 0, laser = 0, energy = 0, bomb = 25, bio = 100, rad = 0)
 	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
+	dyeable_parts = list("visor","primary","secondary")
+	dye_base_iconstate_override = "rig0-atmos"
 
 /obj/item/clothing/suit/space/rig/atmos
 	desc = "A special suit that protects against hazardous low pressure environments. Trades radiation shielding for plasma proofing compared to engineering hardsuits."
@@ -366,6 +379,8 @@
 	armor = list(melee = 40, bullet = 0, laser = 0, energy = 0, bomb = 25, bio = 100, rad = 0)
 	max_heat_protection_temperature = FIRESUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	head_type = /obj/item/clothing/head/helmet/space/rig/atmos
+	dyeable_parts = list("visor","primary","secondary")
+
 
 //Firefighting/Atmos RIG (old /vg/)
 /obj/item/clothing/head/helmet/space/rig/atmos/gold
@@ -377,6 +392,7 @@
 	_color = "atmos_gold"
 	species_fit = list(GREY_SHAPED, INSECT_SHAPED)
 	species_restricted = list("exclude",VOX_SHAPED)
+	dyeable_parts = list()
 
 /obj/item/clothing/suit/space/rig/atmos/gold
 	desc = "A special suit that protects against hazardous low pressure environments and extreme temperatures. In other words, perfect for atmos."
@@ -391,6 +407,7 @@
 	armor = list(melee = 30, bullet = 5, laser = 40,energy = 5, bomb = 35, bio = 100, rad = 60)
 	allowed = list(/obj/item/device/flashlight,/obj/item/weapon/tank,/obj/item/weapon/storage/backpack/satchel_norm,/obj/item/device/t_scanner,/obj/item/weapon/pickaxe, /obj/item/device/rcd, /obj/item/weapon/extinguisher, /obj/item/weapon/extinguisher/foam, /obj/item/weapon/storage/toolbox, /obj/item/tool/wrench/socket, /obj/item/tool/irons)
 	head_type = /obj/item/clothing/head/helmet/space/rig/atmos/gold
+	dyeable_parts = list()
 
 //ADMINBUS RIGS. SOVIET + NAZI
 /obj/item/clothing/head/helmet/space/rig/nazi

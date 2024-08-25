@@ -11,8 +11,9 @@ would spawn and follow the beaker, even if it is carried or thrown.
 	icon = 'icons/effects/effects.dmi'
 	mouse_opacity = 0
 	flags = 0
-	w_type=NOT_RECYCLABLE
-	pass_flags = PASSTABLE|PASSGRILLE|PASSMACHINE
+	density = 0
+	w_type = NOT_RECYCLABLE
+	pass_flags = PASSTABLE | PASSGRILLE | PASSMACHINE | PASSGIRDER | PASSRAILING
 
 /obj/effect/dissolvable()
 	return 0
@@ -28,25 +29,14 @@ would spawn and follow the beaker, even if it is carried or thrown.
 
 /obj/effect/water/New()
 	. = ..()
-	//var/turf/T = src.loc
-	//if (istype(T, /turf))
-	//	T.firelevel = 0 //TODO: FIX
 
 	spawn(70)
 		qdel(src)
 
 /obj/effect/water/Destroy()
-	//var/turf/T = src.loc
-	//if (istype(T, /turf))
-	//	T.firelevel = 0 //TODO: FIX
-
 	..()
 
 /obj/effect/water/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
-	//var/turf/T = src.loc
-	//if (istype(T, /turf))
-	//	T.firelevel = 0 //TODO: FIX
-
 	if (--life < 1)
 		//SN src = null
 		qdel(src)
@@ -110,12 +100,16 @@ steam.start() -- spawns the effect
 	icon_state = "extinguish"
 	density = 0
 
-/datum/effect/system/steam_spread/set_up(n = 3, c = 0, turf/loc)
+/datum/effect/system/steam_spread
+	var/color
+
+/datum/effect/system/steam_spread/set_up(n = 3, c = 0, turf/loc, var/_color = null)
 	if(n > 10)
 		n = 10
 	number = n
 	cardinals = c
 	location = loc
+	color = _color
 
 /datum/effect/system/steam_spread/start()
 	var/i = 0
@@ -124,6 +118,9 @@ steam.start() -- spawns the effect
 			if(holder)
 				src.location = get_turf(holder)
 			var/obj/effect/steam/steam = new /obj/effect/steam(src.location)
+			if (color)
+				steam.icon_state = "extinguish_gray"
+				steam.color = color
 			var/direction
 			if(src.cardinals)
 				direction = pick(cardinal)
@@ -143,6 +140,8 @@ steam.start() -- spawns the effect
 // will always spawn at the items location.
 /////////////////////////////////////////////
 
+#define SPARK_TEMP 500
+
 /obj/effect/sparks
 	name = "sparks"
 	desc = "it's a spark what do you need to know?"
@@ -151,36 +150,26 @@ steam.start() -- spawns the effect
 
 	var/move_dir = 0
 	var/energy = 0
+	var/surfaceburn = 1
+
+/obj/effect/sparks/nosurfaceburn
+	surfaceburn = 0
 
 /obj/effect/sparks/New(var/travel_dir)
 	..()
-	var/turf/T = loc
-	if(istype(T))
-		T.hotspot_expose(1000, 100, surfaces = 1)
 
 /obj/effect/sparks/proc/start(var/travel_dir, var/max_energy=3)
 	move_dir=travel_dir
 	energy=rand(1,max_energy)
 	processing_objects.Add(src)
-	var/turf/T = loc
-	if (istype(T, /turf))
-		T.hotspot_expose(1000, 100, surfaces = 1)
 
 /obj/effect/sparks/Destroy()
 	processing_objects.Remove(src)
-	var/turf/T = src.loc
-
-	if (istype(T, /turf))
-		T.hotspot_expose(1000, 100, surfaces = 1)
-
 	..()
 
 /obj/effect/sparks/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
 	..()
-	var/turf/T = src.loc
-	if (istype(T, /turf))
-		T.hotspot_expose(1000,100, surfaces = 1)
-	return
+
 
 /obj/effect/sparks/process()
 	if(energy==0)
@@ -188,6 +177,7 @@ steam.start() -- spawns the effect
 		qdel(src)
 		return
 	else
+		try_hotspot_expose(SPARK_TEMP, SMALL_FLAME, surfaceburn)
 		step(src,move_dir)
 	energy--
 
@@ -200,7 +190,7 @@ steam.start() -- spawns the effect
 	else
 		location = get_turf(loca)
 
-/datum/effect/system/spark_spread/start()
+/datum/effect/system/spark_spread/start(surfaceburn = TRUE)
 	if (holder)
 		location = get_turf(holder)
 	if(!location)
@@ -215,15 +205,20 @@ steam.start() -- spawns the effect
 	for (var/i = 1 to number)
 		var/nextdir=pick_n_take(directions)
 		if(nextdir)
-			var/obj/effect/sparks/sparks = new /obj/effect/sparks(location)
-			sparks.start(nextdir)
-
+			if(surfaceburn)
+				var/obj/effect/sparks/sparks = new /obj/effect/sparks(location)
+				sparks.start(nextdir)
+			else
+				var/obj/effect/sparks/nosurfaceburn/sparks = new /obj/effect/sparks/nosurfaceburn(location)
+				sparks.start(nextdir)
 // This sparks.
-/proc/spark(var/atom/loc, var/amount = 3, var/cardinals = TRUE)
+/proc/spark(var/atom/loc, var/amount = 3, var/cardinals = TRUE, var/surfaceburn = FALSE) //surfaceburn means the sparks can ignite things on the ground. set it to false to keep eg. portals like in the time agent event from burning down the station
 	loc = get_turf(loc)
 	var/datum/effect/system/spark_spread/S = new
 	S.set_up(amount, cardinals, loc)
-	S.start()
+	S.start(surfaceburn)
+
+#undef SPARK_TEMP
 
 /////////////////////////////////////////////
 //// SMOKE SYSTEMS
@@ -265,8 +260,7 @@ steam.start() -- spawns the effect
 /obj/effect/smoke/Destroy()
 	if(reagents)
 		reagents.my_atom = null
-		qdel(reagents)
-		reagents = null
+		QDEL_NULL(reagents)
 	..()
 
 /////////////////////////////////////////////
@@ -362,37 +356,6 @@ steam.start() -- spawns the effect
 	R.burn_skin(2)
 	R.bodytemperature = min(60, R.bodytemperature + (30 * TEMPERATURE_DAMAGE_COEFFICIENT))
 
-/////////////////////////////////////////////
-// Fire Smoke
-/////////////////////////////////////////////
-
-
-/obj/effect/smoke/fire
-	name = "fire smoke"
-	icon_state = "firesmoke"
-
-/obj/effect/smoke/fire/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
-	..()
-	for(var/mob/living/carbon/human/R in get_turf(src))
-		affect(R)
-
-/obj/effect/smoke/fire/affect(var/mob/living/carbon/human/R)
-	if (!..())
-		return 0
-	if (R.wear_suit != null)
-		return 0
-	R.burn_skin(0.75)
-	if (R.resting)	//crawling prevents suffocation but not burning
-		return 0
-	R.adjustOxyLoss(1)
-	if (R.coughedtime != 1)
-		R.coughedtime = 1
-		R.emote("gasp", null, null, TRUE)
-		spawn (20)
-			R.coughedtime = 0
-	R.updatehealth()
-	return
-
 /obj/effect/smoke/transparent
 	opacity = FALSE
 
@@ -458,9 +421,6 @@ steam.start() -- spawns the effect
 
 /datum/effect/system/smoke_spread/transparent
 	smoke_type = /obj/effect/smoke/transparent
-
-/datum/effect/system/smoke_spread/fire
-	smoke_type = /obj/effect/smoke/fire
 
 /////////////////////////////////////////////
 // Chem smoke
@@ -548,8 +508,7 @@ steam.start() -- spawns the effect
 				step(smoke,direction)
 			spawn(150+rand(10,30))
 				if(smoke)
-					qdel(smoke)
-					smoke = null
+					QDEL_NULL(smoke)
 				src.total_smoke--
 
 // Goon compat.
@@ -1066,12 +1025,18 @@ steam.start() -- spawns the effect
 
 /datum/effect/system/reagents_explosion
 	var/amount 						// TNT equivalent
+	var/dev_override = 0
+	var/heavy_override = 0
+	var/light_override = 0		// overrides for each value
 	var/flashing = 0			// does explosion creates flash effect?
 	var/flashing_factor = 0		// factor of how powerful the flash effect relatively to the explosion
 	var/mob/user //for investigation
 
-/datum/effect/system/reagents_explosion/set_up (amt, loc, flash = 0, flash_fact = 0, var/mob/whodunnit)
+/datum/effect/system/reagents_explosion/set_up (amt, loc, flash = 0, flash_fact = 0, var/mob/whodunnit, dev_over = null, heavy_over = null, light_over = null)
 	amount = amt
+	dev_override = dev_over
+	heavy_override = heavy_over
+	light_override = light_over
 	if(istype(loc, /turf/))
 		location = loc
 	else
@@ -1104,9 +1069,9 @@ steam.start() -- spawns the effect
 		var/range = 0
 		// Clamp all values to MAX_EXPLOSION_RANGE
 		range = min (MAX_EXPLOSION_RANGE, light + round(amount/3))
-		devastation = round(min(3, range * 0.25)) // clamps to 3 devastation for grenades
-		heavy = round(min(5, range * 0.5)) // clamps to 5 heavy range for grenades
-		light = min(7, range) // clamps to 7 light range for grenades
+		devastation = !isnull(dev_override) ? dev_override : round(min(3, range * 0.25)) // clamps to 3 devastation for grenades
+		heavy = !isnull(heavy_override) ? heavy_override : round(min(5, range * 0.5)) // clamps to 5 heavy range for grenades
+		light = !isnull(light_override) ? light_override : min(7, range) // clamps to 7 light range for grenades
 		flash = range * 1.5
 		for(var/mob/M in viewers(8, location))
 			to_chat(M, "<span class='warning'>The solution violently explodes.</span>")

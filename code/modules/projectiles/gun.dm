@@ -28,6 +28,7 @@
 	harm_label_examine = list("<span class='info'>A label is stuck to the trigger, but it is too small to get in the way.</span>", "<span class='warning'>A label firmly sticks the trigger to the guard!</span>")
 	ghost_read = 0
 	hitsound = 'sound/weapons/smash.ogg'
+	on_armory_manifest = TRUE
 	var/fire_sound = 'sound/weapons/Gunshot.ogg'
 	var/fire_action = "fire"
 	var/empty_sound = 'sound/weapons/empty.ogg'
@@ -73,10 +74,20 @@
 	var/honorable = HONORABLE_BOMBERMAN | HONORABLE_HIGHLANDER | HONORABLE_NINJA
 	var/kick_fire_chance = 5
 
+	//Affects the accuracy of the weapon
+	var/gun_excessive_missing //If toggled on, projectiles that fail to hit a specified zone will always miss
+	var/gun_miss_chance_value //Additive miss chance
+	var/gun_miss_message //Message that shows up as an addition to the message text
+	var/gun_miss_message_replace //If toggled on, will cause gun_miss_message to replace the entire missing message
+
+/obj/item/weapon/gun/New()
+	..()
+	if(isHandgun())
+		quick_equip_priority |= list(slot_w_uniform) // for holsters
+
 /obj/item/weapon/gun/Destroy()
 	if(in_chamber)
-		qdel(in_chamber)
-		in_chamber = null
+		QDEL_NULL(in_chamber)
 	..()
 
 /obj/item/weapon/gun/proc/ready_to_fire()
@@ -132,7 +143,7 @@
 			playsound(user, in_chamber.fire_sound, fire_volume/A.volume_mult, 1)
 		if(A.volume_mult <= 1)
 			user.visible_message("<span class='warning'>[user] fires [src][reflex ? " by reflex":""]!</span>", \
-			"<span class='warning'>You [fire_action] [src][reflex ? "by reflex":""]!</span>", \
+			"<span class='warning'>You [fire_action] [src][reflex ? " by reflex":""]!</span>", \
 			"You hear a [istype(in_chamber, /obj/item/projectile/beam) ? "laser blast" : "gunshot"]!")
 	else
 		if(fire_sound)
@@ -188,13 +199,18 @@
 
 /obj/item/weapon/gun/proc/Fire(atom/target, mob/living/user, params, reflex = 0, struggle = 0, var/use_shooter_turf = FALSE)
 	//Exclude lasertag guns from the M_CLUMSY check.
+	. = reset_point_blank_shot()
 	var/explode = FALSE
 	var/dehand = FALSE
 	if(istype(user, /mob/living))
 		var/mob/living/M = user
+		var/honor = is_honorable(M, honorable)
+		if(honor_check && honor == MERELY_HONORABLE) //Merely honorable people simply cannot use guns
+			to_chat(M, "<span class='notice'>You are too honorable to use such weapons!</span>")
+			return
 		if(clumsy_check && clumsy_check(M) && prob(50))
 			explode = TRUE
-		if(honor_check && is_honorable(M, honorable))
+		if(honor_check && honor == VERY_HONORABLE)
 			explode = TRUE
 			dehand = TRUE
 		if(explode)
@@ -254,8 +270,7 @@
 
 	if(targloc == curloc)
 		target.bullet_act(in_chamber)
-		qdel(in_chamber)
-		in_chamber = null
+		QDEL_NULL(in_chamber)
 		update_icon()
 		play_firesound(user, reflex)
 		return
@@ -311,6 +326,14 @@
 			in_chamber.p_x = text2num(mouse_control["icon-x"])
 		if(mouse_control["icon-y"])
 			in_chamber.p_y = text2num(mouse_control["icon-y"])
+	if(gun_excessive_missing)
+		in_chamber.excessive_missing = gun_excessive_missing
+	if(gun_miss_chance_value)
+		in_chamber.projectile_miss_chance = gun_miss_chance_value
+	if(gun_miss_message)
+		in_chamber.projectile_miss_message = gun_miss_message
+	if(gun_miss_message_replace)
+		in_chamber.projectile_miss_message_replace = gun_miss_message_replace
 
 	spawn()
 		if(in_chamber)
@@ -330,6 +353,11 @@
 		return 1
 
 	return 1
+
+/obj/item/weapon/gun/proc/reset_point_blank_shot()
+	if(in_chamber && in_chamber.point_blank)
+		in_chamber.point_blank = FALSE
+		in_chamber.damage = in_chamber.damage/1.3
 
 /obj/item/weapon/gun/proc/canbe_fired()
 	return process_chambered()
@@ -384,8 +412,7 @@
 			else
 				to_chat(user, "<span class = 'notice'>Ow...</span>")
 				user.apply_effect(110,AGONY,0)
-			qdel(in_chamber)
-			in_chamber = null
+			QDEL_NULL(in_chamber)
 			mouthshoot = 0
 			return
 		else
@@ -400,8 +427,9 @@
 				to_chat(user, "<span class='notice'>[pick("Hey that's dangerous...wouldn't want hurting people.","You don't feel like firing \the [src] at \the [M].","Peace, my [user.gender == FEMALE ? "girl" : "man"]...")]</span>")
 				return
 			user.visible_message("<span class='danger'> \The [user] fires \the [src] point blank at [M]!</span>")
-			if (process_chambered()) //Load whatever it is we fire
+			if (process_chambered() && !in_chamber.point_blank) //Load whatever it is we fire
 				in_chamber.damage *= 1.3 //Some guns don't work with damage / chambers, like dart guns!
+				in_chamber.point_blank = TRUE
 			src.Fire(M,user,0,0,1)
 			return
 		else if(target && (M in target))
@@ -444,14 +472,8 @@
 /obj/item/weapon/gun/attackby(var/obj/item/A, mob/user)
 	if(istype(A, /obj/item/weapon/gun))
 		var/obj/item/weapon/gun/G = A
-		if(isHandgun() && G.isHandgun())
-			var/obj/item/weapon/gun/akimbo/AA = new /obj/item/weapon/gun/akimbo(get_turf(src),src,G)
-			if(user.drop_item(G, AA) && user.drop_item(src, AA))
-				user.put_in_hands(AA)
-				AA.update_icon(user)
-			else
-				to_chat(user, "<span class = 'warning'>You can not combine \the [G] and \the [src].</span>")
-				qdel(AA)
+		if(!isHandgun() || !G.isHandgun() || !user.create_in_hands(src, new /obj/item/weapon/gun/akimbo(loc, src, G), G, move_in = TRUE))
+			to_chat(user, "<span class = 'warning'>You can not combine \the [G] and \the [src].</span>")
 	if(clowned == CLOWNABLE && istype(A,/obj/item/toy/crayon/rainbow))
 		to_chat(user, "<span class = 'notice'>You begin modifying \the [src].</span>")
 		if(do_after(user, src, 4 SECONDS))

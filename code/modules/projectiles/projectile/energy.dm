@@ -36,6 +36,16 @@
 	spawn(30)
 		X.tazed = 0
 
+//Robots get slowed down
+/obj/item/projectile/energy/electrode/robot_on_hit(var/mob/living/atarget, var/blocked)
+	QDEL_NULL(tracker_datum)
+	if(atarget.tazed == 0)
+		atarget.movement_speed_modifier -= 0.75
+		spawn(30)
+			atarget.movement_speed_modifier += 0.75
+	atarget.tazed = 1
+	spawn(30)
+		atarget.tazed = 0
 
 /*/vg/ EDIT
 	agony = 40
@@ -270,6 +280,8 @@
 			P.starting = starting
 			P.shot_from = shot_from
 			P.current = current
+			P.target = target
+			P.original = original
 			var/turf/T = get_step(proj_target, pick_n_take(vdirs))
 			P.OnFired(T)
 			P.process()

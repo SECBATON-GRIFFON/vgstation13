@@ -156,7 +156,7 @@
 	if(istype(H.gloves,/obj/item/clothing/gloves/latex))
 		protected += 0.1
 
-	if(istype(H.glasses,/obj/item/clothing/glasses/science))
+	if(istype(H.glasses,/obj/item/clothing/glasses/scanner/science))
 		protected += 0.1
 
 	return 1 - protected
@@ -211,8 +211,7 @@
 
 /datum/artifact_effect/Destroy()
 	if(trigger)
-		qdel(trigger)
-		trigger = null
+		QDEL_NULL(trigger)
 	copy_for_battery = null
 	holder = null
 	..()

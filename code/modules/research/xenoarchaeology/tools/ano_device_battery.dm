@@ -171,11 +171,7 @@ var/list/anomaly_power_utilizers = list()
 			foundmob.attack_log += "\[[time_stamp()]\]<font color='red'> Touched [L.name] ([L.ckey]) with thrown [name] ([inserted_battery.battery_effect.effecttype])</font>"
 		L.attack_log += "\[[time_stamp()]\]<font color='orange'> Touched by [istype(foundmob) ? foundmob.name : ""] ([istype(foundmob) ? foundmob.ckey : ""]) with thrown [name] ([inserted_battery.battery_effect.effecttype])</font>"
 		log_attack("<font color='red'>[istype(foundmob) ? foundmob.name : ""] ([istype(foundmob) ? foundmob.ckey : ""]) touched [L.name] ([L.ckey]) with thrown [name] ([inserted_battery.battery_effect.effecttype])</font>" )
-		if(istype(foundmob))
-			L.LAssailant = foundmob
-			L.assaulted_by(foundmob)
-		else
-			L.LAssailant = null
+		L.assaulted_by(foundmob)
 
 /obj/item/weapon/anodevice/attack(var/mob/M, var/mob/user)
 	var/clumsy = FALSE
@@ -196,11 +192,7 @@ var/list/anomaly_power_utilizers = list()
 			user.attack_log += "\[[time_stamp()]\]<font color='red'> Touched [M.name] ([M.ckey]) with [name] ([inserted_battery.battery_effect.effecttype])</font>"
 			M.attack_log += "\[[time_stamp()]\]<font color='orange'> Touched by [user.name] ([user.ckey]) with [name] ([inserted_battery.battery_effect.effecttype])</font>"
 			log_attack("<font color='red'>[user.name] ([user.ckey]) touched [M.name] ([M.ckey]) with [name] ([inserted_battery.battery_effect.effecttype])</font>" )
-			if(!iscarbon(user))
-				M.LAssailant = null
-			else
-				M.LAssailant = user
-				M.assaulted_by(user)
+			M.assaulted_by(user)
 
 /obj/item/weapon/anodevice/proc/shutdown_emission()
 	if(activated)
@@ -303,6 +295,5 @@ var/list/anomaly_power_utilizers = list()
 	processing_objects.Remove(src)
 	anomaly_power_utilizers -= src
 	if (inserted_battery)
-		qdel(inserted_battery)
-		inserted_battery = null
+		QDEL_NULL(inserted_battery)
 	..()

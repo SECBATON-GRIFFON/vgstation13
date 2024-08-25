@@ -34,8 +34,7 @@
 		toggle_power()
 
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 
 	..()
 
@@ -46,7 +45,7 @@
 		wires.Interact(user)
 
 /obj/machinery/particle_accelerator/control_box/attackby(var/obj/item/I, var/mob/user)
-	if(istype(I,/obj/item/tool/wirecutters)||istype(I,/obj/item/device/multitool))
+	if(istype(I,/obj/item/device/multitool))
 		attack_hand(user)
 	..()
 
@@ -71,13 +70,19 @@
 /obj/machinery/particle_accelerator/control_box/update_icon()
 	if(active)
 		icon_state = "[reference]p[strength]"
+		update_moody_light('icons/lighting/moody_lights.dmi', "overlay_control_box")
+		set_light(2,1)
 	else
 		if(stat & (FORCEDISABLE|NOPOWER))
 			icon_state = "[reference]w"
+			kill_moody_light()
+			set_light(0)
 			return
 		else if(use_power != MACHINE_POWER_USE_NONE)
 			if(assembled)
 				icon_state = "[reference]p"
+				update_moody_light('icons/lighting/moody_lights.dmi', "overlay_control_box")
+				set_light(2,1)
 		else
 			switch(construction_state)
 				if(0)
@@ -88,7 +93,11 @@
 					icon_state = "[reference]w"
 				else
 					icon_state = "[reference]c"
-	return
+					update_moody_light('icons/lighting/moody_lights.dmi', "overlay_control_box")
+					set_light(2,1)
+					return
+			kill_moody_light()
+			set_light(0)
 
 /obj/machinery/particle_accelerator/control_box/Topic(href, href_list)
 	if(..())

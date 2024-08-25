@@ -112,8 +112,7 @@
 					to_chat(user, "<span class='warning'>This [P] does not seem to fit.</span>")
 					return
 
-				if(!user.drop_item(P, src))
-					user << "<span class='warning'>You can't let go of \the [P]!</span>"
+				if(!user.drop_item(P, src, failmsg = TRUE))
 					return
 
 				if (!brain)
@@ -210,8 +209,7 @@ That prevents a few funky behaviors.
 							A.cancel_camera()
 							to_chat(A, "You have been uploaded to a stationary terminal. Remote device connection restored.")
 							to_chat(U, "<span class='notice'><b>Transfer successful</b>:</span> [A.name] ([rand(1000,9999)].exe) installed and executed successfully. Local copy has been removed.")
-							qdel(T)
-							T = null
+							QDEL_NULL(T)
 			if("AIFIXER")//AI Fixer terminal.
 				var/obj/machinery/computer/aifixer/T = target
 				switch(interaction)

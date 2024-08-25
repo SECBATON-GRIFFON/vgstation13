@@ -109,6 +109,12 @@
 
 	machine_flags = WIREJACK
 
+	plane = OBJ_PLANE
+
+	light_range = 1
+	light_power = 1
+	light_color = LIGHT_COLOR_APC_RED
+
 	power_priority = POWER_PRIORITY_APC
 	var/power_recharge_priority = POWER_PRIORITY_APC_RECHARGE // Should always be at least one level lower than power_priority
 	monitoring_enabled = TRUE
@@ -127,18 +133,14 @@
 // Frame only.
 /obj/machinery/power/apc/frame
 	icon_state = "apcmaint"
+	light_range = 0
+	light_power = 0
 
 /obj/machinery/power/apc/frame/New()
 	return ..(loc, dir, 1)
 
 /obj/machinery/power/apc/New(loc, var/ndir, var/building=0)
 	..(loc)
-	var/area/this_area = get_area(src)
-	if(this_area.areaapc || this_area.forbid_apc)
-		var/turf/T = get_turf(src)
-		world.log << "[this_area.forbid_apc ? "Forbidden" : "Second"] APC detected in area: [this_area.name] [T.x], [T.y], [T.z]. Deleting the second APC."
-		qdel(src)
-		return
 
 	wires = new(src)
 	// offset 24 pixels in direction of dir
@@ -147,8 +149,6 @@
 		dir = ndir
 	src.tdir = dir		// to fix Vars bug
 	dir = SOUTH
-
-	this_area.set_apc(src)
 
 	if(src.tdir & 3)
 		pixel_x = 0
@@ -189,8 +189,15 @@
 /obj/machinery/power/apc/initialize()
 	..()
 	var/area/this_area = get_area(src)
-	if(this_area)
-		name = "[this_area.name] APC"
+	if(this_area.areaapc || this_area.forbid_apc)
+		var/turf/T = get_turf(src)
+		world.log << "[this_area.forbid_apc ? "Forbidden" : "Second"] APC detected in area: [this_area.name] [T.x], [T.y], [T.z]. Deleting the second APC."
+		qdel(src)
+		return
+
+	name = "[this_area.name] APC"
+
+	this_area.set_apc(src)
 
 	update_icon()
 	add_self_to_holomap()
@@ -265,8 +272,12 @@
 	if(update & 1) // Updating the icon state
 		if(update_state & UPSTATE_ALLGOOD)
 			icon_state = "apc0"
+			light_range = 1
+			light_power = 1
 		else if(update_state & (UPSTATE_OPENED1|UPSTATE_OPENED2))
 			var/basestate = "apc[ cell ? "2" : "1" ]"
+			light_range = 0
+			light_power = 0
 			if(update_state & UPSTATE_OPENED1)
 				if(update_state & (UPSTATE_MAINT|UPSTATE_BROKE))
 					icon_state = "apcmaint" //disabled APC cannot hold cell
@@ -276,18 +287,40 @@
 				icon_state = "[basestate]-nocover"
 		else if(update_state & UPSTATE_BROKE)
 			icon_state = "apc-b"
+			light_range = 0
+			light_power = 0
 		else if(update_state & UPSTATE_SHUNT)
+			light_range = 1
+			light_power = 1
 			icon_state = "apcshunt"
 		else if(update_state & UPSTATE_BLUESCREEN)
 			icon_state = "apcemag"
+			light_range = 1
+			light_power = 1
 		else if(update_state & UPSTATE_WIREEXP)
 			icon_state = "apcewires"
+			light_range = 0
+			light_power = 0
 
-
+	if (!(stat & (BROKEN|MAINT)))
+		if(update_state & UPSTATE_SHUNT)
+			light_color = LIGHT_COLOR_APC_SHUNT
+		else if (update_state & UPSTATE_BLUESCREEN)
+			light_color = LIGHT_COLOR_APC_BLUE
+		else
+			switch (charging)
+				if (0)
+					light_color = LIGHT_COLOR_APC_RED
+				if (1)
+					light_color = LIGHT_COLOR_APC_YELLOW
+				if (2)
+					light_color = LIGHT_COLOR_APC_GREEN
 
 	if(!(update_state & UPSTATE_ALLGOOD))
 		if(overlays.len)
 			overlays = 0
+			if (!(stat & (BROKEN|MAINT)) && light_range)
+				update_moody_light('icons/lighting/moody_lights.dmi', "overlay_apc", 255, light_color)
 			return
 	if(update & 2)
 
@@ -301,6 +334,9 @@
 				overlays += status_overlays_equipment[equipment+1]
 				overlays += status_overlays_lighting[lighting+1]
 				overlays += status_overlays_environ[environ+1]
+
+	if (!(stat & (BROKEN|MAINT)) && light_range)
+		update_moody_light('icons/lighting/moody_lights.dmi', "overlay_apc", 255, light_color)
 
 
 /obj/machinery/power/apc/proc/check_updates()
@@ -322,6 +358,8 @@
 			update_state |= UPSTATE_OPENED1
 		if(opened==2)
 			update_state |= UPSTATE_OPENED2
+	else if(malfai && occupant)
+		update_state |= UPSTATE_SHUNT
 	else if(emagged || malfai || spooky || pulsecompromising)
 		update_state |= UPSTATE_BLUESCREEN
 	else if(wiresexposed)
@@ -566,16 +604,14 @@
 			user.visible_message(\
 				"<span class='warning'>[user.name] cut the cables and dismantled the power terminal.</span>",\
 				"You cut the cables and dismantle the power terminal.")
-			qdel(terminal)
-			terminal = null
+			QDEL_NULL(terminal)
 	else if (istype(W, /obj/item/weapon/circuitboard/power_control) && opened && has_electronics==0 && !((stat & BROKEN) || malfhack))
 		to_chat(user, "You begin to insert the power control board into the frame...")
 		playsound(src, 'sound/items/Deconstruct.ogg', 50, 1)
 		if (do_after(user, src, 10) && opened && has_electronics == 0 && !((stat & BROKEN) || malfhack))
 			has_electronics = 1
 			to_chat(user, "You place the power control board inside the frame.")
-			qdel(W)
-			W = null
+			QDEL_NULL(W)
 	else if (istype(W, /obj/item/weapon/circuitboard/power_control) && opened && has_electronics==0 && ((stat & BROKEN) || malfhack))
 		to_chat(user, "<span class='warning'>You cannot put the board inside, the frame is damaged.</span>")
 		return
@@ -607,8 +643,7 @@
 		user.visible_message(\
 			"<span class='warning'>[user.name] has replaced the damaged APC frontal panel with a new one.</span>",\
 			"You replace the damaged APC frontal panel with a new one.")
-		qdel(W)
-		W = null
+		QDEL_NULL(W)
 		update_icon()
 	else if (istype(W, /obj/item/mounted/frame/apc_frame) && opened && ((stat & BROKEN) || malfhack))
 		if (has_electronics)
@@ -619,8 +654,7 @@
 			user.visible_message(\
 				"<span class='warning'>[user.name] has replaced the damaged APC frame with new one.</span>",\
 				"You replace the damaged APC frame with new one.")
-			qdel(W)
-			W = null
+			QDEL_NULL(W)
 			stat &= ~BROKEN
 			if(malfai)
 				var/datum/role/malfAI/M = malfai.mind.GetRole(MALF)
@@ -645,6 +679,7 @@
 			user.delayNextAttack(8)
 			if (prob(20))
 				opened = 2
+				wiresexposed = 0 //The cover is gone
 				user.visible_message("<span class='warning'>The APC cover was knocked down with the [W.name] by [user.name]!</span>", \
 					"<span class='warning'>You knock down the APC cover with your [W.name]!</span>", \
 					"You hear something metallic being hit, and falling on the floor.")
@@ -1027,8 +1062,7 @@
 	malf.mind.transfer_to(src.occupant)
 	src.occupant.eyeobj.name = "[src.occupant.name] (AI Eye)"
 	if(malf.parent)
-		qdel(malf)
-		malf = null
+		QDEL_NULL(malf)
 	src.occupant.add_spell(new /spell/aoe_turf/corereturn, "malf_spell_ready",/obj/abstract/screen/movable/spell_master/malf)
 	src.occupant.cancel_camera()
 	if (seclevel2num(get_security_level()) == SEC_LEVEL_DELTA)
@@ -1056,6 +1090,7 @@
 					point.target = A //The pinpointer tracks the AI back into its core.
 		new /obj/effect/malf_jaunt(loc, occupant, occupant.parent, TRUE)
 		src.occupant = null
+		update_icon()
 	else
 		if(forced)
 			src.occupant.forceMove(src.loc)
@@ -1408,12 +1443,10 @@
 		malfvacate(1)
 
 	if(cell)
-		qdel(cell)
-		cell = null
+		QDEL_NULL(cell)
 
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 
 	if(malfimage)
 		qdel(malfimage)

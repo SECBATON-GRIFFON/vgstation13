@@ -151,8 +151,7 @@ var/list/lawgiver_modes = list(
 
 /obj/item/weapon/gun/lawgiver/Destroy()
 	if(magazine)
-		qdel(magazine)
-		magazine = null
+		QDEL_NULL(magazine)
 	..()
 
 /obj/item/weapon/gun/lawgiver/GetVoice()
@@ -253,10 +252,8 @@ var/list/lawgiver_modes = list(
 
 /obj/item/weapon/gun/lawgiver/proc/RemoveMag(var/mob/user)
 	if(magazine)
-		magazine.forceMove(get_turf(src.loc))
-		if(user)
-			user.put_in_hands(magazine)
-			to_chat(user, "<span class='notice'>You pull the magazine out of \the [src].</span>")
+		user.put_in_hands(magazine)
+		to_chat(user, "<span class='notice'>You pull the magazine out of \the [src].</span>")
 		magazine.update_icon()
 		magazine = null
 		update_icon()
@@ -336,8 +333,7 @@ var/list/lawgiver_modes = list(
 			for(var/datum/lawgiver_mode/M in lawgiver_modes[type])
 				if(in_chamber && (in_chamber.type == M.projectile_type))
 					magazine.ammo_counters[M] = min(magazine.ammo_counters[M]+M.ammo_per_shot,LAWGIVER_MAX_AMMO * M.ammo_per_shot)
-					qdel(in_chamber)
-					in_chamber = null
+					QDEL_NULL(in_chamber)
 			if(in_chamber)
 				return 1
 	if(!magazine)
@@ -425,8 +421,7 @@ var/list/lawgiver_modes = list(
 		return
 
 	if(in_chamber)
-		qdel(in_chamber)
-		in_chamber = null
+		QDEL_NULL(in_chamber)
 	if(!special_check())
 		return
 	if(!chamber_round())

@@ -10,6 +10,12 @@
 	var/chars_left = 250 //Like in an actual label maker, uses an amount per character rather than per label.
 	var/mode = 0	//off or on.
 
+/obj/item/weapon/hand_labeler/preattack(atom/target, mob/user, proximity_flag, click_parameters)
+	if(mode) //There's very few cases where you'd want to label something and also follow normal attack behavior
+		afterattack(target, user, proximity_flag, click_parameters)
+		return 1
+	..()
+
 /obj/item/weapon/hand_labeler/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	if (!proximity_flag)
 		return
@@ -89,8 +95,7 @@
 			LR.left = holder
 			to_chat(user, "<span class='notice'>You switch the label rolls.</span>")
 		else
-			qdel(LR)
-			LR = null
+			QDEL_NULL(LR)
 			to_chat(user, "<span class='notice'>You replace the label roll.</span>")
 			icon_state = "labeler0"
 

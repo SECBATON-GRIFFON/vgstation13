@@ -47,8 +47,7 @@ var/runedec = 0 // Rune cap ?
 	for(var/mob/living/silicon/ai/AI in player_list)
 		if(AI.client)
 			AI.client.images -= blood_image
-	qdel(blood_image)
-	blood_image = null
+	QDEL_NULL(blood_image)
 	rune_list_legacy.Remove(src)
 	..()
 
@@ -325,11 +324,7 @@ var/runedec = 0 // Rune cap ?
 	M.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has had the [name] used on him by [user.name] ([user.ckey])</font>")
 	user.attack_log += text("\[[time_stamp()]\] <font color='red'>Used [name] on [M.name] ([M.ckey])</font>")
 	msg_admin_attack("[user.name] ([user.ckey]) used [name] on [M.name] ([M.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)")
-	if(!iscarbon(M))
-		M.LAssailant = null
-	else
-		M.LAssailant = user
-		M.assaulted_by(user)
+	M.assaulted_by(user)
 	if(isobserver(M))
 		if(M.invisibility != 0)
 			M.invisibility = 0

@@ -1,3 +1,4 @@
+#define CAN_AUTOMAKE_SOMETHING (auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
 
 /obj/machinery/microwave
 	name = "Microwave"
@@ -74,6 +75,9 @@
 				acceptable_reagents |= reagent
 		sortTim(available_recipes, /proc/cmp_microwave_recipe_dsc)
 
+	if(ticker)
+		initialize()
+
 /*******************
 *   Part Upgrades
 ********************/
@@ -99,7 +103,7 @@
 		var/obj/item/weapon/storage/bag/B = AM
 		for (var/obj/item/weapon/reagent_containers/food/snacks/G in AM.contents)
 			B.remove_from_storage(G,src)
-			if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+			if(CAN_AUTOMAKE_SOMETHING)
 				cook()
 				break
 			if(contents.len >= limit) //Sanity checking so the microwave doesn't overfill
@@ -108,13 +112,13 @@
 		if (istype(AM,/obj/item/stack))
 			var/obj/item/stack/ST = AM
 			if(ST.amount > 1)
-				new ST.type (src)
+				new ST.type (src,amount=1)
 				ST.use(1)
-				if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+				if(CAN_AUTOMAKE_SOMETHING)
 					cook()
 		else
 			AM.forceMove(src)
-			if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+			if(CAN_AUTOMAKE_SOMETHING)
 				cook()
 	else
 		return FALSE
@@ -174,6 +178,9 @@
 		else //Otherwise bad luck!!
 			to_chat(user, "<span class='warning'>It's too dirty!</span>")
 			return 1
+	else if(src.operating)
+		to_chat(user, "<span class='warning'>The microwave is currently on, you'll have to try again later.</span>")
+		return 1
 
 	if(..())
 		return 1
@@ -188,7 +195,7 @@
 			if(contents.len >= limit) //Sanity checking so the microwave doesn't overfill
 				to_chat(user, "<span class='notice'>You fill \the [src] to the brim.</span>")
 				break
-			if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+			if(CAN_AUTOMAKE_SOMETHING)
 				cook()
 		updateUsrDialog()
 
@@ -197,13 +204,13 @@
 		if (istype(O,/obj/item/stack))
 			var/obj/item/stack/ST = O
 			if(ST.amount > 1)
-				new ST.type (src)
+				new ST.type (src,amount=1)
 				ST.use(1)
 				user.visible_message( \
 					"<span class='notice'>[user] adds one of [O] to [src].</span>", \
 					"<span class='notice'>You add one of [O] to [src].</span>")
 				updateUsrDialog()
-				if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+				if(CAN_AUTOMAKE_SOMETHING)
 					cook()
 				return 1
 		if(user.drop_item(O, src))
@@ -211,7 +218,7 @@
 				"<span class='notice'>[user] adds [O] to [src].</span>", \
 				"<span class='notice'>You add [O] to [src].</span>")
 			updateUsrDialog()
-			if(auto_make_on_detect && scanning_power >= 2 && select_recipe(available_recipes,src))
+			if(CAN_AUTOMAKE_SOMETHING)
 				cook()
 			return 1
 	else if(is_type_in_list(O,accepts_reagents_from))
@@ -221,11 +228,20 @@
 			if (!(R.id in acceptable_reagents))
 				to_chat(user, "<span class='warning'>[O] contains substances unsuitable for cookery.</span>")
 				return 1
+		if(CAN_AUTOMAKE_SOMETHING)
+			cook()
 		//G.reagents.trans_to(src,G.amount_per_transfer_from_this)
 	else if(istype(O,/obj/item/weapon/grab))
 		var/obj/item/weapon/grab/G = O
 		to_chat(user, "<span class='warning'>This is ridiculous. You can not fit [G.affecting] in this [src].</span>")
 		return 1
+	else if(istype(O,/obj/item/weapon/reagent_containers/food/snacks))//we always accept snacks so we can warm them up
+		if(user.drop_item(O, src))
+			user.visible_message( \
+				"<span class='notice'>[user] adds [O] to [src].</span>", \
+				"<span class='notice'>You add [O] to [src].</span>")
+			updateUsrDialog()
+			return 1
 	else
 		to_chat(user, "<span class='warning'>You have no idea what you can cook with [O].</span>")
 		return 1
@@ -379,7 +395,25 @@
 				gunk.forceMove(src.loc)
 				return
 
-		// Everything else continued from here
+		// If there's just one item and no reagents, warm it up
+		if ((contents.len == 1) && !reagents.total_volume)
+			if(!running(10))
+				abort()
+				return
+			stop()
+			cooked = contents[1]//if there's just one item and no reagents, warm it up
+			var/cook_temp = COOKTEMP_READY//100°C
+			if(emagged || arcanetampered)
+				cook_temp = COOKTEMP_EMAGGED//8.000.000°C
+				playsound(src, "sound/items/flare_on.ogg", 100, 0)
+				cooked.ignite()
+			if (cooked.reagents.chem_temp < cook_temp)
+				cooked.reagents.chem_temp = cook_temp
+				cooked.update_icon()
+			cooked.forceMove(src.loc)
+			return
+
+		// Otherwise we fucked up
 		dirty += 1
 		if (prob(max(10,dirty*5)))
 			if (!running(4))
@@ -416,10 +450,7 @@
 			cooked = fail()
 			cooked.forceMove(src.loc)
 			return
-		if(!emagged && !arcanetampered)
-			cooked = recipe.make_food(src,user)
-		else
-			cooked = fail()
+		cooked = recipe.make_food(src,user)
 		stop()
 		if(cooked)
 			adjust_cooked_food_reagents_temperature(cooked, recipe)
@@ -427,6 +458,8 @@
 		return
 
 /obj/machinery/microwave/proc/adjust_cooked_food_reagents_temperature(atom/cooked, datum/recipe/cookedrecipe)
+	if (!cooked.reagents)
+		return
 	//Put the energy used during the cooking into heating the reagents of the food.
 
 	var/cooktime = 10 SECONDS //Use a default to account for burned messes, etc.
@@ -443,6 +476,14 @@
 	if(emagged || arcanetampered)
 		max_temperature = INFINITY //If it's been messed with, let it heat more than that.
 	cooked.reagents.heating(thermal_energy_transfer, max_temperature)
+	var/cook_temp = COOKTEMP_READY//100°C
+	if(emagged || arcanetampered)
+		cook_temp = COOKTEMP_EMAGGED//8.000.000°C
+		playsound(src, "sound/items/flare_on.ogg", 100, 0)
+		cooked.ignite()
+	if (cooked.reagents.chem_temp < cook_temp)
+		cooked.reagents.chem_temp = cook_temp
+		cooked.update_icon()
 
 /obj/machinery/microwave/proc/running(var/seconds as num) // was called wzhzhzh, for some fucking reason
 	for (var/i=1 to seconds)
@@ -483,6 +524,7 @@
 		return
 	for (var/obj/O in contents)
 		O.forceMove(src.loc)
+		O.update_icon()
 	if (src.reagents.total_volume)
 		src.dirty++
 		if(reagent_disposal)
@@ -537,8 +579,7 @@
 			var/id = O.reagents.get_master_reagent_id()
 			if (id)
 				amount+=O.reagents.get_reagent_amount(id)
-		qdel(O)
-		O = null
+		QDEL_NULL(O)
 	src.reagents.clear_reagents()
 	ffuu.reagents.add_reagent(CARBON, amount)
 	ffuu.reagents.add_reagent(TOXIN, amount/10)
@@ -548,6 +589,14 @@
 		muck_start()
 		muck_finish()
 		broke()
+	var/cook_temp = COOKTEMP_READY//100°C
+	if(emagged || arcanetampered)
+		cook_temp = COOKTEMP_EMAGGED//8.000.000°C
+		playsound(src, "sound/items/flare_on.ogg", 100, 0)
+		ffuu.ignite()
+	if (ffuu.reagents.chem_temp < cook_temp)
+		ffuu.reagents.chem_temp = cook_temp
+		ffuu.update_icon()
 	return ffuu
 
 /obj/machinery/microwave/proc/empty()
@@ -579,7 +628,7 @@
 			list("Examine", "radial_examine")
 		)
 
-		var/task = show_radial_menu(usr,loc,choices,custom_check = new /callback(src, .proc/radial_check, user))
+		var/task = show_radial_menu(usr,loc,choices,custom_check = new /callback(src, nameof(src::radial_check()), user))
 		if(!radial_check(usr))
 			return
 
@@ -648,3 +697,15 @@
 
 	if(prob(50))
 		cook()
+
+
+/obj/machinery/microwave/table_shift()
+	pixel_x = -3
+	pixel_y = 6
+
+/obj/machinery/microwave/table_unshift()
+	pixel_x = 0
+	pixel_y = 0
+
+
+#undef CAN_AUTOMAKE_SOMETHING

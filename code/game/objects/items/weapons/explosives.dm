@@ -9,8 +9,9 @@
 	item_state = "plasticx"
 	flags = FPRINT
 	w_class = W_CLASS_SMALL
+	w_type = RECYK_PLASTIC
+	flammable = TRUE //realistic btw
 	origin_tech = Tc_SYNDICATE + "=2"
-	autoignition_temperature = AUTOIGNITION_PLASTIC
 	var/datum/wires/explosive/plastic/wires = null
 	var/timer = 10
 	var/atom/target = null
@@ -22,8 +23,7 @@
 
 /obj/item/weapon/c4/Destroy()
 	if(wires)
-		qdel(wires)
-		wires = null
+		QDEL_NULL(wires)
 
 	..()
 
@@ -92,11 +92,7 @@
 				user.visible_message("<span class='warning'>[user] found \himself unable to drop \the [src] after setting the timer on them!</span>")
 
 			playsound(target, 'sound/weapons/c4armed.ogg', 60, 1)
-			if(!iscarbon(user))
-				M.LAssailant = null
-			else
-				M.LAssailant = user
-				M.assaulted_by(user)
+			M.assaulted_by(user)
 		target.overlays += image('icons/obj/assemblies.dmi', "plastic-explosive2")
 		to_chat(user, "Bomb has been planted. Timer counting down from [timer].")
 		spawn(timer*10)
@@ -120,8 +116,7 @@
 			target.ex_act(1)
 		//if (isobj(target))
 		//	if (target)
-		//		qdel(target)	If it survives ex_act(1) it's possible that it's not something that's meant to be destroyable.
-		//		target = null
+		//		QDEL_NULL(target)	If it survives ex_act(1) it's possible that it's not something that's meant to be destroyable.
 	qdel(src)
 
 /obj/item/weapon/c4/attack(mob/M as mob, mob/user as mob, def_zone)

@@ -3,7 +3,11 @@
 
 var/world_startup_time
 var/date_string
+var/force_restart
 
+#if DM_VERSION < 515
+#error You need at least version 515 to compile
+#endif
 /world
 	mob = /mob/new_player
 	turf = /turf/space
@@ -36,7 +40,7 @@ var/auxtools_path
 	#if AUXTOOLS_DEBUGGER
 	auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	if(fexists(auxtools_path))
-		call(auxtools_path, "auxtools_init")()
+		call_ext(auxtools_path, "auxtools_init")()
 		enable_debugging()
 	else
 		// warn on missing library
@@ -46,6 +50,8 @@ var/auxtools_path
 
 /world/New()
 	world_startup_time = world.timeofday
+
+	TgsNew(null, TGS_SECURITY_TRUSTED)
 
 	for(var/i=1, i<=map.zLevels.len, i++)
 		WORLD_X_OFFSET += rand(-50,50)
@@ -104,9 +110,13 @@ var/auxtools_path
 
 	Master.Setup()
 
+	TgsInitializationComplete()
+
 	return ..()
 
 /world/Topic(T, addr, master, key)
+	TGS_TOPIC
+
 	diary << "TOPIC: \"[T]\", from:[addr], master:[master], key:[key]"
 
 	if (T == "ping")
@@ -163,7 +173,8 @@ var/auxtools_path
 
 		var/notekey = copytext(T, 7)
 		return list2params(exportnotes(notekey))
-
+	else if(T == "force_restart")
+		return force_restart
 
 /world/Reboot(reason)
 	if(reason == REBOOT_HOST)
@@ -182,10 +193,11 @@ var/auxtools_path
 		..()
 		return
 
-	if(vote.winner && vote.map_paths)
+	if((vote.winner || vote.forced_map) && vote.map_paths)
 		//get filename
 		var/filename = "vgstation13.dmb"
-		var/map_path = "maps/voting/" + vote.map_paths[vote.winner] + "/" + filename
+		var/map_to_choose = vote.forced_map ? vote.forced_map : vote.winner
+		var/map_path = "maps/voting/" + vote.map_paths[map_to_choose] + "/" + filename
 		if(fexists(map_path))
 			//copy file to main folder
 			if(!fcopy(map_path, filename))
@@ -193,15 +205,17 @@ var/auxtools_path
 				fcopy(map_path, filename)
 
 	pre_shutdown()
+
+	TgsReboot()
 	..()
 
 /world/proc/pre_shutdown()
+	stop_all_media()
+
 	for(var/datum/html_interface/D in html_interfaces)
 		D.closeAll()
 
 	Master.Shutdown()
-
-	stop_all_media()
 
 	end_credits.on_world_reboot_start()
 	sleep(max(10, end_credits.audio_post_delay))
@@ -215,7 +229,7 @@ var/auxtools_path
 			C << link("byond://[world.address]:[world.port]")
 
 	#if AUXTOOLS_DEBUGGER
-	call(auxtools_path, "auxtools_shutdown")()
+	call_ext(auxtools_path, "auxtools_shutdown")()
 	#endif
 
 #define INACTIVITY_KICK	6000	//10 minutes in ticks (approx.)
@@ -276,57 +290,3 @@ var/auxtools_path
 				var/datum/admins/D = new /datum/admins("Moderator", rights, ckey)
 				D.associate(directory[ckey])
 
-/world/proc/update_status()
-	var/s = ""
-
-	if (config && config.server_name)
-		s += "<b>[config.server_name]</b> &#8212; "
-
-
-	s += {"<b>[station_name()]</b>"
-		(
-		<a href=\"http://\">" //Change this to wherever you want the hub to link to
-		Default"  //Replace this with something else. Or ever better, delete it and uncomment the game version
-		</a>
-		)"}
-	var/list/features = list()
-
-	if(ticker)
-		if(master_mode)
-			features += master_mode
-	else
-		features += "<b>STARTING</b>"
-
-	if (!enter_allowed)
-		features += "closed"
-
-	features += abandon_allowed ? "respawn" : "no respawn"
-
-	if (config && config.allow_ai)
-		features += "AI allowed"
-
-	var/n = 0
-	for (var/mob/M in player_list)
-		if (M.client)
-			n++
-
-	if (n > 1)
-		features += "~[n] players"
-	else if (n > 0)
-		features += "~[n] player"
-
-	/*
-	is there a reason for this? the byond site shows 'hosted by X' when there is a proper host already.
-	if (host)
-		features += "hosted by <b>[host]</b>"
-	*/
-
-	if (!host && config && config.hostedby)
-		features += "hosted by <b>[config.hostedby]</b>"
-
-	if (features)
-		s += ": [jointext(features, ", ")]"
-
-	/* does this help? I do not know */
-	if (src.status != s)
-		src.status = s

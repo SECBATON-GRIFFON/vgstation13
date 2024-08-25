@@ -39,8 +39,7 @@
 	spawn(10)
 		if(c_animation)
 			c_animation.master = null
-			qdel(c_animation)
-			c_animation = null
+			QDEL_NULL(c_animation)
 
 /////////////////////////////////////////FIRST RUNE
 /obj/effect/rune_legacy/proc/teleport(var/key)
@@ -376,7 +375,7 @@
 	playsound(U, 'sound/items/Welder2.ogg', 25, 1)
 	var/turf/T = get_turf(U)
 	if(T)
-		T.hotspot_expose(700,125,surfaces=1)
+		try_hotspot_expose(700,SMALL_FLAME,1)
 	var/rune = src // detaching the proc - in theory
 	empulse(U, (range_red - 2), range_red)
 	qdel(rune)
@@ -1110,7 +1109,7 @@
 			(istype(cultist.loc, /obj/structure/closet/secure_closet)&&cultist.loc:locked) || \
 			(istype(cultist.loc, /obj/machinery/dna_scannernew)&&cultist.loc:locked) \
 		))
-			to_chat(user, "<span class='warning'>The [cultist] is already free.</span>")
+			to_chat(user, "<span class='warning'>\The [cultist] is already free.</span>")
 			return
 		cultist.unlock_from()
 		if (cultist.handcuffed)
@@ -1302,15 +1301,13 @@
 						to_chat(M, "<span class='warning'>Aargh it burns!</span>")
 					else
 						to_chat(M, "<span class='warning'>The rune suddenly ignites, burning you!</span>")
-					var/turf/T = get_turf(R)
-					T.hotspot_expose(700,125,surfaces=1)
+					try_hotspot_expose(700,SMALL_FLAME,1)
 		for(var/obj/effect/decal/cleanable/blood/B in effects_list)
 			if(B.blood_DNA == src.blood_DNA)
 				for(var/mob/living/M in orange(1,B))
 					M.take_overall_damage(0,5)
 					to_chat(M, "<span class='warning'>The blood suddenly ignites, burning you!</span>")
-					var/turf/T = get_turf(B)
-					T.hotspot_expose(700,125,surfaces=1)
+					try_hotspot_expose(700,SMALL_FLAME,1)
 					qdel(B)
 		qdel(src)
 
@@ -1409,29 +1406,25 @@
 							if("Juggernaut")
 								var/mob/living/simple_animal/construct/armoured/C = new /mob/living/simple_animal/construct/armoured (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are now a Juggernaut. Though slow, your shell can withstand extreme punishment, create temporary walls and even deflect energy weapons, and rip apart enemies and walls alike.</B>")
 								//ticker.mode.update_cult_icons_added(C.mind)
 							if("Wraith")
 								var/mob/living/simple_animal/construct/wraith/C = new /mob/living/simple_animal/construct/wraith (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are a now Wraith. Though relatively fragile, you are fast, deadly, and even able to phase through walls.</B>")
 								//ticker.mode.update_cult_icons_added(C.mind)
 							if("Artificer")
 								var/mob/living/simple_animal/construct/builder/C = new /mob/living/simple_animal/construct/builder (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are now an Artificer. You are incredibly weak and fragile, but you are able to construct new floors and walls, to break some walls apart, to repair allied constructs (by clicking on them), </B><I>and most important of all create new constructs</I><B> (Use your Artificer spell to summon a new construct shell and Summon Soulstone to create a new soulstone).</B>")
 								//ticker.mode.update_cult_icons_added(C.mind)
 							if("Harvester")
 								var/mob/living/simple_animal/construct/harvester/C = new /mob/living/simple_animal/construct/harvester (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are now an Harvester. You are as fast and powerful as Wraiths, but twice as durable.<br>No living (or dead) creature can hide from your eyes, and no door or wall shall place itself between you and your victims.<br>Your role consists of neutralizing any non-cultist living being in the area and transport them to Nar-Sie. To do so, place yourself above an incapacited target and use your \"Harvest\" spell.")
 								//ticker.mode.update_cult_icons_added(C.mind)
 					else
@@ -1441,22 +1434,19 @@
 							if("Juggernaut")
 								var/mob/living/simple_animal/construct/armoured/C = new /mob/living/simple_animal/construct/armoured (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are now a Juggernaut. Though slow, your shell can withstand extreme punishment, create temporary walls and even deflect energy weapons, and rip apart enemies and walls alike.</B>")
 								//ticker.mode.update_cult_icons_added(C.mind)
 							if("Wraith")
 								var/mob/living/simple_animal/construct/wraith/C = new /mob/living/simple_animal/construct/wraith (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are a now Wraith. Though relatively fragile, you are fast, deadly, and even able to phase through walls.</B>")
 								///ticker.mode.update_cult_icons_added(C.mind)
 							if("Artificer")
 								var/mob/living/simple_animal/construct/builder/C = new /mob/living/simple_animal/construct/builder (get_turf(src.loc))
 								M.mind.transfer_to(C)
-								qdel(M)
-								M = null
+								QDEL_NULL(M)
 								to_chat(C, "<B>You are now an Artificer. You are incredibly weak and fragile, but you are able to construct new floors and walls, to break some walls apart, to repair allied constructs (by clicking on them), </B><I>and most important of all create new constructs</I><B> (Use your Artificer spell to summon a new construct shell and Summon Soulstone to create a new soulstone).</B>")
 								//ticker.mode.update_cult_icons_added(C.mind)
 								for(var/spell/S in C.spell_list)

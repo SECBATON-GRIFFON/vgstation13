@@ -111,6 +111,7 @@
 	desc = "A pair of rather plain, wooden sandals."
 	name = "sandals"
 	icon_state = "wizard"
+	species_fit = list(VOX_SHAPED)
 
 	wizard_garb = 1
 
@@ -118,6 +119,7 @@
 	name = "magic slippers"
 	icon_state = "slippers"
 	desc = "For the wizard that puts comfort first. Who's going to laugh?"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/sandal/marisa
 	desc = "A pair of magic, black shoes."
@@ -127,7 +129,7 @@
 /obj/item/clothing/shoes/sandal/marisa/leather
 	icon_state = "laceups"
 	item_state = "laceups"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(INSECT_SHAPED, VOX_SHAPED)
 
 /obj/item/clothing/shoes/galoshes
 	name = "galoshes"
@@ -153,7 +155,7 @@
 	icon_state = "clown"
 	item_state = "clown_shoes"
 	_color = "clown"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(INSECT_SHAPED, VOX_SHAPED)
 	footprint_type = /obj/effect/decal/cleanable/blood/tracks/footprints/clown
 
 	step_sound = "clownstep"
@@ -290,7 +292,7 @@
 			var/dat = {"<html><div><span style="color:#ff0000;">H</span><span style="color:#99ff00;">O</span><span style="color:#0000ff;">N</span><span style="color:#00ff80;">K</span><span style="color:#0066ff;">!</span></html></div>"}
 			to_chat(user, dat)
 			playsound(user, 'sound/items/bikehorn.ogg', 100, 0)
-			var/obj/item/weapon/reagent_containers/food/snacks/grown/banana/B = new()
+			var/obj/item/weapon/reagent_containers/food/snacks/grown/banana/B = new(loc)
 			B.name = "consolation banana"
 			B.desc = "This one seems to be enchanted..."
 			B.potency = 1337 //Honk
@@ -358,6 +360,7 @@
 	desc = "No snake in these boots."
 	icon_state = "cowboy"
 	item_state = "cowboy"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/jackboots/steeltoe
 	name = "steel-toed boots"
@@ -391,12 +394,14 @@
 	desc = "Fluffy!"
 	icon_state = "slippers"
 	item_state = "slippers"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/slippers_worn
 	name = "worn bunny slippers"
 	desc = "Fluffy..."
 	icon_state = "slippers_worn"
 	item_state = "slippers_worn"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/laceup
 	name = "laceup shoes"
@@ -415,6 +420,7 @@
 	desc = "Sandals with buckled leather straps on it."
 	icon_state = "roman"
 	item_state = "roman"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/simonshoes
 	name = "Simon's Shoes"
@@ -428,44 +434,23 @@
 	desc = "A pair of girly knee-high socks."
 	icon_state = "kneesock"
 	item_state = "kneesock"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(INSECT_SHAPED, VOX_SHAPED)
 
 /obj/item/clothing/shoes/kneesocks/attackby(obj/item/weapon/W, mob/user)
 	..()
 	if(istype(W, /obj/item/weapon/soap))
 		if(do_after(user, src, 1 SECONDS))
-			user.drop_item(src)
-			if(!user.drop_item(W))
-				to_chat(user, "<span class='warning'>You can't let go of \the [W].</span>")
-				return
-			var/obj/item/weapon/soap_sock/I = new (get_turf(user))
-			W.transfer_fingerprints_to(I)
-			I.base_soap = W
-			I.base_sock = src
-			W.forceMove(I)
-			src.forceMove(I)
-			user.put_in_hands(I)
-			to_chat(user, "<span class='notice'>You place \the [W] into \the [src].</span>")
+			user.create_in_hands(src, new /obj/item/weapon/brick_sock/soap(loc, src, W), W, msg = "<span class='notice'>You place \the [W] into \the [src].</span>", move_in = TRUE)
 	else if(istype(W, /obj/item/stack/sheet/mineral/brick))
-		var/obj/item/stack/sheet/mineral/brick/S = W
 		if(do_after(user, src, 1 SECONDS))
-			user.drop_item(src)
-			if(!user.drop_item(S))
-				to_chat(user, "<span class='warning'>You can't let go of \the [W].</span>")
-				return
-			var/obj/item/weapon/brick_sock/I = new (get_turf(user))
-			if(!S.use(1))
-				return
-			I.base_sock = src
-			src.forceMove(I)
-			user.put_in_hands(I)
-			to_chat(user, "<span class='notice'>You place a brick into \the [src].</span>")
+			user.create_in_hands(src, new /obj/item/weapon/brick_sock(loc, src), W, msg = "<span class='notice'>You place a brick into \the [src].</span>", move_in = TRUE)
 
 /obj/item/clothing/shoes/jestershoes
 	name = "Jester Shoes"
 	desc = "As worn by the clowns of old."
 	icon_state = "jestershoes"
 	item_state = "jestershoes"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/aviatorboots
 	name = "Aviator Boots"
@@ -479,12 +464,14 @@
 	desc = "Freedom isn't free, neither were these shoes."
 	icon_state = "libertyshoes"
 	item_state = "libertyshoes"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/megaboots
 	name = "DRN-001 Boots"
 	desc = "Large armored boots, very weak to large spikes."
 	icon_state = "megaboots"
 	item_state = "megaboots"
+	species_fit = list(VOX_SHAPED)
 
 /obj/item/clothing/shoes/protoboots
 	name = "Prototype Boots"
@@ -602,6 +589,7 @@
 	item_state = "clownshoespsyche"
 	_color = "clownshoespsyche"
 	footprint_type = /obj/effect/decal/cleanable/blood/tracks/footprints/clown
+	species_fit = list(VOX_SHAPED)
 
 	step_sound = "clownstep"
 
@@ -617,3 +605,12 @@
 	desc = "Black shoes for formal occasions."
 	icon_state = "secshoes"
 	item_state = "secshoes"
+	species_fit = list(VOX_SHAPED)
+
+/obj/item/clothing/shoes/scubafloppers
+	name = "scuba floppers"
+	desc = "SCUBA floppers for swimming quickly... in space?"
+	icon_state = "scubafloppers"
+	item_state = "scubafloppers"
+	footprint_type = /obj/effect/decal/cleanable/blood/tracks/footprints/clown
+	species_fit = list(VOX_SHAPED, GREY_SHAPED, UNDEAD_SHAPED, MUSHROOM_SHAPED, INSECT_SHAPED)

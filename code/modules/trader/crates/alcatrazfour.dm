@@ -9,7 +9,7 @@ var/global/list/alcatraz_stuff = list(
 	//2 of a kind
 	/obj/item/weapon/autocuffer,/obj/item/weapon/autocuffer,
 	/obj/item/clothing/mask/gas/hecu,/obj/item/clothing/mask/gas/hecu,
-	/obj/item/clothing/gloves/swat/operator,/obj/item/clothing/gloves/swat/operator,
+	/obj/item/clothing/gloves/swat/specops,/obj/item/clothing/gloves/swat/specops,
 	//1 of a kind
 	/obj/item/clothing/under/securityskirt/elite,
 	/obj/item/clothing/head/helmet/donutgiver,
@@ -44,6 +44,7 @@ var/global/list/alcatraz_stuff = list(
 	light_color = LIGHT_COLOR_ORANGE
 	mech_flags = MECH_SCAN_FAIL
 	var/obj/item/weapon/cell/bcell
+	blocks_tracking = TRUE
 
 /obj/item/clothing/head/helmet/stun/New()
 	..()
@@ -53,8 +54,7 @@ var/global/list/alcatraz_stuff = list(
 
 /obj/item/clothing/head/helmet/stun/Destroy()
 	if (bcell)
-		qdel(bcell)
-		bcell = null
+		QDEL_NULL(bcell)
 
 	return ..()
 
@@ -109,16 +109,16 @@ var/global/list/alcatraz_stuff = list(
 	desc = "The beloved sequel to the Banger Boy Color. Tap it or the clothing item it is attached to with grenades to trigger them for early detonation. Straps nicely onto security armor."
 	icon_state = "bangerboy"
 	mech_flags = MECH_SCAN_FAIL
+	w_type = RECYK_ELECTRONIC
+	flammable = TRUE
 	var/obj/item/tool/screwdriver/S
-	autoignition_temperature = AUTOIGNITION_PLASTIC
 
 /obj/item/clothing/accessory/bangerboy/New()
 	..()
 	S = new(src)
 
 /obj/item/clothing/accessory/bangerboy/Destroy()
-	qdel(S)
-	S = null
+	QDEL_NULL(S)
 	..()
 
 /obj/item/clothing/accessory/bangerboy/attackby(obj/item/W, mob/user)
@@ -265,9 +265,9 @@ var/global/list/alcatraz_stuff = list(
 	armor = list(melee = 10, bullet = 10, laser = 10,energy = 0, bomb = 0, bio = 0, rad = 0)
 	clothing_flags = ONESIZEFITSALL
 	siemens_coefficient = 0.9
-	species_fit = list(GREY_SHAPED) //Unlike normal skirts this is not VOX_SHAPED
+	species_fit = list(GREY_SHAPED, VOX_SHAPED)
 	body_parts_covered = FULL_TORSO|ARMS
-	autoignition_temperature = AUTOIGNITION_PROTECTIVE
+
 
 /obj/item/clothing/under/securityskirt/elite/equipped(var/mob/user, var/slot)
 	..()
@@ -500,11 +500,7 @@ var/global/list/alcatraz_stuff = list(
 
 	log_attack("<font color='red'>[key_name(user)] Used the [name] to flash [key_name(M)]</font>")
 
-	if(!iscarbon(user))
-		M.LAssailant = null
-	else
-		M.LAssailant = user
-		M.assaulted_by(user)
+	M.assaulted_by(user)
 
 
 	if(!iscarbon(M))
@@ -539,12 +535,12 @@ var/global/list/alcatraz_stuff = list(
 	restraint_resist_time = TRUE //This doesn't actually matter as long as it is nonzero
 	req_access = list(access_brig) //Brig timers
 	var/obj/item/weapon/handcuffs/cyborg/stored
-	autoignition_temperature = AUTOIGNITION_PLASTIC
+	w_type = RECYK_ELECTRONIC
+	flammable = TRUE
 
 /obj/item/weapon/autocuffer/Destroy()
 	if(stored)
-		qdel(stored)
-		stored = null
+		QDEL_NULL(stored)
 	..()
 
 /obj/item/weapon/autocuffer/restraint_apply_intent_check(mob/user)
@@ -570,7 +566,8 @@ var/global/list/alcatraz_stuff = list(
 	icon_state = "pedometer"
 	w_class = W_CLASS_SMALL
 	slot_flags = SLOT_BELT
-	autoignition_temperature = AUTOIGNITION_PLASTIC
+	w_type = RECYK_ELECTRONIC
+	flammable = TRUE
 	var/count = 0
 	var/list/approved_areas = list(/area/maintenance,/area/hallway)
 	var/list/special_rewards = list(/obj/item/weapon/pen/tactical)
@@ -584,11 +581,11 @@ var/global/list/alcatraz_stuff = list(
 
 /obj/item/pedometer/pickup(mob/user)
 	..()
-	user.register_event(/event/moved, src, .proc/mob_moved)
+	user.register_event(/event/moved, src, nameof(src::mob_moved()))
 
 /obj/item/pedometer/dropped(mob/user)
 	..()
-	user.unregister_event(/event/moved, src, .proc/mob_moved)
+	user.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 
 /obj/item/pedometer/proc/mob_moved(atom/movable/mover)
 	var/turf/T = get_turf(src)
@@ -625,7 +622,7 @@ var/global/list/alcatraz_stuff = list(
 	plane = ABOVE_HUMAN_PLANE
 	var/state = AT_SEED
 	var/pity_timer = 0
-	autoignition_temperature = AUTOIGNITION_PAPER
+
 
 /obj/structure/ammotree/attackby(obj/item/I, mob/user)
 	if(state == AT_SEED && istype(I, /obj/item/weapon/batteringram))
@@ -677,7 +674,7 @@ var/global/list/alcatraz_stuff = list(
 	icon = 'icons/obj/ammo.dmi'
 	icon_state = "ammofruit"
 	w_class = W_CLASS_SMALL
-	autoignition_temperature = 	AUTOIGNITION_PAPER
+
 
 /obj/item/ammofruit/New()
 	..()

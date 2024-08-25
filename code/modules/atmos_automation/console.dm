@@ -48,17 +48,9 @@
 			A.process()
 
 /obj/machinery/computer/general_air_control/atmos_automation/update_icon()
-	icon_state = initial(icon_state)
-	// Broken
-	if(stat & BROKEN)
-		icon_state += "b"
-
-	// Powered
-	else if(stat & (FORCEDISABLE|NOPOWER))
-		icon_state = initial(icon_state)
-		icon_state += "0"
-	else if(on)
-		icon_state += "_active"
+	..()
+	if(!(stat & (BROKEN|FORCEDISABLE|NOPOWER)) && on)
+		icon_state = "aac_active"
 
 /obj/machinery/computer/general_air_control/atmos_automation/proc/request_device_refresh(var/device)
 	send_signal(list("tag"=device, "status"))
@@ -154,7 +146,7 @@
 /obj/machinery/computer/general_air_control/atmos_automation/Topic(href,href_list)
 	if(..())
 		return 1
-	if(secret_check_two(usr, href_list))
+	if(AAC_age_check(usr, href_list))
 		return 1
 	if(href_list["on"])
 		on = !on
@@ -299,6 +291,12 @@
 
 		onclose(usr, "AAC_assemblies")
 
+/obj/machinery/computer/general_air_control/atmos_automation/proc/AAC_age_check(var/mob/M,var/list/href_list)
+	if(href_list["read"])
+		if(M.client && !M.client.holder && M.client.player_age < 7)
+			to_chat(M, "<span class=warning>Importing functionality is unavailable for new personnel. Please wait an additional [7 - M.client.player_age] days before use.</span>")
+			message_admins("[key_name(M)] attempted to import an AAC script despite their player age of [M.client.player_age].")
+			return TRUE
 
 /obj/machinery/computer/general_air_control/atmos_automation/proc/MakeCompare(var/datum/automation/a, var/datum/automation/b, var/comparetype)
 	var/datum/automation/compare/compare=new(src)
@@ -344,18 +342,17 @@
 	var/output_tag="inc_out"
 	var/sensor_tag="inc_sensor"
 	frequency=1449
-	var/temperature=1000
+	var/temperature=400
 /obj/machinery/computer/general_air_control/atmos_automation/burnchamber/New()
 	..()
 
 	// On State
 	// Pretty much this:
 	/*
-		if(get_sensor("inc_sensor","temperature") < 200)
+		if(get_sensor("inc_sensor","temperature") < 400)
 			set_injector_state("inc_in",1)
-			set_vent_pump_power("inc_out",0)
 		else
-			set_vent_pump_power("inc_out",1
+			set_injector_state("inc_in",0)
 	*/
 
 	var/datum/automation/get_sensor_data/sensor=new(src)
@@ -363,7 +360,7 @@
 	sensor.field="temperature"
 
 	var/datum/automation/static_value/val = new(src)
-	val.value=temperature - 800
+	val.value= temperature
 
 	var/datum/automation/compare/compare=new(src)
 	compare.comparator = "Less Than"
@@ -374,48 +371,15 @@
 	inj_on.injector=injector_tag
 	inj_on.state=1
 
-	var/datum/automation/set_vent_pump_power/vp_on=new(src)
-	vp_on.vent_pump=output_tag
-	vp_on.state=1
-
-	var/datum/automation/set_vent_pump_power/vp_off=new(src)
-	vp_off.vent_pump=output_tag
-	vp_off.state=0
+	var/datum/automation/set_injector_power/inj_off=new(src)
+	inj_off.injector=injector_tag
+	inj_off.state=0
 
 	var/datum/automation/if_statement/i = new (src)
 	i.label = "Fuel Injector On"
 	i.condition = compare
 	i.children_then.Add(inj_on)
-	i.children_then.Add(vp_off)
-	i.children_else.Add(vp_on)
-
-	automations += i
-
-	// Off state
-	/*
-		if(get_sensor("inc_sensor","temperature") > 1000)
-			set_injector_state("inc_in",0)
-	*/
-	sensor=new(src)
-	sensor.sensor=sensor_tag
-	sensor.field="temperature"
-
-	val = new(src)
-	val.value=temperature
-
-	compare=new(src)
-	compare.comparator = "Greater Than"
-	compare.children[1] = sensor
-	compare.children[2] = val
-
-	var/datum/automation/set_injector_power/inj_off=new(src)
-	inj_off.injector=injector_tag
-	inj_off.state=0
-
-	i = new (src)
-	i.label = "Fuel Injector Off"
-	i.condition = compare
-	i.children_then.Add(inj_off)
+	i.children_else.Add(inj_off)
 
 	automations += i
 

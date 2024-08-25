@@ -114,7 +114,7 @@
 
 /obj/machinery/cell_charger/attack_hand(mob/user)
 	if(charging)
-		if(emagged) //Oh shit nigger what are you doing
+		if(emagged)
 			spark(src, 5)
 			spawn(15)
 				explosion(src.loc, -1, 1, 3, adminlog = 0, whodunnit = user) //Overload
@@ -161,14 +161,15 @@
 //craftable by combining an APC frame, metal rod, cables, and wirecutter
 /datum/construction/reversible/crank_charger
 	result = /obj/item/device/crank_charger
+	decon = list(/obj/item/stack/sheet/metal = 2)
 	steps = list(
 					//1
 					list(Co_DESC="The cabling is messily strewn throughout.",
-						Co_NEXTSTEP = list(Co_KEY=/obj/item/tool/screwdriver,
+						Co_NEXTSTEP = list(Co_KEY="is_screwdriver",
 							Co_START_MSG = "{USER} begin{s} adjusting the wiring in {HOLDER}...",
 							Co_VIS_MSG = "{USER} adjust{s} the wiring in {HOLDER}.",
 							Co_DELAY = 50),
-						Co_BACKSTEP = list(Co_KEY=/obj/item/tool/wirecutters,
+						Co_BACKSTEP = list(Co_KEY="is_wirecutter",
 					 		Co_VIS_MSG = "{USER} remove{s} the cables from {HOLDER}.")
 						),
 					//2
@@ -186,21 +187,16 @@
 					list(Co_DESC="The frame is ready to use.",
 						Co_NEXTSTEP = list(Co_KEY=/obj/item/stack/rods,
 							Co_VIS_MSG = "{USER} add{s} the rod onto {HOLDER}.",
-							Co_AMOUNT = 1)
+							Co_AMOUNT = 1),
+						Co_BACKSTEP = list(Co_KEY="is_wrench",
+							Co_VIS_MSG = "{USER} wrench{es} {HOLDER} back into sheets.")
 						)
 					)
 /datum/construction/reversible/crank_charger/action(atom/used_atom,mob/user)
 	return check_step(used_atom,user)
 
 /datum/construction/reversible/crank_charger/spawn_result(mob/user as mob)
-	if(result)
-//		testing("[user] finished a [result]!")
-
-		new result(get_turf(holder))
-
-		qdel (holder)
-		holder = null
-
+	..()
 	feedback_inc("crank_charger_created",1)
 
 /obj/item/device/crank_charger
@@ -271,8 +267,7 @@
 
 /obj/item/device/crank_charger/Destroy()
 	if(stored)
-		qdel(stored)
-		stored = null
+		QDEL_NULL(stored)
 	..()
 
 /obj/item/device/crank_charger/generous

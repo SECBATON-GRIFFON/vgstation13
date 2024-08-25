@@ -3,7 +3,7 @@
 	desc = "There seems to be six slots capable of holding small crystals placed along its side."
 	icon = 'icons/obj/xenoarchaeology.dmi'
 	icon_state = "communication"
-	stat = NOPOWER //Niggers you will wrench this shit down or else
+	stat = NOPOWER
 	density = 1
 	use_power = MACHINE_POWER_USE_IDLE
 	active_power_usage = 4000
@@ -29,20 +29,17 @@
 /obj/machinery/communication/attack_hand(mob/user as mob)
 	if(..())
 		return 1
+	var/obj/item/commstone/stone
 	if(contents.len)
-		var/obj/item/commstone/stone = contents[1]
-		user.put_in_hands(stone)
-		to_chat(user, "<span class='notice'>You delicately remove one of the strange stones from the ancient device.</span>")
-		remaining--
-		return
-	if(remaining)
-		var/obj/item/commstone/stone = new(remaining)
-		user.put_in_hands(stone)
+		stone = contents[1]
+	else if(remaining)
+		stone = new(remaining)
 		stone.commdevice = src
 		allstones += stone
+	if(stone)
+		user.put_in_hands(stone)
 		remaining--
 		to_chat(user, "<span class='notice'>You delicately remove one of the strange stones from the ancient device.</span>")
-		return
 
 /obj/machinery/communication/examine(mob/user as mob)
 	..()

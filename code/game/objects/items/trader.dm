@@ -101,7 +101,6 @@
 	var/max_trash = 50
 	var/list/trash = list()
 	var/obj/item/vachandle/myhandle
-	autoignition_temperature = AUTOIGNITION_PLASTIC
 
 /obj/structure/wetdryvac/New()
 	..()
@@ -201,6 +200,12 @@
 		else if(P.wet == TURF_WET_WATER)
 			reagents.add_reagent(WATER,1)
 		qdel(P)
+	for(var/obj/effect/ash/A in T)
+		if(reagents.is_full())
+			visible_message(span_warning("\The [src] sputters, wet tank full!"))
+			break
+		reagents.add_reagent(CARBON,1)
+		qdel(A)
 	T.clean_blood()
 	for(var/obj/item/trash/R in T)
 		if(trash.len >= max_trash)
@@ -239,10 +244,10 @@
 
 /obj/item/vachandle/pickup(mob/user)
 	..()
-	user.register_event(/event/moved, src, .proc/mob_moved)
+	user.register_event(/event/moved, src, nameof(src::mob_moved()))
 
 /obj/item/vachandle/dropped(mob/user)
-	user.unregister_event(/event/moved, src, .proc/mob_moved)
+	user.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 	if(loc != myvac)
 		retract()
 
@@ -281,7 +286,8 @@
 	icon = 'icons/obj/barricade.dmi'
 	icon_state = "barricade_kit"
 	w_class = W_CLASS_MEDIUM
-	autoignition_temperature = AUTOIGNITION_PAPER
+	w_type = RECYK_WOOD
+	flammable = TRUE
 
 /obj/item/weapon/fakeposter_kit/preattack(atom/target, mob/user , proximity)
 	if(!proximity)
@@ -301,7 +307,6 @@
 	icon = 'icons/obj/posters.dmi'
 	var/obj/item/weapon/storage/cargocache/cash
 	var/turf/access_loc
-	autoignition_temperature = AUTOIGNITION_PAPER
 
 /obj/structure/fakecargoposter/New()
 	..()
@@ -319,8 +324,7 @@
 /obj/structure/fakecargoposter/Destroy()
 	for(var/atom/movable/A in cash.contents)
 		A.forceMove(loc)
-	qdel(cash)
-	cash = null
+	QDEL_NULL(cash)
 	..()
 
 /obj/structure/fakecargoposter/attackby(var/obj/item/weapon/W, mob/user)
@@ -347,7 +351,6 @@
 	fits_max_w_class = W_CLASS_LARGE
 	max_combined_w_class = 28
 	slot_flags = 0
-	autoignition_temperature = AUTOIGNITION_PAPER
 
 /obj/item/weapon/storage/cargocache/distance_interact(mob/user)
 	if(istype(loc,/obj/structure/fakecargoposter) && user.Adjacent(loc))

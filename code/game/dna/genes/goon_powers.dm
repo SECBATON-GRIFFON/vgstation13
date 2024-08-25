@@ -11,17 +11,26 @@
 /datum/dna/gene/basic/sober/New()
 	block = SOBERBLOCK
 
-//WAS: /datum/bioEffect/psychic_resist
-/datum/dna/gene/basic/jamsignals
-	name = "Signal Jam"
-	desc = "Creates an invisible shield around your body, protecting you from harmful electromagnetic radiation."
-	activation_messages = list("Your body and mind feel shielded.")
-	deactivation_messages = list("You feel oddly exposed.")
+/datum/dna/gene/basic/psychic_resist
+	name = "Psy-Resist"
+	desc = "Boosts efficiency in sectors of the brain commonly associated with meta-mental energies."
+	activation_messages = list("Your mind feels closed.")
 
-	mutation = M_JAMSIGNALS
+	mutation = M_PSY_RESIST
 
-/datum/dna/gene/basic/jamsignals/New()
-	block = JAMSIGNALSBLOCK
+/datum/dna/gene/basic/psychic_resist/New()
+	block = PSYRESISTBLOCK
+
+/datum/dna/gene/basic/psychic_resist/activate(var/mob/M, var/connected, var/flags)
+	..()
+	INVOKE_EVENT(M, /event/camera_sight_changed, "mover" = M)
+	return 1
+
+/*/datum/dna/gene/basic/psychic_resist/deactivate(var/mob/M, var/connected, var/flags)
+	if(!..())
+		return 0
+	INVOKE_EVENT(M, /event/camera_sight_changed, "mover" = M)
+	return 1*/ // Allows retracking, uncomment to enable
 
 /////////////////////////
 // Stealth Enhancers
@@ -53,13 +62,13 @@
 
 /datum/dna/gene/basic/stealth/chameleon/activate(var/mob/M, var/connected, var/flags)
 	..()
-	M.register_event(/event/moved, src, .proc/mob_moved)
+	M.register_event(/event/moved, src, nameof(src::mob_moved()))
 	return 1
 
 /datum/dna/gene/basic/stealth/chameleon/deactivate(var/mob/M, var/connected, var/flags)
 	if(!..())
 		return 0
-	M.unregister_event(/event/moved, src, .proc/mob_moved)
+	M.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 	return 1
 
 /datum/dna/gene/basic/stealth/chameleon/proc/mob_moved(var/mob/mover)
@@ -147,7 +156,7 @@
 
 	override_base = "genetic"
 	hud_state = "gen_ice"
-	compatible_mobs = list(/mob/living/carbon/human, /mob/living/carbon/monkey)
+	valid_targets = list(/mob/living/carbon/human, /mob/living/carbon/monkey)
 
 /spell/targeted/cryokinesis/cast(list/targets)
 	..()
@@ -215,7 +224,7 @@
 	hud_state = "gen_eat"
 
 	cast_sound = 'sound/items/eatfood.ogg'
-	compatible_mobs = list(
+	valid_targets = list(
 		/obj/item,
 		/mob/living/simple_animal/parrot,
 		/mob/living/simple_animal/cat,
@@ -227,7 +236,7 @@
 		/mob/living/carbon/slime,
 		/mob/living/carbon/alien/larva,
 		/mob/living/simple_animal/slime,
-		/mob/living/simple_animal/tomato,
+		/mob/living/simple_animal/hostile/retaliate/tomato,
 		/mob/living/simple_animal/chick,
 		/mob/living/simple_animal/chicken,
 		/mob/living/simple_animal/hostile/lizard,
@@ -244,19 +253,19 @@
 		H.UpdateDamageIcon()
 		H.updatehealth()
 
-/spell/targeted/eat/is_valid_target(var/target)
+/spell/targeted/eat/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(!(spell_flags & INCLUDEUSER) && target == usr)
 		return 0
 	if(get_dist(usr, target) > range)
 		return 0
-	return is_type_in_list(target, compatible_mobs)
+	return is_type_in_list(target, valid_targets)
 
 /spell/targeted/eat/choose_targets(mob/user = usr)
 	var/list/targets = list()
 
 	if(max_targets == 0) //unlimited
 		for(var/atom/movable/target in view_or_range(range, user, selection_type))
-			if(!is_type_in_list(target, compatible_mobs) && !istype(target, /obj/item))
+			if(!is_type_in_list(target, valid_targets) && !istype(target, /obj/item))
 				continue
 			if(istype(target, /obj/item/weapon/implant))
 				var/obj/item/weapon/implant/implant = target
@@ -272,7 +281,7 @@
 			for(var/atom/movable/M in view_or_range(range, user, selection_type))
 				if(!(spell_flags & INCLUDEUSER) && M == user)
 					continue
-				if(!is_type_in_list(M, compatible_mobs) && !istype(M, /obj/item))
+				if(!is_type_in_list(M, valid_targets) && !istype(M, /obj/item))
 					continue
 				if(istype(M, /obj/item/weapon/implant))
 					var/obj/item/weapon/implant/implant = M
@@ -322,10 +331,10 @@
 	if(!(spell_flags & INCLUDEUSER) && (user in targets))
 		targets -= user
 
-	if(compatible_mobs && compatible_mobs.len)
+	if(valid_targets && valid_targets.len)
 		for(var/mob/living/target in targets) //filters out all the non-compatible mobs
 			var/found = 0
-			for(var/mob_type in compatible_mobs)
+			for(var/mob_type in valid_targets)
 				if(istype(target, mob_type))
 					found = 1
 			if(!found)
@@ -544,7 +553,7 @@
 	range = 1
 	max_targets = 1
 	selection_type = "range"
-	compatible_mobs = list(/mob/living/carbon/human)
+	valid_targets = list(/mob/living/carbon/human)
 
 	hud_state = "wiz_hulk"
 	override_base = "genetic"
@@ -595,7 +604,7 @@
 	charge_type = Sp_RECHARGE
 	charge_max = 100
 
-	compatible_mobs = list(/mob/living/carbon)
+	valid_targets = list(/mob/living/carbon)
 
 	hud_state = "gen_rmind"
 	override_base = "genetic"
@@ -614,7 +623,7 @@
 		to_chat(user, "<span class='warning'>This can only be used on carbon beings.</span>")
 		return 1
 
-	if (!can_mind_interact(M.mind))
+	if (M_PSY_RESIST in M.mutations)
 		to_chat(user, "<span class='warning'>You can't see into [M.name]'s mind at all!</span>")
 		return 1
 

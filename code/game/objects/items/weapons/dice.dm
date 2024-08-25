@@ -4,13 +4,14 @@
 	icon = 'icons/obj/dice.dmi'
 	icon_state = "d6"
 	w_class = W_CLASS_TINY
+	w_type = RECYK_PLASTIC
+	flammable = TRUE
 	var/sides = 6
 	var/minsides = 1
 	var/result = null
 	var/multiplier = 0 //For modifying the result (d00 etc)
 	var/activated = 0 //Eventually the dice runs out of power, if cursed
 	var/infinite = 0 //dice with 1 will not run out
-	autoignition_temperature = AUTOIGNITION_PLASTIC
 
 /obj/item/weapon/dice/New()
 	..()
@@ -94,8 +95,8 @@
 	diceroll(user, 0)
 
 /obj/item/weapon/dice/throw_impact(atom/hit_atom, speed, user)
-	..()
-	diceroll(user, 1)
+	if(!..() && !istype(loc,/obj/item/dicetower))
+		diceroll(user, 1)
 
 /obj/item/weapon/dice/proc/show_roll(mob/user as mob, thrown, result)
 	var/comment = ""
@@ -122,8 +123,16 @@
 		visible_message("<span class='notice'>[src] rolls to a stop, landing on [result_names[result]].</span>")
 
 
-/obj/item/weapon/dice/proc/diceroll(mob/user as mob, thrown, silent = FALSE)
+/obj/item/weapon/dice/proc/diceroll(mob/user, thrown, silent = FALSE)
+	playsound(src, 'sound/weapons/diceroll.ogg', 50, 1)
 	result = rand(minsides, sides)
+	//An implementation of luck if luck is ever repaired
+	/*for(var/i = 1 to round(sides/6)) //+3 on a d20, +2 on d12, +1 on d6 or 8, +0 on d4
+		if(user.lucky_prob(1,1,60-(10*i))) //Max luck skew chance 50 on first attempt, then 40, then 30
+			result = min(result+1, sides)
+			if(result==sides)
+				break*/
+
 	update_icon()
 	if(!silent)
 		show_roll(user, thrown, result)
@@ -137,7 +146,7 @@
 					to_chat(user, "<span class=sinister><B>A natural failure, your poor roll has cursed you. Better luck next time! </span></B>")
 					h.flash_eyes(visual = 1)
 					if(h.species.name != "Tajaran")
-						if(h.set_species("Tajaran"))
+						if(h.set_species("Tajaran", transfer_damage = TRUE))
 							h.regenerate_icons()
 						to_chat(user, "<span class=danger><B>You have been turned into a disgusting catbeast! </span></B>")
 					else
@@ -177,7 +186,7 @@
 							h.equip_to_slot(kneesock,slot_shoes)
 							h.equip_to_slot(apron,slot_wear_suit)
 							h.equip_to_slot(kitty_ears,slot_head)
-							to_chat(user, "<span class=danger><B>You have been turned into a disgusting faggot! </span></B>")
+							to_chat(user, "<span class=danger><B>You have been turned into a disgusting furry! </span></B>")
 						if(3)
 							if(h.species.name != "Tajaran") // Catbeasts don't get to roll the dice and turn into monsters.
 								var/list/valid_species = (all_species - list("Krampus", "Horror"))
@@ -210,7 +219,7 @@
 								switch(pick(1,2,3))
 									if(1)
 										if(h.species.name != "Unathi")
-											if(h.set_species("Unathi"))
+											if(h.set_species("Unathi", transfer_damage = TRUE))
 												h.regenerate_icons()
 											to_chat(user, "<span class=danger><B>You have been turned into a disgusting lizard! </span></B>")
 										else
@@ -218,7 +227,7 @@
 												E.droplimb(1)
 									if(2)
 										if(h.species.name != "Skrell")
-											if(h.set_species("Skrell"))
+											if(h.set_species("Skrell", transfer_damage = TRUE))
 												h.regenerate_icons()
 											to_chat(user, "<span class=danger><B>You have been turned into a disgusting squidman! </span></B>")
 										else
@@ -226,7 +235,7 @@
 												E.droplimb(1)
 									if(3)
 										if(h.species.name != "Vox")
-											if(h.set_species("Vox"))
+											if(h.set_species("Vox", transfer_damage = TRUE))
 												h.regenerate_icons()
 											to_chat(user, "<span class=danger><B>You have been turned into a dumb, diseased bird! </span></B>")
 										else
@@ -367,22 +376,16 @@
 		triggered = 1
 		visible_message("<span class='notice'>You hear a quiet click.</span>")
 		spawn(40)
-			var/cap = 0
-			var/uncapped = result
 			if(result > 19) //Roll a nat 20
 				result = 24
 				sleep(40)
 			else
-				cap = 1
 				if(result > 14)
 					sleep(20)
 
 			var/turf/epicenter = get_turf(src)
-			explosion(epicenter, round(result*0.25), round(result*0.5), round(result), round(result*1.5), 1, cap, whodunnit = user)
-			if(cap)
-				for(var/obj/machinery/computer/bhangmeter/bhangmeter in doppler_arrays)
-					if(bhangmeter)
-						bhangmeter.sense_explosion(epicenter.x,epicenter.y,epicenter.z,round(uncapped*0.25), round(uncapped*0.5), round(uncapped),"???", cap)
+			explosion(epicenter, round(result*0.25), round(result*0.5), round(result), round(result*1.5), 1, 0, whodunnit = user)
+
 	return result
 
 

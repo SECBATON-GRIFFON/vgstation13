@@ -117,77 +117,115 @@
 	var/name = input(user, message, title, default) as null|message
 	return strip_html_simple(name, max_length)
 
-//Filters out undesirable characters from names
+/proc/test_ascii(var/text)
+	for(var/i=1, i<=length(text), i++)
+		world.log << text2ascii(text, i)
+
+var/list/whitelist_name_diacritics_cap = list(
+	"À", "Á", "Â", "Ã", "Ä", "Ä", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï", "Ð", "Ñ", "Ò", "Ó", "Ô", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý",
+)
+var/list/whitelist_name_diacritics_min = list(
+	"à", "á", "â", "ã", "ä", "ä", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "ö", "ø", "ù", "ú", "û", "ü", "ý",
+)
+
 /proc/reject_bad_name(var/t_in, var/allow_numbers=0, var/max_length=MAX_NAME_LEN)
 	if(!t_in || length(t_in) > max_length)
 		return //Rejects the input if it is null or if it is longer then the max length allowed
 
-	var/number_of_alphanumeric	= 0
-	var/last_char_group			= 0
-	var/t_out = ""
+	var/current_space = TRUE
+	var/length = 0
+	var/started = FALSE
 
+	t_in = trim(t_in)
+	var/t_out = ""
 	for(var/i=1, i<=length(t_in), i++)
 		var/ascii_char = text2ascii(t_in,i)
 		switch(ascii_char)
 			// A  .. Z
 			if(65 to 90)			//Uppercase Letters
-				t_out += ascii2text(ascii_char)
-				number_of_alphanumeric++
-				last_char_group = 4
-
+				started = TRUE
+				current_space = FALSE
+				t_out += t_in[i]
+				length++
 			// a  .. z
 			if(97 to 122)			//Lowercase Letters
-				if(last_char_group<2)
-					t_out += ascii2text(ascii_char-32)	//Force uppercase first character
+				started = TRUE
+				if (current_space)
+					current_space = FALSE
+					t_out += ascii2text(ascii_char - 32)
 				else
-					t_out += ascii2text(ascii_char)
-				number_of_alphanumeric++
-				last_char_group = 4
+					current_space = FALSE
+					t_out += t_in[i]
+				length++
 
 			// 0  .. 9
 			if(48 to 57)			//Numbers
-				if(!last_char_group)
-					continue	//suppress at start of string
-				if(!allow_numbers)
+				if(allow_numbers)
+					if (!started)
+						continue
+					current_space = FALSE
+					t_out += t_in[i]
+					length++
+				else
 					continue
-				t_out += ascii2text(ascii_char)
-				number_of_alphanumeric++
-				last_char_group = 3
 
 			// '  -  .
 			if(39,45,46)			//Common name punctuation
-				if(!last_char_group)
+				if (!started)
 					continue
-				t_out += ascii2text(ascii_char)
-				last_char_group = 2
+				current_space = FALSE
+				t_out += t_in[i]
+
 
 			// ~   |   @  :  #  $  %  &  *  +
 			if(126,124,64,58,35,36,37,38,42,43)			//Other symbols that we'll allow (mainly for AI)
-				if(!last_char_group)
-					continue	//suppress at start of string
-				if(!allow_numbers)
+				if(allow_numbers)
+					if (!started)
+						continue
+					current_space = FALSE
+					t_out += t_in[i]
+				else
 					continue
-				t_out += ascii2text(ascii_char)
-				last_char_group = 2
+
 
 			//Space
 			if(32)
-				if(last_char_group <= 1)
-					continue	//suppress double-spaces and spaces at start of string
-				t_out += ascii2text(ascii_char)
-				last_char_group = 1
+				if (current_space)
+					continue
+				else
+					current_space = TRUE
+					t_out += t_in[i]
 			else
-				return
-
-	if(number_of_alphanumeric < 2)
-		return		//protects against tiny names like "A" and also names like "' ' ' ' ' ' ' '"
-
-	if(last_char_group == 1)
-		t_out = copytext(t_out,1,length(t_out))	//removes the last character (in this case a space)
+				if (t_in[i] in whitelist_name_diacritics_cap)
+					started = TRUE
+					t_out += t_in[i]
+					i++ // Those are two-bytes letters
+					length++
+					current_space = FALSE
+				else if (t_in[i] in whitelist_name_diacritics_min)
+					started = TRUE
+					if (current_space)
+						var/index = whitelist_name_diacritics_min.Find(t_in[i])
+						t_out += whitelist_name_diacritics_cap[index]
+						i++ // Those are two-bytes letters
+						length++
+						current_space = FALSE
+					else
+						t_out += t_in[i]
+						i++ // Those are two-bytes letters
+						length++
+						current_space = FALSE
+				else
+					return
 
 	for(var/bad_name in list("space","floor","wall","r-wall","monkey","unknown","inactive ai","plating"))	//prevents these common metagamey names
 		if(cmptext(t_out,bad_name))
 			return	//(not case sensitive)
+
+	t_out = trim(t_out)
+
+	if (length < 2)
+		return
 
 	return t_out
 
@@ -246,11 +284,31 @@
  * Text modification
  */
 
-//Adds 'u' number of zeros ahead of the text 't'
-/proc/add_zero(t, u)
-	while (length(t) < u)
-		t = "0[t]"
-	return t
+//example: add_zero(217, 6) = "000217"
+/proc/add_zero(_string, beforeZeroes)
+	var/string = "[_string]"
+	while (length(string) < beforeZeroes)
+		string = "0[string]"
+	return string
+
+//example: add_zero_before_and_after(3.14, 3, 5) = "003.14000"
+/proc/add_zero_before_and_after(_string, beforeZeroes, afterZeroes)
+	var/string = "[_string]"
+	var/dot_pos = findtext(string, ".")
+	if (dot_pos)
+		dot_pos--
+		while (dot_pos < beforeZeroes)
+			string = "0[string]"
+			dot_pos++
+		while (length(string) < (beforeZeroes+afterZeroes+1))
+			string = "[string]0"
+	else
+		while (length(string) < beforeZeroes)
+			string = "0[string]"
+		string = "[string]."
+		while (length(string) < (beforeZeroes+afterZeroes+1))
+			string = "[string]0"
+	return string
 
 //Adds 'u' number of spaces ahead of the text 't'
 /proc/add_lspace(t, u)
@@ -301,6 +359,17 @@
 //Returns a string with the first element of the string capitalized.
 /proc/capitalize(var/t as text)
 	return uppertext(copytext_char(t, 1, 2)) + copytext_char(t, 2)
+
+//Returns only the uppercase letters of a string
+/proc/get_only_uppercase_letters(text)
+	var/result = ""
+	var/start = text2ascii("A")
+	var/stop = 	text2ascii("Z")
+	for(var/i=1 to length(text))
+		var/current_ascii = text2ascii(text, i)
+		if(current_ascii >= start && current_ascii <= stop)
+			result += ascii2text(current_ascii)
+	return result
 
 //Centers text by adding spaces to either side of the string.
 /proc/dd_centertext(message, length)
@@ -755,3 +824,16 @@ var/quote = ascii2text(34)
 		else if(copytext(input, inputlength, inputlength + 1) == "s") //If the second-to-last letter isn't "e", and the last letter is "s", remove the "s".
 			input = copytext(input, 1, inputlength)	//"gets" becomes "get"
 	return input + fromspace
+
+/proc/get_indefinite_article(input, gender = NEUTER)
+	if (!input)
+		return
+	if (gender == PLURAL)
+		return "some"
+	else
+		var/first = copytext(input, 1, 2)
+		var/upperfirst = uppertext(first)
+		if (first == upperfirst || findtext("AEIOU", upperfirst))
+			return "an"
+		else
+			return "a"

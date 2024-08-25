@@ -4,6 +4,7 @@
 	icon_state = "gas_alt"
 	clothing_flags = BLOCK_GAS_SMOKE_EFFECT | MASKINTERNALS
 	w_class = W_CLASS_MEDIUM
+	w_type = RECYK_PLASTIC
 	can_flip = 1
 	item_state = "gas_alt"
 	gas_transfer_coefficient = 0.01
@@ -12,7 +13,6 @@
 	species_fit = list(VOX_SHAPED, GREY_SHAPED, INSECT_SHAPED)
 	body_parts_covered = FACE
 	pressure_resistance = ONE_ATMOSPHERE
-	autoignition_temperature = AUTOIGNITION_PLASTIC
 	var/canstage = 1
 	var/stage = 0
 
@@ -104,6 +104,7 @@
 	actions_types = list(/datum/action/item_action/toggle_mask, /datum/action/item_action/change_appearance_mask, /datum/action/item_action/toggle_voicechanger,)
 	species_fit = list(VOX_SHAPED, GREY_SHAPED,INSECT_SHAPED)
 	permeability_coefficient = 0.90
+	blocks_tracking = TRUE
 	var/static/list/clothing_choices
 
 /obj/item/clothing/mask/gas/voice/New()
@@ -172,7 +173,7 @@
 	icon_state = "fake-moustache"
 	w_class = W_CLASS_TINY
 	actions_types = list(/datum/action/item_action/toggle_voicechanger)
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(VOX_SHAPED, INSECT_SHAPED)
 
 /obj/item/clothing/mask/gas/clown_hat
 	name = "clown wig and mask"
@@ -344,7 +345,7 @@
 	name = "HECU gas mask"
 	desc = "An ancient gas mask with the letters HECU stamped on the side. Comes with a shouting-activated voice modulator that slowly recharges."
 	icon_state = "hecu"
-	species_fit = list(INSECT_SHAPED)
+	species_fit = list(VOX_SHAPED, INSECT_SHAPED)
 	can_flip = 0
 	canstage = 0
 	ignore_flip = 1
@@ -443,3 +444,11 @@
 	if(slot == slot_wear_mask)
 		on_face = 0
 	..()
+
+/obj/item/clothing/mask/gas/scubamask
+	name = "scuba mask"
+	desc = "SCUBA mask used to breathe underwater."
+	icon_state = "scubamask"
+	species_fit = list(VOX_SHAPED, GREY_SHAPED, INSECT_SHAPED)
+	can_flip = 0
+	canstage = 0

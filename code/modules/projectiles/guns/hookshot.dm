@@ -208,7 +208,7 @@
 			break
 		var/turf/oldLoc = firer.loc
 		var/bckp = firer.pass_flags
-		firer.pass_flags = PASSTABLE
+		firer.pass_flags = PASSTABLE | PASSRAILING
 		firer.Move(HC.loc,get_dir(firer,HC.loc))
 		firer.pass_flags = bckp
 		if(firer.loc == oldLoc)//we're bumping into something, abort!
@@ -347,7 +347,6 @@
 	for(var/atom/movable/extremity in list(extremity_A,extremity_B))
 		if(extremity && (loc != extremity.loc))
 			var/image/chain_img = image(icon,src,"[overlay_name]",dir=get_dir(src,extremity))
-			chain_img.plane = OBJ_PLANE
 			overlays += chain_img
 
 /obj/effect/overlay/chain/proc/update_overlays(var/obj/effect/overlay/chain/C)
@@ -430,7 +429,7 @@
 				CH.tether_pull = 1
 				var/pass_backup = CH.pass_flags
 				if(chain_datum.rewinding && (istype(CH,/mob/living) || istype(CH,/obj/item)))
-					CH.pass_flags = PASSTABLE//mobs can be pulled above tables
+					CH.pass_flags = PASSTABLE | PASSRAILING //mobs can be pulled above tables and railings
 				CH.Move(R, get_dir(CH, R))
 				CH.pass_flags = pass_backup
 				CH.tether_pull = 0

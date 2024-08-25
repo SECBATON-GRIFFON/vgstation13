@@ -25,11 +25,7 @@
 	M.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been attacked with [src.name] by [user.name] ([user.ckey])</font>")
 	user.attack_log += text("\[[time_stamp()]\] <font color='red'>Used the [src.name] to attack [M.name] ([M.ckey])</font>")
 
-	if(!iscarbon(user))
-		M.LAssailant = null
-	else
-		M.LAssailant = user
-		M.assaulted_by(user)
+	M.assaulted_by(user)
 
 	msg_admin_attack("[user.name] ([user.ckey]) attacked [M.name] ([M.ckey]) with [src.name] (INTENT: [uppertext(user.a_intent)]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)")
 
@@ -324,7 +320,7 @@
 	name = "rewind rifle"
 	desc = "The incarnation of looping in gun form. The shooting mechanism has been replaced with looping machinery and will only fire when the Loop happens."
 	icon = 'icons/obj/gun.dmi'
-	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/guninhands_left.dmi', "right_hand" = 'icons/mob/in-hand/right/guninhands_right.dmi')	
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/guninhands_left.dmi', "right_hand" = 'icons/mob/in-hand/right/guninhands_right.dmi')
 	icon_state = "xcomlasergun"
 	item_state = "xcomlasergun"
 	w_class = W_CLASS_MEDIUM
@@ -367,11 +363,11 @@
 		recruiter.jobban_roles = list("pAI") // pAI/Borers share the same jobban check so here we go too.
 
 	// Role set to Yes or Always
-	recruiter.player_volunteering = new /callback(src, .proc/recruiter_recruiting)
+	recruiter.player_volunteering = new /callback(src, nameof(src::recruiter_recruiting()))
 	// Role set to No or Never
-	recruiter.player_not_volunteering = new /callback(src, .proc/recruiter_not_recruiting)
+	recruiter.player_not_volunteering = new /callback(src, nameof(src::recruiter_not_recruiting()))
 
-	recruiter.recruited = new /callback(src, .proc/recruiter_recruited)
+	recruiter.recruited = new /callback(src, nameof(src::recruiter_recruited()))
 
 	recruiter.request_player()
 
@@ -385,8 +381,7 @@
 /obj/item/weapon/nullrod/sword/chaos/proc/recruiter_recruited(mob/dead/observer/player)
 	if(player)
 		possessed = TRUE
-		qdel(recruiter)
-		recruiter = null
+		QDEL_NULL(recruiter)
 		awakening = FALSE
 		visible_message("<span class='notice'>\The [name] awakens!</span>")
 		var/mob/living/simple_animal/shade/sword/S = new(src)
@@ -415,8 +410,7 @@
 		to_chat(S, "You were destroyed!")
 		qdel(S)
 	if(recruiter)
-		qdel(recruiter)
-		recruiter = null
+		QDEL_NULL(recruiter)
 	..()
 
 /obj/item/weapon/nullrod/sword/chaos/attack_ghost(var/mob/dead/observer/O)

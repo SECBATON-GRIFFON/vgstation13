@@ -1,3 +1,72 @@
+
+/obj/item/stack/tile
+	icon = 'icons/obj/tiles.dmi'
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/sheets_n_ores.dmi', "right_hand" = 'icons/mob/in-hand/right/sheets_n_ores.dmi')
+	var/material
+	var/datum/paint_overlay/paint_overlay = null
+	var/list/stacked_paint = list()
+
+/obj/item/stack/tile/transfer_data_from(var/obj/item/stack/tile/S, var/amount)
+	while(amount > 0)
+		if (!S.paint_overlay)
+			return
+		if (!paint_overlay)
+			paint_overlay = S.paint_overlay
+			S.paint_overlay = null
+			if (S.stacked_paint.len > 0)
+				var/datum/paint_overlay/paint = S.stacked_paint[1]
+				S.stacked_paint -= paint
+				S.paint_overlay = paint
+		else
+			stacked_paint += S.paint_overlay
+			S.paint_overlay = null
+			if (S.stacked_paint.len > 0)
+				var/datum/paint_overlay/paint = S.stacked_paint[1]
+				S.stacked_paint -= paint
+				S.paint_overlay = paint
+		amount--
+
+/obj/item/stack/tile/update_icon()
+	overlays.len = 0
+	if (paint_overlay && paint_overlay.sub_overlays.len > 0)
+		var/image/O = pick(paint_overlay.sub_overlays)
+		var/image/I = image('icons/obj/tiles.dmi',src,"tile-paint")
+		I.color = O.color
+		overlays += I
+
+/obj/item/stack/tile/proc/adjust_slowdown(mob/living/L, current_slowdown)
+	return current_slowdown
+
+/obj/item/stack/tile/ex_act(severity)
+	switch(severity)
+		if(1.0)
+			qdel(src)
+			return
+		if(2.0)
+			if (prob(50))
+				qdel(src)
+				return
+		if(3.0)
+			if (prob(5))
+				qdel(src)
+				return
+		else
+	return
+
+/obj/item/stack/tile/blob_act()
+	qdel(src)
+
+/obj/item/stack/tile/singularity_act()
+	qdel(src)
+	return 2
+
+/obj/item/stack/tile/clean_act(var/cleanliness)
+	..()
+	if (cleanliness >= CLEANLINESS_BLEACH)
+		paint_overlay = null
+		stacked_paint.len = 0
+		update_icon()
+
 /obj/item/stack/tile/metal
 	name = "floor tile"
 	singular_name = "floor tile"
@@ -25,8 +94,7 @@
 /obj/item/stack/tile/metal/Destroy()
 	..()
 	if(active)
-		qdel(active)
-		active = null
+		QDEL_NULL(active)
 
 /obj/item/stack/tile/metal/attack_self(mob/user)
 	if(!active) //Start click drag construction
@@ -39,14 +107,18 @@
 /obj/item/stack/tile/metal/can_drag_use(mob/user, turf/T)
 	if(user.Adjacent(T)) //can we place here
 		var/canbuild = T.canBuildPlating()
-		if(canbuild == BUILD_SUCCESS || canbuild == BUILD_IGNORE)
+		if(canbuild == BUILD_SUCCESS || canbuild == BUILD_IGNORE || T.canBuildFloortile(src.type))
 			if(use(1)) //place and use rod
 				return 1
 			else
-				qdel(active) //otherwise remove the draggable screen
-				active = null
+				QDEL_NULL(active) //otherwise remove the draggable screen
 
 /obj/item/stack/tile/metal/drag_use(mob/user, turf/T)
+	if(T.canBuildFloortile(src.type) && istype(T,/turf/simulated/floor))
+		var/turf/simulated/floor/F = T
+		F.make_tiled_floor(src)
+		playsound(T, 'sound/weapons/Genhit.ogg', 25, 1)
+		return
 	if(T.canBuildPlating() == BUILD_SUCCESS) //This deletes lattices, only necessary for BUILD_SUCCESS
 		var/L = locate(/obj/structure/lattice) in T
 		if(!L)
@@ -61,8 +133,7 @@
 /obj/item/stack/tile/metal/dropped()
 	..()
 	if(active)
-		qdel(active)
-		active = null
+		QDEL_NULL(active)
 
 /obj/item/stack/tile/metal/proc/build(turf/S as turf)
 	if(S.air)
@@ -119,7 +190,7 @@
 					return
 
 
-/obj/item/stack/glass_tile/rglass/afterattack(atom/target, mob/user, adjacent, params)
+/obj/item/stack/tile/rglass/afterattack(atom/target, mob/user, adjacent, params)
 	if(adjacent)
 		if(isturf(target) || istype(target, /obj/structure/lattice))
 			var/turf/T = get_turf(target)
@@ -129,14 +200,14 @@
 					build(T)
 					use(1)
 
-/obj/item/stack/glass_tile/rglass
+/obj/item/stack/tile/rglass
 	name = "glass tile"
 	singular_name = "tile"
 	desc = "A relatively clear reinforced glass tile."
 	icon_state = "tile_rglass"
 	max_amount = 60
 
-/obj/item/stack/glass_tile/rglass/proc/build(turf/S as turf)
+/obj/item/stack/tile/rglass/proc/build(turf/S as turf)
 	var/obj/structure/lattice/L = S.canBuildCatwalk(src)
 	if(istype(L))
 		playsound(src, 'sound/weapons/Genhit.ogg', 50, 1)
@@ -150,13 +221,13 @@
 
 
 
-/obj/item/stack/glass_tile/rglass/plasma
+/obj/item/stack/tile/rglass/plasma
 	name = "plasma glass tile"
 	singular_name = "tile"
 	desc = "A relatively clear reinforced plasma glass tile."
 	icon_state = "tile_plasmarglass"
 
-/obj/item/stack/glass_tile/rglass/plasma/build(turf/S as turf)
+/obj/item/stack/tile/rglass/plasma/build(turf/S as turf)
 	var/obj/structure/lattice/L = S.canBuildCatwalk(src)
 	if(istype(L))
 		playsound(src, 'sound/weapons/Genhit.ogg', 50, 1)

@@ -35,8 +35,7 @@
 	if(owner)
 		Remove(owner)
 	target = null
-	qdel(button)
-	button = null
+	QDEL_NULL(button)
 	return ..()
 
 /datum/action/proc/Grant(mob/M)
@@ -245,3 +244,21 @@
 		R.toggle_light(owner)
 		return TRUE
 	return FALSE
+
+/datum/action/item_action/toggle_meson_scanner //Only used for the CE contacts, so it's named separately
+	name = "Toggle meson scanner"
+	icon_icon = 'icons/obj/clothing/glasses.dmi'
+	button_icon_state = "meson"
+
+/datum/action/item_action/alt/Trigger()
+	if(!IsAvailable())
+		return FALSE
+	if(target)
+		var/obj/item/I = target
+		I.AltClick(owner)
+	return TRUE
+
+/datum/action/item_action/alt/toggle_material_scanner
+	name = "Toggle material scanner"
+	icon_icon = 'icons/obj/clothing/glasses.dmi'
+	button_icon_state = "material"
