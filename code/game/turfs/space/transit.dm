@@ -78,11 +78,11 @@
 			var/ccw = counterclockwise_perpendicular_dirs[spritedirection]
 			var/cw = clockwise_perpendicular_dirs(spritedirection)
 			var/list/dirstocheck = list(ccw = 0,cw = 0)
-			var/turf/check
+			var/turf/space/transit/check
 			var/turf/space/transit/sideturfnearus
 			for(var/direction in dirstocheck)
-				for(check = get_step(src, spritedirection); !istype(check,/turf/space/transit) || !is_blocked_turf(check); check = get_step(check,direction))
-					if(!check)
+				for(check = get_step(src, spritedirection); check.type == /turf/space || !is_blocked_turf(check); check = get_step(check,direction))
+					if(!check || (istype(check) && check.spritedirection != src.spritedirection))
 						break
 					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
 					if(!istype(sideturfnearus) || sideturfnearus.spritedirection != src.spritedirection || is_blocked_turf(sideturfnearus))
