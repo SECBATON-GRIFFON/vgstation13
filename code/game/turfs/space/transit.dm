@@ -56,7 +56,7 @@
 
 //Overwrite because we dont want people building rods in space.
 /turf/space/transit/attackby(obj/O as obj, mob/user as mob)
-	return
+	return forbids_building ? 0 : ..()
 
 /turf/space/transit/canBuildCatwalk()
 	return forbids_building ? BUILD_FAILURE : ..()
@@ -74,15 +74,15 @@
 	if(!A.locked_to && !A.throwing)
 		if(!is_blocked_turf(get_step(src, spritedirection)))
 			A.throw_at(get_edge_target_turf(src, spritedirection), 3, 3)
-		else // possible behavior for being on the side, uncomment if you can get this working better
+		else
 			var/ccw = counterclockwise_perpendicular_dirs[spritedirection]
 			var/cw = clockwise_perpendicular_dirs(spritedirection)
 			var/list/dirstocheck = list(ccw = 0,cw = 0)
 			var/turf/space/transit/check
 			var/turf/space/transit/sideturfnearus
 			for(var/direction in dirstocheck)
-				for(check = get_step(src, spritedirection); check.type == /turf/space || !is_blocked_turf(check); check = get_step(check,direction))
-					if(!check || (istype(check) && check.spritedirection != src.spritedirection))
+				for(check = get_step(src, spritedirection); !check || check.type == /turf/space || !is_blocked_turf(check); check = get_step(check,direction))
+					if(istype(check) && check.spritedirection != src.spritedirection)
 						break
 					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
 					if(!istype(sideturfnearus) || sideturfnearus.spritedirection != src.spritedirection || is_blocked_turf(sideturfnearus))
