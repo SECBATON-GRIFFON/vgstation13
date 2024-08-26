@@ -69,7 +69,7 @@
 
 /turf/space/transit/Entered(atom/movable/A, atom/OL)
 	..()
-	if(!throws || !istype(A) || isobserver(A) || istype(A, /obj/effect/beam))
+	if(!throws || !istype(A) || isobserver(A) || istype(A, /obj/effect/beam) || istype(A, /obj/structure/shuttle))
 		return
 	if(!A.locked_to && !A.throwing)
 		var/turf/check = get_step(src, spritedirection)
@@ -79,8 +79,8 @@
 			var/list/dirstocheck = list(counterclockwise_perpendicular_dirs[spritedirection] = 0,clockwise_perpendicular_dirs(spritedirection) = 0)
 			var/turf/sideturfnearus
 			for(var/direction in dirstocheck)
-				for(check = get_step(src, opposite_dirs[spritedirection]); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,direction))
-					sideturfnearus = get_step(check,spritedirection)
+				for(check = get_step(src, spritedirection); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,direction))
+					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
 					if(!sideturfnearus.Cross(A) || !sideturfnearus.Cross(null,check))
 						dirstocheck[direction] = 0
 						break
