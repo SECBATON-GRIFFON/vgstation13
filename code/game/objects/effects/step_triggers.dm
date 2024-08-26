@@ -157,3 +157,14 @@
 	..()
 	teleport_x_offset = world.maxx - 25
 	teleport_y_offset = world.maxy - 25
+
+
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old
+	name = "escapeshuttle_leave"
+	affect_ghosts = 1
+	teleport_x = 25
+	teleport_y = 25
+	teleport_z = 6
+	teleport_x_offset = 245
+	teleport_y_offset = 245
+	teleport_z_offset = 6

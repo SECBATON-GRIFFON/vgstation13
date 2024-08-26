@@ -42297,32 +42297,14 @@
 	},
 /area/hallway/primary/aft)
 "cTM" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/north,
 /area)
 "cTN" = (
 /turf/space/transit/east,
 /area)
 "cTO" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/east,
 /area)
 "cTQ" = (
@@ -42477,16 +42459,7 @@
 /turf/space/transit/east,
 /area)
 "cUO" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/west,
 /area)
 "cUP" = (
@@ -43956,26 +43929,8 @@
 /turf/space/transit/east,
 /area)
 "daq" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/west,
 /area)
 "dar" = (
@@ -44005,39 +43960,12 @@
 	},
 /area/security/prison)
 "das" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/south,
 /area)
 "dat" = (
-/obj/effect/step_trigger/teleporter/random{
-	affect_ghosts = 1;
-	name = "escapeshuttle_leave";
-	teleport_x = 25;
-	teleport_x_offset = 245;
-	teleport_y = 25;
-	teleport_y_offset = 245;
-	teleport_z = 6;
-	teleport_z_offset = 6
-	},
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old,
 /turf/space/transit/south,
 /area)
 "dau" = (
