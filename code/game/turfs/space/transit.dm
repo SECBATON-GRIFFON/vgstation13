@@ -72,10 +72,10 @@
 	if(!throws || !istype(A) || isobserver(A) || istype(A, /obj/effect/beam))
 		return
 	if(!A.locked_to && !A.throwing)
-		var/turf/check = get_step(src, opposite_dirs[spritedirection])
+		var/turf/check = get_step(src, spritedirection)
 		if(check.Cross(null,check) && check.Cross(A))
-			A.throw_at(get_edge_target_turf(src, opposite_dirs[spritedirection]), 3, 3)
-		/*else // possible behavior for being on the side, uncomment if you can get this working better
+			A.throw_at(get_edge_target_turf(src, spritedirection), 3, 3)
+		else // possible behavior for being on the side, uncomment if you can get this working better
 			var/list/dirstocheck = list(counterclockwise_perpendicular_dirs[spritedirection] = 0,clockwise_perpendicular_dirs(spritedirection) = 0)
 			var/turf/sideturfnearus
 			for(var/direction in dirstocheck)
@@ -95,7 +95,7 @@
 					tostep = pick(dirstocheck)
 				sleep(1)
 				if(A in src)
-					step(A,tostep)*/
+					step(A,tostep)
 
 /turf/space/transit/north // moving to the north
 
