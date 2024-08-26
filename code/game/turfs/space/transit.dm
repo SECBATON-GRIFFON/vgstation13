@@ -87,11 +87,11 @@
 						dirstocheck[direction] = 0
 						break
 					dirstocheck[direction]++
-			if(dirstocheck[ccw] || dirstocheck[cw])
+			if(dirstocheck[dirstocheck[1]] || dirstocheck[dirstocheck[2]])
 				var/tostep
-				if(dirstocheck[ccw] > dirstocheck[cw])
+				if(dirstocheck[dirstocheck[1]] > dirstocheck[dirstocheck[2]])
 					tostep = cw
-				else if(dirstocheck[ccw] < dirstocheck[cw])
+				else if(dirstocheck[dirstocheck[1]] < dirstocheck[dirstocheck[2]])
 					tostep = ccw
 				else
 					tostep = pick(dirstocheck)
