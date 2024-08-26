@@ -95,7 +95,7 @@
 					tostep = counterclockwise_perpendicular_dirs[spritedirection]
 				else
 					tostep = pick(counterclockwise_perpendicular_dirs[spritedirection],clockwise_perpendicular_dirs(spritedirection))
-				A.throw_at(get_edge_target_turf(src, tostep), 3, 3)
+				A.throw_at(get_edge_target_turf(src, tostep), 1, 1)
 
 /turf/space/transit/north // moving to the north
 
