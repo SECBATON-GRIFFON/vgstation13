@@ -81,7 +81,7 @@
 			var/indx = 0
 			for(var/direction in list(counterclockwise_perpendicular_dirs[spritedirection],clockwise_perpendicular_dirs(spritedirection)))
 				indx++
-				for(check = get_step(src, spritedirection|direction); is_blocked_turf(check); check = get_step(check,direction))
+				for(check = get_step(src, spritedirection); is_blocked_turf(check); check = get_step(check,direction))
 					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
 					if(is_blocked_turf(sideturfnearus,A))
 						dirvalues[indx] = 0
