@@ -73,7 +73,7 @@
 		return
 	if(!A.locked_to && !A.throwing)
 		var/turf/check = get_step(src, spritedirection)
-		if(check.Cross(null,check) && check.Cross(A))
+		if(!is_blocked_turf(check))
 			A.throw_at(get_edge_target_turf(src, spritedirection), 3, 3)
 		else // possible behavior for being on the side, uncomment if you can get this working better
 			var/ccw = counterclockwise_perpendicular_dirs[spritedirection]
@@ -82,9 +82,12 @@
 			var/turf/space/transit/sideturfnearus
 			for(var/direction in dirstocheck)
 				for(check = get_step(src, spritedirection); !istype(check,/turf/space/transit) || is_blocked_turf(check); check = get_step(check,direction))
+					if(!check)
+						break
 					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
-					if(!istype(sideturfnearus) || sideturfnearus.spritedirection != src.spritedirection || is_blocked_turf(sideturfnearus))
-						dirstocheck[direction] = 0
+					if(!istype(sideturfnearus) || sideturfnearus.spritedirection != src.spritedirection)
+						if(is_blocked_turf(sideturfnearus))
+							dirstocheck[direction] = 0
 						break
 					dirstocheck[direction]++
 			if(dirstocheck[dirstocheck[1]] || dirstocheck[dirstocheck[2]])
