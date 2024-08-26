@@ -76,7 +76,9 @@
 		if(check.Cross(null,check) && check.Cross(A))
 			A.throw_at(get_edge_target_turf(src, spritedirection), 3, 3)
 		else // possible behavior for being on the side, uncomment if you can get this working better
-			var/list/dirstocheck = list(counterclockwise_perpendicular_dirs[spritedirection] = 0,clockwise_perpendicular_dirs(spritedirection) = 0)
+			var/ccw = counterclockwise_perpendicular_dirs[spritedirection]
+			var/cw = clockwise_perpendicular_dirs(spritedirection)
+			var/list/dirstocheck = list(ccw = 0,cw = 0)
 			var/turf/sideturfnearus
 			for(var/direction in dirstocheck)
 				for(check = get_step(src, spritedirection); !check.Cross(null,check) && !check.Cross(A); check = get_step(check,direction))
@@ -85,12 +87,12 @@
 						dirstocheck[direction] = 0
 						break
 					dirstocheck[direction]++
-			if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] || dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
+			if(dirstocheck[ccw] || dirstocheck[cw])
 				var/tostep
-				if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] > dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
-					tostep = clockwise_perpendicular_dirs(spritedirection)
-				else if(dirstocheck[counterclockwise_perpendicular_dirs[spritedirection]] < dirstocheck[clockwise_perpendicular_dirs(spritedirection)])
-					tostep = counterclockwise_perpendicular_dirs[spritedirection]
+				if(dirstocheck[ccw] > dirstocheck[cw])
+					tostep = cw
+				else if(dirstocheck[ccw] < dirstocheck[cw])
+					tostep = ccw
 				else
 					tostep = pick(dirstocheck)
 				sleep(1)
