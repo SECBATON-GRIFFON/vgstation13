@@ -69,35 +69,32 @@
 
 /turf/space/transit/Entered(atom/movable/A, atom/OL)
 	..()
-	if(!throws || !istype(A) || isobserver(A) || istype(A, /obj/effect/beam) || istype(A, /obj/structure/shuttle))
+	if(!spritedirection || !throws || !istype(A) || isobserver(A) || istype(A, /obj/effect/beam) || istype(A, /obj/structure/shuttle))
 		return
 	if(!A.locked_to && !A.throwing)
 		if(!is_blocked_turf(get_step(src, spritedirection)))
 			A.throw_at(get_edge_target_turf(src, spritedirection), 3, 3)
 		else
-			var/ccw = counterclockwise_perpendicular_dirs[spritedirection]
-			var/cw = clockwise_perpendicular_dirs(spritedirection)
-			var/list/dirstocheck = list(ccw = 0,cw = 0)
-			var/turf/space/transit/check
-			var/turf/space/transit/sideturfnearus
-			for(var/direction in dirstocheck)
-				for(check = get_step(src, spritedirection); !check || check.type == /turf/space || !is_blocked_turf(check); check = get_step(check,direction))
-					if(istype(check) && check.spritedirection != src.spritedirection)
-						break
+			var/list/dirvalues = list(0,0)
+			var/turf/check
+			var/turf/sideturfnearus
+			var/indx = 0
+			for(var/direction in list(counterclockwise_perpendicular_dirs[spritedirection],clockwise_perpendicular_dirs(spritedirection)))
+				indx++
+				for(check = get_step(src, spritedirection|direction); is_blocked_turf(check); check = get_step(check,direction))
 					sideturfnearus = get_step(check,opposite_dirs[spritedirection])
-					if(!istype(sideturfnearus) || sideturfnearus.spritedirection != src.spritedirection || is_blocked_turf(sideturfnearus))
-						if(is_blocked_turf(sideturfnearus))
-							dirstocheck[direction] = 0
+					if(is_blocked_turf(sideturfnearus,A))
+						dirvalues[indx] = 0
 						break
-					dirstocheck[direction]++
-			if(dirstocheck[dirstocheck[1]] || dirstocheck[dirstocheck[2]])
+					dirvalues[indx]++
+			if(dirvalues[1] || dirvalues[2])
 				var/tostep
-				if(dirstocheck[dirstocheck[1]] > dirstocheck[dirstocheck[2]])
-					tostep = cw
-				else if(dirstocheck[dirstocheck[1]] < dirstocheck[dirstocheck[2]])
-					tostep = ccw
+				if(dirvalues[1] > dirvalues[2])
+					tostep = clockwise_perpendicular_dirs(spritedirection)
+				if(dirvalues[1] < dirvalues[2])
+					tostep = counterclockwise_perpendicular_dirs[spritedirection]
 				else
-					tostep = pick(dirstocheck)
+					tostep = pick(counterclockwise_perpendicular_dirs[spritedirection],clockwise_perpendicular_dirs(spritedirection))
 				sleep(1)
 				if(A in src)
 					step(A,tostep)
