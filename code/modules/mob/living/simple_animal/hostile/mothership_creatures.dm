@@ -71,6 +71,67 @@
 		if (2)
 			adjustBruteLoss(10)
 
+/mob/living/simple_animal/hostile/mothership_saucerdrone/remote
+	maxHealth = 60 // Less fragile
+	health = 60
+	stop_automated_movement = TRUE
+	var/mob/originalmob
+
+/mob/living/simple_animal/hostile/mothership_saucerdrone/remote/is_pacified(message, target, weapon)
+	return !key || ..()
+
+/mob/living/simple_animal/hostile/mothership_saucerdrone/remote/New()
+	. = ..()
+	var/datum/action/drone_original_mob/DOM = new(src)
+	DOM.Grant(src)
+
+/datum/action/drone_original_mob
+	name = "Return control"
+	desc = "Stop controlling this drone"
+	icon_icon = 'icons/mob/animal.dmi'
+	button_icon_state = "minidrone"
+
+/datum/action/drone_original_mob/Trigger()
+	if(istype(owner,/mob/living/simple_animal/hostile/mothership_saucerdrone/remote))
+		var/mob/living/simple_animal/hostile/mothership_saucerdrone/remote/R = owner
+		R.originalmob?.key = R.key
+
+/obj/item/device/dronecontroller
+	name = "\improper Saucer Drone Controller"
+	desc = "The tiny interceptor, when you need one."
+	icon = 'icons/mob/animal.dmi'
+	icon_state = "minidrone"
+	var/mob/controller = null
+	var/mob/living/simple_animal/hostile/mothership_saucerdrone/remote/drone = null
+	var/keybackup
+	var/deployed = FALSE
+
+/obj/item/device/dronecontroller/attack_self()
+	. = ..()
+	if(!drone && deployed)
+		return .
+	reset_view()
+	if(!controller)
+		var/mob/M = get_holder_of_type(src, /mob)
+		if(M)
+			controller = M
+	keybackup = controller.key
+	if(!drone && !deployed)
+		var/mob/living/simple_animal/hostile/mothership_saucerdrone/remote/R = new(get_step(controller,controller.dir))
+		drone = R
+		deployed = TRUE
+	drone.key = keybackup
+	drone.originalmob = controller
+	drone.register_event(/event/destroyed, src, nameof(src::reset_view()))
+
+/obj/item/device/dronecontroller/Destroy()
+	reset_view()
+	. = ..()
+
+/obj/item/device/dronecontroller/proc/reset_view(thing)
+	drone.unregister_event(/event/destroyed, src, nameof(src::reset_view()))
+	controller.key = keybackup
+
 ///////////////////////////////////////////////////////////////////HOVERDISC DRONE///////////
 // An armored robotic enemy meant to support grey soldiers in combat. It will usually stay back, using its detection range to its advantage while firing high-damage laser blasts from afar
 /mob/living/simple_animal/hostile/mothership_hoverdisc

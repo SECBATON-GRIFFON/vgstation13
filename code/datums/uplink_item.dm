@@ -642,6 +642,14 @@ var/list/discounted_items_of_the_round = list()
 	discounted_cost = 4
 	jobs_with_discount = list("Grey")
 
+/datum/uplink_item/ayylmao/sdrone_remote
+	name = "Remote Controlled Saucer Drone"
+	desc = "A durable drone equipped with a small cannon capable of firing scorch bolts, controlled by a remote."
+	item = /obj/item/device/dronecontroller
+	cost = 6
+	discounted_cost = 4
+	jobs_with_discount = list("Grey")
+
 // IMPLANTS
 // Any Syndicate item that gets implanted into the body goes here
 
