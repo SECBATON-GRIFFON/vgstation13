@@ -133,16 +133,18 @@
 
 /obj/effect/step_trigger/teleporter/random/Trigger(var/atom/movable/A)
 	if(!istype(A) || isobserver(A))
-		return
+		return FALSE
 	if(istype(A,/obj/item/projectile/fire_breath/shuttle_exhaust))
 		qdel(A)
-		return
+		return FALSE
 	if(teleport_x && teleport_y && teleport_z)
 		if(teleport_x_offset && teleport_y_offset && teleport_z_offset)
 
 			A.x = rand(teleport_x, teleport_x_offset)
 			A.y = rand(teleport_y, teleport_y_offset)
 			A.z = rand(teleport_z, teleport_z_offset)
+			return TRUE
+	return FALSE
 
 /obj/effect/step_trigger/teleporter/random/shuttle_transit
 	teleport_x = 25
@@ -158,7 +160,6 @@
 	teleport_x_offset = world.maxx - 25
 	teleport_y_offset = world.maxy - 25
 
-
 /obj/effect/step_trigger/teleporter/random/shuttle_transit_old
 	name = "escapeshuttle_leave"
 	affect_ghosts = 1
@@ -168,3 +169,9 @@
 	teleport_x_offset = 245
 	teleport_y_offset = 245
 	teleport_z_offset = 6
+
+/obj/effect/step_trigger/teleporter/random/shuttle_transit_old/Trigger(var/atom/movable/A)
+	. = ..()
+	if(.)
+		A.throwing = 0
+		A.kinetic_acceleration = 0
