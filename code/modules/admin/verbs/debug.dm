@@ -893,6 +893,51 @@ var/global/blood_virus_spreading_disabled = 0
 	log_admin("[ckey(key)]/([mob]) has toggled [M]'s invulnerability [(M.flags & INVULNERABLE) ? "on" : "off"]")
 	message_admins("[ckey(key)]/([mob]) has toggled [M]'s invulnerability [(M.flags & INVULNERABLE) ? "on" : "off"]")
 
+/mob
+	var/incorporeal_speed = 4
+
+/client/proc/noclip(var/mob/M in mob_list)
+	set name = "Toggle Noclip"
+	set desc = "Make the target able to pass through walls without speed limits."
+	set category = "Fun"
+
+	var/thingwarning
+	if(M.incorporeal_move && isobserver(M))
+		thingwarning = "a ghost"
+	else if(M.incorporeal_move > INCORPOREAL_GHOST)
+		thingwarning = "someone jaunting"
+	if(alert(usr, "[M.incorporeal_move ? "Dis" : "En"]able noclip on the target atom? [thingwarning ? "You are doing this to [thingwarning], you know. This will make them bump into walls and whatever else. Funny as it may be, prepare for unforseen consequences." : ""]", "Toggle Noclip", "Yes", "No") != "Yes")
+		return
+
+	var/oldstat = M.incorporeal_move
+	M.incorporeal_move = !M.incorporeal_move
+	if(oldstat <= 1 && !isobserver(M)) // slowing down these guys would just create way too many code headaches
+		if(M.incorporeal_move)
+			M.incorporeal_speed = input("Set a speed multiplier to go at.","Noclip speed",1) as num
+			M.movement_speed_modifier *= M.incorporeal_speed
+		else
+			M.movement_speed_modifier /= M.incorporeal_speed
+
+	log_admin("[ckey(key)]/([mob]) has toggled [M]'s noclip [(M.incorporeal_move) ? "on" : "off"]")
+	message_admins("[ckey(key)]/([mob]) has toggled [M]'s noclip [(M.incorporeal_move) ? "on" : "off"]")
+
+	
+/client/proc/spawnallgunz(var/mob/M in mob_list)
+	set name = "Impulse 101"
+	set desc = "Gives the target every gun in the game."
+	set category = "Fun"
+
+	if(alert(usr, "This gives you every gun in the game, you sure about this?", "More Dakka", "Yes", "No") != "Yes")
+		return
+
+	for(var/path in subtypesof(/obj/item/weapon/gun))
+		new path(get_turf(M))
+
+	playsound(M,'sound/effects/summon_guns.ogg', 50, 1)
+
+	log_admin("[ckey(key)]/([mob]) has SPAWNED EVERY FREAKING GUN IN THE GAME AT HIS FEET")
+	message_admins("[ckey(key)]/([mob]) has SPAWNED EVERY FREAKING GUN IN THE GAME AT HIS FEET")
+
 /client/proc/delete_all_adminbus()
 	set name = "Delete every Adminbus"
 	set desc = "When the world cannot handle them anymore."
