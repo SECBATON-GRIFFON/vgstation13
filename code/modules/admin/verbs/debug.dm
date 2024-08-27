@@ -912,7 +912,7 @@ var/global/blood_virus_spreading_disabled = 0
 	var/oldstat = M.incorporeal_move
 	M.incorporeal_move = !M.incorporeal_move
 	if(isobserver(M))
-		canmove = !canmove // sure, why not
+		M.canmove = !M.canmove // sure, why not
 	if(oldstat <= 1 && !isobserver(M)) // slowing down these guys would just create way too many code headaches
 		if(M.incorporeal_move)
 			M.incorporeal_speed = input("Set a speed multiplier to go at.","Noclip speed",1) as num
