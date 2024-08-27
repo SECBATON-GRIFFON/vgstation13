@@ -933,7 +933,8 @@ var/global/blood_virus_spreading_disabled = 0
 		return
 
 	for(var/path in subtypesof(/obj/item/weapon/gun))
-		new path(get_turf(M))
+		var/atom/movable/gun = new path(get_turf(M))
+		step(gun, rand(0,15))
 
 	playsound(M,'sound/effects/summon_guns.ogg', 50, 1)
 
