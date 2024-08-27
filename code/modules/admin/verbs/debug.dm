@@ -913,6 +913,7 @@ var/global/blood_virus_spreading_disabled = 0
 	M.incorporeal_move = !M.incorporeal_move
 	if(isobserver(M))
 		M.canmove = !M.canmove // sure, why not
+		M.anchored = !M.anchored
 	if(oldstat <= 1 && !isobserver(M)) // slowing down these guys would just create way too many code headaches
 		if(M.incorporeal_move)
 			M.incorporeal_speed = input("Set a speed multiplier to go at.","Noclip speed",1) as num
@@ -934,7 +935,7 @@ var/global/blood_virus_spreading_disabled = 0
 
 	for(var/path in subtypesof(/obj/item/weapon/gun))
 		var/atom/movable/gun = new path(get_turf(M))
-		step(gun, rand(0,15))
+		step(gun, pick(0,1,2,4,5,6,8,9,10))
 
 	playsound(M,'sound/effects/summon_guns.ogg', 50, 1)
 
