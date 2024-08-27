@@ -193,6 +193,8 @@ var/list/admin_verbs_debug = list(
 	/client/proc/debug_reagents,
 	/client/proc/create_awaymission,
 	/client/proc/make_invulnerable,
+	/client/proc/noclip,
+	/client/proc/spawnallgunz,
 	/client/proc/send_to_heck,
 	/client/proc/cmd_admin_dump_delprofile,
 	/client/proc/mob_list,
