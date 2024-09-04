@@ -5,6 +5,13 @@
 	var/mob/living/carbon/C = src
 	var/obj/item/I = C.get_active_hand()
 	if(!I)
+		var/static/list/unholster_priority = list(slot_w_uniform,slot_shoes)
+		for(var/slot in unholster_priority)
+			var/obj/item/clothing/L = get_item_by_slot(slot)
+			if(L?.accessories?.len)
+				for(var/obj/item/clothing/accessory/holster/H in L.accessories)
+					if(H.unholster(C))
+						return
 		to_chat(C, "<span class='notice'>You are not holding anything to equip.</span>")
 		return
 	if(C.equip_to_appropriate_slot(I))

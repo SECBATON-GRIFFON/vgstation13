@@ -34,19 +34,20 @@
 
 /obj/item/clothing/accessory/holster/proc/unholster(mob/user as mob)
 	if(!holstered)
-		return
+		return FALSE
 
 	if(user.stat || user.resting)
 		to_chat(user, "<span class='warning'>You can't hold \the [holstered] like this!</span>")
-		return
+		return FALSE
 
 	if(user.put_in_active_hand(holstered) || user.put_in_inactive_hand(holstered))
 		unholster_message(user)
 		holstered.add_fingerprint(user)
 		holstered = null
 		update_icon()
-	else
-		to_chat(user, "<span class='warning'>You need an empty hand to draw \the [holstered]!</span>")
+		return TRUE
+	to_chat(user, "<span class='warning'>You need an empty hand to draw \the [holstered]!</span>")
+	return FALSE
 
 /obj/item/clothing/accessory/holster/proc/unholster_message(user)
 	return
