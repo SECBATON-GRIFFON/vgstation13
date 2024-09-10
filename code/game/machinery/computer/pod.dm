@@ -12,6 +12,7 @@
 	var/list/times = list()
 	var/list/maxtimes = list()
 	var/list/powers = list()
+	var/list/spreads = list()
 	var/list/loopings = list()
 	var/default_time = 30
 	var/default_loop = 0
@@ -44,6 +45,8 @@
 				maxtimes[ident_tag] = default_time
 				powers += ident_tag
 				powers[ident_tag] = 1.0
+				spreads += ident_tag
+				spreads[ident_tag] = 0
 				loopings += ident_tag
 				loopings[ident_tag] = default_loop
 				break
@@ -71,6 +74,8 @@
 			maxtimes[ident_tag] = default_time
 			powers += ident_tag
 			powers[ident_tag] = 1.0
+			spreads += ident_tag
+			spreads[ident_tag] = 0
 			loopings += ident_tag
 			loopings[ident_tag] = default_loop
 			break
@@ -161,7 +166,15 @@
 					temp += "<B><A href = '?src=\ref[src];power=[t];driver=[ident_tag]'>[t]</A></B> "
 				else
 					temp += "<A href = '?src=\ref[src];power=[t];driver=[ident_tag]'>[t]</A> "
-			dat += "<HR>\nPower Level: [temp]<BR>\n<A href = '?src=\ref[src];launch=1;driver=[ident_tag]'><B>Fire Drive!</B></A><BR>\n<A href = '?src=\ref[src];door=1;driver=[ident_tag]'>Toggle Pod Doors</A><BR>"
+			dat += "<HR>\nPower Level: [temp]<BR>\n"
+			temp = ""
+			var/list/L2 = list( 0, 1, 2, 3 )
+			for(var/t2 in L2)
+				if( spreads[ident_tag] == t2)
+					temp += "<B><A href = '?src=\ref[src];spread=[t2];driver=[ident_tag]'>[t2]</A></B> "
+				else
+					temp += "<A href = '?src=\ref[src];spread=[t2];driver=[ident_tag]'>[t2]</A> "
+			dat += "<HR>\nSpread Power: [temp]<BR>\n<A href = '?src=\ref[src];launch=1;driver=[ident_tag]'><B>Fire Drive!</B></A><BR>\n<A href = '?src=\ref[src];door=1;driver=[ident_tag]'>Toggle Pod Doors</A><BR>"
 
 	for(var/ident_tag in door_only_tags)
 		dat += "<BR><BR><B>[ident_tag]</B> <A href='?src=\ref[src];remove=1;driver=[ident_tag]'>remove</A>"
@@ -223,6 +236,7 @@
 			timings -= ident_tag
 			times -= ident_tag
 			powers -= ident_tag
+			spreads -= ident_tag
 			loopings -= ident_tag
 			id_tags -= ident_tag
 		if(href_list["massfire"])
@@ -237,6 +251,14 @@
 				if(M.id_tag == ident_tag)
 					M.power = t
 			powers[ident_tag] = t
+		if(href_list["spread"])
+			var/ident_tag = href_list["driver"]
+			var/t = text2num(href_list["spread"])
+			t = clamp(t,0,3)
+			for(var/obj/machinery/mass_driver/M in mass_drivers)
+				if(M.id_tag == ident_tag)
+					M.random_spread = t
+			spreads[ident_tag] = t
 		if(href_list["launch"])
 			launch_sequence(href_list["driver"])
 		if(href_list["time"])
