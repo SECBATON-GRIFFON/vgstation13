@@ -49,6 +49,7 @@
 	var/hulk_check = 1					//Whether the gun disallows hulks from firing it.
 	var/golem_check = 1					//Whether the gun disallows golems from firing it.
 	var/manifested_check = 1			//Whether the gun disallows manifested ghosts from firing it.
+	var/random_spread = 0				//If the gun spreads away from a target by this much
 
 	var/tmp/list/mob/living/target //List of who yer targeting.
 	var/tmp/lock_time = -100
@@ -247,7 +248,8 @@
 	if(defective)
 		target = get_inaccuracy(originaltarget, 1+recoil)
 		targloc = get_turf(target)
-
+	if(random_spread)
+		target = random_target(random_spread,target)
 	if(!special_check(user))
 		return
 

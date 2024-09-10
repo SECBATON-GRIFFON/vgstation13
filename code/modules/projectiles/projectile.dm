@@ -69,6 +69,7 @@ var/list/impact_master = list()
 	var/mark_type = "trace"	//what marks will the bullet leave on a wall that it penetrates? from 'icons/effects/96x96.dmi'
 
 	var/inaccurate = 0 //Will be rendered inaccurate and more likely to miss at a distance
+	var/random_spread = 0 //Will be likely to hit random turfs around the target
 
 	var/turf/target = null
 	var/datum/tracker/tracker_datum = null

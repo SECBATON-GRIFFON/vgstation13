@@ -22,6 +22,7 @@
 	var/minimum_tank_pressure = 10                      // Minimum pressure to fire the gun.
 	var/cooldown = 0                                    // Whether or not we're cooling down.
 	var/cooldown_time = 30                              // Time between shots.
+	var/random_spread = 0
 
 /obj/item/weapon/storage/pneumatic/verb/set_pressure() //set amount of tank pressure.
 
@@ -33,6 +34,15 @@
 	if (N)
 		pressure_setting = N
 		to_chat(usr, "You dial the pressure valve to [pressure_setting]%.")
+
+/obj/item/weapon/storage/pneumatic/verb/set_spread() //set spread of thrown stuff.
+	set name = "Set spread"
+	set category = "Object"
+	set src in range(0)
+	var/N = input("Spread away from target, in tiles:","[src]") as null|anything in list(0,1,2,3)
+	if (N)
+		random_spread = N
+		to_chat(usr, "You adjust the cannon to spread by [random_spread] tiles.")
 
 /obj/item/weapon/storage/pneumatic/verb/eject_tank() //Remove the tank.
 
@@ -132,35 +142,41 @@
 	if (!istype(targloc) || !istype(curloc))
 		return
 
-	var/fire_pressure = (tank.air_contents.return_pressure()/100)*pressure_setting
+	var/fired = FALSE
+	for(var/i in 0 to random_spread)
+		var/fire_pressure = (tank.air_contents.return_pressure()/100)*pressure_setting
 
-	if (fire_pressure < minimum_tank_pressure)
-		to_chat(user, "There isn't enough gas in the tank to fire [src].")
-		return 0
+		if (fire_pressure < minimum_tank_pressure)
+			to_chat(user, "There isn't enough gas in the tank to fire [src].")
+			break
 
-	var/obj/item/object = contents[1]
-	var/speed = min(PNEUMATIC_SPEED_CAP,((fire_pressure*tank.volume)/object.w_class)/PNEUMATIC_SPEED_DIVISOR)
-	//For reference in pseudo-code, Damage on mobs = (projectile.throwforce * ( throwing_speed / 5))
+		var/obj/item/object = contents[i+1]
+		if(random_spread && (i > 0))
+			target = random_target(random_spread,targloc)
+		var/speed = min(PNEUMATIC_SPEED_CAP,((fire_pressure*tank.volume)/object.w_class)/PNEUMATIC_SPEED_DIVISOR)
+		//For reference in pseudo-code, Damage on mobs = (projectile.throwforce * ( throwing_speed / 5))
 
-	user.visible_message("<span class='danger'>[user] fires [src] and launches [object] at [target]!</span>","<span class='danger'>You fire [src] and launch [object] at [target]!</span>")
+		user.visible_message("<span class='danger'>[user] fires [src] and launches [object] at [target]!</span>","<span class='danger'>You fire [src] and launch [object] at [target]!</span>")
 
-	src.remove_from_storage(object,user.loc)
-	object.throw_at(target,10,speed)
+		src.remove_from_storage(object,user.loc)
+		object.throw_at(target,10,speed)
 
-	//if we're throwing food and the target doesn't have its mouth covered, it takes a bite.
-	if(istype(object,/obj/item/weapon/reagent_containers/food/snacks) && ishuman(target) && object.Adjacent(target))
-		var/mob/living/carbon/human/victim = target
-		if(!victim.check_body_part_coverage(MOUTH))
-			object.attack(target,target)
+		//if we're throwing food and the target doesn't have its mouth covered, it takes a bite.
+		if(istype(object,/obj/item/weapon/reagent_containers/food/snacks) && ishuman(target) && object.Adjacent(target))
+			var/mob/living/carbon/human/victim = target
+			if(!victim.check_body_part_coverage(MOUTH))
+				object.attack(target,target)
 
-	var/lost_gas_amount = tank.air_contents.total_moles*(pressure_setting/100)
-	var/datum/gas_mixture/removed = tank.air_contents.remove(lost_gas_amount)
-	user.loc.assume_air(removed)
+		var/lost_gas_amount = tank.air_contents.total_moles*(pressure_setting/100)
+		var/datum/gas_mixture/removed = tank.air_contents.remove(lost_gas_amount)
+		user.loc.assume_air(removed)
+		fired = TRUE
 
-	cooldown = 1
-	spawn(cooldown_time)
-		cooldown = 0
-		to_chat(user, "[src]'s gauge informs you it's ready to be fired again.")
+	if(fired)
+		cooldown = 1
+		spawn(cooldown_time)
+			cooldown = 0
+			to_chat(user, "[src]'s gauge informs you it's ready to be fired again.")
 
 #undef PNEUMATIC_SPEED_CAP
 #undef PNEUMATIC_SPEED_DIVISOR

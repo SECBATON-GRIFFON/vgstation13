@@ -436,6 +436,8 @@
 
 	return target
 
+#define random_target(range,A) pick(trange(range,A))
+
 // returns turf relative to A in given direction at set range
 // result is bounded to map size
 // note range is non-pythagorean
