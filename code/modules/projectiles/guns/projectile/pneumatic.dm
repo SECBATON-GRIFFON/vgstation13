@@ -143,7 +143,7 @@
 		return
 
 	var/fired = FALSE
-	for(var/i in 0 to random_spread)
+	for(var/i in 0 to min(random_spread,contents.len))
 		var/fire_pressure = (tank.air_contents.return_pressure()/100)*pressure_setting
 
 		if (fire_pressure < minimum_tank_pressure)
