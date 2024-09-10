@@ -15,6 +15,7 @@ var/list/mass_drivers = list()
 	var/code = 1.0
 	id_tag = "default"
 	var/drive_range = 50 //this is mostly irrelevant since current mass drivers throw into space, but you could make a lower-range mass driver for interstation transport or something I guess.
+	var/random_spread = 0 //var for scattering things, the spread at 7 tiles out
 
 	hack_abilities = list(
 		/datum/malfhack_ability/toggle/disable,
@@ -72,6 +73,9 @@ var/list/mass_drivers = list()
 	use_power(500*power)
 	var/O_limit = 0
 	var/atom/target = get_edge_target_turf(src, dir)
+	if(random_spread)
+		var/dist = get_dist(src,target)
+		target = random_target(random_spread*(dist/7), target)
 	for(var/atom/movable/O in loc)
 		if(!O.anchored||istype(O, /obj/mecha))//Mechs need their launch platforms.
 			O_limit++
