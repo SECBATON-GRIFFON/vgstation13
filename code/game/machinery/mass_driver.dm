@@ -74,8 +74,7 @@ var/list/mass_drivers = list()
 	var/O_limit = 0
 	var/atom/target = get_edge_target_turf(src, dir)
 	if(random_spread)
-		var/dist = get_dist(src,target)
-		target = random_target(random_spread*(dist/7), target)
+		target = random_target(random_spread*(get_dist(src,target)/7), target)
 	for(var/atom/movable/O in loc)
 		if(!O.anchored||istype(O, /obj/mecha))//Mechs need their launch platforms.
 			O_limit++
