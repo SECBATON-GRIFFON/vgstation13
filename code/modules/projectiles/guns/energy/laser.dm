@@ -138,6 +138,7 @@
 	if(prob(50))
 		charge_cost = 0
 		projectile_type = /obj/item/projectile/beam/practice/stormtrooper
+		random_spread = 3
 		desc = "Don't expect to hit anything with this."
 
 /obj/item/weapon/gun/energy/laser/blaster/update_icon()
