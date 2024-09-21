@@ -735,7 +735,7 @@
 	corpseuniform = /obj/item/clothing/under/det
 	corpsesuit = /obj/item/clothing/suit/storage/det_suit
 	corpseback = /obj/item/weapon/storage/backpack
-	corpseradio = /obj/item/device/radio/headset/headset_sec
+	corpseradio = /obj/item/device/radio/headset/headset_sec/det
 	corpsegloves = /obj/item/clothing/gloves/black
 	corpseshoes = /obj/item/clothing/shoes/brown
 	corpsepocket1 = /obj/item/weapon/lighter/zippo

@@ -84,6 +84,10 @@
 	item_state = "headset"
 	init_keyslot2_type = /obj/item/device/encryptionkey/headset_sec
 
+/obj/item/device/radio/headset/headset_sec/det
+	name = "detective radio headset"
+	desc = "This is used by your hard boiled gumshoe. To access the security channel, use :s."
+
 /obj/item/device/radio/headset/headset_eng
 	name = "engineering radio headset"
 	desc = "When the engineers wish to chat like girls. To access the engineering channel, use :e. "

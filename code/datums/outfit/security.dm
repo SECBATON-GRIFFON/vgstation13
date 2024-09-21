@@ -164,7 +164,7 @@
 
 	items_to_spawn = list(
 		"Default" = list(
-			slot_ears_str = /obj/item/device/radio/headset/headset_sec,
+			slot_ears_str = /obj/item/device/radio/headset/headset_sec/det,
 			slot_w_uniform_str = list(
 				"Forensic Technician" = /obj/item/clothing/under/det,
 				"Gumshoe" = /obj/item/clothing/under/det/noir,
@@ -193,7 +193,7 @@
 			slot_l_store_str = /obj/item/weapon/lighter/zippo,
 		),
 		/datum/species/plasmaman = list(
-			slot_ears_str = /obj/item/device/radio/headset/headset_sec,
+			slot_ears_str = /obj/item/device/radio/headset/headset_sec/det,
 			slot_w_uniform_str = list(
 				"Forensic Technician" = /obj/item/clothing/under/det,
 				"Gumshoe" =  /obj/item/clothing/under/det/noir,
@@ -214,7 +214,7 @@
 			slot_l_store_str = /obj/item/weapon/lighter/zippo,
 		),
 		/datum/species/vox = list(
-			slot_ears_str = /obj/item/device/radio/headset/headset_sec,
+			slot_ears_str = /obj/item/device/radio/headset/headset_sec/det,
 			slot_w_uniform_str = list(
 				"Forensic Technician" = /obj/item/clothing/under/det,
 				"Gumshoe" = /obj/item/clothing/under/det/noir,
