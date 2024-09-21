@@ -106,9 +106,12 @@
 
 	for (var/ch_name in channels)
 		dat+=text_sec_channel(ch_name, channels[ch_name])
-	dat+={"[text_wires()]</TT></body></html>"}
+	dat+={"[text_misc()][text_wires()]</TT></body></html>"}
 	user << browse(dat, "window=radio")
 	onclose(user, "radio")
+	return
+
+/obj/item/device/radio/proc/text_misc()
 	return
 
 /obj/item/device/radio/proc/text_wires()
@@ -194,17 +197,20 @@
 				channels[chan_name] &= ~FREQ_LISTENING
 			else
 				channels[chan_name] |= FREQ_LISTENING
-	if (!( master ))
-		if (istype(loc, /mob))
+	update_check()
+	add_fingerprint(usr)
+
+/obj/item/device/radio/proc/update_check()
+	if (!master)
+		if (ismob(loc))
 			interact(loc)
 		else
 			updateDialog()
 	else
-		if (istype(master.loc, /mob))
+		if (ismob(master.loc))
 			interact(master.loc)
 		else
 			updateDialog()
-	add_fingerprint(usr)
 
 /obj/item/device/radio/proc/isWireCut(var/index)
 	return wires.IsIndexCut(index)

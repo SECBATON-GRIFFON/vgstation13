@@ -87,6 +87,15 @@
 /obj/item/device/radio/headset/headset_sec/det
 	name = "detective radio headset"
 	desc = "This is used by your hard boiled gumshoe. To access the security channel, use :s."
+	var/filter_codewords = FALSE
+
+/obj/item/device/radio/headset/headset_sec/det/text_misc()
+	return "Codeword filtering is <A href='byond://?src=\ref[src];togglecodewords=1'>[filter_codewords ? "ON" : "OFF"]</A><br>"
+
+/obj/item/device/radio/headset/headset_sec/det/Topic(href, href_list)
+	if(!..() && href_list["togglecodewords"])
+		filter_codewords = !filter_codewords
+		update_check()
 
 /obj/item/device/radio/headset/headset_eng
 	name = "engineering radio headset"
