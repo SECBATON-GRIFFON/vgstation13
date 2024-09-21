@@ -279,6 +279,11 @@
 		else
 			T.apply_paint_stroke(data["color"], data["alpha"], get_dir_cardinal(T,U), "wall_splatter", list(), FALSE)
 
+/datum/reagent/paint/uv
+	name = "Ultraviolet Paint"
+	id = UVPAINT
+	paint_light = PAINTLIGHT_UV
+
 //----------------------------------------------------------------------------------------------------
 
 /datum/reagent/acetone

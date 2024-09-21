@@ -4,6 +4,7 @@
 	var/light_power = 1 // Intensity of the light.
 	var/light_range = 0 // Range in tiles of the light.
 	var/light_color     // Hexadecimal RGB string representing the colour of the light.
+	var/uv_light    = 0	// Does this emit UV light?
 
 	var/tmp/datum/light_source/light // Our light source. Don't fuck with this directly unless you have a good reason!
 	var/tmp/list/light_sources       // Any light sources that are "inside" of us, for example, if src here was a mob that's carrying a flashlight, that flashlight's light source would be part of this list.
@@ -19,7 +20,7 @@
   * * l_power - Intensity of the light
   * * l_color - Color of the light in hex
   */
-/atom/proc/set_light(var/l_range, var/l_power, var/l_color = NONSENSICAL_VALUE)
+/atom/proc/set_light(var/l_range, var/l_power, var/l_color = NONSENSICAL_VALUE, var/uv = FALSE)
 	if(l_range > 0 && l_range < MINIMUM_USEFUL_LIGHT_RANGE)
 		l_range = MINIMUM_USEFUL_LIGHT_RANGE	//Brings the range up to 1.4, which is just barely brighter than the soft lighting that surrounds players.
 	if (l_power != null)
@@ -28,8 +29,11 @@
 	if (l_range != null)
 		light_range = l_range
 
+	uv_light = uv
 	if (l_color != NONSENSICAL_VALUE)
 		light_color = l_color
+	else if(uv_light)
+		light_color = "#6600ff"
 
 	update_light()
 

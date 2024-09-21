@@ -1941,6 +1941,7 @@ var/list/weekend_days = list("Friday", "Saturday", "Sunday")
 #define PAINTLIGHT_NONE		0	//regular paint
 #define PAINTLIGHT_LIMITED	1	//radium, lights up on canvas, limited color mixing
 #define PAINTLIGHT_FULL		2	//nano paint, lights up floors as well
+#define PAINTLIGHT_UV		3	//ultraviolet, only light up near UV lamps
 
 //Candles on snacks
 #define CANDLES_NONE 0

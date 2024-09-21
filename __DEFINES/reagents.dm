@@ -535,6 +535,7 @@
 #define ACRYLIC			"acrylic"
 #define ACETONE			"acetone"
 #define NANOPAINT		"nano_paint"
+#define UVPAINT		    "uv_paint"
 #define FLAXOIL			"flax_oil"
 #define WAX				"wax"
 
