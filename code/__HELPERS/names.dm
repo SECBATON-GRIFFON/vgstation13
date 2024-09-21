@@ -173,6 +173,9 @@ var/list/syndicate_code_response //Code response for traitors.
 	/N
 	*/
 
+var/global/list/syndinouns = list("love","hate","anger","peace","pride","sympathy","bravery","loyalty","honesty","integrity","compassion","charity","success","courage","deceit","skill","beauty","brilliance","pain","misery","beliefs","dreams","justice","truth","faith","liberty","knowledge","thought","information","culture","trust","dedication","progress","education","hospitality","leisure","trouble","friendships", "relaxation")
+var/global/list/syndidrinks = list("vodka and tonic","gin fizz","bahama mama","manhattan","black Russian","whiskey soda","long island tea","margarita","Irish coffee"," manly dwarf","Irish cream","doctor's delight","Beepsky Smash","tequila sunrise","brave bull","gargle blaster","bloody mary","whiskey cola","white Russian","vodka martini","martini","Cuba libre","kahlua","vodka","wine","moonshine")
+
 /proc/generate_code_phrase()//Proc is used for phrase and response in master_controller.dm
 
 	var/list/code_phrase = list()//What is returned when the proc finishes.
@@ -184,8 +187,6 @@ var/list/syndicate_code_response //Code response for traitors.
 	)
 
 	var/safety[] = list(1,2,3)//Tells the proc which options to remove later on.
-	var/nouns[] = list("love","hate","anger","peace","pride","sympathy","bravery","loyalty","honesty","integrity","compassion","charity","success","courage","deceit","skill","beauty","brilliance","pain","misery","beliefs","dreams","justice","truth","faith","liberty","knowledge","thought","information","culture","trust","dedication","progress","education","hospitality","leisure","trouble","friendships", "relaxation")
-	var/drinks[] = list("vodka and tonic","gin fizz","bahama mama","manhattan","black Russian","whiskey soda","long island tea","margarita","Irish coffee"," manly dwarf","Irish cream","doctor's delight","Beepsky Smash","tequila sunrise","brave bull","gargle blaster","bloody mary","whiskey cola","white Russian","vodka martini","martini","Cuba libre","kahlua","vodka","wine","moonshine")
 
 	var/names[] = list()
 	for(var/datum/data/record/t in data_core.general)//Picks from crew manifest.
@@ -212,12 +213,12 @@ var/list/syndicate_code_response //Code response for traitors.
 						code_phrase.Insert(0, pick(get_all_jobs()))
 				safety -= 1
 			if(2)
-				code_phrase.Insert(0, pick(drinks))
+				code_phrase.Insert(0, pick(syndidrinks))
 				safety -= 2
 			if(3)
 				switch(rand(1,3))//Nouns, adjectives, verbs. Can be selected more than once.
 					if(1)
-						code_phrase.Insert(0, pick(nouns))
+						code_phrase.Insert(0, pick(syndinouns))
 					if(2)
 						code_phrase.Insert(0, pick(adjectives))
 					if(3)

@@ -573,7 +573,14 @@
 				<h2><img src='data:image/png;base64,[icon2base64(icon('icons/logos.dmi', "synd-logo"))]' style='position: relative; top: 8;'><a id="Syndicate">The Syndicate</h2>
 
                 <p>The Syndicate is an alliance composed of Nanotrasen’s most disreputable corporate competitors. They are the most notorious threat we face, and have made it their goal to challenge our influence in this sector. In an attempt to do this, they have funneled saboteurs into our workforce, and at times even send strike teams to destroy our stations by using nuclear devices. Syndicate operators are to be detained immediately, and in some extreme cases, terminated on sight. Their distinctive red attire has been attributed to the scavenged soviet spacesuits from the fourth Cold War era that their operatives use as combat armor and EVA equipment.
-
+				<p>The following is a list of all known possible Syndicate code phrases and responses:</p>
+				<p>[english_list(syndinouns)]</p>
+				<p>[english_list(adjectives)]</p>
+				<p>[english_list(verbs)]</p>
+				<p>[english_list(syndidrinks)]</p>
+				<p>[english_list(get_all_jobs())]</p>
+				<p>As well as any given name of your crew members.</p>
+				
 				<h3>Traitors</h3>
 				<p>Agents of the Syndicate have infiltrated many of our space stations and operate among us. This vast network of sleeper cells defies all investigation, and as such pre-emptive attempts at discovering infiltrators is discouraged by company policy (see Space Law and Standard Operating Procedure). However, agents come equipped with an uplink filled with "telecrystals" (TCs), hidden in their PDAs. When the Syndicate activates them, they are able to use this uplink to transport contraband aboard our stations to assist their attempts to cause wanton sabotage and destruction. Syndicate contraband can be a quick identifier of these saboteurs.
 
