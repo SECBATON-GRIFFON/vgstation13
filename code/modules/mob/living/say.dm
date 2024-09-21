@@ -296,8 +296,12 @@ var/list/headset_modes = list(
 	if(!say_understands((istype(AM) ? AM : speech.speaker),speech.language)|| force_compose) //force_compose is so AIs don't end up without their hrefs.
 		rendered_message = render_speech(speech)
 
+	if(istype(get_item_by_slot(slot_ears),/obj/item/device/radio/headset/headset_sec/det))
+		var/list/all_possible_syndi_phrases = syndinouns + syndidrinks + verbs + adjectives
+		for(var/T in all_possible_syndi_phrases)
+			rendered_message = replacetext(rendered_message, html_encode(T), "<i style='color: red;'>[html_encode(T)]</i>")
 	//checking for syndie codephrases if person is a tator
-	if(src.mind.GetRole(TRAITOR) || src.mind.GetRole(NUKE_OP) || src.mind.GetRole(CHALLENGER))
+	else if(src.mind.GetRole(TRAITOR) || src.mind.GetRole(NUKE_OP) || src.mind.GetRole(CHALLENGER))
 		for(var/T in syndicate_code_phrase)
 			rendered_message = replacetext(rendered_message, html_encode(T), "<b style='color: red;'>[html_encode(T)]</b>")
 
