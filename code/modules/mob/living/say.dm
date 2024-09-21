@@ -298,7 +298,7 @@ var/list/headset_modes = list(
 
 	var/obj/item/device/radio/headset/headset_sec/det/DH = get_item_by_slot(slot_ears)
 	if(DH && istype(DH) && DH.filter_codewords)
-		var/list/all_possible_syndi_phrases = syndinouns + syndidrinks + verbs + adjectives
+		var/list/all_possible_syndi_phrases = syndinouns + syndidrinks + verbs + adjectives + get_all_jobs() + first_names_male + first_names_female + last_names
 		for(var/T in all_possible_syndi_phrases)
 			rendered_message = replacetext(rendered_message, html_encode(T), "<i style='color: red;'>[html_encode(T)]</i>")
 	//checking for syndie codephrases if person is a tator
