@@ -58,7 +58,8 @@
     return 0
 
 /obj/item/weapon/gun/projectile/zkz/Fire(atom/target, mob/living/user, params, reflex = 0, struggle = 0, var/use_shooter_turf = FALSE)
-    if(sheens)
+    . = ..()
+    if(. && sheens)
         var/PixelX = 0
         var/PixelY = 0
         switch(loc.dir)
@@ -77,4 +78,3 @@
         loc.overlays += impact
         spawn(3)
             loc.overlays -= impact
-    . = ..()
