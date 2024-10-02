@@ -57,7 +57,7 @@
         return 1
     return 0
 
-/obj/item/weapon/gun/projectile/zkz/Fire()
+/obj/item/weapon/gun/projectile/zkz/Fire(atom/target, mob/living/user, params, reflex = 0, struggle = 0, var/use_shooter_turf = FALSE)
     if(sheens)
         var/PixelX = 0
         var/PixelY = 0
