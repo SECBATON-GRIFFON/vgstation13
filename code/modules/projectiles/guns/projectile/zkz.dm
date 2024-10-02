@@ -15,7 +15,8 @@
     origin_tech = Tc_COMBAT + "=5;" + Tc_MATERIALS + "=2;" + Tc_SYNDICATE + "=5"
     gun_flags = 0
     mech_flags = MECH_SCAN_FAIL
-    var/shotsleft = 30
+    var/sheens = FALSE //white glow for millionaires on firing
+    var/shotsleft = 30 //thirty fixed amount of shots, no extra ammo
     
 /obj/item/weapon/gun/projectile/zkz/getAmmo()
     return shotsleft
@@ -51,6 +52,28 @@
                 if(1000000 to INFINITY)
                     in_chamber.damage = 10000
         fire_sound = totalvalue >= 1000000 ? 'sound/weapons/vag2.ogg' : 'sound/weapons/vag.ogg'
+        sheens = totalvalue >= 1000000
         shotsleft--
         return 1
     return 0
+
+/obj/item/weapon/gun/projectile/zkz/Fire()
+    if(sheens)
+        var/PixelX = 0
+        var/PixelY = 0
+        switch(loc.dir)
+            if(NORTH)
+                PixelY = 16
+            if(SOUTH)
+                PixelY = -16
+            if(EAST)
+                PixelX = 16
+            if(WEST)
+                PixelX = -16
+        var/image/impact = image('icons/obj/projectiles_impacts.dmi',loc,"spur_1")
+        impact.pixel_x = PixelX
+        impact.pixel_y = PixelY
+        impact.layer = PROJECTILE_LAYER
+        loc.overlays += impact
+        spawn(3)
+            loc.overlays -= impact
