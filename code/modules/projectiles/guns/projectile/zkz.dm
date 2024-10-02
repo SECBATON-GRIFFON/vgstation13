@@ -77,3 +77,4 @@
         loc.overlays += impact
         spawn(3)
             loc.overlays -= impact
+    . = ..()
