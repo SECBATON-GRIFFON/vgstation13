@@ -30,23 +30,26 @@
         in_chamber = new /obj/item/projectile/bullet/a76239mm_financial(src)
         var/mob/M = loc
         if(istype(M))
-            var/obj/item/weapon/card/id/ourID = M.get_item_by_slot(slot_wear_id)
-            if(!istype(ourID))
-                ourID = ourID.GetID()
-            if(istype(ourID) && ourID.virtual_wallet)
-                switch(ourID.virtual_wallet.money)
-                    if(0 to 100)
-                        in_chamber.damage = 1
-                    if(100 to 1000)
-                        in_chamber.damage = 10
-                    if(1000 to 10000)
-                        in_chamber.damage = 25
-                    if(10000 to 100000)
-                        in_chamber.damage = 50
-                    if(100000 to 1000000)
-                        in_chamber.damage = 75
-                    if(1000000 to INFINITY)
-                        in_chamber.damage = 20000
+            var/totalvalue = 0
+            for(var/obj/item/weapon/card/id/C1 in get_contents_in_object(M, /obj/item/weapon/card/id))
+                totalvalue += C1.GetBalance() //From bank account
+                if(istype(C1.virtual_wallet))
+                    totalvalue += C1.virtual_wallet.money
+            for(var/obj/item/weapon/spacecash/C2 in get_contents_in_object(M, /obj/item/weapon/spacecash))
+                totalvalue += (C2.amount * C2.worth)
+            switch(totalvalue)
+                if(0 to 100)
+                    in_chamber.damage = 1
+                if(100 to 1000)
+                    in_chamber.damage = 10
+                if(1000 to 10000)
+                    in_chamber.damage = 25
+                if(10000 to 100000)
+                    in_chamber.damage = 50
+                if(100000 to 1000000)
+                    in_chamber.damage = 75
+                if(1000000 to INFINITY)
+                    in_chamber.damage = 10000
         shotsleft--
         return 1
     return 0
