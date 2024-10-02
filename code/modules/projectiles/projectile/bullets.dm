@@ -446,7 +446,7 @@
 	if(blocked)
 		blocked = 100 // completely useless against armor
 	. = ..(target, blocked)
-	if(. && damage > 200 && isliving(target))
+	if(. && damage > 200 && (def_zone == LIMB_CHEST || def_zone == LIMB_GROIN) && isliving(target))
 		var/mob/living/L = target
 		L.gib()
 
