@@ -1,7 +1,7 @@
 /obj/item/weapon/gun/projectile/zkz
     name = "\improper ZKZ transactional rifle"
     desc = "Primordial weapon attuned to the beating heart of the financial system."
-    fire_sound = 'sound/weapons/mosin.ogg'
+    fire_sound = 'sound/weapons/vag.ogg'
     icon = 'icons/obj/biggun.dmi'
     icon_state = "mosinlarge"
     item_state = null
@@ -29,8 +29,8 @@
     else if(shotsleft)
         in_chamber = new /obj/item/projectile/bullet/a76239mm_financial(src)
         var/mob/M = loc
+        var/totalvalue = 0
         if(istype(M))
-            var/totalvalue = 0
             for(var/obj/item/weapon/card/id/C1 in get_contents_in_object(M, /obj/item/weapon/card/id))
                 totalvalue += C1.GetBalance() //From bank account
                 if(istype(C1.virtual_wallet))
@@ -50,6 +50,7 @@
                     in_chamber.damage = 75
                 if(1000000 to INFINITY)
                     in_chamber.damage = 10000
+        fire_sound = totalvalue >= 1000000 ? 'sound/weapons/vag2.ogg' : 'sound/weapons/vag.ogg'
         shotsleft--
         return 1
     return 0
