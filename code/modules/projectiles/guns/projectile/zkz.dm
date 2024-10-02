@@ -36,7 +36,7 @@
                 if(istype(C1.virtual_wallet))
                     totalvalue += C1.virtual_wallet.money
             for(var/obj/item/weapon/spacecash/C2 in get_contents_in_object(M, /obj/item/weapon/spacecash))
-                totalvalue += (C2.amount * C2.worth)
+                totalvalue += C2.get_total()
             switch(totalvalue)
                 if(0 to 100)
                     in_chamber.damage = 1
