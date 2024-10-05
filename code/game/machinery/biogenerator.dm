@@ -594,7 +594,8 @@
 	else
 		dat += "Biomass: [points] points."
 		if(id)
-			dat += "<BR><A href='?src=\ref[src];action=ejectID'>Eject ID</A>"
+			dat += {"<BR><A href='?src=\ref[src];action=ejectID'>Eject ID</A>"
+					<BR>Credits in machine: [credits] credits. <A href='?src=\ref[src];action=claim'>Claim</A>"}
 		dat += "<HR>"
 		switch(menustat)
 			if("menu")
@@ -729,6 +730,11 @@
 			if(id)
 				usr.put_in_hands(id)
 				id = null
+		if("claim")
+			if(id)
+				var/datum/money_account/acct = get_card_account(id)
+				if(istype(acct) && acct.charge(-credits, null, "Claimed biogenerator credits.", src.name, dest_name = "Biogenerator"))
+					credits = 0
 		if("create")
 			create_product(href_list["item"],text2num(href_list["num"]))
 		if("menu")
