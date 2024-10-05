@@ -367,7 +367,7 @@
 
 /obj/machinery/biogenerator
 	name = "Biogenerator"
-	desc = ""
+	desc = "A machine that processes the nutriment inside plant matter into neat products."
 	icon = 'icons/obj/biogenerator.dmi'
 	icon_state = "biogen-stand"
 	density = 1
@@ -525,7 +525,7 @@
 				updateUsrDialog()
 	else if(istype(O, /obj/item/weapon/card/id))
 		if(id)
-			to_chat(user, "<span class='warning'>The ID slow is already occupied.</span>")
+			to_chat(user, "<span class='warning'>The ID slot is already occupied.</span>")
 		else if(panel_open)
 			to_chat(user, "<span class='rose'>The biogenerator's maintenance panel must be closed first.</span>")
 		else
