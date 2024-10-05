@@ -2326,11 +2326,11 @@ var/global/num_vending_terminals = 1
 		)
 	prices = list(
 		/obj/item/seeds/redturnipseed = 100,
-		/obj/item/seeds/whiteturnipseed = 1
+		/obj/item/seeds/whiteturnipseed = 10,
 		)
 	slogan_languages = list(LANGUAGE_VOX)
 
-/obj/machinery/vending/voxseeds/initialize()
+/obj/machinery/vending/voxseeds/New()
 	. = ..()
 	var/datum/seed/redturnip/white/W = new()
 	prices[/obj/item/seeds/whiteturnipseed] = W.get_biogen_value()

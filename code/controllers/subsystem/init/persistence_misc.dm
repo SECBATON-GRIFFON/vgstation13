@@ -341,6 +341,21 @@ var/datum/subsystem/persistence_misc/SSpersistence_misc
 /datum/persistence_task/lotto_jackpot/on_shutdown()
 	write_file(list("station_jackpot" = max(1000000,station_jackpot)))
 
+//White turnips
+
+/datum/persistence_task/stalk_market
+	execute = TRUE
+	name = "Stalk market"
+	file_path = "data/persistence/stalk_market.json"
+
+/datum/persistence_task/stalk_market/on_init()
+	data = read_file()
+	if(length(data))
+		whiteturnip_multiplier = clamp(data["whiteturnip_multiplier"],1,25) // the run doesn't matter here
+
+/datum/persistence_task/stalk_market/on_shutdown()
+	write_file(list("whiteturnip_multiplier" = clamp(whiteturnip_multiplier,1,25)))
+
 // Hub Settings
 
 /datum/persistence_task/hub_settings
