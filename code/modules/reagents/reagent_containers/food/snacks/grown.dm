@@ -629,6 +629,18 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	filling_color = "#FFFCCC"
 	plantname = "whitebeet"
 
+/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip
+	name = "red turnip"
+	desc = "A century in the making." // shame it's not an egg
+	potency = 15
+	filling_color = "#FFFCCC"
+	plantname = "redturnip"
+	
+/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip/white
+	name = "white turnip"
+	desc = "You've seen worse and sold worse." // quelle navet
+	plantname = "whiteturnip"
+
 /obj/item/weapon/reagent_containers/food/snacks/grown/banana
 	name = "banana"
 	desc = "It's an excellent prop for a comedy."

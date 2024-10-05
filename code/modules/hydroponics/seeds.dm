@@ -350,6 +350,16 @@
 	seed_type = "whitebeet"
 	vending_cat = "vegetables"
 
+/obj/item/seeds/redturnipseed
+	name = "packet of red turnip seeds"
+	seed_type = "redturnip"
+	vending_cat = "vegetables"
+
+/obj/item/seeds/whiteturnipseed
+	name = "packet of white turnip seeds"
+	seed_type = "whiteturnip"
+	vending_cat = "vegetables"
+
 /obj/item/seeds/sugarcaneseed
 	name = "packet of sugarcane seeds"
 	seed_type = "sugarcane"
@@ -2058,11 +2068,11 @@
 	name = "red turnip"
 	seed_name = "red turnip"
 	display_name = "red turnips"
-	plant_dmi = 'icons/obj/hydroponics/redturnip.dmi'
-	//products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip)
-	chems = list(NUTRIMENT = list(1,1))
+	plant_dmi = 'icons/obj/hydroponics/whitebeet.dmi'
+	products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip)
+	chems = list(NUTRIMENT = list(1,10))
 
-	lifespan = 3600 // 2 hour round
+	lifespan = 60 // better find a way to make this go on for hours if you want those stacks
 	maturation = 6
 	production = 6
 	yield = 6
@@ -2070,27 +2080,26 @@
 	fluid_consumption = 6
 	
 /datum/seed/redturnip/process_fruit(var/obj/machinery/portable_atmospherics/hydroponics/tray)
-	biogen_multiplier = (tray.age-production-1)/300 // doubles in value every 10 minutes
+	biogen_multiplier = 1+((tray.age-maturation-production)/300) // doubles in value every 10 minutes
 
 /datum/seed/redturnip/white
 	name = "white turnip"
 	seed_name = "white turnip"
 	display_name = "white turnips"
 	plural = 1
-	plant_dmi = 'icons/obj/hydroponics/whiteturnip.dmi'
-	//products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip/white)
-
-	lifespan = 60
+	plant_dmi = 'icons/obj/hydroponics/whitebeet.dmi'
+	products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip/white)
 
 var/whiteturnip_run = 0
 var/whiteturnip_multiplier = 1
 
 /datum/seed/redturnip/white/process_fruit(var/obj/machinery/portable_atmospherics/hydroponics/tray)
-	if(prob(5))
-		whiteturnip_run = rand(-10,10) // will it bull??? or bear...
-	whiteturnip_multiplier += ((rand(10,-10)+whiteturnip_run)/100) // STONKS
-	whiteturnip_multiplier = clamp(whiteturnip_multiplier,1,25)
-	biogen_multiplier = whiteturnip_multiplier
+	if(tray.has_slimes & SLIME_GREEN || tray.age % 30 == 0) // every 1 in game minute (or 2 seconds with divine corporate insight...)
+		if(prob(10))
+			whiteturnip_run = rand(-10,10) // will it bull??? or bear...
+		whiteturnip_multiplier += ((rand(10,-10)+whiteturnip_run)/100) // STONKS
+		whiteturnip_multiplier = clamp(whiteturnip_multiplier,1,25)
+		biogen_multiplier = whiteturnip_multiplier
 
 /datum/seed/redturnip/white/get_biogen_value_txt()
 	return "[..()] <span class = '[whiteturnip_run > 0 ? "good'>(+" : "bad'>("][whiteturnip_run]%)</span>"

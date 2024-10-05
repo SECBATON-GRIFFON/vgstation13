@@ -2312,7 +2312,8 @@ var/global/num_vending_terminals = 1
 		/obj/item/seeds/aloe = 3,
 		/obj/item/seeds/pitcher = 3,
 		/obj/item/seeds/vaporsac = 3,
-		/obj/item/seeds/mushroommanspore = 3
+		/obj/item/seeds/mushroommanspore = 3,
+		/obj/item/seeds/whiteturnipseed = 3
 		)
 	contraband = list(
 		/obj/item/seeds/eggyseed = 2,
@@ -2320,9 +2321,20 @@ var/global/num_vending_terminals = 1
 		/obj/item/seeds/glowshroom = 2
 		)
 	premium = list(
-		/obj/item/weapon/storage/box/boxen = 1
+		/obj/item/weapon/storage/box/boxen = 1,
+		/obj/item/seeds/redturnipseed = 1
+		)
+	prices = list(
+		/obj/item/seeds/redturnipseed = 100,
+		/obj/item/seeds/whiteturnipseed = 1
 		)
 	slogan_languages = list(LANGUAGE_VOX)
+
+/obj/machinery/vending/voxseeds/initialize()
+	. = ..()
+	var/datum/seed/redturnip/white/W = new()
+	prices[/obj/item/seeds/whiteturnipseed] = W.get_biogen_value()
+	qdel(W)
 
 /obj/machinery/vending/magivend
 	name = "\improper MagiVend"
