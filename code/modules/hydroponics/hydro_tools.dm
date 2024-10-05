@@ -78,6 +78,7 @@
 	dat += "<tr><td><b>Maturation time</b></td><td>[round(grown_seed.maturation, 0.01)]</td></tr>"
 	dat += "<tr><td><b>Production time</b></td><td>[round(grown_seed.production, 0.01)]</td></tr>"
 	dat += "<tr><td><b>Potency</b></td><td>[round(grown_seed.potency, 0.01)]</td></tr>"
+	dat += "<tr><td><b>Estimated biogenerator value</b></td><td>[grown_seed.get_biogen_value_txt()]</td></tr>"
 	dat += "</table>"
 
 	dat += "<h2>Reagent Data</h2>"

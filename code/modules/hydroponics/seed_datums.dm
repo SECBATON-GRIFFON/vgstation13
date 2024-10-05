@@ -79,6 +79,7 @@ var/global/list/gene_tag_masks = list()   // Gene obfuscation for delicious tria
 	var/constrained = 0				// Whether the plant uses alternate sprites when the cover is down
 	var/moody_lights = 0			// Whether the plant has moody lights (can really improve the looks of bioluminescent plants)
 	var/list/mutation_log = list() // Who did what
+	var/biogen_multiplier = 1
 
 /datum/seed/New()
 	..()
@@ -602,6 +603,32 @@ var/global/list/gene_tag_masks = list()   // Gene obfuscation for delicious tria
 				to_chat(M, "<span class='warning'>The stems on this plant are too tough to cut by hand, you'll need something sharp in one of your hands to harvest it.</span>")
 
 	return success
+
+/datum/seed/proc/get_biogen_value()
+	var/totalreagents = 0
+	for(var/rid in chems)
+		var/list/reagent_data = chems[rid]
+		var/rtotal = reagent_data[1]
+		if(reagent_data.len > 1 && potency > 0)
+			rtotal += round(potency/reagent_data[2])
+		totalreagents += rtotal
+
+	if(totalreagents)
+		//var/coeff = holder && holder.reagents ? min(holder.reagents.maximum_volume / totalreagents, 1) : 1
+
+		for(var/rid in chems)
+			var/list/reagent_data = chems[rid]
+			var/datum/reagent/R = chemical_reagents_list[rid]
+			var/rtotal = reagent_data[1]
+			if(reagent_data.len > 1 && potency > 0)
+				rtotal += round(potency/reagent_data[2])
+			. += max(1, round(rtotal/* *coeff*/ * R.biogen_multiplier * biogen_multiplier, 1))
+
+/datum/seed/proc/get_biogen_value_txt()
+	return "[get_biogen_value()] credits"
+
+/datum/seed/proc/process_fruit()
+	return
 
 // Create a seed packet directly from the plant.
 /datum/seed/proc/spawn_seed_packet(turf/target)

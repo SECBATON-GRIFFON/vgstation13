@@ -8,6 +8,7 @@
 	color = "#C4D4E0" //196 212 224
 	density = 3.51
 	specheatcap = 6.57
+	biogen_multiplier = 8
 
 /datum/reagent/diamond/on_mob_life(var/mob/living/M)
 	if(..())
@@ -39,6 +40,7 @@
 	color = "#F7C430" //rgb: 247, 196, 48
 	specheatcap = 0.129
 	density = 19.3
+	biogen_multiplier = 4
 
 /datum/reagent/iron
 	name = "Iron"
@@ -79,6 +81,7 @@
 	description = "Plasma in its liquid form."
 	reagent_state = REAGENT_STATE_LIQUID
 	color = "#500064" //rgb: 80, 0, 100
+	biogen_multiplier = 2
 
 /datum/reagent/plasma/New()
 	..()
@@ -132,6 +135,7 @@
 	color = "#D0D0D0" //rgb: 208, 208, 208
 	specheatcap = 0.24
 	density = 10.49
+	biogen_multiplier = 4
 
 /datum/reagent/uranium
 	name ="Uranium salt"
@@ -141,6 +145,7 @@
 	color = "#B8B8C0" //rgb: 184, 184, 192
 	density = 19.05
 	specheatcap = 0.124
+	biogen_multiplier = 4
 
 /datum/reagent/uranium/on_mob_life(var/mob/living/M)
 	if(..())

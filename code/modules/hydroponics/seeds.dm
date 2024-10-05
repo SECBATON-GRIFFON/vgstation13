@@ -2053,3 +2053,41 @@
 	ideal_light = 8
 	nutrient_consumption = 2
 	constrained = 1
+
+/datum/seed/redturnip
+	name = "red turnip"
+	seed_name = "red turnip"
+	display_name = "red turnips"
+	plant_dmi = 'icons/obj/hydroponics/redturnip.dmi'
+	//products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip)
+	chems = list(NUTRIMENT = list(1,1))
+
+	lifespan = 3600 // 2 hour round
+	maturation = 6
+	production = 6
+	yield = 6
+	potency = 10
+	fluid_consumption = 6
+	
+/datum/seed/redturnip/process_fruit(var/obj/machinery/portable_atmospherics/hydroponics/tray)
+	biogen_multiplier = (tray.age-production-1)/300 // doubles in value every 10 minutes
+
+/datum/seed/redturnip/white
+	name = "white turnip"
+	seed_name = "white turnip"
+	display_name = "white turnips"
+	plural = 1
+	plant_dmi = 'icons/obj/hydroponics/whiteturnip.dmi'
+	//products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip/white)
+
+	lifespan = 60
+	var/run = 0
+
+/datum/seed/redturnip/white/process_fruit(var/obj/machinery/portable_atmospherics/hydroponics/tray)
+	if(prob(5))
+		run = rand(-10,10) // will it bull??? or bear...
+	biogen_multiplier += ((rand(10,-10)+run)/100) // STONKS
+	biogen_multiplier = clamp(biogen_multiplier,1,25)
+
+/datum/seed/redturnip/white/get_biogen_value_txt()
+	return "[..()] <span class = '[run > 0 ? "good'>(+" : "bad'>("][run]%)</span>"

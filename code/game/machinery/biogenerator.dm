@@ -378,7 +378,9 @@
 	var/biomass_coefficient = 9
 	var/tmp/processing = 0
 	var/obj/item/weapon/reagent_containers/glass/beaker = null
+	var/obj/item/weapon/card/id/id = null
 	var/points = 0
+	var/credits = 0
 	var/menustat = "menu"
 	var/tmp/list/recipes[0]
 	var/tmp/list/recipe_categories[0]
@@ -521,6 +523,15 @@
 			if(user.drop_item(O, src))
 				beaker = O
 				updateUsrDialog()
+	else if(istype(O, /obj/item/weapon/card/id))
+		if(id)
+			to_chat(user, "<span class='warning'>The ID slow is already occupied.</span>")
+		else if(panel_open)
+			to_chat(user, "<span class='rose'>The biogenerator's maintenance panel must be closed first.</span>")
+		else
+			if(user.drop_item(O, src))
+				id = O
+				updateUsrDialog()
 	else if(processing)
 		to_chat(user, "<span class='warning'>The biogenerator is currently processing.</span>")
 	else if(istype(O, /obj/item/weapon/storage/bag/plants))
@@ -581,7 +592,10 @@
 	if (processing)
 		dat += "<FONT COLOR=red>Biogenerator is processing! Please wait...</FONT>"
 	else
-		dat += "Biomass: [points] points.<HR>"
+		dat += "Biomass: [points] points."
+		if(id)
+			dat += "<BR><A href='?src=\ref[src];action=ejectID'>Eject ID</A>"
+		dat += "<HR>"
 		switch(menustat)
 			if("menu")
 				if (beaker)
@@ -636,6 +650,7 @@
 			points += 1
 		else
 			points += I.reagents.get_reagent_amount(NUTRIMENT)*biomass_coefficient
+			credits += I.seed.get_biogen_value()
 		qdel(I)
 	if(S)
 		processing = 1
@@ -710,6 +725,10 @@
 				update_icon()
 		if("eject")
 			eject_produce()
+		if("ejectID")
+			if(id)
+				usr.put_in_hands(id)
+				id = null
 		if("create")
 			create_product(href_list["item"],text2num(href_list["num"]))
 		if("menu")

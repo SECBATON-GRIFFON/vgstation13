@@ -16,6 +16,7 @@
 	yield = 4
 	potency = 20
 	growth_stages = 4
+	biogen_multiplier = 2
 
 /obj/item/seeds/telriis
 	seed_type = "telriis"
@@ -45,6 +46,7 @@
 	growth_stages = 4
 	alter_temp = 1
 	ideal_heat = T20C - 10
+	biogen_multiplier = 2
 
 /obj/item/seeds/thaadra
 	seed_type = "thaadra"
@@ -76,6 +78,7 @@
 
 	large = 0
 	moody_lights = 1
+	biogen_multiplier = 2
 
 /obj/item/seeds/jurlmah
 	seed_type = "jurlmah"
@@ -109,6 +112,7 @@
 
 	large = 0
 	moody_lights = 1
+	biogen_multiplier = 2
 
 /obj/item/seeds/amauri
 	seed_type = "amauri"
@@ -138,6 +142,7 @@
 	growth_stages = 3
 
 	large = 0
+	biogen_multiplier = 2
 
 /obj/item/seeds/gelthi
 	seed_type = "gelthi"
@@ -168,6 +173,7 @@
 	growth_stages = 4
 
 	large = 0
+	biogen_multiplier = 2
 
 /obj/item/seeds/vale
 	seed_type = "vale"

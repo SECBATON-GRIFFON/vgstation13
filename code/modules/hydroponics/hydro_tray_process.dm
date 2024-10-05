@@ -278,6 +278,7 @@
 					plant_appearance = "harvest-[harvest]"
 				else
 					plant_appearance = "harvest"
+				seed.process_fruit(src)
 			else if(age < seed.maturation)
 				var/t_growthstate = clamp(1+round((age * seed.growth_stages) / seed.maturation),1,seed.growth_stages)
 				if (t_growthstate > growth_level)
