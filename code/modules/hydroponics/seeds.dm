@@ -2081,13 +2081,16 @@
 	//products = list(/obj/item/weapon/reagent_containers/food/snacks/grown/redturnip/white)
 
 	lifespan = 60
-	var/run = 0
+
+var/whiteturnip_run = 0
+var/whiteturnip_multiplier = 1
 
 /datum/seed/redturnip/white/process_fruit(var/obj/machinery/portable_atmospherics/hydroponics/tray)
 	if(prob(5))
-		run = rand(-10,10) // will it bull??? or bear...
-	biogen_multiplier += ((rand(10,-10)+run)/100) // STONKS
-	biogen_multiplier = clamp(biogen_multiplier,1,25)
+		whiteturnip_run = rand(-10,10) // will it bull??? or bear...
+	whiteturnip_multiplier += ((rand(10,-10)+whiteturnip_run)/100) // STONKS
+	whiteturnip_multiplier = clamp(whiteturnip_multiplier,1,25)
+	biogen_multiplier = whiteturnip_multiplier
 
 /datum/seed/redturnip/white/get_biogen_value_txt()
-	return "[..()] <span class = '[run > 0 ? "good'>(+" : "bad'>("][run]%)</span>"
+	return "[..()] <span class = '[whiteturnip_run > 0 ? "good'>(+" : "bad'>("][whiteturnip_run]%)</span>"
