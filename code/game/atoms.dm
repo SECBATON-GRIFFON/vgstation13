@@ -1181,7 +1181,7 @@ its easier to just keep the beam vertical.
 /atom/proc/update_moody_light_overlays()
 	if(moody_light)
 		update_moody_light_overlay(moody_light)
-	if(moody_lights.len)
+	if(moody_lights?.len)
 		for(var/image/light in moody_lights)
 			update_moody_light_overlay(light)
 
@@ -1192,24 +1192,24 @@ its easier to just keep the beam vertical.
 		if(T == loc)
 			var/image/overlayimg
 			for(var/atom/movable/AM in T)
-				if(AM.plane > src.plane && AM.layer > src.layer && AM.type != /atom/movable/lighting_overlay)
+				if((AM.plane > src.plane || (AM.plane == src.plane && AM.layer > src.layer)) && AM.plane < LIGHTING_PLANE)
 					overlayimg = image(AM.icon,src,AM.icon_state,dir=AM.dir,pixel_x=AM.pixel_x,pixel_y=AM.pixel_y)
 					overlayimg.color = "#000"
-					overlayimg.appearance_flags = RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM
+					overlayimg.appearance_flags |= RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM|KEEP_TOGETHER
 					overlayimg.plane = LIGHTING_PLANE
-					overlayimg.blend_mode = BLEND_MULTIPLY
+					overlayimg.blend_mode = BLEND_INSET_OVERLAY
 					light.overlays += overlayimg
 
 /atom/Crossed(O)
 	. = ..()
-	if(moody_light || moody_lights.len)
+	if(moody_light || (moody_lights?.len))
 		var/area/A = get_area(src)
 		if(A && A.dynamic_lighting)
 			update_moody_light_overlay()
 
 /atom/Uncrossed(O)
 	. = ..()
-	if(moody_light || moody_lights.len)
+	if(moody_light || (moody_lights?.len))
 		var/area/A = get_area(src)
 		if(A && A.dynamic_lighting)
 			update_moody_light_overlay()
