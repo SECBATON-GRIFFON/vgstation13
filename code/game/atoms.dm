@@ -1206,15 +1206,15 @@ its easier to just keep the beam vertical.
 /atom/Crossed(O)
 	. = ..()
 	if(moody_light || (moody_lights?.len))
-		var/turf/T = get_turf(src)
-		if(T && T == loc && T.dynamic_lighting)
+		var/turf/T = loc
+		if(istype(T) && T.dynamic_lighting)
 			update_moody_light_overlays()
 
 /atom/Uncrossed(O)
 	. = ..()
 	if(moody_light || (moody_lights?.len))
-		var/turf/T = get_turf(src)
-		if(T && T == loc && T.dynamic_lighting)
+		var/turf/T = loc
+		if(istype(T) && T.dynamic_lighting)
 			update_moody_light_overlays()
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
