@@ -1197,22 +1197,22 @@ its easier to just keep the beam vertical.
 					overlayimg.color = "#000"
 					overlayimg.appearance_flags |= RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM|KEEP_TOGETHER
 					overlayimg.plane = LIGHTING_PLANE
-					overlayimg.blend_mode = BLEND_INSET_OVERLAY
+					overlayimg.blend_mode = BLEND_SUBTRACT
 					light.overlays += overlayimg
 
 /atom/Crossed(O)
 	. = ..()
 	if(moody_light || (moody_lights?.len))
-		var/area/A = get_area(src)
-		if(A && A.dynamic_lighting)
-			update_moody_light_overlay()
+		var/turf/T = get_turf(src)
+		if(T && T == loc && T.dynamic_lighting)
+			update_moody_light_overlays()
 
 /atom/Uncrossed(O)
 	. = ..()
 	if(moody_light || (moody_lights?.len))
-		var/area/A = get_area(src)
-		if(A && A.dynamic_lighting)
-			update_moody_light_overlay()
+		var/turf/T = get_turf(src)
+		if(T && T == loc && T.dynamic_lighting)
+			update_moody_light_overlays()
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
 	return FALSE
