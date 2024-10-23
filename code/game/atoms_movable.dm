@@ -403,7 +403,7 @@
 // Previously known as HasEntered()
 // This is automatically called when something enters your square
 /atom/movable/Crossed(atom/movable/AM)
-	return
+	return ..()
 
 // Always override this proc instead of BYOND-provided Bump().
 // This gives us better control over what actually gets bumped instead of being stuck with BYOND's decision.
