@@ -318,7 +318,7 @@ Pipelines + Other Objects -> Pipe network
 	var/datum/gas_mixture/int_air = return_air()
 	var/datum/gas_mixture/env_air = loc.return_air()
 	add_fingerprint(user)
-	if ((int_air.return_pressure()-env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
+	if ((int_air.pressure-env_air.pressure) > 2*ONE_ATMOSPHERE)
 		if(istype(W, /obj/item/tool/wrench/socket) && istype(src, /obj/machinery/atmospherics/pipe))
 			to_chat(user, "<span class='warning'>You begin to open the pressure release valve on the pipe...</span>")
 			if(!do_after(user, src, 50) || !loc)
@@ -329,7 +329,7 @@ Pipelines + Other Objects -> Pipe network
 								"You hear a ratchet.")
 			var/obj/item/tool/wrench/socket/thewrench = W
 			var/datum/gas_mixture/internal_removed = int_air.remove_volume(starting_volume)
-			if(!thewrench.has_slime)
+			if(!(thewrench.has_slimes & SLIME_BLUESPACE))
 				env_air.merge(internal_removed)
 		else
 			to_chat(user, "<span class='warning'>You cannot unwrench this [src], it's too exerted due to internal pressure.</span>")
@@ -349,6 +349,7 @@ Pipelines + Other Objects -> Pipe network
 #define VENT_SOUND_DELAY 30
 
 /obj/machinery/atmospherics/Entered(atom/movable/Obj)
+	. = ..()
 	if(istype(Obj, /mob/living))
 		var/mob/living/L = Obj
 		L.ventcrawl_layer = src.piping_layer

@@ -131,7 +131,7 @@
 			explosion(ground_zero, -1, 0, 1, 2)
 		else
 			ground_zero.assume_air(air_contents)
-			ground_zero.hotspot_expose(1000, 125,surfaces=1)
+			try_hotspot_expose(1000, SMALL_FLAME,1)
 
 	else if(air_contents.temperature > (T0C + 250))
 		strength = (fuel_moles/20)
@@ -142,7 +142,7 @@
 			explosion(ground_zero, -1, 0, 1, 2)
 		else
 			ground_zero.assume_air(air_contents)
-			ground_zero.hotspot_expose(1000, 125,surfaces=1)
+			try_hotspot_expose(1000, SMALL_FLAME,1)
 
 	else if(air_contents.temperature > (T0C + 100))
 		strength = (fuel_moles/25)
@@ -151,18 +151,18 @@
 			explosion(ground_zero, -1, 0, round(strength,1), round(strength*3,1))
 		else
 			ground_zero.assume_air(air_contents)
-			ground_zero.hotspot_expose(1000, 125,1)
+			try_hotspot_expose(1000, SMALL_FLAME,1)
 
 	else
 		ground_zero.assume_air(air_contents)
-		ground_zero.hotspot_expose(1000, 125,surfaces=1)
+		try_hotspot_expose(1000, SMALL_FLAME,1)
 
 	if(master)
 		qdel(master)
 	qdel(src)
 
 /obj/item/weapon/tank/proc/release()	//This happens when the bomb is not welded. Tank contents are just spat out.
-	var/datum/gas_mixture/removed = air_contents.remove(air_contents.total_moles())
+	var/datum/gas_mixture/removed = air_contents.remove(air_contents.total_moles)
 	var/turf/simulated/T = get_turf(src)
 	if(!T)
 		return

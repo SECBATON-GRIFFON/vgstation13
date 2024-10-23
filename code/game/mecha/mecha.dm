@@ -194,6 +194,10 @@
 	selected = null
 	..()
 
+/obj/mecha/special_thrown_behaviour()
+	dash_dir = dir
+	throwing = 2//dashing through windows and grilles
+
 /obj/mecha/can_apply_inertia()
 	return 1 //No anchored check - so that mechas can fly off into space
 
@@ -306,7 +310,8 @@
 		return
 	if(src == target)
 		var/obj/item/mecha_parts/mecha_equipment/passive/rack/R = get_equipment(/obj/item/mecha_parts/mecha_equipment/passive/rack)
-		R.rack.AltClick(user)
+		if(R)
+			R.rack.AltClick(user)
 		return
 	var/dir_to_target = get_dir(src,target)
 	if(dir_to_target && !(dir_to_target & src.dir))//wrong direction
@@ -350,6 +355,7 @@
 //////////////////////////////////
 
 /obj/mecha/relaymove(mob/user,direction)
+	..()
 	if(user != src.occupant) //While not "realistic", this piece is player friendly.
 		user.forceMove(get_turf(src))
 		to_chat(user, "You climb out from [src]")
@@ -774,7 +780,7 @@
 	for(var/mob/living/cookedalive as anything in occupant)
 		if(cookedalive.fire_stacks < 5)
 			cookedalive.adjust_fire_stacks(1)
-			cookedalive.IgniteMob()
+			cookedalive.ignite()
 
 	return
 
@@ -797,6 +803,17 @@
 		src.check_for_internal_damage(list(MECHA_INT_TEMP_CONTROL,MECHA_INT_TANK_BREACH,MECHA_INT_CONTROL_LOST))
 	return
 
+/obj/mecha/proc/get_remaining_equipment_slots()
+	if(equipment.len >= max_equip)
+		return 0
+	return max_equip - equipment.len
+
+/obj/mecha/proc/is_killdozer()
+	for(var/obj/I in equipment)
+		if(istype(I, /obj/item/mecha_parts/mecha_equipment/passive/killdozer_kit))
+			return TRUE
+	return FALSE
+
 //////////////////////
 ////// AttackBy //////
 //////////////////////
@@ -817,7 +834,7 @@
 	if(istype(W, /obj/item/mecha_parts/mecha_equipment))
 		var/obj/item/mecha_parts/mecha_equipment/E = W
 		spawn()
-			if(E.can_attach(src))
+			if((E.can_attach(src) || is_killdozer()) && get_remaining_equipment_slots())
 				if(user.drop_item(W))
 					E.attach(src)
 					user.visible_message("[user] attaches [W] to [src]", "You attach [W] to [src]")
@@ -1011,22 +1028,22 @@
 /obj/mecha/proc/return_pressure()
 	. = 0
 	if(use_internal_tank)
-		. =  cabin_air.return_pressure()
+		. =  cabin_air.pressure
 	else
 		var/datum/gas_mixture/t_air = get_turf_air()
 		if(t_air)
-			. = t_air.return_pressure()
+			. = t_air.pressure
 	return
 
 //skytodo: //No idea what you want me to do here, mate.
 /obj/mecha/proc/return_temperature()
 	. = 0
 	if(use_internal_tank)
-		. = cabin_air.return_temperature()
+		. = cabin_air.temperature
 	else
 		var/datum/gas_mixture/t_air = get_turf_air()
 		if(t_air)
-			. = t_air.return_temperature()
+			. = t_air.temperature
 	return
 
 /obj/mecha/proc/connect(obj/machinery/atmospherics/unary/portables_connector/new_port)
@@ -2248,21 +2265,21 @@
 		var/datum/gas_mixture/cabin_air = mecha.cabin_air
 
 		var/release_pressure = mecha.internal_tank_valve
-		var/cabin_pressure = cabin_air.return_pressure()
-		var/pressure_delta = min(release_pressure - cabin_pressure, (tank_air.return_pressure() - cabin_pressure)/2)
+		var/cabin_pressure = cabin_air.pressure
+		var/pressure_delta = min(release_pressure - cabin_pressure, (tank_air.pressure - cabin_pressure)/2)
 		var/transfer_moles = 0
 		if(pressure_delta > 0) //cabin pressure lower than release pressure
-			if(tank_air.return_temperature() > 0)
-				transfer_moles = pressure_delta * cabin_air.return_volume() / (cabin_air.return_temperature() * R_IDEAL_GAS_EQUATION)
+			if(tank_air.temperature > 0)
+				transfer_moles = pressure_delta * cabin_air.return_volume() / (cabin_air.temperature * R_IDEAL_GAS_EQUATION)
 				var/datum/gas_mixture/removed = tank_air.remove(transfer_moles)
 				cabin_air.merge(removed)
 		else if(pressure_delta < 0) //cabin pressure higher than release pressure
 			var/datum/gas_mixture/t_air = mecha.get_turf_air()
 			pressure_delta = cabin_pressure - release_pressure
 			if(t_air)
-				pressure_delta = min(cabin_pressure - t_air.return_pressure(), pressure_delta)
+				pressure_delta = min(cabin_pressure - t_air.pressure, pressure_delta)
 			if(pressure_delta > 0) //if location pressure is lower than cabin pressure
-				transfer_moles = pressure_delta * cabin_air.return_volume() / (cabin_air.return_temperature() * R_IDEAL_GAS_EQUATION)
+				transfer_moles = pressure_delta * cabin_air.return_volume() / (cabin_air.temperature * R_IDEAL_GAS_EQUATION)
 				var/datum/gas_mixture/removed = cabin_air.remove(transfer_moles)
 				if(t_air)
 					t_air.merge(removed)
@@ -2296,9 +2313,9 @@
 			if(int_tank_air && int_tank_air.return_volume()>0) //heat the air_contents
 				int_tank_air.temperature = min(6000+T0C, int_tank_air.temperature+rand(10,15))
 		if(mecha.cabin_air && mecha.cabin_air.return_volume()>0)
-			mecha.cabin_air.temperature = min(6000+T0C, mecha.cabin_air.return_temperature()+rand(10,15))
-			if(mecha.cabin_air.return_temperature()>mecha.max_temperature/2)
-				mecha.take_damage(4/round(mecha.max_temperature/mecha.cabin_air.return_temperature(),0.1), damage_type = "fire")
+			mecha.cabin_air.temperature = min(6000+T0C, mecha.cabin_air.temperature+rand(10,15))
+			if(mecha.cabin_air.temperature>mecha.max_temperature/2)
+				mecha.take_damage(4/round(mecha.max_temperature/mecha.cabin_air.temperature,0.1), damage_type = "fire")
 	if(mecha.hasInternalDamage(MECHA_INT_TEMP_CONTROL)) //stop the mecha_preserve_temp loop datum
 		mecha.pr_int_temp_processor.stop()
 	if(mecha.hasInternalDamage(MECHA_INT_TANK_BREACH)) //remove some air from internal tank

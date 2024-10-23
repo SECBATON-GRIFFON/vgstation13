@@ -18,7 +18,7 @@
 	level = LEVEL_ABOVE_FLOOR
 	pass_flags = PASSTABLE | PASSGRILLE | PASSGIRDER | PASSMACHINE | PASSRAILING
 	slowdown_modifier = 2
-	autoignition_temperature = AUTOIGNITION_PAPER
+
 	var/add_state = "_bare"
 	var/grown = 0
 	var/growdirs = 0
@@ -83,7 +83,7 @@
 		var/datum/gas_mixture/environment
 		if(isturf(loc))
 			var/turf/T = loc
-			environment = T.return_air()
+			environment = T.return_readonly_air()
 			if(environment.temperature < T0C)
 				die()
 				return

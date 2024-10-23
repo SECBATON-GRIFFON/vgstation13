@@ -39,6 +39,8 @@ var/global/lastDecTalkUse = 0
 	return
 
 /atom/movable/proc/can_speak()
+	if(silence_sprayed)
+		return
 	return 1
 
 /atom/movable/proc/send_speech(var/datum/speech/speech, var/range=7, var/bubble_type)
@@ -58,9 +60,9 @@ var/global/lastDecTalkUse = 0
 	var/turf/T = get_turf(speech.speaker)
 	if(T && !T.c_airblock(T)) //we are on an airflowing tile
 		var/atmos = 0
-		var/datum/gas_mixture/current_air = T.return_air()
+		var/datum/gas_mixture/current_air = T.return_readonly_air()
 		if(current_air)
-			atmos = round(current_air.return_pressure()/ONE_ATMOSPHERE, 0.1)
+			atmos = round(current_air.pressure/ONE_ATMOSPHERE, 0.1)
 		else
 			atmos = 0 //no air
 
@@ -326,8 +328,8 @@ var/global/image/ghostimg = image("icon"='icons/mob/mob.dmi',"icon_state"="ghost
 	if(istype(mob, /mob/new_player))
 		return //One extra layer of sanity
 	if(istype(mob,/mob/dead/observer))
-		var/reference = "<a href='?src=\ref[mob];follow=\ref[speaker]'>(Follow)</a> "
-		message = reference+message
+		var/reference = formatFollow(speaker)
+		message = reference+" "+message
 		to_chat(mob, message)
 	else
 		to_chat(mob, message)

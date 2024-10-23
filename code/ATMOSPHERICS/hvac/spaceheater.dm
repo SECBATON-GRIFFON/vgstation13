@@ -187,7 +187,7 @@
 	if (!isliving(user))
 		return
 	var/turf/T = get_turf(src)
-	var/datum/gas_mixture/env = T.return_air()
+	var/datum/gas_mixture/env = T.return_readonly_air()
 	if(env.molar_density(GAS_OXYGEN) < 5 / CELL_VOLUME)
 		to_chat(user, "<span class='notice'>You try to light \the [name], but it won't catch on fire!")
 		return
@@ -366,7 +366,7 @@
 	//						to_chat(world, "now at [removed.temperature]")
 
 						env.merge(removed)
-						afterheat(L.return_air())
+						afterheat(L.return_readonly_air())
 
 			 if(!istype(loc,/turf/space))
 			 	for (var/mob/living/carbon/M in view(src,light_range_on))
@@ -382,7 +382,7 @@
 	if(!on)
 		return
 	var/turf/simulated/T = loc
-	var/datum/gas_mixture/env = T.return_air()
+	var/datum/gas_mixture/env = T.return_readonly_air()
 	if(Floor(cell.charge/10) != lastcharge)
 		update_icon()
 	if((!(cell && cell.charge > 0) && (nocell != 2)) || !istype(T) || (env.molar_density(GAS_OXYGEN) < 5 / CELL_VOLUME))
@@ -411,7 +411,7 @@
 	if(istype(user,/mob/living/carbon) && on)
 		var/mob/living/carbon/absolutemadman = user
 		absolutemadman.adjust_fire_stacks(1)
-		if(absolutemadman.IgniteMob())
+		if(absolutemadman.ignite())
 			absolutemadman.visible_message("<span class='danger'>[user] walks into \the [src], and is set alight!</span>", "<span class='danger'>You walk into \the [src], and are set alight!</span>")
 
 /obj/machinery/space_heater/campfire/stove/fireplace

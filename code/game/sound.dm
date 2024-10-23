@@ -41,6 +41,7 @@ var/list/disappear_sound = list('sound/effects/disappear_1.ogg', 'sound/effects/
 var/list/pd_wail_sound = list('sound/voice/pdwail1.ogg', 'sound/voice/pdwail2.ogg', 'sound/voice/pdwail3.ogg')
 var/list/procgun_sound = list('sound/weapons/procgun1.ogg', 'sound/weapons/procgun2.ogg')
 var/list/trayhit_sound = list('sound/items/trayhit1.ogg', 'sound/items/trayhit2.ogg')
+var/list/sand_sound = list('sound/effects/sand_walk1.ogg', 'sound/effects/sand_walk2.ogg')
 //var/list/gun_sound = list('sound/weapons/Gunshot.ogg', 'sound/weapons/Gunshot2.ogg','sound/weapons/Gunshot3.ogg','sound/weapons/Gunshot4.ogg')
 
 //gas_modified controls if a sound is affected by how much gas there is in the atmosphere of the source
@@ -63,15 +64,19 @@ var/list/trayhit_sound = list('sound/items/trayhit1.ogg', 'sound/items/trayhit2.
 		extrarange = 0
 	if(!vol) //don't do that
 		return
+	if(istype(source,/atom/movable))
+		var/atom/movable/AM = source
+		if(AM.silence_sprayed) //shhhh
+			return
 
 	if(turf_source)
 		vol *= turf_source.volume_mult
 
 	if(gas_modified && turf_source && !turf_source.c_airblock(turf_source)) //if the sound is modified by air, and we are on an airflowing tile
 		var/atmosphere = 0
-		var/datum/gas_mixture/current_air = turf_source.return_air()
+		var/datum/gas_mixture/current_air = turf_source.return_readonly_air()
 		if(current_air)
-			atmosphere = current_air.return_pressure()
+			atmosphere = current_air.pressure
 		else
 			atmosphere = 0 //no air
 
@@ -122,10 +127,10 @@ var/const/SURROUND_CAP = 7
 		if(!current_turf)
 			return
 
-		var/datum/gas_mixture/environment = current_turf.return_air()
+		var/datum/gas_mixture/environment = current_turf.return_readonly_air()
 		var/atmosphere = 0
 		if(environment)
-			atmosphere = environment.return_pressure()
+			atmosphere = environment.pressure
 
 		/// Local sound modifications ///
 		if(atmosphere < MIN_SOUND_PRESSURE) //no sound reception in space, boyos
@@ -253,6 +258,8 @@ var/const/SURROUND_CAP = 7
 				soundin = pick(procgun_sound)
 			if ("trayhit")
 				soundin = pick(trayhit_sound)
+			if ("sand")
+				soundin = pick(sand_sound)
 			//if ("gunshot") soundin = pick(gun_sound)
 	else if(islist(soundin))
 		soundin = pick(soundin)

@@ -62,7 +62,7 @@
 
 	if("toggle_monitoring" in href_list)
 		var/toggle_target = href_list["toggle_monitoring"]
-		if(toggle_target in XGM.gases || toggle_target == "pressure" || toggle_target == "temperature")
+		if((toggle_target in XGM.gases) || toggle_target == "pressure" || toggle_target == "temperature")
 			toggle_monitoring(toggle_target)
 		return MT_UPDATE
 
@@ -76,11 +76,11 @@
 		signal.data["tag"] = id_tag
 		signal.data["timestamp"] = world.time
 
-		var/datum/gas_mixture/air_sample = return_air()
+		var/datum/gas_mixture/air_sample = return_readonly_air()
 		var/total_moles = air_sample.total_moles
 		for(var/metric in metrics_monitored)
 			if(metric == "pressure")
-				signal.data["pressure"] =round(air_sample.return_pressure(),0.1)
+				signal.data["pressure"] =round(air_sample.pressure,0.1)
 			if(metric == "temperature")
 				signal.data["temperature"] = round(air_sample.temperature,0.1)
 			else if(metric in XGM.gases)
@@ -305,7 +305,7 @@ font-weight:bold;
 
 /obj/machinery/computer/general_air_control/unlinkFrom(var/mob/user, var/obj/O)
 	..()
-	if("id_tag" in O.vars && (istype(O,/obj/machinery/air_sensor) || istype(O, /obj/machinery/meter)))
+	if(("id_tag" in O.vars) && (istype(O,/obj/machinery/air_sensor) || istype(O, /obj/machinery/meter)))
 		sensors.Remove(O:id_tag)
 		return 1
 	return 0
