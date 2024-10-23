@@ -63,6 +63,7 @@ var/global/list/ghdel_profiling = list()
 
 	var/image/moody_light
 	var/list/moody_lights
+	var/list/image/moody_light_overlays
 
 /atom/proc/beam_connect(var/obj/effect/beam/B)
 	if(!last_beamchecks)
@@ -1182,11 +1183,12 @@ its easier to just keep the beam vertical.
 	if(moody_light)
 		update_moody_light_overlay(moody_light)
 	if(moody_lights?.len)
-		for(var/image/light in moody_lights)
+		for(var/image/light in get_list_of_elements(moody_lights))
 			update_moody_light_overlay(light)
 
 /atom/proc/update_moody_light_overlay(var/image/light)
 	if(light)
+		moody_light_overlays.Cut()
 		light.overlays.Cut()
 		var/turf/T = get_turf(src)
 		if(T == loc)
@@ -1197,8 +1199,8 @@ its easier to just keep the beam vertical.
 					overlayimg.color = "#000"
 					overlayimg.appearance_flags |= RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM|KEEP_TOGETHER
 					overlayimg.plane = LIGHTING_PLANE
-					overlayimg.blend_mode = BLEND_SUBTRACT
 					light.overlays += overlayimg
+			moody_light_overlays += light.overlays
 
 /atom/Crossed(O)
 	. = ..()
