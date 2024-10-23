@@ -1187,7 +1187,7 @@ its easier to just keep the beam vertical.
 	if(moody_lights?.len)
 		for(var/image/light in get_list_of_elements(moody_lights))
 			update_moody_light_overlay(light)
-		moody_light_overlays += light.overlays
+			moody_light_overlays += light.overlays
 
 /atom/proc/update_moody_light_overlay(var/image/light)
 	if(light)
