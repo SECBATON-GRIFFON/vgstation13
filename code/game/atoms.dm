@@ -1180,15 +1180,17 @@ its easier to just keep the beam vertical.
 	luminosity = initial(luminosity)
 
 /atom/proc/update_moody_light_overlays()
+	moody_light_overlays.Cut()
 	if(moody_light)
 		update_moody_light_overlay(moody_light)
+		moody_light_overlays += moody_light.overlays
 	if(moody_lights?.len)
 		for(var/image/light in get_list_of_elements(moody_lights))
 			update_moody_light_overlay(light)
+		moody_light_overlays += light.overlays
 
 /atom/proc/update_moody_light_overlay(var/image/light)
 	if(light)
-		moody_light_overlays.Cut()
 		light.overlays.Cut()
 		var/turf/T = get_turf(src)
 		if(T == loc)
@@ -1200,7 +1202,6 @@ its easier to just keep the beam vertical.
 					overlayimg.appearance_flags |= RESET_COLOR|RESET_ALPHA|RESET_TRANSFORM|KEEP_TOGETHER
 					overlayimg.plane = LIGHTING_PLANE
 					light.overlays += overlayimg
-			moody_light_overlays += light.overlays
 
 /atom/Crossed(O)
 	. = ..()
