@@ -1186,6 +1186,25 @@ var/list/available_redphone_names3 = list("1","2","3","4","5","6","7","8","9")
 		color_icon.Blend(alt_color, ICON_ADD)
 		icon = color_icon
 
+/obj/item/fibre_wire
+	name = "cable coil"
+	desc = "A coil of power cable. This one looks extra thin up close."
+	icon = 'icons/obj/power.dmi'
+	icon_state = "coil"
+	item_state = "coil"
+	gender = NEUTER
+	throwforce = 10
+	sharpness = 1
+	force = 10
+	w_class = W_CLASS_SMALL
+	throw_speed = 2
+	throw_range = 5
+	flags =  FPRINT
+	siemens_coefficient = 1.5 //Extra conducting
+	slot_flags = SLOT_BELT
+	attack_verb = list("whips", "lashes", "disciplines", "flogs")
+	toolsounds = list('sound/weapons/cablecuff.ogg')
+
 /////////Random shit////////
 
 /obj/item/weapon/lightning

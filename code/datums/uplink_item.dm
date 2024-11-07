@@ -373,6 +373,12 @@ var/list/discounted_items_of_the_round = list()
 	desc = "A pair of spiked metal knuckles that can be worn directly on your hands in place of gloves, dramatically increasing damage done by your punches without giving any obvious signs to observers unless they inspect you more closely."
 	item = /obj/item/clothing/gloves/knuckles/spiked
 	cost = 2
+	
+/datum/uplink_item/stealthy_weapons/fibre_wire
+	name = "Razor-Thin Fibre Wire"
+	desc = "A thin, sharp piece of wire that resembles a cable coil, capable of providing tighter grips around necks than mere bare hands. Must be held in hands for full effect, obviously."
+	item = /obj/item/fibre_wire
+	cost = 8
 
 /datum/uplink_item/stealthy_weapons/soap
 	name = "Syndicate Soap"
@@ -403,6 +409,12 @@ var/list/discounted_items_of_the_round = list()
 	desc = "A pair of species-flexible shoes that can look and sound like any other piece of footwear. Protects against slipping on virtually all slippery surfaces and items with the exception of lubrication agents. Can be discerned as syndicate technology when examined closely."
 	item = /obj/item/clothing/shoes/syndigaloshes
 	cost = 2
+
+/datum/uplink_item/stealthy_weapons/strip_gloves
+	name = "Chameleon Quick-Strip Gloves"
+	desc = "A pair of stylish white gloves capable of rapid stripping of any clothing item worn on another's person, and equipping to your own. Targets must be either unconscious or dead for this to work, and cannot be wearing exosuits of any kind."
+	item = /obj/item/clothing/gloves/strip
+	cost = 4
 
 /datum/uplink_item/stealthy_tools/voice_changer
 	name = "Chameleon Voice Changer"

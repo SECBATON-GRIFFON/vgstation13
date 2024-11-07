@@ -1402,6 +1402,21 @@ Use this proc preferably at the end of an equipment loadout
 		return ..()
 	if(istype(M,/mob/living/silicon/ai))
 		return ..()
+	var/obj/item/clothing/gloves/strip/S = usr.get_item_by_slot(slot_gloves)
+	if(S && istype(S))
+		if(!stat)
+			to_chat(usr,"<span class='warning'>[src] is too restless to quick strip. Knock \him out first.</span>")
+			return
+		var/delaymult = 1
+		if(get_item_by_slot(slot_wear_suit))
+			delaymult = 2
+		if(do_mob(usr,src,20*delaymult))
+			var/obj/item/I
+			for(I in src.get_clothing_items())
+				src.u_equip(I)
+			for(I in get_clothing_items())
+				if(u_equip(I))
+					src.equip_to_appropriate_slot(I,TRUE)
 	show_inv(usr)
 
 

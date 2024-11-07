@@ -211,6 +211,8 @@
 					assailant.delayNextAttack(10)
 
 					affecting.losebreath += 1
+					if(assailant.held_items?.len && (locate(/obj/item/fibre_wire) in assailant.held_items))
+						affecting.losebreath += 4
 				else
 					if(!assailant || !affecting)
 						qdel(src)

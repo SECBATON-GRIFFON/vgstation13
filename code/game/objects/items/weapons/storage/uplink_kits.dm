@@ -2,7 +2,7 @@
 	..()
 	var/tagname
 	if(!forced_bundle)
-		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50))
+		tagname = pickweight(list("Bloody Spy" = 100, "Stealth" = 100, "Screwed" = 25, "Guns" = 100, "Murder" = 100, "Freedom" = 100, "Hacker" = 100, "Lord Singulo" = 25, "Smooth Operator" = 100, "47" = 100, "Psycho" = 100, "Hotline" = 100, "Ocelot" = 100, "Sith" = 100, "Anarchist" = 50, "Emags and Glue" = 10, "Balloon" = 10, "Bangerboy" = 100, "Highlander" = 100, "Clown" = 50, "Druid" = 50, "Actor" = 100, "Jackpot" = 7, "Eugenics" = 50, "Alchemist" = 50, "Kill the King" = 50))
 	else
 		tagname = forced_bundle
 
@@ -206,6 +206,16 @@
 			new /obj/item/clothing/mask/morphing/amorphous(src)
 			new /obj/item/device/chameleon(src)
 
+		if("47") // 8+4+4 = 16, plus syringes and gun
+			new /obj/item/fibre_wire(src)
+			new /obj/item/clothing/gloves/strip(src)
+			new /obj/item/clothing/under/suit_jacket(src)
+			new /obj/item/weapon/coin(src)
+			new /obj/item/weapon/reagent_containers/syringe/chloral(src)
+			new /obj/item/weapon/reagent_containers/syringe/syndi(src)
+			new /obj/item/binoculars(src)
+			new /obj/item/weapon/gun/projectile/pistol(src)
+			new /obj/item/weapon/c4(src)
 
 		if("Jackpot") //14*2 = 28
 			new /obj/item/weapon/storage/box/syndicate(src)

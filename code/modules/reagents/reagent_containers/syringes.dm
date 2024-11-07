@@ -390,6 +390,16 @@
 	mode = SYRINGE_INJECT
 	update_icon()
 
+/obj/item/weapon/reagent_containers/syringe/chloral
+	name = "sleep syringe"
+	desc = "Puts people into a sleep they will actually wake up from, eventually."
+
+/obj/item/weapon/reagent_containers/syringe/stoxin/New()
+	..()
+	reagents.add_reagent(STOXIN, 15)
+	mode = SYRINGE_INJECT
+	update_icon()
+
 /obj/item/weapon/reagent_containers/syringe/giant/chloral
 	name = "lethal injection syringe"
 	desc = "Puts people into a sleep they'll never wake up from."
