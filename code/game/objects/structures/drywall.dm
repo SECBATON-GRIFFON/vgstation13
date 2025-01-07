@@ -4,7 +4,7 @@ var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //
 /obj/structure/window/barricade/drywall
     name = "wall"
     desc = "A huge chunk of metal used to separate rooms."
-    icon = 'icon/turf/walls.dmi'
+    icon = 'icons/turf/walls.dmi'
     icon_state = "wall0"
     anchored = 1
     opacity = 1 //Not transparent
