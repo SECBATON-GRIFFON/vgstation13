@@ -5,7 +5,7 @@ var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //
     name = "wall"
     desc = "A huge chunk of metal used to separate rooms."
     icon = 'icons/turf/walls.dmi'
-    icon_state = "wall0"
+    icon_state = "metal0"
     anchored = 1
     opacity = 1 //Not transparent
     health = 20 //Enough to punch a hole in
@@ -33,7 +33,7 @@ var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //
         junction = findSmoothingNeighbors()
     else
         junction = 0
-    icon_state = "wall[junction]"
+    icon_state = "metal[junction]"
     return junction
 
 /obj/structure/window/barricade/drywall/canSmoothWith()
