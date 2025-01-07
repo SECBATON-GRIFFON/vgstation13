@@ -84,7 +84,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
 
 /turf/simulated/wall/proc/drywallify() //debug helper proc
     for(var/direction in cardinal)
-        if(!(direction in junction))
+        if(!(junction & direction))
             var/obj/structure/window/barricade/drywall/D = new(src)
             D.update_nearby_tiles() //Compel updates before
             D.change_dir(direction)
