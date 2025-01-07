@@ -19,11 +19,11 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     var/image/override_image
 
 /obj/structure/window/barricade/drywall/New()
-    ..()
-    drywalls += src
     override_image = image('icons/turf/walls.dmi',src,"metal0")  //As viewed by client from a dir
     override_image.layer = PROJECTILE_LAYER
     override_image.override = TRUE //duh
+    ..()
+    drywalls += src
 
 /obj/structure/window/barricade/drywall/Destroy()
     drywalls -= src
