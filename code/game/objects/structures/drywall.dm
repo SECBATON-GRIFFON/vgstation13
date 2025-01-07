@@ -16,10 +16,11 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     airtight = TRUE
     fire_temp_threshold = MELTPOINT_STEEL
     fire_volume_mod = 500
+    var/override_base_state = "metal"
     var/image/override_image
 
 /obj/structure/window/barricade/drywall/New()
-    override_image = image('icons/turf/walls.dmi',src,"metal0")  //As viewed by client from a dir
+    override_image = image('icons/turf/walls.dmi',src,"[override_base_state]0")  //As viewed by client from a dir
     override_image.layer = ABOVE_PROJECTILE_LAYER
     override_image.override = TRUE //duh
     ..()
@@ -34,7 +35,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
         junction = findSmoothingNeighbors()
     else
         junction = 0
-    override_image.icon_state = "metal[junction]"
+    override_image.icon_state = "[override_base_state][junction]"
     return junction
 
 /obj/structure/window/barricade/drywall/canSmoothWith()
