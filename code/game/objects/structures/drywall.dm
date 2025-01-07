@@ -98,11 +98,15 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     if(health < initial(health)) //so it disguises better
         ..()
 
-/turf/simulated/wall/proc/drywallify() //debug helper proc
+/turf/simulated/wall/proc/drywallify(var/drywalltype = /obj/structure/window/barricade/drywall) //debug helper proc
     for(var/direction in cardinal)
         if(!(junction & direction))
-            var/obj/structure/window/barricade/drywall/D = new(src)
+            var/obj/structure/window/barricade/drywall/D = new drywalltype(src)
             D.update_nearby_tiles() //Compel updates before
             D.change_dir(direction)
             D.update_nearby_tiles()
     ChangeTurf(dismantle_type)
+
+    
+/turf/simulated/wall/mineral/wood/drywallify(var/drywalltype = /obj/structure/window/barricade/drywall/wood) //debug helper proc
+    ..(/obj/structure/window/barricade/drywall/wood)
