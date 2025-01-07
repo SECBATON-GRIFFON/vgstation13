@@ -78,7 +78,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
         ..() //Barricade checks
 
 
-/obj/structure/window/barricade/examine_health(mob/user)
+/obj/structure/window/barricade/drywall/examine_health(mob/user)
     if(health < initial(health)) //so it disguises better
         ..()
 
