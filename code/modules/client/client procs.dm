@@ -758,7 +758,7 @@ NOTE:  You will only be polled about this role once per round. To change your ch
 				break
 		for(var/obj/structure/window/barricade/drywall/W in drywalls)
 			if(W.x >= (mob.x - view) && W.x <= (mob.x + view) && W.y >= (mob.y - view) && W.y <= (mob.y + view) &&\
-			((NORTH|SOUTH & dir) && mob.x == W.x) || ((EAST|WEST & dir) && mob.y == W.y))
+			(((NORTH|SOUTH & dir) && mob.x == W.x) || ((EAST|WEST & dir) && mob.y == W.y)))
 				mob.client.images += W.override_image
 			else 
 				mob.client.images -= W.override_image
