@@ -82,7 +82,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     ..()
     override_image.dir = new_dir
 
-/turf/simulated/wall/drywallify() //debug helper proc
+/turf/simulated/wall/proc/drywallify() //debug helper proc
     for(var/direction in cardinal)
         var/obj/structure/window/barricade/drywall/D = new(src)
         D.update_nearby_tiles() //Compel updates before
