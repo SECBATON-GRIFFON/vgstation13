@@ -14,16 +14,6 @@
     fire_temp_threshold = MELTPOINT_STEEL
     fire_volume_mod = 500
     var/image/override_image //As viewed by client from a dir
-    var/obj/effect/border_opacity/border_opacity
-
-/obj/structure/window/barricade/drywall/New()
-    ..()
-    border_opacity = new /obj/effect/border_opacity(get_step(loc,dir))
-
-/obj/structure/window/barricade/drywall/Destroy()
-    qdel(border_opacity)
-    border_opacity = null
-    ..()
 
 /obj/structure/window/barricade/drywall/attackby(obj/item/weapon/W as obj, mob/user as mob)
     if(iswelder(W) && !busy) //Only way to deconstruct
@@ -45,6 +35,3 @@
             busy = 0
     else
         ..() //Barricade checks
-
-/obj/effect/border_opacity
-    opacity = 1
