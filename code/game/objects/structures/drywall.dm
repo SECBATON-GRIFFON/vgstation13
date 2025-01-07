@@ -77,6 +77,11 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     else
         ..() //Barricade checks
 
+
+/obj/structure/window/barricade/examine_health(mob/user)
+    if(health < initial(health)) //so it disguises better
+        ..()
+
 /turf/simulated/wall/proc/drywallify() //debug helper proc
     for(var/direction in cardinal)
         if(!(junction & direction))
