@@ -9,7 +9,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     opacity = 1 //Not transparent
     health = 20 //Enough to punch a hole in
     plane = EFFECTS_PLANE
-    layer = ABOVE_PROJECTILE_LAYER
+    layer = PROJECTILE_LAYER
     pass_flags_self = 0 //Pretend to be a wall
     materialtype = /obj/item/stack/sheet/metal
     pryable = FALSE
@@ -20,7 +20,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
 
 /obj/structure/window/barricade/drywall/New()
     override_image = image('icons/turf/walls.dmi',src,"metal0")  //As viewed by client from a dir
-    override_image.layer = PROJECTILE_LAYER
+    override_image.layer = ABOVE_PROJECTILE_LAYER
     override_image.override = TRUE //duh
     ..()
     drywalls += src
