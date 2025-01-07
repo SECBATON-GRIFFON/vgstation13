@@ -114,8 +114,15 @@
 	var/static/list/smoothables = list(
 		/turf/simulated/wall,
 		/obj/structure/falsewall,
+		/obj/structure/window/barricade/drywall,
 	)
 	return smoothables
+
+/obj/structure/falsewall/cannotSmoothWith()
+	var/static/list/unsmoothables = list(
+		/turf/simulated/wall/shuttle
+	)
+	return unsmoothables
 
 /obj/structure/falsewall/closed
 	density = 1
