@@ -17,6 +17,8 @@ var/anomaly_report_num = 0
 	icon_state = "xenoarch_console"
 	anchored = TRUE
 	density = TRUE
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK
+	light_range_on = 1
 	var/scan_in_progress = FALSE
 	var/scan_num = 0
 	var/obj/machinery/artifact_scanpad/owned_scanner = null
@@ -29,6 +31,22 @@ var/anomaly_report_num = 0
 	reconnect_scanner()
 	update_icon()
 
+	component_parts = newlist(
+		/obj/item/weapon/circuitboard/anom/analyser,
+		/obj/item/weapon/stock_parts/scanning_module,
+		/obj/item/weapon/stock_parts/scanning_module,
+		/obj/item/weapon/stock_parts/scanning_module
+	)
+
+	RefreshParts()
+
+/obj/machinery/artifact_analyser/RefreshParts()
+	var/scancount = 0
+	for(var/obj/item/weapon/stock_parts/scanning_module/SP in component_parts)
+		scancount += SP.rating-1
+
+	scan_duration = initial(scan_duration) - scancount*10
+
 /obj/machinery/artifact_harvester/Destroy()
 	if (owned_scanner)
 		owned_scanner.analyser_console = null
@@ -40,9 +58,15 @@ var/anomaly_report_num = 0
 	update_icon()
 
 /obj/machinery/artifact_analyser/update_icon()
-	icon_state = "[initial(icon_state)][scan_in_progress]"
+	if(stat & (FORCEDISABLE|NOPOWER))
+		icon_state = "xenoarch_console"
+		kill_moody_light()
+	else
+		icon_state = "[initial(icon_state)][scan_in_progress]"
+		update_moody_light('icons/lighting/moody_lights.dmi', "overlay_xenoarch_console")
 	if(owned_scanner)
 		owned_scanner.update_icon()
+
 
 /obj/machinery/artifact_analyser/proc/reconnect_scanner()
 	//connect to a nearby scanner pad
@@ -55,6 +79,8 @@ var/anomaly_report_num = 0
 
 /obj/machinery/artifact_analyser/attack_hand(var/mob/user as mob)
 	if(..())
+		return
+	if(!isliving(user))
 		return
 	src.add_fingerprint(user)
 

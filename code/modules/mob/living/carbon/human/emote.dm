@@ -4,10 +4,10 @@
 /datum/emote/living/carbon/human/can_run_emote(var/mob/living/carbon/human/user, var/status_check = TRUE)
 	if (istype(user) && hands_needed > 0)
 		var/available_hands = 0
-		for (var/datum/organ/external/r_hand/right_hand in user.grasp_organs)
+		for (var/datum/organ/external/hand/r_hand/right_hand in user.grasp_organs)
 			if (!right_hand.status)
 				available_hands++
-		for (var/datum/organ/external/l_hand/left_hand in user.grasp_organs)
+		for (var/datum/organ/external/hand/l_hand/left_hand in user.grasp_organs)
 			if (!left_hand.status)
 				available_hands++
 		if (available_hands < hands_needed)
@@ -136,7 +136,6 @@
 	key = "fart"
 	key_third_person = "farts"
 	stat_allowed = UNCONSCIOUS
-
 /datum/emote/living/carbon/human/fart/run_emote(mob/user, params, type_override, ignore_status = FALSE)
 	if(!(type_override) && !(can_run_emote(user, !ignore_status))) // ignore_status == TRUE means that status_check should be FALSE and vise-versa
 		return FALSE
@@ -144,7 +143,17 @@
 	if(H.op_stage.butt == SURGERY_NO_BUTT)
 		return FALSE // Can't fart without an arse (dummy)
 
-	if(world.time - H.lastFart <= (H.disabilities & LACTOSE ? 20 SECONDS : 40 SECONDS))
+	var/fartcooldownmodifier = 1
+	if(H.disabilities & LACTOSE)
+		fartcooldownmodifier *= 0.5
+	if(H.reagents && H.reagents.has_reagent(IRRADIATEDBEANS))
+		fartcooldownmodifier *= 0.5
+	if(H.reagents && H.reagents.has_reagent(REFRIEDBEANS))
+		fartcooldownmodifier *= 0.5
+	if(H.reagents && H.reagents.has_reagent(MUTATEDBEANS))
+		fartcooldownmodifier *= 0.5
+
+	if(world.time - H.lastFart <= floor(H.fartCooldown * fartcooldownmodifier)) //default cooldown is 20s
 		if(H.stat != UNCONSCIOUS)
 			message = "strains, and nothing happens."
 			emote_type = EMOTE_VISIBLE
@@ -181,13 +190,17 @@
 
 	// Process toxic farts first.
 	if(M_TOXIC_FARTS in H.mutations)
-		playsound(src, 'sound/effects/superfart.ogg', 50, -1)
+		playsound(location, 'sound/effects/superfart.ogg', 50, -1)
 		has_farted = TRUE
 		if(wearing_suit)
 			if(!wearing_mask)
 				to_chat(user, "<span class = 'warning'>You gas yourself!</span>")
 				H.reagents.add_reagent(SPACE_DRUGS, rand(10,50))
 			else
+				if(istype(location,/turf/simulated))
+					var/turf/simulated/S = location
+					if(S.zone)
+						S.zone.blow_dust_motes_but_with_turf(location, -700)
 				// Was /turf/, now /mob/
 				for(var/mob/living/M in view(location,aoe_range))
 					if (M.internal != null && M.wear_mask && (M.wear_mask.clothing_flags & MASKINTERNALS))
@@ -215,6 +228,10 @@
 			if(is_unconscious)
 				H.visible_message("<span class='warning'><b>[H]</b>Explodes in a shower of gore! Damn, what a madman!", "<span class='warning'>The super-fart made you explode!</span>")
 			playsound(location, 'sound/effects/superfart.ogg', 50, 0)
+			if(istype(location,/turf/simulated))
+				var/turf/simulated/S = location
+				if(S.zone)
+					S.zone.blow_dust_motes_but_with_turf(location, -700)
 			for(var/mob/living/V in oviewers(aoe_range, get_turf(H)))
 				if(!airborne_can_reach(location,get_turf(V),aoe_range))
 					continue
@@ -227,10 +244,10 @@
 				var/iterations = is_unconscious ? 5 : 3
 				for(var/i = 0, i < iterations, i++)
 					step_away(V,location,15)
-				var/turf/T = get_turf(H)
-				if (!T.has_gravity(H))
-					to_chat(H, "<span class = 'notice'>The gastrointestinal blast sends you careening through space!</span>")
-					H.throw_at(get_edge_target_turf(H, H.dir), 5, 5)
+			var/turf/T = get_turf(H)
+			if (!T.has_gravity(H))
+				to_chat(H, "<span class = 'notice'>The gastrointestinal blast sends you careening through space!</span>")
+				H.throw_at(get_edge_target_turf(H, H.dir), 5, 5)
 			if(is_unconscious)
 				H.gib()
 		else
@@ -267,26 +284,8 @@
 	var/obj/item/weapon/storage/bible/B = locate(/obj/item/weapon/storage/bible) in H.loc
 	if (!B)
 		return
-	if(isanycultist(H))
-		to_chat(H, "<span class='sinister'>Nar-Sie shields you from [B.my_rel.deity_name]'s wrath!</span>")
-	else
-		if(istype(H.head, /obj/item/clothing/head/fedora))
-			to_chat(H, "<span class='notice'>You feel incredibly enlightened after farting on [B]!</span>")
-			var/obj/item/clothing/head/fedora/F = H.head
-			F.tip_fedora()
-		else
-			to_chat(user, "<span class='danger'>You feel incredibly guilty for farting on [B]!</span>")
-		if(prob(80)) //20% chance to escape God's justice
-			spawn(rand(10,30))
-				if(H && B)
-					H.show_message("<span class='game say'><span class='name'>[B.my_rel.deity_name]</span> says, \"Thou hast angered me, mortal!\"",2)
-					sleep(10)
+	B.divine_retribution(H, "farting on")
 
-					if(H && B)
-						to_chat(H, "<span class='danger'>You were disintegrated by [B.my_rel.deity_name]'s bolt of lightning.</span>")
-						H.attack_log += text("\[[time_stamp()]\] <font color='orange'>Farted on a bible and suffered [B.my_rel.deity_name]'s wrath.</font>")
-						explosion(get_turf(H),-1,-1,1,5, whodunnit = H) //Tiny explosion with flash
-						H.dust(TRUE)
 //Ayy lmao
 
 
@@ -297,6 +296,13 @@
 
 /datum/emote/living/carbon/human/dab/can_run_emote(mob/user, var/status_check = TRUE)
 	var/mob/living/carbon/human/H = user
+	if(!(Holiday == APRIL_FOOLS_DAY) && status_check)
+		//var/confirm = alert("Suffer for your sins.", "Confirm Suicide", "gladly", "ok")
+		//var/confirm = alert("Are you sure you want to do this? Nobody will want to revive you.", "Confirm Suicide", "Yes", "Yes")
+		//var/confirm = alert("Are you sure you want to [key]? This action will cause irreversable brain damage.", "Confirm Suicide", "Yes", "Yes")
+		var/confirm = alert("Are you sure you want to [key]? This action cannot be undone and you will not able to be revived.", "Confirm Suicide", "Yes", "No")
+		if(confirm != "Yes")
+			return FALSE
 	if (iswizard(H))
 		to_chat(user, "<span class='warning'>The Wizard Federation has banned usage of the [key].</span>")
 		return FALSE
@@ -310,6 +316,10 @@
 	else
 		to_chat(user, "<span class='warning'>You cannot [key] without both your arms.</span>")
 		return FALSE
+	if(user.reagents && user.reagents.has_reagent(PAROXETINE))
+		to_chat(user, "<span class='numb'>You're too medicated to wanna do that anymore.</span>")
+		return FALSE
+
 	return ..()
 
 /datum/emote/living/carbon/human/dab/run_emote(mob/user, params, ignore_status = FALSE)
@@ -319,14 +329,9 @@
 	if(!istype(H))
 		return
 	if(!(Holiday == APRIL_FOOLS_DAY))
-		//var/confirm = alert("Suffer for your sins.", "Confirm Suicide", "gladly", "ok")
-		//var/confirm = alert("Are you sure you want to do this? Nobody will want to revive you.", "Confirm Suicide", "Yes", "Yes")
-		//var/confirm = alert("Are you sure you want to [key]? This action will cause irreversable brain damage.", "Confirm Suicide", "Yes", "Yes")
-		var/confirm = alert("Are you sure you want to [key]? This action cannot be undone and you will not able to be revived.", "Confirm Suicide", "Yes", "No")
-		if(confirm != "Yes")
-			return
 		if(H.mind)
 			H.mind.suiciding = 1
+		log_attack("<font color='red'>[key_name(H)] has committed suicide via dabbing.</font>")
 		H.visible_message("<span class='danger'>[H] holds one arm up and slams \his other arm into \his face! It looks like \he's trying to commit suicide.</span>",)
 		for(var/datum/organ/external/breakthis in H.get_organs(LIMB_LEFT_ARM, LIMB_RIGHT_ARM, LIMB_HEAD))
 			H.apply_damage(50, BRUTE, breakthis)

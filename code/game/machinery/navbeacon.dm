@@ -88,14 +88,17 @@ var/list/navbeacons = list()
 	// if found, return a signal
 /obj/machinery/navbeacon/receive_signal(datum/signal/signal)
 	var/request = signal.data["findbeacon"]
+	var/bot = null
+	if(signal.data["bot"])
+		bot = signal.data["bot"]
 	if(request && ((request in codes) || request == "any" || request == location))
 		spawn(1)
-			astar_debug_mulebots("navbeacons accepted request [request] and posted its own location")
-			post_signal(request)
+			astar_debug_mulebots("navbeacons accepted request [request] from [bot] and posted its own location")
+			post_signal(request, bot)
 
 	// return a signal giving location and transponder codes
 
-/obj/machinery/navbeacon/proc/post_signal(request, var/mulebot_signal = FALSE)
+/obj/machinery/navbeacon/proc/post_signal(request, var/mulebot = null)
 	var/datum/radio_frequency/frequency = radio_controller.return_frequency(freq)
 	if(!frequency)
 		return
@@ -110,8 +113,13 @@ var/list/navbeacons = list()
 
 	for(var/key in codes)
 		signal.data[key] = codes[key]
+		astar_debug_mulebots("Key: [key] - [codes[key]]")
 
-	astar_debug_mulebots("navbeacon [location] posted signal with request [request] on freq [freq].")
+	if(mulebot)
+		astar_debug_mulebots("Bot: [mulebot]")
+		signal.data["bot"] = mulebot
+
+	astar_debug_mulebots("navbeacon [location] posted signal with request [request] for [mulebot] on freq [freq].")
 
 	frequency.post_signal(src, signal, filter = RADIO_NAVBEACONS)
 
@@ -213,12 +221,12 @@ Transponder Codes:<UL>"}
 			else if(href_list["edit"])
 				var/codekey = href_list["code"]
 
-				var/newkey = input("Enter Transponder Code Key", "Navigation Beacon", codekey) as text|null
+				var/newkey = copytext(sanitize(input("Enter Transponder Code Key", "Navigation Beacon", codekey) as text|null),1,MAX_NAME_LEN)
 				if(!newkey)
 					return
 
 				var/codeval = codes[codekey]
-				var/newval = input("Enter Transponder Code Value", "Navigation Beacon", codeval) as text|null
+				var/newval = copytext(sanitize(input("Enter Transponder Code Value", "Navigation Beacon", codeval) as text|null),1,MAX_NAME_LEN)
 				if(!newval)
 					newval = codekey
 					return
@@ -235,11 +243,11 @@ Transponder Codes:<UL>"}
 
 			else if(href_list["add"])
 
-				var/newkey = input("Enter New Transponder Code Key", "Navigation Beacon") as text|null
+				var/newkey = copytext(sanitize(input("Enter New Transponder Code Key", "Navigation Beacon") as text|null),1,MAX_NAME_LEN)
 				if(!newkey)
 					return
 
-				var/newval = input("Enter New Transponder Code Value", "Navigation Beacon") as text|null
+				var/newval = copytext(sanitize(input("Enter New Transponder Code Value", "Navigation Beacon") as text|null),1,MAX_NAME_LEN)
 				if(!newval)
 					newval = "1"
 					return

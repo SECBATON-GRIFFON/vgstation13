@@ -49,11 +49,10 @@
 	var/time = 40
 
 /datum/food_processor_process/proc/process(loc, what)
-	if (src.output && loc)
-		new src.output(loc)
+	if (output && loc)
+		new output(loc)
 	if (what)
-		qdel(what)
-		what = null
+		QDEL_NULL(what)
 
 /* objs */
 /datum/food_processor_process/poison/process(loc, atom/movable/what)
@@ -98,8 +97,19 @@
 
 
 /datum/food_processor_process/food/process(loc, var/obj/what)
-	var/processed = new src.output(loc)
+	var/processed = new output(loc)
 	what.reagents.trans_to(processed, what.reagents.total_volume)
+	qdel(what)
+
+/* beeswax */
+/datum/food_processor_process/beeswax
+	input = /obj/item/weapon/reagent_containers/food/snacks/honeycomb
+	output = /obj/item/stack/sheet/wax
+
+/datum/food_processor_process/beeswax/process(loc, var/obj/what)
+	var/obj/item/stack/sheet/wax/processed_wax = new (loc)
+	processed_wax.amount = WAX_PER_HONEYCOMB
+	processed_wax.color = mix_color_from_reagents(what.reagents.reagent_list)
 	qdel(what)
 
 /* mobs */
@@ -180,8 +190,7 @@
 			I.forceMove(loc)
 			I.throw_at(pick(throwzone),rand(2,5),0)
 		hgibs(loc, target.virus2, target.dna, target.species.flesh_color, target.species.blood_color)
-		qdel(target)
-		target = null
+		QDEL_NULL(target)
 		for(var/i = 1;i<=6;i++)
 			new /obj/item/weapon/reagent_containers/food/snacks/chicken_nuggets(loc)
 			sleep(2)
@@ -241,9 +250,9 @@
 		if(items_transferred == 0 && !is_full())
 			return FALSE
 	else
-		if(isliving(AM))
-			var/mob/living/L = AM
-			if(!L.lying)
+		if(ishuman(AM))
+			var/mob/living/carbon/human/H = AM
+			if(!H.lying)
 				return FALSE
 		var/datum/food_processor_process/P = select_recipe(AM)
 		if (!P)

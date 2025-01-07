@@ -19,20 +19,13 @@
 /obj/item/weapon/implanter/attack(atom/target, mob/user)
 	if(!user)
 		return
-	var/mob/living/carbon/M = target
 	if(!istype(target))
 		return
 	if(!imp)
-		if(istype(target, /obj/item/weapon/implant))
-			var/obj/item/weapon/implant/timp = target
-			timp.forceMove(src)
-			user.show_message("<span class='warning'>You load \the [timp] into \the [src].</span>")
-			imp = timp
-			update()
-			return
 		if(ismob(target))
 			user.show_message("<span class='warning'>There is no implant in \the [src].</span>")
 			return
+	var/mob/living/carbon/M = target
 	if(M)
 		M.visible_message("<span class='warning'>[user] is attempting to implant [M].</span>")
 		add_attacklogs(user, M, "attempted to implant", imp)
@@ -154,13 +147,13 @@
 		var/uselevel = alert(user, "Which level of complexity do you want to work with? Basic is a simple word replacement with regex, advanced is an implementation of NTSL as found in telecomms servers.", "Level of vocal manipulation", "Basic", "Advanced")
 		if(uselevel == "Basic")
 			var/obj/item/weapon/implant/vocal/V = imp
-			var/input = input(user, "Enter an input phrase, regex works here:", "Input phrase") as text
+			var/input = html_encode(input(user, "Enter an input phrase, regex works here:", "Input phrase") as text)
 			if(!input)
 				return
 			var/keepgoing = FALSE
 			var/list/outputs = list()
 			do
-				var/output =  input(user, "Enter an output phrase:", "Output phrase") as text
+				var/output =  html_encode(input(user, "Enter an output phrase:", "Output phrase") as text)
 				if(!output)
 					return
 				outputs.Add(output)

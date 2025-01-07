@@ -88,7 +88,8 @@ var/list/admin_verbs_admin = list(
 	/client/proc/artifacts_panel,
 	/client/proc/body_archive_panel,
 	/client/proc/climate_panel,
-	/datum/admins/proc/ashInvokedEmotions	/*Ashes all paper from the invoke emotion spell. An emergency purge.*/
+	/datum/admins/proc/ashInvokedEmotions,	/*Ashes all paper from the invoke emotion spell. An emergency purge.*/
+	/client/proc/toggle_admin_examine
 )
 var/list/admin_verbs_ban = list(
 	/client/proc/unban_panel,
@@ -131,6 +132,7 @@ var/list/admin_verbs_fun = list(
 	/client/proc/view_all_rods,
 	/client/proc/add_centcomm_order,
 	/client/proc/apes,
+	/client/proc/force_next_map,
 	)
 var/list/admin_verbs_spawn = list(
 	/datum/admins/proc/spawn_atom, // Allows us to spawn instances
@@ -161,6 +163,7 @@ var/list/admin_verbs_server = list(
 	/client/proc/dump_chemreactions,
 	/client/proc/save_coordinates,
 	/datum/admins/proc/mass_delete_in_zone,
+	/client/proc/hub_panel,
 	)
 var/list/admin_verbs_debug = list(
 	/client/proc/gc_dump_hdl,
@@ -184,6 +187,7 @@ var/list/admin_verbs_debug = list(
 	/client/proc/test_movable_UI,
 	/client/proc/test_snap_UI,
 	/client/proc/configFood,
+	///client/proc/configThermDiss,
 	/client/proc/configHat,
 	/client/proc/cmd_dectalk,
 	/client/proc/debug_reagents,
@@ -208,15 +212,18 @@ var/list/admin_verbs_debug = list(
 	/client/proc/bee_count,
 	/client/proc/set_procizine_call,
 	/client/proc/set_procizine_properties,
+	/client/proc/check_for_unconnected_atmos,
+
 #if UNIT_TESTS_ENABLED
 	/client/proc/unit_test_panel,
 #endif
 	/client/proc/update_all_open_spaces,
 	/client/proc/update_all_area_portals,
+	/client/proc/spam_blend_calls,
+	/client/proc/edit_motd,
 	)
 var/list/admin_verbs_possess = list(
-	/proc/possess,
-	/proc/release
+	/client/proc/possess
 	)
 var/list/admin_verbs_permissions = list(
 	/client/proc/edit_admin_permissions
@@ -287,8 +294,7 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/cmd_debug_tog_aliens,
 	/client/proc/enable_debug_verbs,
 	/client/proc/mob_list,
-	/proc/possess,
-	/proc/release,
+	/client/proc/possess,
 	/client/proc/gc_dump_hdl,
 	/client/proc/create_map_element
 	)
@@ -351,6 +357,7 @@ var/list/admin_verbs_mod = list(
 		admin_verbs_debug,
 		admin_verbs_possess,
 		admin_verbs_permissions,
+		admin_verbs_polling,
 		/client/proc/stealth,
 		admin_verbs_rejuv,
 		admin_verbs_sounds,
@@ -359,7 +366,6 @@ var/list/admin_verbs_mod = list(
 		/*Debug verbs added by "show debug verbs"*/
 		/client/proc/Cell,
 		/client/proc/pdiff,
-		/client/proc/do_not_use_these,
 		/client/proc/camera_view,
 		/client/proc/sec_camera_report,
 		/client/proc/intercom_view,
@@ -376,7 +382,7 @@ var/list/admin_verbs_mod = list(
 		/client/proc/splash,
 		/client/proc/cmd_admin_areatest,
 		/client/proc/readmin,
-		/proc/generateMiniMaps,
+		///proc/generateMiniMaps,
 		/client/proc/maprender,
 		/client/proc/cmd_admin_rejuvenate,
 		/datum/admins/proc/show_role_panel,
@@ -660,6 +666,16 @@ var/list/admin_verbs_mod = list(
 			var/heavy_impact_range = input("Heavy impact range (in tiles):") as num
 			var/light_impact_range = input("Light impact range (in tiles):") as num
 			var/flash_range = input("Flash range (in tiles):") as num
+			if(devastation_range > 299 || heavy_impact_range > 299 || light_impact_range > 299)
+				if(alert(usr, "THIS EXPLOSION MAY CRASH THE SERVER, ARE YOU REALLY SURE?", "DANGER ZONE", "Yes", "No") == "No")
+					return 0;
+				log_admin("[key_name_admin(src)] decided to set off a potentially server-crashing bomb despite the warning.")
+				message_admins("<span class='warning'>[key_name_admin(src)] decided to set off a potentially server-crashing bomb despite the warning.</span>")
+			else if (devastation_range > 149 || heavy_impact_range > 149 || light_impact_range > 149)
+				if(alert(usr, "This explosion is likely to cause significant server lag, continue anyway?", "Lag Warning", "Yes", "No") == "No")
+					return 0;
+				log_admin("[key_name_admin(src)] decided to set off a potentially server-lagging bomb despite the warning.")
+				message_admins("<span class='warning'>[key_name_admin(src)] decided to set off a potentially server-lagging bomb despite the warning.</span>")
 			explosion(epicenter, devastation_range, heavy_impact_range, light_impact_range, flash_range, whodunnit = usr)
 
 	log_admin("[key_name(usr)] creating an admin explosion at [epicenter.loc] ([epicenter.x],[epicenter.y],[epicenter.z]).")
@@ -800,6 +816,14 @@ var/list/admin_verbs_mod = list(
 		else
 			config.log_hrefs = 1
 			to_chat(src, "<b>Started logging hrefs</b>")
+
+/client/proc/hub_panel()
+	set name = "Hub Panel"
+	set category = "Server"
+	if(holder)
+		holder.HubPanel()
+	feedback_add_details("admin_verb","HP") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+	return
 
 /client/proc/check_ai_laws()
 	set name = "Check AI Laws"
@@ -1360,4 +1384,14 @@ var/list/admin_verbs_mod = list(
 	if(holder)
 		holder.ViewAllRods()
 	feedback_add_details("admin_verb","V-ROD") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+	return
+
+/client/proc/toggle_admin_examine()
+	set name = "Toggle Admin-only Descriptions"
+	set category = "Admin"
+	set desc = "See admin-only text for certain objects."
+	if(holder)
+		holder.admin_examine = !(holder.admin_examine)
+		to_chat(usr, "<span class='notice'>You toggle [holder.admin_examine ? "on" : "off"] admin examining.")
+	feedback_add_details("admin_verb","admin_examine")
 	return

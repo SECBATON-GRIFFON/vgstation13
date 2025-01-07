@@ -3,6 +3,7 @@
 /datum/map_element/vault/sokoban
 	name = "Sokoban"
 	file_path = "maps/randomvaults/sokoban_entrance.dmm"
+	spawn_cost = 3
 
 	var/list/available_levels = list(
 	"maps/randomvaults/dungeons/sokoban/A.dmm",
@@ -74,8 +75,7 @@
 			cheater_trophy.name = "cheater's trophy"
 			cheater_trophy.desc = "No prize for you!"
 
-			qdel(L.reward)
-			L.reward = null
+			QDEL_NULL(L.reward)
 
 	if(!cheated)
 		if(usr)

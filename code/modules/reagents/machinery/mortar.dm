@@ -48,8 +48,7 @@
 	var/obj/item/crushable = null
 
 /obj/item/weapon/reagent_containers/glass/mortar/Destroy()
-	qdel(crushable)
-	crushable = null
+	QDEL_NULL(crushable)
 	. = ..()
 
 /obj/item/weapon/reagent_containers/glass/mortar/attackby(var/obj/item/O as obj, var/mob/user as mob)
@@ -74,8 +73,7 @@
 		crushable = N
 		to_chat(user, "<span class='notice'>You place \the [N] in \the [src].</span>")
 		return 0
-	else if(!user.drop_item(O, src))
-		to_chat(user, "<span class='warning'>You can't let go of \the [O]!</span>")
+	else if(!user.drop_item(O, src, failmsg = TRUE))
 		return
 
 	crushable = O
@@ -141,8 +139,7 @@
 	else
 		flick(crush_flick,src)
 		to_chat(user, "<span class='notice'>You smash the contents into nothingness.</span>")
-	qdel(crushable)
-	crushable = null
+	QDEL_NULL(crushable)
 	return
 
 /obj/item/weapon/reagent_containers/glass/mortar/examine(mob/user)

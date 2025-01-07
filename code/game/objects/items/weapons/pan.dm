@@ -9,17 +9,23 @@
 	force = 12
 	throwforce = 10
 	volume = 100
+	starting_materials = list(MAT_IRON = CC_PER_SHEET_METAL*10)
+	w_type = RECYK_METAL
 	flags = FPRINT  | OPENCONTAINER
 	amount_per_transfer_from_this = 10
 	possible_transfer_amounts = list(10,20,50,100)
 	attack_mob_instead_of_feed = TRUE
 	attack_verb = list("smashes", "bludgeons", "batters", "pans")
 	hitsound = list('sound/weapons/pan_01.ogg', 'sound/weapons/pan_02.ogg', 'sound/weapons/pan_03.ogg', 'sound/weapons/pan_04.ogg')
+	throw_impact_sound = list('sound/weapons/pan_01.ogg', 'sound/weapons/pan_02.ogg', 'sound/weapons/pan_03.ogg', 'sound/weapons/pan_04.ogg')
 	miss_sound = list('sound/weapons/pan_miss_01.ogg', 'sound/weapons/pan_miss_02.ogg')
 	is_cookvessel = TRUE
 	slot_flags = SLOT_HEAD
 	armor = list(melee = 30, bullet = 30, laser = 30, energy = 10, bomb = 25, bio = 0, rad = 0)
 	body_parts_covered = HEAD
+	slimeadd_message = "You spread the slime extract on the SRCTAG"
+	slimes_accepted = SLIME_SILVER
+	slimeadd_success_message = "It gives off a distinct shine as a result"
 	var/mob/chef //The mob who most recently added a non-reagent ingredient to or picked up the pan.
 	var/limit = 10 //Number of ingredients that the pan can hold at once.
 	var/speed_multiplier = 1 //Can be changed to modify cooking speed.
@@ -35,6 +41,7 @@
 												/obj/item/weapon/reagent_containers/food/condiment,
 												/obj/item/weapon/reagent_containers/syringe,
 												/obj/item/weapon/reagent_containers/dropper)
+	var/open_container_override = FALSE
 
 
 /obj/item/weapon/reagent_containers/pan/New()
@@ -59,16 +66,28 @@
 	return result
 
 /obj/item/weapon/reagent_containers/pan/on_reagent_change()
+	..()
 	cook_reboot()
 	update_icon()
 
+/obj/item/weapon/reagent_containers/pan/update_temperature_overlays()
+	//we only care about the steam
+
+	var/average_chem_temp = 0
+	var/chem_temps = 0
+	if(reagents && reagents.total_volume)
+		average_chem_temp = reagents.chem_temp
+		chem_temps = 1
+	for(var/atom/content in contents)
+		if(content.reagents)
+			average_chem_temp += content.reagents.chem_temp
+			chem_temps++
+	if (chem_temps)
+		average_chem_temp /= chem_temps
+	steam_spawn_adjust(average_chem_temp)
+
 /obj/item/weapon/reagent_containers/pan/update_icon()
-
 	overlays.len = 0
-
-	if(blood_overlay)
-		overlays += blood_overlay
-
 	//reagents:
 	if(reagents.total_volume)
 		var/image/filling = image('icons/obj/reagentfillings.dmi', src, "pan20")
@@ -106,21 +125,14 @@
 		//put a front over the ingredients where they're occluded from view by the side of the pan
 		var/image/pan_front = image('icons/obj/pan.dmi', src, "pan_front")
 		overlays += pan_front
-		//put blood back onto the pan front
-		if(blood_overlay)
-
-			var/icon/I = new /icon('icons/obj/pan.dmi', "pan_front")
-			I.Blend(new /icon('icons/effects/blood.dmi', rgb(255,255,255)),ICON_ADD) //fills the icon_state with white (except where it's transparent)
-			I.Blend(new /icon('icons/effects/blood.dmi', "itemblood"),ICON_MULTIPLY) //adds blood and the remaining white areas become transparant
-
-			var/image/frontblood = image(I)
-			frontblood.color = blood_color
-
-			overlays += frontblood
+		update_temperature_overlays()
+	else
+		remove_particles(PS_STEAM)
 
 		//Note: an alternative to the above might be to overlay all of the non-reagent ingredients onto a single icon, then mask it with the "pan_mask" icon_state.
 		//This would obviate the need to regenerate the blood overlay, and help avoid anomalies with large ingredient sprites.
 		//However I'm not totally sure how to do this nicely.
+	set_blood_overlay()
 
 /////////////////////Dumping-and-splashing-related stuff/////////////////////
 
@@ -156,14 +168,14 @@
 	if(is_type_in_list(I,acceptable_items))
 		if(contents.len >= limit)
 			to_chat(usr, "<span class='notice'>[src] is completely full!</span>")
-		else if (istype(I,/obj/item/stack))
+		else if(istype(I,/obj/item/stack))
 			var/obj/item/stack/ST = I
-			if(ST.amount > 1)
+			if(ST.amount >= 1)
+				user.visible_message( \
+					"<span class='notice'>[user] adds \an [ST.singular_name] to [src].</span>", \
+					"<span class='notice'>You add \an [ST.singular_name] to [src].</span>")
 				new ST.type (src)
 				ST.use(1)
-				user.visible_message( \
-					"<span class='notice'>[user] adds one of [I] to [src].</span>", \
-					"<span class='notice'>You add one of [I] to [src].</span>")
 				updateUsrDialog()
 				cook_reboot(user) //Reset the cooking status.
 				update_icon()
@@ -214,13 +226,13 @@
 	if(contents.len)
 		return contents[contents.len]
 
-/obj/item/weapon/reagent_containers/pan/proc/drop_ingredients(atom/target, mob/dropper = usr)
+/obj/item/weapon/reagent_containers/pan/proc/drop_ingredients(atom/target, mob/dropper)
 
 	var/contains = contains_anything()
 	if(!contains)
 		return FALSE //Return FALSE if there's nothing to drop.
 
-	if(!isturf(dropper.loc)) //No pouring the contents of a pan out while hiding inside of a locker. Let's just say its too cramped.
+	if(dropper ? !isturf(dropper.loc) : FALSE) //No pouring the contents of a pan out while hiding inside of a locker. Let's just say its too cramped.
 		return FALSE
 
 	var/splashverb
@@ -255,15 +267,22 @@
 		if((dropper.a_intent != I_HELP) && ismob(target))
 			var/mob/M = target
 			M.visible_message( \
-					"<span class='[spanclass]'>The contents of [src] spill out onto [M][spanclass == "warning" ? "!" : "."]</span>", \
-					"<span class='[spanclass]'>The contents of [src] spill out onto you[spanclass == "warning" ? "!" : "."]</span>")
+					"<span class='[spanclass]'>[src]'s contents spill out onto [M][spanclass == "warning" ? "!" : "."]</span>", \
+					"<span class='[spanclass]'>[src]'s contents spill out onto you[spanclass == "warning" ? "!" : "."]</span>")
 		//otherwise, say that the wielder spills it onto the target
 		else
 			dropper.visible_message( \
-					"<span class='[spanclass]'>[dropper] [splashverb][target ? "" : " out"] the contents of [src][target ? " onto [target == dropper ? get_reflexive_pronoun(dropper.gender) : target]" : ""][spanclass == "warning" ? "!" : "."]</span>", \
-					"<span class='[spanclass]'>You [shift_verb_tense(splashverb)][target ? "" : " out"] the contents of [src][target ? " onto [target == dropper ? "yourself" : target]" : ""].</span>")
+					"<span class='[spanclass]'>[dropper] [splashverb][target ? "" : " out"] [src]'s contents [target ? " onto [target == dropper ? get_reflexive_pronoun(dropper.gender) : target]" : ""][spanclass == "warning" ? "!" : "."]</span>", \
+					"<span class='[spanclass]'>You [shift_verb_tense(splashverb)][target ? "" : " out"] [src]'s contents [target ? " onto [target == dropper ? "yourself" : target]" : ""].</span>")
 	else
-		visible_message("<span class='warning'>Everything [splashverb] out of [src] [target ? "onto [target]" : ""]!</span>")
+		var/mob/living/carbon/on_head_someone = is_on_someones_head()
+		if (on_head_someone)
+			spanclass = "notice"
+			on_head_someone.visible_message( \
+					"<span class='[spanclass]'>[src]'s contents spill out onto [on_head_someone][spanclass == "warning" ? "!" : "."]</span>", \
+					"<span class='[spanclass]'>[src]'s contents spill out onto you[spanclass == "warning" ? "!" : "."]</span>")
+		else
+			visible_message("<span class='warning'>[src]'s contents [shift_verb_tense(splashverb)] out[target ? " onto [target]" : ""]!</span>")
 
 	cook_abort() //sanity
 	update_icon()
@@ -273,7 +292,7 @@
 
 	var/datum/organ/external/affecting = user && user.zone_sel ? user.zone_sel.selecting : null //Find what the player is aiming at
 
-	reagents.reaction(target, TOUCH, amount_override = max(0,amount), zone_sels = affecting ? list(affecting) : ALL_LIMBS)
+	reagents.reaction(target, TOUCH, amount_override = max(0,amount), zone_sels = affecting ? list(affecting) : (is_on_someones_head() ? LIMB_HEAD : ALL_LIMBS))
 
 	if(user)
 		user.investigation_log(I_CHEMS, "has splashed [amount > 0 ? "[amount]u of [reagents.get_reagent_ids()]" : "[reagents.get_reagent_ids(1)]"] from \a [reagents.my_atom] \ref[reagents.my_atom] onto \the [target][ishuman(target) ? "'s [parse_zone(affecting)]" : ""].")
@@ -311,6 +330,11 @@
 	if(isturf(usr.loc))
 		usr.investigation_log(I_CHEMS, "has emptied \a [src] ([type]) containing [reagents.get_reagent_ids(1)] onto \the [usr.loc].")
 		drop_ingredients(usr.loc, usr)
+
+/obj/item/weapon/reagent_containers/pan/throw_impact(hit_atom, speed, user)
+	if(ismob(hit_atom))
+		drop_ingredients(target = hit_atom, dropper = null)
+	return ..()
 
 /////////////////////Cooking-related stuff/////////////////////
 
@@ -356,6 +380,7 @@
 	return ffuu
 
 /obj/item/weapon/reagent_containers/pan/process()
+	steam_spawn_adjust(0)
 
 	var/obj/O
 	if(isobj(loc))
@@ -371,16 +396,27 @@
 		return
 
 	var/contains_anything = contains_anything()
+	var/average_chem_temp = 0
+	var/chem_temps = 0
+	var/cook_energy = O.cook_energy()
+	var/cook_temperature = O.cook_temperature()
 
-	//If there are any reagents in the pan, heat them.
+	//If there are any reagents in the pan (salt, butter, etc), heat them.
 	if(contains_anything & COOKVESSEL_CONTAINS_REAGENTS)
-		reagents.heating(O.cook_energy(), O.cook_temperature())
-	//Otherwise if there are non-reagent contents, heat the reagents in those contents if possible.
-	else
-		var/cook_energy = O.cook_energy()
-		var/cook_temperature = O.cook_temperature()
-		for(var/atom/content in contents)
+		reagents.heating(cook_energy, cook_temperature)
+		average_chem_temp = reagents.chem_temp
+		chem_temps = 1
+	//If there are non-reagent contents (meat etc), heat them as well
+	for(var/atom/content in contents)
+		if(content.reagents)
 			content.reagents.heating(cook_energy / contents.len, cook_temperature)
+			average_chem_temp += content.reagents.chem_temp
+			chem_temps++
+
+	//making the pan steam when its content is hot enough
+	if (chem_temps)
+		average_chem_temp /= chem_temps
+	steam_spawn_adjust(average_chem_temp)
 
 	cookingprogress += (SS_WAIT_FAST_OBJECTS * speed_multiplier)
 
@@ -391,18 +427,24 @@
 		var/obj/cooked
 		if(currentrecipe)
 			cooked = currentrecipe.make_food(src, chef)
+			//shouldn't be needed anymore thanks to thermal entropy and visible steam
+			/*
 			//If we cooked successfully, don't make the reagents in the food too hot.
 			if(!arcanetampered)
 				if(cooked.reagents.total_volume)
 					if(cooked.reagents.chem_temp > COOKTEMP_HUMANSAFE)
 						cooked.reagents.chem_temp = COOKTEMP_HUMANSAFE
+			*/
 			visible_message("<span class='notice'>[cooked] looks done.</span>")
 			playsound(src, 'sound/effects/frying.ogg', 50, 1)
 		else if(contains_anything & COOKVESSEL_CONTAINS_CONTENTS) //Don't make a burned mess out of just reagents, even though recipes can call for only reagents (spaghetti). This allows using the pan to heat reagents.
 			cooked = cook_fail()
 
 		if(cooked)
-			cooked.forceMove(src, harderforce = TRUE)
+			if (cooked.reagents?.chem_temp < COOKTEMP_READY)
+				cooked.reagents?.chem_temp = COOKTEMP_READY//so cooking with frozen meat doesn't produce frozen steaks
+				cooked.update_icon()
+			cooked.forceMove(src)
 			update_icon()
 			O?.render_cookvessel()
 
@@ -412,7 +454,8 @@
 
 	//Hotspot expose
 	var/turf/T = get_turf(src)
-	T?.hotspot_expose(O ? O.cook_temperature() : COOKTEMP_DEFAULT, 500, 1, surfaces = 0) //Everything but the first arg is taken from igniter.
+	if(T)
+		try_hotspot_expose(O ? O.cook_temperature() : COOKTEMP_DEFAULT, MEDIUM_FLAME, 0) //Everything but the first arg is taken from igniter.
 
 /obj/item/weapon/reagent_containers/pan/proc/reset_cooking_progress()
 	cookingprogress = 0
@@ -438,7 +481,13 @@
 	. = .. ()
 	chef = user
 	if(slot == slot_head)
+		//Have to temporarily change a few values to get this to work properly.
+		open_container_override = TRUE
+		var/prev_heat_conductivity = heat_conductivity
+		heat_conductivity = 1
 		pour_on_self(user)
+		open_container_override = FALSE
+		heat_conductivity = prev_heat_conductivity
 
 /obj/item/weapon/reagent_containers/pan/proc/pour_on_self(mob/user)
 	drop_ingredients(target = user, dropper = null)
@@ -452,7 +501,7 @@
 
 /obj/item/weapon/reagent_containers/pan/is_open_container()
 	if(is_on_someones_head())
-		return FALSE
+		return open_container_override
 	return ..()
 
 /////////////////////Areas for to consider for further expansion/////////////////////
@@ -464,16 +513,16 @@
 	//Getting pans by crafting, cargo crates, and vending machines.
 	//Food being ready making a steam sprite that turns to smoke and fire if left on too long.
 	//Sizzling sound with hot reagents in the pan.
-	//Scalding people with hot reagents (the reagents are already heated on the pan I'm just not sure if there's a way to scald someone with hot reagents).
 	//Body-part specific splash text and also when you dump it onto yourself upon equipping to the head.
 	//Hot pans with glowing red sprite and extra damage.
 	//Stuff dumping out of the pan when attacking a breakable object, window, camera, etc.
 	//Generalize thermal transfer parameter.
 	//Componentize cooking vessels.
-	//Spilling (including onto people) when thrown impacting.
+	//Spilling when thrown impacting.
 	//Different cook timings based on heat, or cooking with heat transfer (defined at the recipe level?) rather than a timer.
 	//Frying stuff in oil (could use recipes for this).
 	//Address cases with large ingredient sprites (see the note in update_icon()).
 	//Consider generating and storing the pan front blood overlay in the same manner as general blood overlays.
 	//Cooking automatically with high ambient heat.
 	//Change order of messages with eg. splashing acid on onesself when equipping the pan to the head.
+	//Splashing walls or objs with wielded or thrown frying pans.

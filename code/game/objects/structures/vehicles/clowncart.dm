@@ -34,7 +34,6 @@
 	var/trail //Trail from banana pie
 	var/colour1 = "#000000" //Change it by using stamps
 	var/colour2 = "#3D3D3D" //Default is boring black
-	var/emagged = 0			//Does something maybe
 	var/honk				//Timer to prevent spamming honk
 
 /obj/structure/bed/chair/vehicle/clowncart/process()
@@ -177,11 +176,10 @@
 					playsound(src, 'sound/machines/ping.ogg', 50, 1)
 					visible_message("<span class='notice'>You hear a ping as [src]'s SynthPeel Generator starts transforming banana juice into slippery peels.</span>")
 					playsound(src, 'sound/machines/ping.ogg', 50, 1)
-		qdel(W)
-		W = null
+		QDEL_NULL(W)
 	else if(istype(W, /obj/item/toy/crayon/)) //Any crayon
 		if(mode == MODE_DRAWING)
-			printing_text = lowertext(input(user, "Enter a message to print. Possible options: 'rune', 'graffiti', 'paint', 'nothing'", "Message", printing_text))
+			printing_text = copytext(sanitize(lowertext(input(user, "Enter a message to print. Possible options: 'rune', 'graffiti', 'paint', 'nothing'", "Message", printing_text))),1,MAX_MESSAGE_LEN)
 			printing_pos = 0
 			switch(printing_text)
 				if("graffiti")
@@ -210,10 +208,8 @@
 				reagents.add_reagent(BANANA, bananas) //adding banan back
 		else
 			to_chat(user, "<span class='warning'>The HONKTech pump is not strong enough to do that yet. Reinforce it with more bananium sheets first.</span>")
-	else if(istype(W, /obj/item/weapon/card/emag)) //emag
-		if(!emagged)
-			emagged = 1
-			visible_message("<span class='warning'>[src]'s eyes glow eerily red for a second.</span>")
+	else if(emag_check(W,user)) //emag
+		return
 	else if(istype(W, /obj/item/weapon/stamp/))
 		if(mode == MODE_DRAWING)
 			if(istype(W, /obj/item/weapon/stamp/captain))
@@ -260,6 +256,11 @@
 				colour1 = "#000000"
 				colour2 = "#6D6D6D"
 				to_chat(user, "Selected color: Boring Black")
+		
+/obj/structure/bed/chair/vehicle/clowncart/emag_act(mob/user)
+	if(!emagged)
+		emagged = 1
+		visible_message("<span class='warning'>[src]'s eyes glow eerily red for a second.</span>")
 
 /obj/structure/bed/chair/vehicle/clowncart/relaymove(mob/user, direction)
 	if(user.incapacitated())

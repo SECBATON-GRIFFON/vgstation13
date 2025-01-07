@@ -16,7 +16,7 @@
 	desc = "A paramedic space suit. Used in the recovery of bodies from space."
 	species_fit = list(INSECT_SHAPED, GREY_SHAPED)
 	species_restricted = list("exclude",VOX_SHAPED)
-	allowed = list(/obj/item/device/flashlight,/obj/item/weapon/tank/emergency_oxygen,/obj/item/weapon/tank/emergency_nitrogen,/obj/item/roller)
+	allowed = list(/obj/item/device/flashlight,/obj/item/weapon/tank,/obj/item/roller,/obj/item/device/pcmc)
 	slowdown = HARDSUIT_SLOWDOWN_LOW
 
 //Space santa outfit suit
@@ -58,6 +58,7 @@
 	armor = list(melee = 60, bullet = 50, laser = 30,energy = 15, bomb = 30, bio = 30, rad = 30)
 	siemens_coefficient = 0.9
 
+//NASA spacesuit
 /obj/item/clothing/suit/space/ancient //slightly better then an anomalist's space suit
 	name = "ancient space suit"
 	icon_state = "nasa"

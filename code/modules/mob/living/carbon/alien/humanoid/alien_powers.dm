@@ -78,7 +78,7 @@ Doesn't work on other aliens/AI.*/
 		storedmessage = null
 	return TRUE
 
-/spell/targeted/alienwhisper/is_valid_target(var/target)
+/spell/targeted/alienwhisper/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(!(spell_flags & INCLUDEUSER) && target == usr)
 		return FALSE
 	if(get_dist(usr, target) > range) //Shouldn't be necessary but a good check in case of overrides
@@ -110,7 +110,7 @@ Doesn't work on other aliens/AI.*/
 	insufficient_holder_msg = "<span class='alien'>Not enough plasma stored.</span>"
 
 	range = 2
-	compatible_mobs = list(/mob/living/carbon/alien)
+	valid_targets = list(/mob/living/carbon/alien)
 
 //Does it take charge before casting? How to transfer to new alien
 /spell/targeted/alientransferplasma/cast(var/list/targets, mob/user)
@@ -148,7 +148,7 @@ Doesn't work on other aliens/AI.*/
 	duration = 20
 	projectile_speed = 1
 
-/spell/targeted/projectile/alienneurotoxin/is_valid_target(var/target, mob/user)
+/spell/targeted/projectile/alienneurotoxin/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(!(spell_flags & INCLUDEUSER) && target == user)
 		return FALSE
 	if(get_dist(usr, target) > range)
@@ -213,7 +213,7 @@ Doesn't work on other aliens/AI.*/
 
 	range = 1
 
-/spell/corrosive_acid/is_valid_target(var/atom/target, mob/user)
+/spell/corrosive_acid/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	var/range = 1
 	if(get_dist(user, target) > range)
 		to_chat(user, "<span class='alien'>Target is too far away!</span>")

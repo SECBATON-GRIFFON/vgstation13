@@ -16,7 +16,7 @@
 	max_energy = 10
 	amount = 10
 	dispensable_reagents = null
-	var/list/prohibited_reagents = list(ADMINORDRAZINE, PROCIZINE)
+	var/list/prohibited_reagents = list(ADMINORDRAZINE, PROCIZINE, PANACEA)
 	var/list/emagged_only_reagents = list(XENOMICROBES, MEDNANOBOTS)
 
 	machine_flags = FIXED2WORK | EMAGGABLE | WRENCHMOVE
@@ -77,7 +77,7 @@
 			detach()
 
 	if(href_list["input"])
-		var/input_reagent = input("Enter the name of any liquid", "Input") as text
+		var/input_reagent = copytext(sanitize(input("Enter the name of any liquid", "Input") as text),1,MAX_MESSAGE_LEN)
 		input_reagent = lowertext(input_reagent) // Lowercase for easier parsing
 		if(findtext(input_reagent,"a cup of ")) // These appear at the start of a lot of requests in the SCP so parse these properly too
 			input_reagent = replacetext(input_reagent,"a cup of ","")
@@ -91,8 +91,7 @@
 			if(!X.gcDestroyed)
 				X.create_reagents(X.volume)
 			else
-				qdel(X)
-				X = null
+				QDEL_NULL(X)
 				return
 		var/space = U.maximum_volume - U.total_volume
 

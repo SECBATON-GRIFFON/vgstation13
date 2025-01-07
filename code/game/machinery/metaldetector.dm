@@ -22,13 +22,13 @@
 
 	flags = FPRINT | PROXMOVE
 	machine_flags = WRENCHMOVE | FIXED2WORK | EMAGGABLE
+	on_armory_manifest = TRUE
 
 	//List of weapons that metaldetector will not flash for, also copypasted in secbot.dm and ed209bot.dm
 	var/safe_weapons = list(
 		/obj/item/weapon/gun/energy/tag,
 		/obj/item/weapon/gun/energy/laser/practice,
 		/obj/item/weapon/gun/hookshot,
-		/obj/item/weapon/gun/energy/floragun,
 		/obj/item/weapon/melee/defibrillator
 		)
 

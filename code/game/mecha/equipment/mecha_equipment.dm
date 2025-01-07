@@ -53,10 +53,9 @@
 		if(chassis.selected == src)
 			chassis.selected = null
 		src.update_chassis_page()
-		chassis.occupant_message("<span class='red'>The [src] is destroyed!</span>")
+		chassis.occupant_message("<span class='red'>\The [src] is destroyed!</span>")
 		chassis.log_append_to_last("[src] is destroyed.",1)
-		qdel(linked_spell)
-		linked_spell = null
+		QDEL_NULL(linked_spell)
 		chassis.refresh_spells()
 		if(istype(src, /obj/item/mecha_parts/mecha_equipment/weapon))
 			chassis.occupant << sound('sound/mecha/weapdestr.ogg',volume=50)
@@ -98,9 +97,7 @@
 
 /obj/item/mecha_parts/mecha_equipment/proc/can_attach(obj/mecha/M as obj)
 	if(istype(M))
-		if(M.equipment.len<M.max_equip)
-			return 1
-	return 0
+		return 1
 
 /obj/item/mecha_parts/mecha_equipment/proc/attach(obj/mecha/M as obj)
 	M.equipment += src
@@ -124,8 +121,7 @@
 		chassis.selected = null
 	update_chassis_page()
 	chassis.log_message("[src] removed from equipment.")
-	qdel(linked_spell)
-	linked_spell = null
+	QDEL_NULL(linked_spell)
 	chassis.refresh_spells()
 	chassis = null
 	set_ready_state(1)

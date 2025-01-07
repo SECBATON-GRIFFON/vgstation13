@@ -15,17 +15,19 @@
 	//Multikey checks and logging
 	lastKnownIP	= client.address
 	computer_id	= client.computer_id
-	log_access("Login: [key_name(src)] from [lastKnownIP ? lastKnownIP : "localhost"]-[computer_id] || BYOND v[client.byond_version]")
+	log_access("Login: [key_name(src)] from [lastKnownIP ? lastKnownIP : "localhost"]-[computer_id] || BYOND v[client.byond_version].[client.byond_build]")
 	if(config.log_access)
+		if(lastKnownIP == "127.0.0.1") //localhost
+			return
 		for(var/mob/M in player_list)
 			if(M == src)
 				continue
-			if( M.key && (M.key != key) )
+			if(M.key && (M.key != key))
 				var/matches
 				var/matches_both = FALSE
-				if( (M.lastKnownIP == client.address) )
+				if((M.lastKnownIP == client.address))
 					matches += "IP ([client.address])"
-				if( (M.computer_id == client.computer_id) )
+				if((M.computer_id == client.computer_id))
 					if(matches)
 						matches += " and "
 						matches_both = TRUE
@@ -44,7 +46,7 @@
 					var/available_admins = admins_number - admin_number_afk
 					//Dunno if it's okay to log IP or ID here
 					send2adminirc("Notice: [key_name(src)] has the same IP and ID as [key_name(M)][M.client ? "" : " (no longer logged in)"].  [available_admins ? "" : "No non-AFK admins online"]")
-					send2admindiscord("**Notice: [key_name(src)] has the same IP and ID as [key_name(M)][M.client ? "" : " (no longer logged in)"].  [available_admins ? "" : "No non-AFK admins online"]**", !available_admins)
+					send2admindiscord("**Notice: [key_name(src)] has the same IP and ID as [key_name(M)][M.client ? "" : " (no longer logged in)"].  [available_admins ? "" : "No non-AFK admins online"]**")
 
 // Do not call ..()
 // If you do so and the mob is in nullspace BYOND will attempt to move the mob a gorillion times
@@ -68,6 +70,8 @@
 	client.screen += catcher //Catcher of clicks
 	client.screen += clickmaster // click catcher planesmaster on plane 0 with mouse opacity 0 - allows click catcher to work with SEE_BLACKNESS
 	client.screen += clickmaster_dummy // honestly fuck you lummox
+	client.screen += overdark_planemaster
+	client.screen += overdark_planemaster_target
 	client.initialize_ghost_planemaster() //We want to explicitly reset the planemaster's visibility on login() so if you toggle ghosts while dead you can still see cultghosts if revived etc.
 	client.initialize_darkness_planemaster()
 	client.initialize_fakecamera_planemaster()
@@ -105,7 +109,13 @@
 
 		if(M_FARSIGHT in mutations)
 			client.changeView(max(client.view, world.view+1))
-	CallHook("Login", list("client" = src.client, "mob" = src))
+
+	/* Handle media initialization */
+	client.media = new /datum/media_manager(src)
+	client.media.open()
+	client.media.update_music()
+
+	register_event(/event/mob_area_changed, src, nameof(src::OnMobAreaChanged()))
 
 	if(spell_masters)
 		for(var/obj/abstract/screen/movable/spell_master/spell_master in spell_masters)
@@ -116,7 +126,7 @@
 		var/obj/location = loc
 		location.on_login(src)
 
-	if(client && client.haszoomed && !client.holder)
+	if(client && client.haszoomed)
 		client.changeView()
 		client.haszoomed = 0
 

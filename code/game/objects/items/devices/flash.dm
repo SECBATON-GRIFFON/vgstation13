@@ -6,11 +6,12 @@
 	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/electronics.dmi', "right_hand" = 'icons/mob/in-hand/right/electronics.dmi')
 	throwforce = 5
 	w_class = W_CLASS_TINY
+	w_type = RECYK_ELECTRONIC
 	throw_speed = 4
 	throw_range = 10
 	flags = FPRINT
 	siemens_coefficient = 1
-	autoignition_temperature = AUTOIGNITION_PLASTIC
+	flammable = TRUE
 	origin_tech = Tc_MAGNETS + "=2;" + Tc_COMBAT + "=1"
 	min_harm_label = 15 //Multiple layers?
 	harm_label_examine = list("<span class='info'>A label is on the bulb, but doesn't cover it.</span>", "<span class='warning'>A label covers the bulb!</span>")
@@ -47,11 +48,7 @@
 
 	log_attack("<font color='red'>[key_name(user)] Used the [src.name] to flash [key_name(M)]</font>")
 
-	if(!iscarbon(user))
-		M.LAssailant = null
-	else
-		M.LAssailant = user
-		M.assaulted_by(user)
+	M.assaulted_by(user)
 
 	if(!clown_check(user))
 		return
@@ -190,8 +187,7 @@
 			animation.master = user
 			flick("blspell", animation)
 			sleep(5)
-			qdel(animation)
-			animation = null
+			QDEL_NULL(animation)
 
 	for(var/mob/living/carbon/M in oviewers(3, null))
 		if(prob(50))

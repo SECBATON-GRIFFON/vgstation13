@@ -31,11 +31,11 @@
 		job_title = src.title
 
 	if(!trader_account)
-		trader_account = create_account("Trader Shoal", 0, null, 0, 1, TRUE, FALSE)
+		trader_account = create_account("Trader Shoal", starting_funds = 0, source_db=null, wage_payout=0, security_pref=1, ratio_pref=0, makehidden=TRUE, isStationAccount=FALSE)
 
 	SStrade.loyal_customers[M.real_name] = 0
 
-	M.mind.store_memory("<b>The joint trader account is:</b> #[trader_account.account_number]<br><b>Your shared account pin is:</b> [trader_account.remote_access_pin]<br>")
+	M.mind.store_memory("<b>The joint trader account is:</b> #[trader_account.account_number]<br><b>Your shared account pin is:</b> [trader_account.remote_access_pin]<br>", category=MIND_MEMORY_GENERAL, forced=TRUE)
 
 	log_admin("([M.ckey]/[M]) started the game as a [job_title].")
 

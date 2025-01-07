@@ -33,8 +33,7 @@
 	anim(target = src, a_icon = 'icons/mob/mob.dmi', flick_anim = "dust-r", sleeptime = 15)
 	new /obj/effect/decal/remains/robot(loc)
 	if(mmi)
-		qdel(mmi)	//Delete the MMI first so that it won't go popping out.
-		mmi = null
+		QDEL_NULL(mmi)	//Delete the MMI first so that it won't go popping out.
 
 	dead_mob_list -= src
 	qdel(src)
@@ -76,7 +75,7 @@
 
 	tod = worldtime2text() //weasellos time of death patch
 	if(mind)
-		mind.store_memory("Time of death: [tod]", 0)
+		mind.store_memory("Time of death: [tod]", category=MIND_MEMORY_GENERAL, forced=TRUE)
 		if(!mind.suiciding)
 			score.deadsilicon += 1
 

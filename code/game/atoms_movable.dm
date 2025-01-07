@@ -59,6 +59,8 @@
 
 	var/atom/movable/border_dummy/border_dummy //Used for border objects. The old Uncross() method fails miserably with pixel movement or large hitboxes.
 
+	var/silence_sprayed = FALSE //sprayed by silencing spray
+
 /atom/movable/New()
 	. = ..()
 	if((flags & HEAR) && !ismob(src))
@@ -76,8 +78,7 @@
 		T.reconsider_lights()
 
 	if(materials)
-		qdel(materials)
-		materials = null
+		QDEL_NULL(materials)
 
 	remove_border_dummy()
 
@@ -89,9 +90,7 @@
 	if (locked_to)
 		locked_to.unlock_atom(src)
 
-	for (var/datum/locking_category/category in locking_categories)
-		qdel(category)
-	locking_categories      = null
+	QDEL_LIST_NULL(locking_categories)
 	locking_categories_name = null
 
 	break_all_tethers()
@@ -102,8 +101,7 @@
 		T.recalc_atom_opacity()
 
 	if(virtualhearer)
-		qdel(virtualhearer)
-		virtualhearer = null
+		QDEL_NULL(virtualhearer)
 
 	for(var/atom/movable/AM in src)
 		qdel(AM)
@@ -275,7 +273,7 @@
 // For category you should pass the typepath of the category, however strings should be used for slots made dynamically at runtime.
 /atom/movable/proc/lock_atom(var/atom/movable/AM, var/datum/locking_category/category = /datum/locking_category)
 	locking_init()
-	if (AM in locked_atoms || AM.locked_to || !istype(AM))
+	if ((AM in locked_atoms) || AM.locked_to || !istype(AM))
 		return FALSE
 
 	category = get_lock_cat(category)
@@ -310,9 +308,15 @@
 		M.canmove = 1
 
 	category.unlock(AM)
+	if((category.flags & LOCKED_STAY_INSIDE) && AM.loc == src)
+		AM.forceMove(src.loc)
 	//AM.reset_glide_size() // FIXME: Currently broken.
 
 	return TRUE
+
+/atom/movable/proc/unlock_atoms(var/category, var/subtypes = FALSE)
+	for(var/atom/movable/AM in get_locked(category, subtypes))
+		unlock_atom(AM)
 
 /atom/movable/proc/unlock_from()
 	if(!locked_to)
@@ -334,9 +338,9 @@
 
 /atom/movable/proc/get_lock_cat(var/category = /datum/locking_category)
 	locking_init()
-	. = locking_categories_name[category]
-
-	if (!.)
+	if(locking_categories_name[category])
+		. = locking_categories_name[category]
+	else
 		if (istext(category))
 			return
 
@@ -446,8 +450,7 @@
 /atom/movable/proc/remove_border_dummy()
 	if(border_dummy)
 		unlock_atom(border_dummy)
-		qdel(border_dummy)
-		border_dummy = null
+		QDEL_NULL(border_dummy)
 
 /atom/movable/proc/border_dummy_Cross(atom/movable/mover) //border_dummy calls this in its own Cross() to detect collision
 	if(istype(mover) && mover.checkpass(pass_flags_self))
@@ -456,6 +459,12 @@
 		return TRUE
 	if(locate(/obj/effect/unwall_field) in loc) //Annoying workaround for this -kanef
 		return TRUE
+	if(istype(mover, /obj/item/projectile/beam))
+		var/obj/item/projectile/beam/B = mover
+		var/returns = bounds_dist(src, B.previous_turf) >= 0
+		if (returns && B.previous_turf)
+			B.final_turf = B.previous_turf
+		return returns
 	return bounds_dist(src, mover) >= 0
 
 // harderforce is for things like lighting overlays which should only be moved in EXTREMELY specific sitations.
@@ -553,7 +562,7 @@
 /atom/proc/PreImpact(atom/movable/A, speed)
 	return TRUE
 
-/atom/movable/proc/hit_check(var/speed, mob/user)
+/atom/movable/proc/hit_check(var/speed, mob/user, var/list/hit_whitelist)
 	. = 1
 
 	if(throwing)
@@ -562,12 +571,26 @@
 				continue
 
 			if(!A.PreImpact(src,speed))
-				throw_impact(A,speed,user)
+				throw_impact(A,speed,user, hit_whitelist)
 				if(throwing==1)
 					throwing = 0
 					. = 0
 
-/atom/movable/proc/throw_at(atom/target, range, speed, override = TRUE, var/fly_speed = 0) //fly_speed parameter: if 0, does nothing. Otherwise, changes how fast the object flies WITHOUT affecting damage!
+/atom/movable/proc/special_thrown_behaviour()
+	return
+
+/atom/movable/proc/get_afterimage()
+	return ""
+
+/atom/movable/proc/spawn_afterimage(var/afterimage,var/afterimage_step)
+	switch(afterimage)
+		if ("red")
+			new /obj/effect/afterimage/red(loc,src)
+		if ("richter tackle")
+			var/obj/effect/afterimage/richter_tackle/RT = new (loc,src)
+			RT.overlays += image('icons/effects/effects.dmi', src, "castlevania_tackle", dir = turn(SOUTH, 90 * afterimage_step))
+
+/atom/movable/proc/throw_at(atom/target, range, speed, override = TRUE, var/fly_speed = 0, var/list/whitelist) //fly_speed parameter: if 0, does nothing. Otherwise, changes how fast the object flies WITHOUT affecting damage!
 	set waitfor = FALSE
 	if(!target || !src)
 		return 0
@@ -587,17 +610,9 @@
 		if(M_HULK in usr.mutations)
 			src.throwing = 2 // really strong throw!
 
-	if(istype(src,/obj/mecha))
-		var/obj/mecha/M = src
-		M.dash_dir = dir
-		src.throwing = 2// mechas will crash through windows, grilles, tables, people, you name it
-
-	var/afterimage = 0
-	if(istype(src,/mob/living/simple_animal/construct/armoured/perfect))
-		var/mob/living/simple_animal/construct/armoured/perfect/M = src
-		M.dash_dir = dir
-		src.throwing = 2
-		afterimage = 1
+	special_thrown_behaviour()
+	var/afterimage = get_afterimage()
+	var/afterimage_step = 0
 
 	var/dist_x = abs(target.x - src.x)
 	var/dist_y = abs(target.y - src.y)
@@ -637,8 +652,8 @@
 			if(kinetic_acceleration>kinetic_sum)
 				fly_speed += kinetic_acceleration-kinetic_sum
 				kinetic_sum = kinetic_acceleration
-			if(afterimage)
-				new /obj/effect/afterimage/red(loc,src)
+			spawn_afterimage(afterimage,afterimage_step)
+			afterimage_step++
 			if(error < 0)
 				var/atom/step = get_step(src, dy)
 				if(!step) // going off the edge of the map makes get_step return null, don't let things go off the edge
@@ -646,7 +661,7 @@
 					break
 
 				src.Move(step, dy, glide_size_override = DELAY2GLIDESIZE(fly_speed))
-				. = hit_check(speed, user)
+				. = hit_check(speed, user, whitelist)
 				error += dist_x
 				dist_travelled++
 				dist_since_sleep++
@@ -660,7 +675,7 @@
 					break
 
 				src.Move(step, dx, glide_size_override = DELAY2GLIDESIZE(fly_speed))
-				. = hit_check(speed, user)
+				. = hit_check(speed, user, whitelist)
 				error -= dist_y
 				dist_travelled++
 				dist_since_sleep++
@@ -678,8 +693,8 @@
 			if(kinetic_acceleration>0)
 				fly_speed += kinetic_acceleration
 				kinetic_acceleration = 0
-			if(afterimage)
-				new /obj/effect/afterimage/red(loc,src)
+			spawn_afterimage(afterimage,afterimage_step)
+			afterimage_step++
 			if(error < 0)
 				var/atom/step = get_step(src, dx)
 				if(!step) // going off the edge of the map makes get_step return null, don't let things go off the edge
@@ -687,7 +702,7 @@
 					break
 
 				src.Move(step, dx, glide_size_override = DELAY2GLIDESIZE(fly_speed))
-				. = hit_check(speed, user)
+				. = hit_check(speed, user, whitelist)
 				error += dist_y
 				dist_travelled++
 				dist_since_sleep++
@@ -701,7 +716,7 @@
 					break
 
 				src.Move(step, dy, glide_size_override = DELAY2GLIDESIZE(fly_speed))
-				. = hit_check(speed, user)
+				. = hit_check(speed, user, whitelist)
 				error -= dist_x
 				dist_travelled++
 				dist_since_sleep++
@@ -715,7 +730,7 @@
 	src.throwing = 0
 	kinetic_acceleration = 0
 	if(isobj(src))
-		src.throw_impact(get_turf(src), speed, user)
+		src.throw_impact(get_turf(src), speed, user, whitelist)
 
 //Overlays
 
@@ -741,7 +756,7 @@
 		AM.lock_atom(src, /datum/locking_category/overlay)
 	if (istype(master, /atom/movable))
 		var/atom/movable/AM = master
-		AM.register_event(/event/destroyed, src, .proc/qdel_self)
+		AM.register_event(/event/destroyed, src, nameof(src::qdel_self()))
 	verbs.len = 0
 
 /atom/movable/overlay/proc/qdel_self(datum/thing)
@@ -751,7 +766,7 @@
 	if(istype(master, /atom/movable))
 		var/atom/movable/AM = master
 		AM.unlock_atom(src)
-		AM.unregister_event(/event/destroyed, src, .proc/qdel_self)
+		AM.unregister_event(/event/destroyed, src, nameof(src::qdel_self()))
 	master = null
 	return ..()
 
@@ -814,8 +829,7 @@
 /atom/movable/proc/removeHear()
 	flags &= ~HEAR
 	if(virtualhearer)
-		qdel(virtualhearer)
-		virtualhearer = null
+		QDEL_NULL(virtualhearer)
 
 //Can it be moved by a shuttle?
 /atom/movable/proc/can_shuttle_move(var/datum/shuttle/S)
@@ -874,14 +888,24 @@
 /atom/movable/proc/process_inertia(turf/start)
 	set waitfor = 0
 	if(Process_Spacemove(1))
-		inertia_dir  = 0
+		inertia_dir = 0
 		return
 
 	sleep(INERTIA_MOVEDELAY)
 
 	if(can_apply_inertia() && (src.loc == start))
 		if(!inertia_dir)
-			return //inertia_dir = last_move
+			return
+
+		set_glide_size(DELAY2GLIDESIZE(INERTIA_MOVEDELAY))
+		step(src, inertia_dir)
+
+/atom/movable/proc/process_inertia_ignore_gravity(turf/start)
+	sleep(INERTIA_MOVEDELAY)
+
+	if(can_apply_inertia() && (src.loc == start))
+		if(!inertia_dir)
+			return
 
 		set_glide_size(DELAY2GLIDESIZE(INERTIA_MOVEDELAY))
 		step(src, inertia_dir)
@@ -1329,3 +1353,12 @@
 			change_dir(new_dir)
 			sleep(1)
 	change_dir(prev_dir)
+
+/atom/movable/proc/make_silent(var/duration)
+	silence_sprayed = TRUE
+	if(duration > 0)
+		spawn(duration)
+			silence_sprayed = FALSE
+
+/atom/movable/proc/remove_silence()
+	silence_sprayed = FALSE

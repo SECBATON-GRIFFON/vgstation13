@@ -27,14 +27,11 @@
 
 /obj/item/weapon/gun/projectile/railgun/Destroy()
 	if(loadedassembly)
-		qdel(loadedassembly)
-		loadedassembly = null
+		QDEL_NULL(loadedassembly)
 	if(loadedcapacitor)
-		qdel(loadedcapacitor)
-		loadedcapacitor = null
+		QDEL_NULL(loadedcapacitor)
 	if(loadedammo)
-		qdel(loadedammo)
-		loadedammo = null
+		QDEL_NULL(loadedammo)
 	..()
 
 /obj/item/weapon/gun/projectile/railgun/attack_self(mob/user as mob)
@@ -78,7 +75,6 @@
 /obj/item/weapon/gun/projectile/railgun/proc/remove_ammunition(var/mob/user)
 	if(!loadedammo)
 		return
-	loadedammo.forceMove(user.loc)
 	user.put_in_hands(loadedammo)
 	to_chat(user, "You remove \the [loadedammo] from the barrel of \the [src].")
 	loadedammo = null
@@ -88,8 +84,6 @@
 /obj/item/weapon/gun/projectile/railgun/proc/remove_capacitor(var/mob/user)
 	if(!loadedcapacitor)
 		return
-
-	loadedcapacitor.forceMove(user.loc)
 	user.put_in_hands(loadedcapacitor)
 	to_chat(user, "You remove \the [loadedcapacitor] from the capacitor bank of \the [src].")
 	loadedcapacitor = null
@@ -99,8 +93,6 @@
 /obj/item/weapon/gun/projectile/railgun/proc/remove_rails(var/mob/user)
 	if(!loadedassembly)
 		return
-
-	loadedassembly.forceMove(user.loc)
 	user.put_in_hands(loadedassembly)
 	to_chat(user, "You remove \the [loadedassembly] from the barrel of \the [src].")
 	loadedassembly = null
@@ -113,8 +105,7 @@
 			to_chat(user, "There is already a set of rails in \the [src].")
 			return
 		to_chat(user, "You insert \the [W] into the barrel of \the [src].")
-		if(!user.drop_item(W, src))
-			to_chat(user, "<span class='warning'>You can't let go of \the [W]!</span>")
+		if(!user.drop_item(W, src, failmsg = TRUE))
 			return 1
 		W.forceMove(src)
 		loadedassembly = W
@@ -123,8 +114,7 @@
 		if(loadedcapacitor)
 			to_chat(user, "There is already a capacitor in the capacitor bank of \the [src].")
 			return
-		if(!user.drop_item(W, src))
-			to_chat(user, "<span class='warning'>You can't let go of \the [W]!</span>")
+		if(!user.drop_item(W, src, failmsg = TRUE))
 			return 1
 		to_chat(user, "You insert \the [W] into the capacitor bank of \the [src].")
 		W.forceMove(src)
@@ -145,8 +135,7 @@
 			R.use(1)
 			loadedammo = new /obj/item/stack/rods(null)
 		else if(istype(W, /obj/item/weapon/nullrod))
-			if(!user.drop_item(W, src))
-				to_chat(user, "<span class='warning'>You can't let go of \the [W]!</span>")
+			if(!user.drop_item(W, src, failmsg = TRUE))
 				return 1
 			loadedammo = W
 		else if(istype(W, /obj/item/weapon/coin))
@@ -157,8 +146,7 @@
 			if (C.siemens_coefficient == 0)
 				to_chat(user, "That [C.name] won't work.")
 				return
-			if(!user.drop_item(C, src))
-				to_chat(user, "<span class='warning'>You can't let go of \the [C]!</span>")
+			if(!user.drop_item(C, src, failmsg = TRUE))
 				return 1
 			loadedammo = C
 		update_icon()
@@ -256,17 +244,14 @@
 			if(strength >= 200)
 				to_chat(user, "<span class='warning'>\The [loadedassembly] inside \the [src] melts!</span>")
 				to_chat(user, "<span class='warning'>\The [loadedcapacitor] inside \the [src]'s capacitor bank melts!</span>")
-				qdel(loadedassembly)
-				loadedassembly = null
+				QDEL_NULL(loadedassembly)
 				rails_secure = 0
-				qdel(loadedcapacitor)
-				loadedcapacitor = null
+				QDEL_NULL(loadedcapacitor)
 			else
 				loadedassembly.durability -= strength
 				if(loadedassembly.durability <= 0)
 					to_chat(user, "<span class='warning'>\The [loadedassembly] inside \the [src] [strength > 100 ? "shatters under" : "finally fractures from"] the stress!</span>")
-					qdel(loadedassembly)
-					loadedassembly = null
+					QDEL_NULL(loadedassembly)
 					rails_secure = 0
 			fire_sound = initial(fire_sound)
 		else

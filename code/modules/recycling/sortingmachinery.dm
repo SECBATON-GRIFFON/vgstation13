@@ -115,6 +115,8 @@
 	desc = "A chute for big and small packages alike!"
 	density = 1
 	icon_state = "intake"
+	plane = ABOVE_HUMAN_PLANE
+	layer = DISPOSALS_CHUTE_LAYER
 	var/c_mode = 0
 	var/doFlushIn=0
 	var/num_contents=0
@@ -164,9 +166,11 @@
 
 
 /obj/machinery/disposal/deliveryChute/proc/receive_atom(var/atom/movable/AM)
-	AM.forceMove(src)
-	doFlushIn = 5
-	num_contents++
+	AM.forceMove(src.loc) // To make it look like it's moving into it better
+	spawn(1)
+		AM.forceMove(src)
+		doFlushIn = 5
+		num_contents++
 
 
 /obj/machinery/disposal/deliveryChute/flush()
@@ -273,8 +277,7 @@
 /obj/machinery/sorting_machine/Destroy()
 	. = ..()
 
-	qdel(mover)
-	mover = null
+	QDEL_NULL(mover)
 
 /obj/machinery/sorting_machine/RefreshParts()
 	var/T = 0
@@ -382,8 +385,8 @@
 /obj/machinery/sorting_machine/recycling
 	name = "Recycling Sorting Machine"
 
-	var/list/selected_types = list("Glasses", "Metals/Minerals", "Electronics", "Plastic")
-	var/list/types[7]
+	var/list/selected_types = list("Glasses", "Metals/Minerals", "Electronics", "Plastic", "Fabric", "Wax", "Cardboard")
+	var/list/types[10]
 
 /obj/machinery/sorting_machine/recycling/New()
 	. = ..()
@@ -404,6 +407,9 @@
 	types[RECYK_GLASS]      = "Glasses"
 	types[RECYK_METAL]      = "Metals/Minerals"
 	types[RECYK_PLASTIC]    = "Plastic"
+	types[RECYK_FABRIC]     = "Fabric"
+	types[RECYK_WAX]        = "Wax"
+	types[RECYK_CARDBOARD]  = "Cardboard"
 	types[RECYK_MISC]       = "Miscellaneous"
 
 /obj/machinery/sorting_machine/recycling/process()
@@ -762,6 +768,7 @@
 	anchored = 1
 	idle_power_usage = 100 //No active power usage because this thing passively uses 100, always. Don't ask me why N3X15 coded it like this.
 	plane = ABOVE_HUMAN_PLANE
+	var/circuitpath = /obj/item/weapon/circuitboard/autoprocessor
 
 	var/atom/movable/mover //Virtual atom used to check passing ability on the out turf.
 
@@ -775,14 +782,19 @@
 
 /obj/machinery/autoprocessor/New()
 	. = ..()
-
+	component_parts = newlist(
+		circuitpath,
+		/obj/item/weapon/stock_parts/scanning_module,
+		/obj/item/weapon/stock_parts/manipulator,
+		/obj/item/weapon/stock_parts/matter_bin,
+		/obj/item/weapon/stock_parts/capacitor
+	)
 	mover = new
 
 /obj/machinery/autoprocessor/Destroy()
 	. = ..()
 
-	qdel(mover)
-	mover = null
+	QDEL_NULL(mover)
 
 /obj/machinery/autoprocessor/RefreshParts()
 	var/T = 0
@@ -797,6 +809,8 @@
 
 /obj/machinery/autoprocessor/process()
 	if(stat & (BROKEN | NOPOWER | FORCEDISABLE))
+		return
+	if(!isturf(loc)) //If it's inside a flatpack, for instance
 		return
 
 	var/turf/in_T = get_step(src, input_dir)
@@ -817,11 +831,10 @@
 			continue
 
 		A.forceMove(get_turf(src))
-		spawn(1)
-			process_affecting(A)
-			A.forceMove(out_T)
-
+		if(process_affecting(A))
 			items_moved++
+			return
+		A.forceMove(out_T)
 
 /obj/machinery/autoprocessor/proc/process_affecting(var/atom/movable/target)
 	return
@@ -851,6 +864,7 @@
 	desc = "Wraps and tags items."
 	machine_flags = SCREWTOGGLE | CROWDESTROY
 	idle_power_usage = 100 //No active power usage because this thing passively uses 100, always. Don't ask me why N3X15 coded it like this.
+	circuitpath = /obj/item/weapon/circuitboard/autoprocessor/wrapping
 
 	var/packagewrap = 0
 	var/syndiewrap = 0
@@ -891,53 +905,60 @@
 
 /obj/machinery/autoprocessor/wrapping/process_affecting(var/atom/movable/target)
 	if(is_type_in_list(target, cannot_wrap))
-		return
+		return 0
 	if(istype(target, /obj/item) && smallpath)
 		if (packagewrap >= 1)
 			var/obj/item/I = target
-			var/obj/item/P = new smallpath(get_turf(target.loc),target,round(I.w_class))
+			var/obj/item/P = new smallpath(get_step(src, output_dir),target,round(I.w_class))
 			target.forceMove(P)
 			packagewrap += -1
+			if(syndiewrap)
+				syndiewrap += -1
 			tag_item(P)
+			return 1
 		else
 			if(world.time > next_sound)
 				playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, 1)
 				next_sound = world.time + sound_delay
 				for(var/mob/M in hearers(src))
 					M.show_message("<b>[src]</b> announces, \"Please insert additional sheets of package wrap into \the [src].\"")
-				return 0
+			return 0
 	else if(is_type_in_list(target,wrappable_big_stuff) && bigpath)
 		if(istype(target,/obj/structure/closet))
 			var/obj/structure/closet/C = target
 			if(C.opened)
-				return
+				return 0
 		if(istype(target, /mob/living/simple_animal/hostile/mimic/crate))
 			var/mob/living/simple_animal/hostile/mimic/crate/MC = target
 			if(MC.angry)
-				return
+				return 0
 		if(packagewrap >= 3)
-			var/obj/item/P = new bigpath(get_turf(target.loc),target)
+			var/obj/item/P = new bigpath(get_step(src, output_dir),target)
 			target.forceMove(P)
 			packagewrap += -3
+			if(syndiewrap)
+				syndiewrap += -3
 			tag_item(P)
+			return 1
 		else
 			if(world.time > next_sound)
 				playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, 1)
 				next_sound = world.time + sound_delay
 				for(var/mob/M in hearers(src))
 					M.show_message("<b>[src]</b> announces, \"Please insert additional sheets of package wrap into \the [src].\"")
-				return 0
+			return 0
 	else if(istype(target,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = target
 		if(syndiewrap >= 2)
 			syndiewrap += -2
 			packagewrap += -2
-			var/obj/present = new manpath(get_turf(src),H)
+			var/obj/present = new /obj/item/delivery/large(get_step(src, output_dir),H)
 			if (H.client)
 				H.client.perspective = EYE_PERSPECTIVE
 				H.client.eye = present
-			H.visible_message("<span class='warning'>[src] wraps [H]!</span>")
+			H.visible_message("<span class='warning'>\The [src] wraps [H]!</span>")
 			H.forceMove(present)
+			return 1
 		else
 			if(world.time > next_sound)
 				playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, 1)
@@ -949,6 +970,7 @@
 		if(world.time > next_sound)
 			playsound(get_turf(src), 'sound/machines/buzz-sigh.ogg', 50, 1)
 			next_sound = world.time + sound_delay
+		return 0
 
 /obj/machinery/autoprocessor/wrapping/proc/tag_item(var/atom/movable/target)
 	if(istype(target,/obj/item/delivery))
@@ -1028,6 +1050,8 @@
 	desc = "Automatically swaps clothes of people inside. Use machine with an empty hand to retrieve clothing, or with held clothing to place it inside."
 	machine_flags = SCREWTOGGLE | CROWDESTROY | EMAGGABLE
 	idle_power_usage = 100 //No active power usage because this thing passively uses 100, always. Don't ask me why N3X15 coded it like this.
+	circuitpath = /obj/item/weapon/circuitboard/autoprocessor/clothing
+
 	var/list/obj/item/held_clothing = list()
 	var/strip_items = FALSE
 
@@ -1083,8 +1107,10 @@
 		visible_message("<span class='notice'>[src] beeps: [items_equipped] article\s of clothing applied successfully.</span>")
 
 /obj/machinery/autoprocessor/outfit
-	name = "autoclother"
+	name = "auto outfitter"
 	desc = "Automatically applies an outfit to people inside."
+	circuitpath = /obj/item/weapon/circuitboard/autoprocessor/outfit
+
 	var/outfit_type = /datum/outfit/assistant
 	var/datum/outfit/outfit_datum
 
@@ -1093,8 +1119,7 @@
 	outfit_datum = new outfit_type()
 
 /obj/machinery/autoprocessor/outfit/Destroy()
-	qdel(outfit_datum)
-	outfit_datum = null
+	QDEL_NULL(outfit_datum)
 	..()
 
 /obj/machinery/autoprocessor/outfit/process_affecting(var/atom/movable/target)
@@ -1112,6 +1137,7 @@
 		visible_message("<span class='notice'>[src] beeps: [outfit_datum.outfit_name] outfit applied successfully.</span>")
 
 /obj/machinery/autoprocessor/outfit/prisoner
-	name = "prisoner clother"
+	name = "prisoner outfitter"
 	desc = "Automatically applies prisoner clothes to people inside."
+	circuitpath = /obj/item/weapon/circuitboard/autoprocessor/outfit/prisoner
 	outfit_type = /datum/outfit/special/prisoner

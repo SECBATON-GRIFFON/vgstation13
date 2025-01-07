@@ -8,9 +8,6 @@
 	nameShort = "castle"
 	nameLong = "Castle Station"
 	map_dir = "castlestation"
-	tDomeX = 128
-	tDomeY = 58
-	tDomeZ = 2
 	zLevels = list(
 		/datum/zLevel/station,
 		/datum/zLevel/centcomm,
@@ -75,7 +72,6 @@
 
 	center_x = 226
 	center_y = 254
-	can_have_robots = FALSE
 
 /datum/map/active/ruleset_multiplier(var/datum/dynamic_ruleset/DR)
 	if(istype(DR, /datum/dynamic_ruleset/roundstart/nuclear))

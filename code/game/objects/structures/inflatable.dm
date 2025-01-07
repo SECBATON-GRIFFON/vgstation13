@@ -3,6 +3,7 @@
 	w_class = W_CLASS_MEDIUM
 	icon = 'icons/obj/inflatable.dmi'
 	w_type = RECYK_PLASTIC
+	flammable = FALSE
 	melt_temperature = MELTPOINT_PLASTIC
 	starting_materials = list(MAT_PLASTIC = 1.5*CC_PER_SHEET_MISC)
 
@@ -353,11 +354,15 @@
 	vis_contents.Cut()
 	overlays.Cut()
 	for(var/mob/living/L in contents)
+		L.reset_layer()
 		vis_contents.Add(L)
 	if(contents.len)
 		var/image/cover_overlay = image('icons/obj/inflatable.dmi', icon_state = "shelter_top", layer = FLY_LAYER)
-		cover_overlay.plane = ABOVE_HUMAN_PLANE
+		cover_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 		overlays += cover_overlay
+
+/obj/structure/inflatable/shelter/adjust_layer(mob/M)
+	M.plane = relative_plane(M.plane)
 
 /obj/structure/inflatable/shelter/attack_hand(mob/user)
 	if(user.loc == src && ishuman(user))
@@ -381,8 +386,7 @@
 /obj/structure/inflatable/shelter/Destroy()
 	for(var/atom/movable/AM in src)
 		AM.forceMove(loc)
-	qdel(cabin_air)
-	cabin_air = null
+	QDEL_NULL(cabin_air)
 	..()
 
 /obj/structure/inflatable/shelter/remove_air(amount)
@@ -525,4 +529,7 @@
 
 /obj/structure/inflatable/shelter/Exited(var/atom/movable/mover)
 	update_icon()
+	var/mob/living/L = mover
+	if(istype(L))
+		L.reset_layer()
 	return ..()

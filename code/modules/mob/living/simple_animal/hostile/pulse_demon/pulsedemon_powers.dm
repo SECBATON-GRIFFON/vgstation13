@@ -27,20 +27,6 @@
 	host.update_glow()
 	return TRUE
 
-/datum/pulse_demon_upgrade/capacity
-	ability_name = "Increase Maximum Capacity"
-	ability_desc = "Increases the maximum amount of charge you can store. This is necessary for buying further upgrades."
-
-/datum/pulse_demon_upgrade/capacity/update_condition_and_cost()
-	condition = host.maxcharge < 10000000
-	upgrade_cost = host.maxcharge
-
-/datum/pulse_demon_upgrade/capacity/on_purchase()
-	if(..())
-		host.maxcharge = min(round(host.maxcharge * 2, 1), 10000000)
-		to_chat(host,"<span class='notice'>You can now store [host.maxcharge]W.</span>")
-		update_condition_and_cost()
-
 /datum/pulse_demon_upgrade/takeover
 	ability_name = "Faster takeover time"
 	ability_desc = "Allows hijacking of electronics in less time."
@@ -246,7 +232,10 @@
 		return FALSE
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		if (PD.charge < charge_cost) // Custom charge handling
+		if(PD.emp_lock)
+			to_chat(PD, "<span class='warning'>You cannot use this ability while unable to regenerate.</span>")
+			return FALSE
+		if(PD.charge < charge_cost) // Custom charge handling
 			to_chat(PD, "<span class='warning'>You are too low on power, this spell needs a charge of [charge_cost]W to cast.</span>")
 			return FALSE
 	else //only pulse demons allowed
@@ -306,7 +295,7 @@
 			speed_name = "Lightning-Fast "
 	return "[speed_name][power_name][original_name]"
 
-/spell/pulse_demon/is_valid_target(var/atom/target, mob/user, options)
+/spell/pulse_demon/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	return 1
 
 /spell/pulse_demon/generate_tooltip()
@@ -335,27 +324,39 @@
 	var/dat = "<BR>[desc]"
 	return dat
 
-/spell/pulse_demon/toggle_drain
-	name = "Toggle power drain"
-	desc = "Toggles the draining of power while in an APC, battery or cable"
-	abbreviation = "TD"
-	hud_state = "pd_toggle"
-	charge_max = 0
-	level_max = list()
-	invisible = 1
+/spell/pulse_demon/remote_drain
+	name = "Remote Drain"
+	abbreviation = "RD"
+	desc = "Remotely drains a power source"
 
-/spell/pulse_demon/toggle_drain/choose_targets(var/mob/user = usr)
-	return list(user) // Self-cast
+	range = 10
+	spell_flags = WAIT_FOR_CLICK
+	duration = 20
+	level_max = list(Sp_TOTAL = 2, Sp_POWER = 0, Sp_SPEED = 2)
 
-/spell/pulse_demon/toggle_drain/cast(var/list/targets, var/mob/living/carbon/human/user)
+	hud_state = "pd_drain"
+	charge_cost = 100
+	purchase_cost = 5000
+	empower_cost = 10000
+	quicken_cost = 100000
+
+/spell/pulse_demon/remote_drain/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
+	if(istype(target, /obj/machinery/power/apc) || istype(target, /obj/machinery/power/battery))
+		return 1
+	else
+		to_chat(holder, "That is not a valid drainable power source.")
+
+/spell/pulse_demon/remote_drain/cast(var/list/targets, mob/user)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		PD.draining = !PD.draining
-		to_chat(user,"<span class='notice'>Draining power is [PD.draining ? "on" : "off"].</span>")
-
-/spell/pulse_demon/toggle_drain/generate_tooltip()
-	var/dat = "<BR>[desc]"
-	return dat
+		var/obj/machinery/power/P = targets[1]
+		if(istype(P,/obj/machinery/power/apc))
+			var/obj/machinery/power/apc/A = P
+			PD.drainAPC(A)
+		else if(istype(P,/obj/machinery/power/battery))
+			var/obj/machinery/power/battery/B = P
+			PD.suckBattery(B)
+		to_chat(user, "<span class='warning'>You absorb \the [P] for [PD.charge_absorb_amount]W!</span>")
 
 /spell/pulse_demon/cable_zap
 	name = "Cable Hop"
@@ -365,21 +366,22 @@
 	range = 5
 	spell_flags = WAIT_FOR_CLICK
 	duration = 20
+	level_max = list(Sp_TOTAL = 3, Sp_POWER = 0, Sp_SPEED = 3)
 
 	hud_state = "pd_cablehop"
 	charge_cost = 5000
 	purchase_cost = 15000
 	empower_cost = 10000
-	quicken_cost = 10000
+	quicken_cost = 75000
 
 // Must be a cable or a clicked on turf with a cable
-/spell/pulse_demon/cable_zap/is_valid_target(var/target, mob/user, options)
+/spell/pulse_demon/cable_zap/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(options)
 		return (target in options)
 	var/turf/T = get_turf(target)
 	if(T)
 		if((target in view_or_range(range, user, selection_type)) && ((locate(/obj/structure/cable) in T.contents) ||  istype(target,/obj/structure/cable)))
-			var/obj/structure/cable/cable = locate() in target
+			var/obj/structure/cable/cable = locate() in T
 			var/datum/powernet/PN = cable.get_powernet()
 			if(PN) // We need actual power in the cable powernet to move
 				if(!PN.avail)
@@ -388,33 +390,76 @@
 					return TRUE
 	return FALSE
 
-
-
 /spell/pulse_demon/cable_zap/cast(list/targets, mob/user = usr)
-	var/turf/T = get_turf(user)
-	var/turf/target = get_turf(targets[1])
-	var/obj/structure/cable/cable = locate() in target
-	if(!cable || !istype(cable)) // Sanity
-		to_chat(user,"<span class='warning'>...Where's the cable?</span>")
+	..()
+	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
+		PD.zaptocable(targets[1])
+
+/obj/item/projectile/beam/lightning/pulsedemon
+	passdense = TRUE
+	yellow = TRUE
+
+/mob/living/simple_animal/hostile/pulse_demon/proc/zaptocable(atom/target)
+	var/turf/T = get_turf(src)
+	var/turf/TTarget = get_turf(target)
+	if(!T || !TTarget)
 		return
-	var/obj/item/projectile/beam/lightning/L = new /obj/item/projectile/beam/lightning(T)
+	var/obj/structure/cable/cable = locate() in TTarget
+	if(!cable || !istype(cable)) // Sanity
+		to_chat(src,"<span class='warning'>...Where's the cable?</span>")
+		return
+	var/obj/item/projectile/beam/lightning/pulsedemon/L = new /obj/item/projectile/beam/lightning/pulsedemon(T)
 	var/datum/powernet/PN = cable.get_powernet()
 	L.damage = PN.get_electrocute_damage()
 	// Ride the lightning
-	playsound(target, pick(lightning_sound), 75, 1)
-	L.tang = adjustAngle(get_angle(target,T))
+	playsound(TTarget, pick(lightning_sound), 75, 1)
+	L.tang = adjustAngle(get_angle(TTarget,T))
 	L.icon = midicon
 	L.icon_state = "[L.tang]"
-	L.firer = user
+	L.firer = src
 	L.def_zone = LIMB_CHEST
 	L.original = target
-	L.current = T
-	L.starting = T
-	L.yo = target.y - T.y
-	L.xo = target.x - T.x
-	spawn L.process()
-	user.forceMove(target)
-	..()
+	L.current = TTarget
+	L.starting = TTarget
+	L.yo = TTarget.y - T.y
+	L.xo = TTarget.x - T.x
+	L.process()
+	unlock_from() // just in case
+	forceMove(TTarget)
+
+/spell/pulse_demon/remote_hijack
+	name = "Remote Hijack"
+	abbreviation = "RH"
+	desc = "Remotely hijacks an APC"
+
+	range = 10
+	spell_flags = WAIT_FOR_CLICK
+	duration = 0 //you need to wait through the APC hack timer so this doesn't need another cooldown
+	level_max = list(Sp_TOTAL = 0)
+
+	hud_state = "pd_hijack"
+	charge_cost = 10000
+	purchase_cost = 15000
+	empower_cost = 20000
+	quicken_cost = 20000
+
+/spell/pulse_demon/remote_hijack/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
+	if(istype(target, /obj/machinery/power/apc))
+		var/obj/machinery/power/apc/A = target
+		if(!A.pulsecompromised)
+			return 1
+		else
+			to_chat(holder, "This APC is already hijacked.")
+	else
+		to_chat(holder, "That is not an APC.")
+
+/spell/pulse_demon/remote_hijack/cast(var/list/targets, mob/user)
+	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
+		var/obj/machinery/power/apc/A = targets[1]
+		PD.hijackAPC(A)
+
 
 /spell/pulse_demon/emag
 	name = "Electromagnetic Tamper"
@@ -424,15 +469,16 @@
 	range = 10
 	spell_flags = WAIT_FOR_CLICK
 	duration = 20
+	level_max = list(Sp_TOTAL = 2, Sp_POWER = 0, Sp_SPEED = 2)
 
 	hud_state = "pd_emag"
 	charge_cost = 20000
-	purchase_cost = 200000
+	purchase_cost = 50000
 	empower_cost = 50000
-	quicken_cost = 50000
+	quicken_cost = 200000
 
 
-/spell/pulse_demon/emag/is_valid_target(atom/target, mob/user)
+/spell/pulse_demon/emag/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -454,19 +500,20 @@
 /spell/pulse_demon/emp
 	name = "Electromagnetic Pulse"
 	abbreviation = "EP"
-	desc = "EMPs a targeted machine. Must be inside a compromised APC to use."
+	desc = "EMPs a targeted tile. Must be inside a compromised APC to use."
 
 	range = 10
 	spell_flags = WAIT_FOR_CLICK
 	duration = 20
+	level_max = list(Sp_TOTAL = 2, Sp_POWER = 0, Sp_SPEED = 2)
 
 	hud_state = "wiz_tech"
 	charge_cost = 10000
-	purchase_cost = 150000
+	purchase_cost = 50000
 	empower_cost = 50000
-	quicken_cost = 50000
+	quicken_cost = 200000
 
-/spell/pulse_demon/emp/is_valid_target(atom/target, mob/user)
+/spell/pulse_demon/emp/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -484,6 +531,54 @@
 	to_chat(user, "<span class='warning'>You EMP \the [target]!</span>")
 	..()
 
+
+/spell/pulse_demon/sustaincharge
+	level_max = list(Sp_TOTAL = 2, Sp_SPEED = 0, Sp_POWER = 2) // Why would cooldown be here?
+	charge_max = 0 SECONDS // See?
+	hud_state = "pd_cableleave"
+	name = "Self-Sustaining Charge"
+	abbreviation = "SC"
+	desc = "Toggle that allows leaving cables for brief periods of time, while moving at a slower speed."
+	purchase_cost = 100000
+	empower_cost = 300000
+
+/spell/pulse_demon/sustaincharge/choose_targets(var/mob/user = usr)
+	return list(user) // Self-cast
+
+/spell/pulse_demon/sustaincharge/cast(var/list/targets, mob/user)
+	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
+		if(PD.can_leave_cable)
+			if(!(PD.current_power || PD.current_cable)) //prevent you from killing yourself instantly by turning the ability off
+				to_chat(user,"<span class='warning'>Find a cable or a piece of power machinery!</span>")
+				return
+		PD.can_leave_cable = !PD.can_leave_cable
+		to_chat(user,"<span class='notice'>Leaving cables is [PD.can_leave_cable ? "on" : "off"].</span>")
+
+// Custom proc that instead allows less slowdown when off cable, while less than current max speed
+/spell/pulse_demon/sustaincharge/empower_spell()
+	..()
+	if(istype(usr,/mob/living/simple_animal/hostile/pulse_demon))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = usr
+
+		var/temp = ""
+		name = initial(name)
+		switch(level_max[Sp_POWER] - spell_levels[Sp_POWER])
+			if(2)
+				temp = "You have improved [name] into Ambulatory [name]."
+				name = "Ambulatory [name]"
+			if(1)
+				temp = "You have improved [name] into Walking [name]."
+				name = "Walking [name]"
+			if(0)
+				temp = "You have improved [name] into Running [name]."
+				name = "Running [name]"
+
+
+		if(PD.move_divide >= 2) //prevent going under 1 incase you upgrade it too much somehow
+			PD.move_divide *= 0.5
+		return temp
+
 // Similar to malf one
 /spell/pulse_demon/overload_machine
 	name = "Overload Machine"
@@ -493,14 +588,15 @@
 	range = 10
 	spell_flags = WAIT_FOR_CLICK
 	duration = 20
+	level_max = list(Sp_TOTAL = 1, Sp_POWER = 0, Sp_SPEED = 1)
 
 	hud_state = "overload"
 	charge_cost = 50000
 	purchase_cost = 300000
 	empower_cost = 100000
-	quicken_cost = 100000
+	quicken_cost = 500000
 
-/spell/pulse_demon/overload_machine/is_valid_target(var/atom/target, mob/user)
+/spell/pulse_demon/overload_machine/is_valid_target(atom/target, mob/user, options, bypass_range = 0)
 	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
 		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
 		if(PD.controlling_area == get_area(target))
@@ -526,111 +622,54 @@
 		qdel(M)
 	..()
 
-/spell/pulse_demon/remote_hijack
-	name = "Remote Hijack"
-	abbreviation = "RH"
-	desc = "Remotely hijacks an APC"
+/datum/action/pd_toggle_drain
+	name = "Toggle power drain"
+	desc = "Toggles the draining of power while in an APC, battery or cable"
+	icon_icon = 'icons/mob/screen_spells.dmi'
+	button_icon_state = "pd_toggle"
 
-	range = 10
-	spell_flags = WAIT_FOR_CLICK
-	duration = 20
+/datum/action/pd_toggle_drain/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		PD.draining = !PD.draining
+		to_chat(PD,"<span class='notice'>Draining power is [PD.draining ? "on" : "off"].</span>")
 
-	hud_state = "pd_hijack"
-	charge_cost = 10000
-	purchase_cost = 100000
-	empower_cost = 20000
-	quicken_cost = 20000
+/datum/action/pd_leave_item
+	name = "Leave posessed item"
+	desc = "Exit the item you are currently in."
+	icon_icon = 'icons/mob/screen_spells.dmi'
+	button_icon_state = "pd_hijack"
 
-/spell/pulse_demon/remote_hijack/is_valid_target(var/atom/target)
-	if(istype(target, /obj/machinery/power/apc))
-		var/obj/machinery/power/apc/A = target
-		if(!A.pulsecompromised)
-			return 1
+/datum/action/pd_leave_item/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		if(PD.current_power)
+			PD.forceMove(PD.current_power.loc)
 		else
-			to_chat(holder, "This APC is already hijacked.")
+			PD.forceMove(get_turf(PD))
+		PD.current_robot = null
+		PD.current_bot = null
+		PD.current_weapon = null
+		PD.change_sight(removing = SEE_TURFS | SEE_MOBS | SEE_OBJS)
 	else
-		to_chat(holder, "That is not an APC.")
+		owner.forceMove(get_turf(owner))
+	Remove(owner)
 
-/spell/pulse_demon/remote_hijack/cast(var/list/targets, mob/user)
-	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
-		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		var/obj/machinery/power/apc/A = targets[1]
-		PD.hijackAPC(A)
+/datum/action/pd_change_camera
+	name = "Change camera view"
+	desc = "Move to another camera in the area."
+	icon_icon = 'icons/mob/screen_ai.dmi'
+	button_icon_state = "camera"
 
-/spell/pulse_demon/remote_drain
-	name = "Remote Drain"
-	abbreviation = "RD"
-	desc = "Remotely drains a power source"
-
-	range = 10
-	spell_flags = WAIT_FOR_CLICK
-	duration = 20
-
-	hud_state = "pd_drain"
-	charge_cost = 10000
-	purchase_cost = 50000
-	empower_cost = 10000
-	quicken_cost = 10000
-
-/spell/pulse_demon/remote_drain/is_valid_target(var/atom/target)
-	if(istype(target, /obj/machinery/power/apc) || istype(target, /obj/machinery/power/battery))
-		return 1
-	else
-		to_chat(holder, "That is not a valid drainable power source.")
-
-/spell/pulse_demon/remote_drain/cast(var/list/targets, mob/user)
-	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
-		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		var/obj/machinery/power/P = targets[1]
-		if(istype(P,/obj/machinery/power/apc))
-			var/obj/machinery/power/apc/A = P
-			PD.drainAPC(A)
-		else if(istype(P,/obj/machinery/power/battery))
-			var/obj/machinery/power/battery/B = P
-			PD.suckBattery(B)
-		to_chat(user, "<span class='warning'>You absorb \the [P] for [PD.charge_absorb_amount]W!</span>")
-
-/spell/pulse_demon/sustaincharge
-	level_max = list(Sp_TOTAL = 3, Sp_POWER = 3) // Why would cooldown be here?
-	charge_max = 1 SECONDS // See?
-	hud_state = "pd_cableleave"
-	name = "Self-Sustaining Charge"
-	abbreviation = "SC"
-	desc = "Toggle that allows leaving cables for brief periods of time, while moving at a slower speed."
-	purchase_cost = 500000
-	empower_cost = 200000
-
-/spell/pulse_demon/sustaincharge/choose_targets(var/mob/user = usr)
-	return list(user) // Self-cast
-
-/spell/pulse_demon/sustaincharge/cast(var/list/targets, mob/user)
-	if(istype(user,/mob/living/simple_animal/hostile/pulse_demon))
-		var/mob/living/simple_animal/hostile/pulse_demon/PD = user
-		PD.can_leave_cable = !PD.can_leave_cable
-		to_chat(user,"<span class='notice'>Leaving cables is [PD.can_leave_cable ? "on" : "off"].</span>")
-
-// Custom proc that instead allows less slowdown when off cable, while less than current max speed
-/spell/pulse_demon/sustaincharge/empower_spell()
-	if(!can_improve(Sp_POWER))
-		return 0
-	if(istype(usr,/mob/living/simple_animal/hostile/pulse_demon))
-		var/mob/living/simple_animal/hostile/pulse_demon/PD = usr
-		spell_levels[Sp_POWER]++
-
-		var/temp = ""
-		name = initial(name)
-		switch(level_max[Sp_POWER] - spell_levels[Sp_POWER])
-			if(2)
-				temp = "You have improved [name] into Ambulatory [name]."
-				name = "Ambulatory [name]"
-			if(1)
-				temp = "You have improved [name] into Walking [name]."
-				name = "Walking [name]"
-			if(0)
-				temp = "You have improved [name] into Running [name]."
-				name = "Running [name]"
-
-
-		if(PD.move_divide > 1)
-			PD.move_divide *= 0.75
-		return temp
+/datum/action/pd_change_camera/Trigger()
+	if(ispulsedemon(owner))
+		var/mob/living/simple_animal/hostile/pulse_demon/PD = owner
+		var/list/camstouse = list()
+		var/area/ourarea = get_area(PD)
+		for (var/obj/machinery/camera/C in cameranet.cameras)
+			if(get_area(C) == ourarea)
+				camstouse["[C.c_tag]"] += C
+		var/camtag = input(PD,"Choose a camera to jump to","Area cameras") as null|anything in camstouse
+		if(camtag)
+			var/obj/machinery/camera/ourcam = camstouse[camtag]
+			ourcam.attack_pulsedemon(PD)

@@ -36,6 +36,7 @@
 		/obj/structure/closet/crate/freezer,
 		/obj/structure/closet/crate/medical,
 		/obj/structure/closet/crate/secure/medsec,
+		/obj/structure/closet/secure_closet/freezer,
 		)
 
 /obj/item/organ/internal/attack_self(mob/user as mob)
@@ -56,8 +57,7 @@
 /obj/item/organ/internal/Destroy()
 	if(!robotic)
 		processing_objects -= src
-	qdel(organ_data)
-	organ_data = null
+	QDEL_NULL(organ_data)
 	..()
 
 /obj/item/organ/internal/examine(var/mob/user, var/size = "")
@@ -164,6 +164,11 @@
 	fresh = 6
 	dead_icon = "insectoid-heart-off"
 	organ_type = /datum/organ/internal/heart
+
+/obj/item/organ/internal/heart/vox
+	name = "vox heart"
+	icon_state = "vox-heart-on"
+	dead_icon = "vox-heart-off"
 
 /obj/item/organ/internal/heart/cell
 	name = "biocharger"

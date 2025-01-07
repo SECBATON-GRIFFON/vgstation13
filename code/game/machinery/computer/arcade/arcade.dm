@@ -3,10 +3,12 @@
 	desc = "Does not support pinball."
 	icon = 'icons/obj/computer.dmi'
 	icon_state = "arcade"
+	moody_state = "overlay_arcade"
 	circuit = "/obj/item/weapon/circuitboard/arcade"
 	var/datum/arcade_game/game
 	machine_flags = EMAGGABLE | SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK
 	emag_cost = 0 // because fun
+	computer_flags = NO_ONOFF_ANIMS
 	light_color = LIGHT_COLOR_GREEN
 	var/haunted = 0
 	var/mob/playerone
@@ -31,8 +33,7 @@
 
 /obj/machinery/computer/arcade/Destroy()
 	if(game)
-		qdel(game)
-		game = null
+		QDEL_NULL(game)
 	..()
 
 /obj/machinery/computer/arcade/proc/import_game_data(var/obj/item/weapon/circuitboard/arcade/A)

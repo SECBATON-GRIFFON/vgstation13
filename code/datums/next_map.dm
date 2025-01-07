@@ -59,7 +59,6 @@
 /datum/next_map/deff
 	name = "Defficiency"
 	path = "Defficiency"
-	min_players = 30
 
 /datum/next_map/dorf
 	name = "DorfStation"
@@ -75,16 +74,11 @@
 		return FALSE
 	return ..()
 
-/datum/next_map/island
-	name = "Island Station"
-	path = "Island"
-	min_players = 25
-	
 /datum/next_map/line
 	name = "Frankenline Station"
 	path = "line"
 	min_players = 25
-	
+
 /datum/next_map/line/is_votable()
 	var/MM = text2num(time2text(world.timeofday, "MM")) // get the current month
 	if (MM != 10)
@@ -112,10 +106,15 @@
 	path = "lowfatbagel"
 	min_players = 25
 
+/datum/next_map/horizon
+	name = "NRV Horizon"
+	path = "horizon"
+	min_players = 5
+	max_players = 25
+
 /datum/next_map/metaclub
 	name = "Meta Club"
 	path = "Metaclub"
-	min_players = 24
 
 /datum/next_map/packed
 	name = "Packed Station"
@@ -125,7 +124,6 @@
 /datum/next_map/roid
 	name = "Asteroid Station"
 	path = "RoidStation"
-	min_players = 25
 
 /datum/next_map/snaxi
 	name = "Snow Station"
@@ -145,6 +143,7 @@
 /datum/next_map/synergy
 	name = "Synergy Station"
 	path = "Synergy"
+	min_players = 15
 
 /datum/next_map/waystation
 	name = "Waystation"
@@ -176,10 +175,10 @@
 		return FALSE
 	return ..()
 
-/datum/next_map/nerve
-	name = "Nerve Station"
-	path = "nervestation"
-	min_players = 20
+/datum/next_map/wheelstation
+	name = "Wheelstation"
+	path = "wheelstation"
+	min_players = 30
 
 /proc/get_votable_maps()
 	var/list/votable_maps = list()

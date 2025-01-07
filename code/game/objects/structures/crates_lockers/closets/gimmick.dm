@@ -5,8 +5,10 @@
 	icon_closed = "cabinet_closed"
 	icon_opened = "cabinet_open"
 	is_wooden = TRUE
-	autoignition_temperature = AUTOIGNITION_WOOD
-	fire_fuel = 3
+	w_class = W_CLASS_HUGE
+	w_type = RECYK_WOOD
+	flammable = TRUE
+
 	starting_materials = list(MAT_WOOD = 2*CC_PER_SHEET_WOOD)
 	w_type = RECYK_WOOD
 
@@ -36,8 +38,7 @@
 
 /obj/structure/closet/cabinet/snow/Destroy()
 	..()
-	qdel(hanger_rail)
-	hanger_rail = null
+	QDEL_NULL(hanger_rail)
 
 /obj/structure/hanger_rail
 	icon = 'icons/obj/closet.dmi'

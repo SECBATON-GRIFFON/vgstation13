@@ -42,7 +42,7 @@
 		callshuttle = 0
 
 	if(callshuttle == 3) //if all three conditions are met
-		shuttle_autocall("All the AIs, comm consoles and boards are destroyed")
+		shuttle_autocall()
 
 	if(explosive && !gibbed && !istype(loc, /obj/machinery/power/apc))
 		visible_message("<span class='danger'>[name] begins to spark violently!</span>")
@@ -66,7 +66,7 @@
 
 	tod = worldtime2text() //weasellos time of death patch
 	if(mind)
-		mind.store_memory("Time of death: [tod]", 0)
+		mind.store_memory("Time of death: [tod]", category=MIND_MEMORY_GENERAL, forced=TRUE)
 		if(!mind.suiciding) //Cowards don't count
 			score.deadaipenalty += 1
 

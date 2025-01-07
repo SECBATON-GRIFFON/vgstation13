@@ -6,9 +6,9 @@
 	icon_state = "gymrat"
 	icon_living = "gymrat"
 	icon_dead = "gymrat-dead"
-	response_help  = "pets the"
-	response_disarm = "gently pushes aside the"
-	response_harm   = "stamps on the"
+	response_help  = "pets"
+	response_disarm = "gently pushes aside"
+	response_harm   = "stomps on the"
 	treadmill_speed = 6
 	health = 30
 	maxHealth = 30
@@ -19,7 +19,7 @@
 	speak_emote = list("squeaks loudly")
 	emote_hear = list("squeaks loudly")
 	emote_see = list("flexes", "sweats", "does a rep")
-
+	appearance_flags = PIXEL_SCALE
 	size = SIZE_SMALL // If they're not at least small it doesn't seem like the treadmill works or makes sound
 	pass_flags = PASSTABLE
 	stop_automated_movement_when_pulled = TRUE
@@ -40,6 +40,8 @@
 	var/list/gym_equipments = list(/obj/structure/stacklifter, /obj/structure/punching_bag, /obj/structure/weightlifter, /obj/machinery/power/treadmill)
 	var/static/list/edibles = list(/obj/item/weapon/reagent_containers/food/snacks)
 
+	var/scalerate = 1
+	var/translaterate = 4.5 //it is multiplied by the current scalerate, and we want a final value of 9
 	var/all_fours = TRUE
 
 	var/last_scavenge = 0
@@ -86,7 +88,7 @@
 				to_chat(src, text("<span class='warning'>You find something!</span>"))
 				new /obj/item/weapon/reagent_containers/food/snacks/meat/scraps(src.loc)
 
-	if(is_type_in_list(A, edibles)) // If we click on something edible, it's time to chow down!
+	if(is_type_in_list(A, edibles) && A != loc) // If we click on something edible, it's time to chow down! // dumb hotfix so they don't eat themselves inside an animal cube
 		delayNextAttack(10)
 		chowdown(A)
 	if(is_type_in_list(A, gym_equipments)) // If we click on gym equipment, it's time to work out!
@@ -99,6 +101,16 @@
 		playsound(src, 'sound/items/eatfood.ogg', rand(10,50), 1)
 		if(maxHealth < health_cap) // Are we below our max gainz level? Add on some max hp!
 			adjust_hp(5)
+			if(initial(maxHealth) == 30) //regular gym rat
+				scalerate += (1/14)
+			else						//pompadour
+				scalerate += (1/16)
+			if(scalerate > 2) //to tame the float point inaccuracies
+				scalerate = 2
+			var/matrix/M = matrix()
+			M.Scale(scalerate,scalerate)
+			M.Translate(0, translaterate*scalerate)
+			transform = M
 		else
 			health+=5 // Otherwise we just get a little health back
 			to_chat(src, text("<span class='warning'>The meat nourishes you, but your muscles don't grow. You've bulked all you can...</span>"))
@@ -232,6 +244,18 @@
 			if(maxHealth >= 20)
 				visible_message("<span class='warning'>[src] seems to shrink as the soymilk washes over them! Its muscles look less visible...</span>")
 				maxHealth-=10
+				if(initial(maxHealth) == 30) //regular gym rat
+					scalerate -= (1/7)
+				else if(initial(maxHealth) == 40) //pompadour
+					scalerate -= (1/8)
+				else //roidrat
+					scalerate -= (1/10)
+				if(scalerate < 1) //to tame the float point inaccuracies
+					scalerate = 1
+				var/matrix/M = matrix()
+				M.Scale(scalerate,scalerate)
+				M.Translate(0, -translaterate*scalerate)
+				transform = M
 				adjustBruteLoss(1) // Here so that the mouse aggros. It won't be happy that you're cutting into its gainz!
 			if(maxHealth < 20)
 				visible_message("<span class='warning'>[src] shrinks back into a more appropriate size for a mouse.</span>")
@@ -247,7 +271,7 @@
 ///////////////////////////////////////////////////////////////////POMPADOUR RAT///////////
 // Who's that handsome rat? 911 emergency, there's a handsome rat in my house!
 /mob/living/simple_animal/hostile/retaliate/gym_rat/pompadour_rat
-	name = "pomdadour rat"
+	name = "pompadour rat"
 	desc = "Dang! That's a pretty hunky mouse, let me tell ya."
 	icon_state = "gymrat_pompadour"
 	icon_living = "gymrat_pompadour"
@@ -259,7 +283,6 @@
 
 	melee_damage_lower = 1
 	melee_damage_upper = 6
-
 	health_cap = 120 // Eating protein can pack on a whopping 200% increase in max health. GAINZ
 	icon_eat = "gymrat_pompadour-eat"
 
@@ -311,8 +334,8 @@
 	desc = "It's yoked! Holy shit!"
 	icon_state = "roidrat"
 	icon_living = "roidrat"
-	response_help  = "massages the"
-	response_disarm = "stares jealously at the"
+	response_help  = "massages"
+	response_disarm = "stares jealously at"
 	response_harm   = "angrily kicks the"
 	treadmill_speed = 3 // CARDIO IS FOR DWEEBS
 	health = 150 // Damn, brother
@@ -326,7 +349,6 @@
 
 	health_cap = 250 // Eating protein can pack on a 66% increase in max health. Less percentage-wise than gym rats who are working out the "natural" way, but the raw numbers are still pretty scary
 	icon_eat = "roidrat-eat"
-
 	var/punch_throw_chance = 20 // Chance of sending a target flying a short distance with a punch
 	var/punch_throw_speed = 3
 	var/punch_throw_range = 6
@@ -386,6 +408,13 @@
 		playsound(src, 'sound/items/eatfood.ogg', rand(10,50), 1)
 		if(maxHealth < health_cap) // Are we below our max gainz level? Add on some max hp!
 			adjust_hp(5)
+			scalerate += (1/20)
+			if(scalerate > 2) //to tame the float point inaccuracies
+				scalerate = 2
+			var/matrix/M = matrix()
+			M.Scale(scalerate,scalerate)
+			M.Translate(0, translaterate*scalerate)
+			transform = M
 		else
 			health+=5 // Otherwise we just get a little health back
 			to_chat(src, text("<span class='warning'>The meat nourishes you, but your muscles don't grow. You've bulked all you can...</span>"))

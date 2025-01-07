@@ -85,6 +85,19 @@
 	. = ..()
 	siemens_coefficient = pick(0,0.5,0.5,0.5,0.5,0.75,1.5)
 
+	if(Holiday == APRIL_FOOLS_DAY && permeability_coefficient != 0.051)
+		new /obj/item/clothing/gloves/fyellow/insulted(src)
+		qdel(src)
+
+/obj/item/clothing/gloves/fyellow/insulted
+	name = "insulted gloves"
+	desc = "These gloves will mock the wearer when shocked."
+	permeability_coefficient = 0.051 //small meaningless change to make them different from the regular (i don't wanna make a useless var)
+
+/obj/item/clothing/gloves/fyellow/insulted/New()
+	. = ..()
+	siemens_coefficient = pick(0.25,0.5,0.5,0.5,0.5,0.75,1.5)
+
 /obj/item/clothing/gloves/black
 	desc = "These gloves are quite comfortable, and will keep you warm!"
 	name = "black gloves"
@@ -131,8 +144,7 @@
 
 /obj/item/clothing/gloves/black/thief/storage/Destroy()
 	if(hold)
-		qdel(hold)
-		hold = null
+		QDEL_NULL(hold)
 	return ..()
 
 /obj/item/clothing/gloves/black/thief/storage/attack_hand(mob/user)
@@ -251,8 +263,7 @@
 		return
 	if(current_gun)
 		to_chat(M, "<span class ='notice'>Your gun evaporates into thin air!</span>")
-		qdel(current_gun)
-		current_gun = null
+		QDEL_NULL(current_gun)
 		charging = TRUE
 		spawn(50)
 			charging = FALSE

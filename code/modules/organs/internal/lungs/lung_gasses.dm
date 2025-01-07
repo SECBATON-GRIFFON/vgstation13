@@ -16,8 +16,7 @@
 		lungs.gasses -= src
 		lungs = null
 
-	qdel(breath)
-	breath = null
+	QDEL_NULL(breath)
 	..()
 
 /datum/lung_gas/proc/get_pp()
@@ -164,8 +163,10 @@
 				// no this is bad n3x pls no
 				H.adjustToxLoss(clamp(ratio, MIN_PLASMA_DAMAGE, MAX_PLASMA_DAMAGE))
 			H.toxins_alert = max(H.toxins_alert, 1)
+			return TRUE
+		return FALSE
 	else
-		H.toxins_alert = 0
+		return FALSE
 
 
 ////////////////////////

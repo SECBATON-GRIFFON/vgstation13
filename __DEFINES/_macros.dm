@@ -78,8 +78,6 @@
 
 #define isgrue(A) (istype(A, /mob/living/simple_animal/hostile/grue))
 
-#define isslimeadult(A) istype(A, /mob/living/carbon/slime/adult)
-
 #define isrobot(A) istype(A, /mob/living/silicon/robot)
 
 #define isanimal(A) istype(A, /mob/living/simple_animal)
@@ -103,6 +101,8 @@
 #define iscluwne(A) istype(A, /mob/living/simple_animal/hostile/retaliate/cluwne)
 
 #define isclowngoblin(A) istype(A, /mob/living/simple_animal/hostile/retaliate/cluwne/goblin)
+
+#define isbee(A) istype(A, /mob/living/simple_animal/bee)
 
 #define isAI(A) istype(A, /mob/living/silicon/ai)
 
@@ -148,7 +148,7 @@
 
 #define isEmag(A) istype(A, /obj/item/weapon/card/emag)
 
-#define istool(A) iswrench(A) || iswelder(A) || isshovel(A) || ishammer(A) || iscablecoil(A) || iswiretool(A) || iscrowbar(A)
+#define istool(A) (iswrench(A) || iswelder(A) || isshovel(A) || ishammer(A) || iscablecoil(A) || iswiretool(A) || iscrowbar(A))
 
 #define iswelder(A) istype(A, /obj/item/tool/weldingtool)
 
@@ -162,7 +162,7 @@
 
 #define isfood(A) istype(A, /obj/item/weapon/reagent_containers/food)
 
-#define iswirecutter(A) istype(A, /obj/item/tool/wirecutters)
+#define iswirecutter(A) (istype(A, /obj/item/tool/wirecutters) || (istype(A, /obj/item/weapon/switchtool) && istype(A:deployed, /obj/item/tool/wirecutters)))
 
 #define iswiretool(A) (iswirecutter(A) || ismultitool(A) || issignaler(A))
 
@@ -176,11 +176,11 @@
 
 #define ismultitool(A) istype(A, /obj/item/device/multitool)
 
-#define iscrowbar(A) istype(A, /obj/item/tool/crowbar)
+#define iscrowbar(A) (istype(A, /obj/item/tool/crowbar) || (istype(A, /obj/item/weapon/switchtool) && istype(A:deployed, /obj/item/tool/crowbar)))
 
 #define issolder(A) istype(A, /obj/item/tool/solder)
 
-#define iswrench(A) istype(A, /obj/item/tool/wrench)
+#define iswrench(A) (istype(A, /obj/item/tool/wrench) || (istype(A, /obj/item/weapon/switchtool) && istype(A:deployed, /obj/item/tool/wrench)))
 
 #define isswitchtool(A) istype(A, /obj/item/weapon/switchtool)
 
@@ -196,6 +196,8 @@
 
 #define istable(A) (istype(A, /obj/structure/table))
 
+#define isshelf(A) (istype(A, /obj/structure/table) || istype(A, /obj/structure/rack) || istype(A, /obj/structure/closet) || istype(A, /obj/item/weapon/storage))
+
 #define issilicatesprayer(A) (istype(A, /obj/item/device/silicate_sprayer))
 
 #define iswindow(A) (istype(A, /obj/structure/window))
@@ -204,7 +206,11 @@
 
 #define isgripper(G) (istype(G, /obj/item/weapon/gripper))
 
-#define isholyweapon(I) (istype(I, /obj/item/weapon/nullrod) || istype(I, /obj/item/weapon/gun/hookshot/whip/vampkiller))
+#define isholyweapon(I) (istype(I, /obj/item/weapon/storage/bible)\
+						 || istype(I, /obj/item/weapon/nullrod)\
+						 || istype(I, /obj/item/weapon/gun/hookshot/whip/vampkiller/true)\
+						 || istype(I, /obj/item/projectile/hookshot/whip/vampkiller/true)\
+						 || istype(I, /obj/item/weapon/boomerang/cross))
 
 #define isholyprotection(I) (istype(I, /obj/item/weapon/nullrod))
 
@@ -220,7 +226,7 @@
 
 #define isrealobject(A) (istype(A, /obj/item) || istype(A, /obj/structure) || istype(A, /obj/machinery) || istype(A, /obj/mecha))
 
-#define iscleanaway(A) (istype(A,/obj/effect/decal/cleanable) || (istype(A,/obj/effect/overlay) && !istype(A,/obj/effect/overlay/puddle) && !istype(A, /obj/effect/overlay/hologram)) || istype(A,/obj/effect/rune_legacy) || (A.ErasableRune()))
+#define iscleanaway(A) (istype(A,/obj/effect/decal/cleanable) || (istype(A,/obj/effect/overlay) && !istype(A,/obj/effect/overlay/puddle) && !istype(A, /obj/effect/overlay/hologram)) || istype(A,/obj/effect/rune_legacy) || (A.ErasableRune()) || istype(A,/obj/effect/ash))
 
 #define ismatrix(A) (istype(A, /matrix))
 
@@ -233,6 +239,8 @@
 #define isPDA(A) (istype(A, /obj/item/device/pda))
 
 #define isfloor(A) (istype(A, /turf/simulated/floor) || istype(A, /turf/unsimulated/floor) || istype(A, /turf/simulated/floor/shuttle) || istype(A, /turf/simulated/floor/shuttle/brig))
+
+#define iswall(A) (istype(A, /turf/simulated/wall) || istype(A, /turf/unsimulated/wall))
 
 #define isshuttleturf(A) (istype(A, /turf/simulated/wall/shuttle) || istype(A, /turf/simulated/floor/shuttle))
 
@@ -301,6 +309,8 @@
 
 #define isapprentice(H) (H.mind && H.mind.GetRole(WIZAPP))
 
+#define iswizconvert(H) (H.mind && H.mind.GetRole(WIZARD_CONVERT))
+
 #define isbadmonkey(H) ((/datum/disease/jungle_fever in H.viruses) || (H.mind && H.mind.GetRole(MADMONKEY)))
 
 #define isdeathsquad(H) (H.mind && H.mind.GetRole(DEATHSQUADIE))
@@ -323,6 +333,8 @@
 
 #define istimeagent(H) (H.mind && (H.mind.GetRole(TIMEAGENT) || (H.mind.GetRole(TIMEAGENTTWIN))))
 
+#define isdivergentclone(H) (H.mind && (H.mind.GetRole(DIVERGENTCLONE)))
+
 #define isERT(H) (H.mind && H.mind.GetRole(RESPONDER))
 
 #define isclownling(H) (H.mind && H.mind.GetRole(CLOWN_LING))
@@ -339,6 +351,8 @@
 #define isspace(A) (A.type == /area)
 
 #define isopenspace(A) istype(A, /turf/simulated/open)
+var/global/list/visible_spaces = list(/turf/simulated/open, /turf/simulated/floor/glass)
+#define isvisiblespace(A) is_type_in_list(A, visible_spaces)
 
 //This one returns the "space" area
 //#define get_space_area (get_area(locate(1,1,2))) //xd
@@ -403,6 +417,8 @@
 #define is_area_in_map(A) (A.x)
 
 #define SNOW_THEME (map.snow_theme || Holiday == XMAS || Holiday == XMAS_EVE)
+
+#define SOCIALISM_WON (map.nameShort == "castle" || Holiday == LABOR_DAY)
 
 #define get_conductivity(A) (A ? A.siemens_coefficient : 1)
 

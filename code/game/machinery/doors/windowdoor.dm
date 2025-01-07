@@ -47,6 +47,9 @@
 	setDensity(FALSE)
 	..()
 
+/obj/machinery/door/window/update_icon()
+	return
+
 /obj/machinery/door/window/proc/smart_toggle() //For "smart" windows
 	// var/color = window_is_opaque ? "#FFFFFF" : "#222222" //these are backwards because we're changing window_is_opaque later
 	// animate(src, color=color, time=5)
@@ -94,8 +97,8 @@
 					if(istype(vehicle, /obj/structure/bed/chair/vehicle/firebird))
 						vehicle.forceMove(get_step(vehicle,vehicle.dir))//Firebird doesn't wait for no slowpoke door to fully open before dashing through!
 					open()
-					sleep(sleeptime)
-					close()
+					spawn(sleeptime)
+						close()
 				else if(!operating)
 					denied()
 		return
@@ -105,8 +108,8 @@
 		return
 	if(density && allowed(AM))
 		open()
-		sleep(sleeptime)
-		close()
+		spawn(sleeptime)
+			close()
 
 /obj/machinery/door/window/Cross(atom/movable/mover, turf/target, height=1.5, air_group = 0)
 	if(istype(mover) && mover.checkpass(pass_flags_self))
@@ -215,7 +218,7 @@
 		..()
 
 /obj/machinery/door/window/attack_paw(mob/living/user)
-	if(istype(user, /mob/living/carbon/alien/humanoid) || istype(user, /mob/living/carbon/slime/adult))
+	if(istype(user, /mob/living/carbon/alien/humanoid) || isslimeadult(user))
 		if(operating)
 			return
 		user.delayNextAttack(8)
@@ -247,8 +250,7 @@
 			to_chat(user, "<span class='notice'>You removed \the [electronics.name]!</span>")
 			make_assembly()
 			if(smartwindow)
-				qdel(smartwindow)
-				smartwindow = null
+				QDEL_NULL(smartwindow)
 				if(window_is_opaque)
 					window_is_opaque = !window_is_opaque
 					smart_toggle()

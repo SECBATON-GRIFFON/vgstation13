@@ -26,13 +26,20 @@
 
 */
 
+//General character knowledge, e.g. blood type, bank details, radio channels
+#define MIND_MEMORY_GENERAL "General"
+//Antagonist specific knowledge, e.g. uplink codes
+#define MIND_MEMORY_ANTAGONIST "Antagonist"
+//User-created notes, appears at the bottom of the list
+#define MIND_MEMORY_CUSTOM "Custom"
+
 /datum/mind
 	var/key
 	var/name				//replaces mob/var/original_name
 	var/mob/current
 	var/active = 0
 
-	var/memory
+	var/list/memory = list(MIND_MEMORY_GENERAL = "", MIND_MEMORY_ANTAGONIST = "", MIND_MEMORY_CUSTOM = "")
 	var/datum/body_archive/body_archive
 
 	var/assigned_role
@@ -79,6 +86,10 @@
 /datum/mind/New(var/key)
 	src.key = key
 
+/datum/mind/Destroy()
+	stack_trace("A mind ([key],[name]) was destroyed and that's terrible, find where it occured and prevent that.")
+	..()
+
 /datum/mind/proc/transfer_to(mob/new_character)
 	if (!current)
 		transfer_to_without_current(new_character)
@@ -91,23 +102,21 @@
 		var/datum/role/R = antag_roles[role]
 		R.PreMindTransfer(current)
 
+	if(current)					//remove ourself from our old body's mind variable NOW THAT THE TRANSFER IS DONE
+		current.old_assigned_role = assigned_role
+		current.mind = null
+
 	if(new_character.mind)		//remove any mind currently in our new body's mind variable
 		new_character.mind.current = null
 
 	nanomanager.user_transferred(current, new_character)
 
-	//find a better way to do this, this is horrible
-	if(active)
-		new_character.key = key	//now transfer the key to link the client to our new body
-
-	if(current)					//remove ourself from our old body's mind variable NOW THAT THE TRANSFER IS DONE
-		current.old_assigned_role = assigned_role
-		current.mind = null
-
 	var/mob/old_character = current
 	current = new_character		//link ourself to our new body
 	new_character.mind = src	//and link our new body to ourself
-	new_character.mind.active = TRUE	//necessary for some reason
+
+	if(active)
+		new_character.key = key	//now transfer the key to link the client to our new body
 
 	for (var/role in antag_roles)
 		var/datum/role/R = antag_roles[role]
@@ -128,7 +137,6 @@
 
 	if(active)
 		new_character.key = key		//now transfer the key to link the client to our new body
-		to_chat(world, "transfered to successfully")
 
 	current = new_character		//link ourself to our new body
 	new_character.mind = src	//and link our new body to ourself
@@ -137,17 +145,21 @@
 
 	if (hasFactionsWithHUDIcons())
 		update_faction_icons()
+	INVOKE_EVENT(src, /event/after_mind_transfer, "mind" = src)
 
-/datum/mind/proc/store_memory(new_text, var/forced)
+/datum/mind/proc/store_memory(new_text, var/category = MIND_MEMORY_GENERAL, var/forced = FALSE)
+	if(!category || !(category in memory))
+		category = MIND_MEMORY_CUSTOM
+
 	if(!forced)
-		if(length(memory) > MAX_PAPER_MESSAGE_LEN)
+		if(length(memory[category]) > MAX_PAPER_MESSAGE_LEN)
 			to_chat(current, "<span class = 'warning'>Your memory, however hazy, is full.</span>")
 			return
 		if(length(new_text) > MAX_MESSAGE_LEN)
 			to_chat(current, "<span class = 'warning'>That's a lot to memorize at once.</span>")
 			return
 	if(new_text)
-		memory += "[new_text]<BR>"
+		memory[category] += "[new_text]<BR>"
 
 
 /datum/mind/proc/hasFactionsWithHUDIcons()
@@ -161,8 +173,15 @@
 	var/output = "<TITLE>Your memory</TITLE><B>[current.real_name]'s memory</B><HR>"
 
 	if (memory)
-		output += memory
-		output += "<hr>"
+		if(length(memory[MIND_MEMORY_GENERAL]) > 0)
+			output += memory[MIND_MEMORY_GENERAL]
+			output += "<hr>"
+		if(length(memory[MIND_MEMORY_ANTAGONIST]) > 0)
+			output += memory[MIND_MEMORY_ANTAGONIST]
+			output += "<hr>"
+		if(length(memory[MIND_MEMORY_CUSTOM]) > 0)
+			output += memory[MIND_MEMORY_CUSTOM]
+			output += "<hr>"
 
 	if(antag_roles.len)
 		for(var/role in antag_roles)
@@ -211,7 +230,8 @@
 	if(!ticker || !ticker.mode)
 		alert("Ticker and Game Mode aren't initialized yet!", "Alert")
 		return
-
+	if(!check_rights(R_ADMIN))
+		return
 	var/out = {"<TITLE>Role purchase log</TITLE><B>[name]</B>[(current&&(current.real_name!=name))?" (as [current.real_name])":""]<BR>Assigned job: [assigned_role]<hr>"}
 	if(current.spell_list && current.spell_list.len)
 		out += "Known spells:<BR>"
@@ -324,10 +344,14 @@
 				to_chat(usr, "<span class='danger'>Sorry, that feature is not coded yet. - Deity Link</span>")
 			else if (istype(all_factions[joined_faction], /datum/faction))//we got an existing faction
 				var/datum/faction/joined = all_factions[joined_faction]
+				joined.forgeObjectives()
+				joined.OnPostSetup()
 				joined.HandleRecruitedRole(newRole)
 			else //we got an inexisting faction, gotta create it first!
 				var/datum/faction/joined = ticker.mode.CreateFaction(all_factions[joined_faction], null, 1)
 				if (joined)
+					joined.forgeObjectives()
+					joined.OnPostSetup()
 					joined.HandleRecruitedRole(newRole)
 
 		newRole.OnPostSetup()
@@ -358,10 +382,14 @@
 					to_chat(usr, "<span class='danger'>Sorry, that feature is not coded yet. - Deity Link</span>")
 				else if (istype(all_factions[join_faction], /datum/faction))//we got an existing faction
 					var/datum/faction/joined = all_factions[join_faction]
+					joined.forgeObjectives()
+					joined.OnPostSetup()
 					joined.HandleRecruitedRole(R)
 				else //we got an inexisting faction, gotta create it first!
 					var/datum/faction/joined = ticker.mode.CreateFaction(all_factions[join_faction], null, 1)
 					if (joined)
+						joined.forgeObjectives()
+						joined.OnPostSetup()
 						joined.HandleRecruitedRole(R)
 
 	else if (href_list["obj_add"])
@@ -562,6 +590,8 @@
 /mob/proc/mind_initialize() // vgedit: /mob instead of /mob/living
 	if(mind)
 		mind.key = key
+		if(ticker)
+			ticker.minds |= mind
 	else
 		mind = new /datum/mind(key)
 		if(ticker)

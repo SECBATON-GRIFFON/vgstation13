@@ -7,9 +7,6 @@
 	nameShort = "deff"
 	nameLong = "Defficiency"
 	map_dir = "defficiency"
-	tDomeX = 128
-	tDomeY = 58
-	tDomeZ = 2
 	zLevels = list(
 		/datum/zLevel/station,
 		/datum/zLevel/centcomm,
@@ -82,13 +79,14 @@
 	add_dock(/obj/docking_port/destination/research/outpost)
 
 //All security airlocks have randomized wires
-/obj/machinery/door/airlock/glass_security/New()
-	.=..()
-	wires = new /datum/wires/airlock/secure(src)
+//Disabled from the game
+// /obj/machinery/door/airlock/glass_security/New()
+// 	.=..()
+// 	wires = new /datum/wires/airlock/secure(src)
 
-/obj/machinery/door/airlock/security/New()
-	.=..()
-	wires = new /datum/wires/airlock/secure(src)
+// /obj/machinery/door/airlock/security/New()
+// 	.=..()
+// 	wires = new /datum/wires/airlock/secure(src)
 
 ////////////////////////////////////////////////////////////////
 

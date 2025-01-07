@@ -6,12 +6,13 @@
 	var/uses = 4.0
 	flags = FPRINT
 	w_class = W_CLASS_SMALL
+	w_type = RECYK_WOOD
+	flammable = TRUE //suffer all ye spellcasters
 	item_state = "paper"
 	throw_speed = 4
 	throw_range = 20
 	origin_tech = Tc_BLUESPACE + "=4"
 	mech_flags = MECH_SCAN_FAIL // Because why should the crew be able to make scrolls out of nothing
-	autoignition_temperature = AUTOIGNITION_PAPER
 
 /obj/item/weapon/teleportation_scroll/apprentice
 	name = "lesser scroll of teleportation"
@@ -52,6 +53,9 @@
 	var/A
 	A = input(user, "Area to jump to", "BOOYEA", A) as null|anything in teleportlocs
 
+	if(isnull(A))
+		return
+
 	var/area/thearea = teleportlocs[A]
 
 	if (!user || user.stat || user.restrained())
@@ -85,6 +89,22 @@
 	var/attempt = null
 	var/success = 0
 	var/prev_z = user.z
+	if(istype(thearea,/area/turret_protected/ai) && ishuman(user))
+		var/aifound = FALSE
+		for(var/mob/living/M in player_list)
+			if(isAI(M) || (M.mind && M.mind.assigned_role == "AI"))
+				aifound = TRUE
+				break
+		if(!aifound)
+			aifound = alert(user,"This room has no active AI, become a fake one here?","The wizard of...","Yea","Nay") == "Nay"
+		if(!aifound)
+			var/mob/living/carbon/human/H = user
+			H.make_fake_ai()
+			INVOKE_EVENT(user, /event/z_transition, "user" = user, "to_z" = user.z, "from_z" = prev_z)
+			smoke.start()
+			src.uses -= 1
+			log_game("[key_name(user)] teleported to [thearea.name] using a scroll.")
+			return
 	while(tempL.len)
 		attempt = pick(tempL)
 		success = user.Move(attempt)

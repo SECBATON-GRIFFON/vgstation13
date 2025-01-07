@@ -28,8 +28,7 @@
 	pipe_networks -= src
 
 	if(air_transient)
-		qdel(air_transient)
-		air_transient = null
+		QDEL_NULL(air_transient)
 
 	radiate = null //This is a ref to an external gas_mixture, so it should not be deleted
 
@@ -118,10 +117,13 @@
 	for(var/datum/gas_mixture/gas in gases)
 		air_transient.volume += gas.volume
 		air_transient.merge(gas, FALSE)
+	air_transient.update_values()
 
 	if(air_transient.volume > 0)
 		//Allow air mixture to react
 		if(air_transient.react())
+			update = 1
+		if(air_transient.reaction_tick())
 			update = 1
 
 		air_transient.update_values()

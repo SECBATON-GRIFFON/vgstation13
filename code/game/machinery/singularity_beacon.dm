@@ -30,8 +30,7 @@
 
 /obj/machinery/singularity_beacon/Destroy()
 	if(power_connection)
-		qdel(power_connection)
-		power_connection = null
+		QDEL_NULL(power_connection)
 	. = ..()
 
 /obj/machinery/singularity_beacon/get_cell()
@@ -58,7 +57,7 @@
 			visible_message("<span class='warning'>\The [src] suddenly springs to life, only to shut down halfway through startup.</span>")
 		return
 	for(var/obj/machinery/singularity/singulo in power_machines)
-		if(singulo.z == z)
+		if(singulo.seeks_beacon() && (singulo.z == z))
 			singulo.target = src
 	icon_state = "[icontype]1"
 	active = 1
@@ -117,8 +116,7 @@
 	if(active)
 		deactivate()
 	if(cell)
-		qdel(cell)
-		cell = null
+		QDEL_NULL(cell)
 	..()
 
 /*

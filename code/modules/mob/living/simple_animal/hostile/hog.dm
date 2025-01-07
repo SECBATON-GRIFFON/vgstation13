@@ -262,7 +262,7 @@ if ungreased adult: l containers
 
 /spell/headbutt
 	name = "Headbutt"
-	desc = "Stuns the target."
+	desc = "Knocks the target down."
 	charge_max = 10 SECONDS
 	spell_flags = WAIT_FOR_CLICK
 	range = 1
@@ -274,8 +274,8 @@ if ungreased adult: l containers
 	for(var/mob/living/target in targets)
 		if (user.is_pacified(1,target))
 			return
-		playsound(src, "trayhit", 75, 1)
-		target.Stun(5)
+		playsound(user, "trayhit", 75, 1)
+		target.Knockdown(5)
 		user.visible_message("<span class='danger'>\The [user] headbutts \the [target]!</span>")
 
 
@@ -347,8 +347,8 @@ if ungreased adult: l containers
 /mob/living/simple_animal/hostile/spacehog/adult/greased/over/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
 	//Before departing
 	var/turf/simulated/T = loc
-	if(istype(loc) && !T.is_wet())
-		new /obj/effect/overlay/puddle(loc, TURF_WET_LUBE, 5 SECONDS) //leave 5 seconds of lube behind
+	if(istype(T) && !T.is_wet())
+		new /obj/effect/overlay/puddle(T, TURF_WET_LUBE, 5 SECONDS) //leave 5 seconds of lube behind
 	..() //move on
 
 /mob/living/simple_animal/hostile/spacehog/piglet

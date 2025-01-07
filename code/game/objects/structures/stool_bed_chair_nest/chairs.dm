@@ -205,8 +205,10 @@
 
 // Chair types
 /obj/structure/bed/chair/wood
-	autoignition_temperature = AUTOIGNITION_WOOD
-	fire_fuel = 1
+	w_class = W_CLASS_LARGE
+	w_type = RECYK_WOOD
+	flammable = TRUE
+
 	// TODO:  Special ash subtype that looks like charred chair legs
 
 	sheet_type = /obj/item/stack/sheet/wood
@@ -259,7 +261,7 @@
 /obj/structure/bed/chair/wood/throne/New()
 	..()
 	buckle_overlay = image("icons/obj/stools-chairs-beds.dmi", "[icon_state]_arm", CHAIR_ARMREST_LAYER)
-	buckle_overlay.plane = ABOVE_HUMAN_PLANE
+	buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 
 /obj/structure/bed/chair/holowood/normal
 	icon_state = "wooden_chair"
@@ -286,9 +288,9 @@
 /obj/structure/bed/chair/comfy/New()
 	..()
 	buckle_overlay = image("icons/obj/objects.dmi", "[icon_state]_armrest", CHAIR_ARMREST_LAYER)
-	buckle_overlay.plane = ABOVE_HUMAN_PLANE
+	buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 	legs = image("icons/obj/objects.dmi", "[icon_state]_legs", CHAIR_LEG_LAYER)
-	legs.plane = OBJ_PLANE
+	legs.plane = FLOAT_PLANE
 	legs.appearance_flags = RESET_COLOR
 	overlays += legs
 	..()
@@ -388,7 +390,7 @@
 /obj/structure/bed/chair/office/New()
 	..()
 	buckle_overlay = image("icons/obj/objects.dmi", "[icon_state]-overlay", CHAIR_ARMREST_LAYER)
-	buckle_overlay.plane = ABOVE_HUMAN_PLANE
+	buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 
 /obj/structure/bed/chair/office/handle_layer() // Fixes layer problem when and office chair is buckled and facing north
 	if(dir == NORTH && !is_locking(mob_lock_type))
@@ -459,11 +461,11 @@
 // layer stuff
 /obj/structure/bed/chair/comfy/couch/New()
 	legs = image("icons/obj/objects.dmi", "[icon_state]_legs", CHAIR_LEG_LAYER)		// since i dont want the legs colored they are a separate overlay
-	legs.plane = OBJ_PLANE															//
+	legs.plane = FLOAT_PLANE														//
 	legs.appearance_flags = RESET_COLOR												//
 	overlays += legs
 	secondary_buckle_overlay = image("icons/obj/objects.dmi", "[icon_state]_armrest_legs", CHAIR_ARMREST_LAYER)		// since i dont want the legs colored they are a separate overlay
-	secondary_buckle_overlay.plane = ABOVE_HUMAN_PLANE																//
+	secondary_buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)												//
 	secondary_buckle_overlay.appearance_flags = RESET_COLOR
 	..()
 	overlays += buckle_overlay
@@ -579,8 +581,7 @@
 /obj/structure/bed/chair/folding/Destroy()
 	if(folded)
 		folded.unfolded = null
-		qdel(folded)
-		folded = null
+		QDEL_NULL(folded)
 	..()
 
 /obj/item/folding_chair
@@ -603,8 +604,7 @@
 /obj/item/folding_chair/Destroy()
 	if(unfolded)
 		unfolded.folded = null
-		qdel(unfolded)
-		unfolded = null
+		QDEL_NULL(unfolded)
 	..()
 
 /obj/item/folding_chair/attack(mob/living/M, mob/living/user, def_zone, originator)
@@ -650,7 +650,7 @@
 	ghost_can_rotate = TRUE
 
 /obj/structure/bed/chair/shuttle/attackby(var/obj/item/W, var/mob/user)
-	var/mob/M = locate() in loc//so attacking people isn't made harder by the seats' bulkiness
+	var/mob/living/M = locate() in loc //so attacking people isn't made harder by the seats' bulkiness
 	if (M && M != user)
 		return M.attackby(W,user)
 	if(istype(W, /obj/item/assembly/shock_kit))
@@ -685,7 +685,7 @@
 /obj/structure/bed/chair/shuttle/New()
 	..()
 	buckle_overlay = image("icons/obj/stools-chairs-beds.dmi", "[icon_state]_buckle", CHAIR_ARMREST_LAYER)
-	buckle_overlay.plane = ABOVE_HUMAN_PLANE
+	buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 
 /obj/structure/bed/chair/shuttle/red
 	icon_state = "shuttleseat_red"
@@ -705,14 +705,14 @@
 	..()
 	if (seat_color)
 		var/image/I1 = image("icons/obj/stools-chairs-beds.dmi", "shuttleseat_color", layer)
-		I1.plane = plane
+		I1.plane = FLOAT_PLANE
 		I1.color = seat_color
 		overlays += I1
 
 		var/image/I2 = image("icons/obj/stools-chairs-beds.dmi", "shuttleseat_color_buckle", CHAIR_ARMREST_LAYER)
 		I2.color = seat_color
 		secondary_buckle_overlay = I2
-		secondary_buckle_overlay.plane = ABOVE_HUMAN_PLANE
+		secondary_buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)
 
 /obj/structure/bed/chair/shuttle/gamer
 	desc = "Ain't got nothing to compensate."
@@ -737,4 +737,4 @@
 /obj/structure/bed/chair/plastic/plastic_chair/New()
 	..()
 	buckle_overlay = image("icons/obj/stools-chairs-beds.dmi", "[icon_state]_armrest", CHAIR_ARMREST_LAYER)
-	buckle_overlay.plane = ABOVE_HUMAN_PLANE
+	buckle_overlay.plane = relative_plane(ABOVE_HUMAN_PLANE)

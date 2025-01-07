@@ -134,9 +134,10 @@
 	S.name = "[A.name] APC Copy"
 	S.add_spell(new /spell/aoe_turf/corereturn, "malf_spell_ready",/obj/abstract/screen/movable/spell_master/malf)
 
-	if (seclevel2num(get_security_level()) == SEC_LEVEL_DELTA)
+	var/datum/faction/malf/malf_faction = find_active_faction_by_member(A.mind.GetRole(MALF), A.mind)
+	if(malf_faction && malf_faction.stage >= FACTION_ENDGAME) /* If the shunting, malfunctioning AI is currently taking over the station... */
 		for(var/obj/item/weapon/pinpointer/point in pinpointer_list)
-			point.target = machine //the pinpointer will detect the shunted AI
+			point.target = machine /* ...then override all pinpointer targets to point at the APC in which the AI is shunted. */
 	S.update_perception()
 	A.mind.transfer_to(S)
 	S.cancel_camera()
@@ -233,14 +234,14 @@
 /datum/malfhack_ability/oneuse/overload_loud/activate(var/mob/living/silicon/A)
 	if(!..())
 		return
-	machine.visible_message("<span class='warning'>You hear a [pick("loud", "violent", "unsettling")], [pick("electrical","mechanical")] [pick("buzzing","rumbling","shaking")] sound!</span>") //highlight this, motherfucker
+	machine.visible_message("<span class='warning'>[machine] makes a [pick("loud", "violent", "unsettling")], [pick("electrical","mechanical")] [pick("buzzing","rumbling","shaking")] sound!</span>") //highlight this, motherfucker
 	if(istype(machine, /obj/machinery/turret))
 		var/obj/machinery/turret/T = machine
 		if(T.cover)
 			T.cover.shake_animation(4, 4, 0.2 SECONDS, 20)
 	else
 		machine.shake_animation(4, 4, 0.2 SECONDS, 20)
-	spark(machine)
+	spark(machine, surfaceburn = TRUE)
 	spawn(4 SECONDS)
 		if(machine)
 			explosion(get_turf(machine), -1, 2, 3, 4) // Welding tank sized explosion
@@ -255,6 +256,7 @@
 /datum/malfhack_ability/oneuse/overload_quiet/activate(var/mob/living/silicon/A)
 	if(!..())
 		return
+	machine.visible_message("<span class='warning'>[machine] makes a [pick("loud", "violent", "unsettling")], [pick("electrical","mechanical")] [pick("buzzing","rumbling","shaking")] sound!</span>")
 	playsound(machine, 'sound/effects/electricity_short_disruption.ogg', 80)
 	spawn(4 SECONDS)
 		if(machine)
@@ -297,11 +299,11 @@
 /datum/malfhack_ability/fake_message/activate(mob/living/silicon/A)
 	if(!machine.hack_overlay) // shouldn't happen
 		return
-	var/fakename = copytext(input(A, "Please enter a name for the message.", "Name?", "") as text|null, 1, MAX_NAME_LEN)
+	var/fakename = copytext(sanitize(input(A, "Please enter a name for the message.", "Name?", "") as text|null, 1), MAX_NAME_LEN)
 	if(!fakename)
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
-	var/fakeid = copytext(input(A, "Please enter an ID for the message .", "Occupation?", "Assistant") as text|null, 1, MAX_NAME_LEN)
+	var/fakeid = copytext(sanitize(input(A, "Please enter an ID for the message.", "Occupation?", "Assistant") as text|null), 1, MAX_NAME_LEN)
 	if(!fakeid)
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
@@ -315,7 +317,7 @@
 	else
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
-	var/message = copytext(input(usr, "Please enter a message.", "Message?", "") as text|null,1, MAX_BROADCAST_LEN)
+	var/message = copytext(sanitize(input(usr, "Please enter a message.", "Message?", "") as text|null,1), MAX_BROADCAST_LEN)
 	if(!message)
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
@@ -346,8 +348,8 @@
 
 	if(alert(A, "Would you like to create your own announcement or use a pre-existing one?","Confirm","Custom","Pre-Existing") == "Custom")
 
-		var/input = input(A, "Please enter anything you want. Anything.", "What?", "") as message|null
-		var/customname = input(A, "Pick a title for the report.", "Title") as text|null
+		var/input = copytext(sanitize(input(A, "Please enter anything you want. Anything.", "What?", "") as message|null),1,MAX_BROADCAST_LEN)
+		var/customname = copytext(sanitize(input(A, "Pick a title for the report.", "Title") as text|null),1,MAX_NAME_LEN)
 		if(!input)
 			to_chat(A, "<span class='warning'>Announcement cancelled.</span>")
 			return
@@ -480,6 +482,13 @@
 		return
 
 	MF.stage(FACTION_ENDGAME)
+	switch(A.chosen_core_icon_state)
+		if("ai-malf-shodan")
+			command_alert(/datum/command_alert/malf_announce/shodan)
+		if("ai-xerxes")
+			command_alert(/datum/command_alert/malf_announce/xerxes)
+		else
+			command_alert(/datum/command_alert/malf_announce)
 	M.core_upgrades -= src
 
 //--------------------------------------------------------
@@ -497,6 +506,20 @@
 	A.eyeobj.high_res = 1
 	to_chat(A, "<span class='warning'>High Resolution camera software installed.</span>")
 	A.update_perception()
+
+//--------------------------------------------------------
+
+/datum/malfhack_ability/core/explode
+	name = "Explosive Core"
+	desc = "Rigs your core to explode upon your untimely deactivation."
+	icon = "radial_alertboom"
+	cost = 20
+
+/datum/malfhack_ability/core/explode/activate(mob/living/silicon/ai/A)
+	if(!..())
+		return
+	A.explosive = TRUE
+	to_chat(A, "<span class='warning'>Your core will now detonate if it gets destroyed.</span>")
 
 //--------------------------------------------------------
 

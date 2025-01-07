@@ -14,7 +14,7 @@ var/global/datum/shuttle/vox/vox_shuttle = new(starting_area=/area/shuttle/vox/s
 	pre_flight_delay = 30
 
 	stable = 1 //Don't stun everyone and don't throw anything when moving
-	can_rotate = 0 //Sleepers, body scanners and multi-tile airlocks aren't rotated properly
+	can_rotate = TRUE
 
 	var/returned_home = 0
 	var/obj/docking_port/destination/dock_home
@@ -88,7 +88,6 @@ var/global/datum/shuttle/vox/vox_shuttle = new(starting_area=/area/shuttle/vox/s
 	req_access = list(access_syndicate)
 
 	light_color = LIGHT_COLOR_RED
-	machine_flags = EMAGGABLE //No screwtoggle because this computer can't be built
 
 /obj/machinery/computer/shuttle_control/vox/New() //Main shuttle_control code is in code/game/machinery/computer/shuttle_computer.dm
 	link_to(vox_shuttle)

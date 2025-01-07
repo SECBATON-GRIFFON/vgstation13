@@ -54,7 +54,7 @@
 	for(var/obj/item/weapon/stock_parts/scanning_module/SM in component_parts)
 		T3 = 2*SM.rating
 		break
-	copy_duration = (10 - max(1,min(T1,T2,T3))) // Better scanning module, micro laser AND manipulator reduce copy duration
+	copy_duration = max(1, (6 - min(T1,T2,T3))) // Better scanning module, micro laser AND manipulator reduce copy duration
 
 /obj/machinery/disk_duplicator/examine(var/mob/user)
 	..()
@@ -322,8 +322,7 @@ var/list/inserted_datadisk_cache = list()
 
 	if (emagged)
 		qdel(disk_source)
-		qdel(disk_dest)
-		disk_dest = null
+		QDEL_NULL(disk_dest)
 		disk_source = new /obj/item/weapon/disk(src)
 		new /obj/item/weapon/disk(loc)
 		playsound(loc, 'sound/machines/click.ogg', 50, 1)
@@ -331,8 +330,7 @@ var/list/inserted_datadisk_cache = list()
 		return
 
 
-	qdel(disk_dest)
-	disk_dest = null
+	QDEL_NULL(disk_dest)
 
 	playsound(loc, 'sound/machines/click.ogg', 50, 1)
 	var/obj/item/weapon/disk/C = new disk_source.type(loc)
@@ -374,6 +372,7 @@ var/list/inserted_datadisk_cache = list()
 			var/obj/item/weapon/disk/tech_disk/source = disk_source
 			if (source.stored)
 				copy.stored = new source.stored.type(copy)
+				copy.stored.level = source.stored.level
 		if (/obj/item/weapon/disk/shuttle_coords) // "shuttle destination disk"
 			var/obj/item/weapon/disk/shuttle_coords/copy = C
 			var/obj/item/weapon/disk/shuttle_coords/source = disk_source

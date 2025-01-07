@@ -116,6 +116,11 @@
 			to_chat(antag.current, "<img src='data:image/png;base64,[icon2base64(logo)]' style='position: relative; top: 10;'/> <span class='danger'>You are now a Traitor.<br>Your memory clears up as you remember your identity as a sleeper agent of the Syndicate. It's time to pay your debt to them. </span>")
 		if (GREET_LATEJOIN)
 			to_chat(antag.current, "<img src='data:image/png;base64,[icon2base64(logo)]' style='position: relative; top: 10;'/> <span class='danger'>You are a Traitor.<br>As a Syndicate agent, you are to infiltrate the crew and accomplish your objectives at all cost.</span>")
+		if (GREET_LATEJOINMADNESS)
+			to_chat(antag.current, "<img src='data:image/png;base64,[icon2base64(logo)]' style='position: relative; top: 10;'/> <span class='danger'>You are a Traitor, BUT...</span>")
+			to_chat(antag.current, "<span class='danger'>The Syndicate has baited Nanotrasen officials aboard this dummy space station along with the system's worst examples of scum and villainy.</span>")
+			to_chat(antag.current, "<span class='danger'>Find the heads of staff and make their life and un-life a living hell.</span>")
+			to_chat(antag.current, "<span class='danger'>Beware of the station's other unruly occupants.</span>")
 		if (GREET_SYNDBEACON)
 			to_chat(antag.current, "<img src='data:image/png;base64,[icon2base64(logo)]' style='position: relative; top: 10;'/> <span class='danger'>You have joined the ranks of the Syndicate and become a traitor to Nanotrasen!</span>")
 		else
@@ -123,15 +128,14 @@
 
 	to_chat(antag.current, "<span class='info'><a HREF='?src=\ref[antag.current];getwiki=[wikiroute]'>(Wiki Guide)</a></span>")
 
-/datum/role/traitor/GetScoreboard()
-	. = ..()
+/datum/role/traitor/GetBought()
 	if(can_be_smooth)
 		if(uplink_items_bought?.len)
-			. += "The traitor bought:<BR>"
+			. = "The traitor bought:<BR>"
 			for(var/entry in uplink_items_bought)
 				. += "[entry]<BR>"
 		else
-			. += "The traitor was a smooth operator this round.<BR>"
+			return "The traitor was a smooth operator this round.<BR>"
 
 /datum/role/traitor/proc/equip_traitor(mob/living/carbon/human/traitor_mob, var/uses = 20)
 	. = FALSE
@@ -146,7 +150,7 @@
 	var/obj/item/device/pda/found_pda = locate() in contents
 	if(found_pda)
 		new_uplink = found_pda.add_component(/datum/component/uplink)
-		traitor_mob.mind.store_memory("<B>Uplink Passcode:</B> [new_uplink.unlock_code] ([found_pda.name]).")
+		traitor_mob.mind.store_memory("<B>Uplink Passcode:</B> [new_uplink.unlock_code] ([found_pda.name]).", category=MIND_MEMORY_ANTAGONIST, forced=TRUE)
 		traitor_mob.mind.total_TC += new_uplink.telecrystals
 		to_chat(traitor_mob, "The Syndicate have cunningly disguised a Syndicate Uplink as your [found_pda.name]. Simply enter the code \"[new_uplink.unlock_code]\" as its ringtone to unlock its hidden features.")
 		. = TRUE
@@ -154,7 +158,7 @@
 		var/obj/item/device/radio/found_radio = locate() in contents
 		if(found_radio)
 			new_uplink = found_radio.add_component(/datum/component/uplink)
-			traitor_mob.mind.store_memory("<B>Uplink frequency:</B> [format_frequency(new_uplink.unlock_frequency)] ([found_radio.name]).")
+			traitor_mob.mind.store_memory("<B>Uplink frequency:</B> [format_frequency(new_uplink.unlock_frequency)] ([found_radio.name]).", category=MIND_MEMORY_ANTAGONIST, forced=TRUE)
 			traitor_mob.mind.total_TC += new_uplink.telecrystals
 			to_chat(traitor_mob, "The Syndicate have cunningly disguised a Syndicate Uplink as your [found_radio.name]. Simply dial the frequency [format_frequency(new_uplink.unlock_frequency)] to unlock its hidden features.")
 			. = TRUE

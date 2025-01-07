@@ -38,14 +38,11 @@
 
 /obj/item/weapon/gun/projectile/flamethrower/Destroy()
 	if(weldtool)
-		qdel(weldtool)
-		weldtool = null
+		QDEL_NULL(weldtool)
 	if(igniter)
-		qdel(igniter)
-		igniter = null
+		QDEL_NULL(igniter)
 	if(ptank)
-		qdel(ptank)
-		ptank = null
+		QDEL_NULL(ptank)
 	..()
 	return
 
@@ -60,7 +57,7 @@
 		if(M.is_holding_item(src))
 			location = M.loc
 	if(isturf(location)) //start a fire if possible
-		location.hotspot_expose(700, 2,surfaces=istype(loc,/turf))
+		try_hotspot_expose(700, SMALL_FLAME, 1)
 	return
 
 
@@ -238,6 +235,11 @@
 		var/mob/living/carbon/C = loc
 		C.update_inv_hands()
 	return
+
+/obj/item/weapon/gun/projectile/flamethrower/extinguish()
+	lit = 0
+	update_icon()
+	..()
 
 /obj/item/weapon/gun/projectile/flamethrower/full/New(var/loc)
 	..()

@@ -53,7 +53,7 @@
 
 	var/mob/living/carbon/human/O = new(src)
 	if(Mo.greaterform)
-		O.set_species(Mo.greaterform)
+		O.set_species(Mo.greaterform) //Damage transfer is handled later in the code
 	Mo.transferImplantsTo(O)
 
 	if (M.dna.GetUIState(DNA_UI_GENDER))
@@ -110,8 +110,7 @@
 	O.update_name()
 //		O.update_icon = 1	//queue a full icon update at next life() call
 	Mo.monkeyizing = 0
-	qdel(M)
-	M = null
+	QDEL_NULL(M)
 	return
 
 /mob/proc/get_unmonkey_anim()

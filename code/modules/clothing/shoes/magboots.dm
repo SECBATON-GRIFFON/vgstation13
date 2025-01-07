@@ -14,7 +14,6 @@
 	var/stomp_boot = "magboot"
 	var/stomp_hit = "crushes"
 	var/anchoring_system_examine = "Its mag-pulse traction system appears to be"
-	var/emagged = FALSE
 
 	var/obj/item/clothing/shoes/stored_shoes = null	//Shoe holder
 
@@ -150,6 +149,7 @@
 	icon_state = "CE-magboots0"
 	base_state = "CE-magboots"
 	mag_slow = MAGBOOTS_SLOWDOWN_LOW
+	species_fit = list(VOX_SHAPED)
 
 //Atmos techies die angry
 /obj/item/clothing/shoes/magboots/atmos
@@ -157,6 +157,7 @@
 	name = "atmospherics magboots"
 	icon_state = "atmosmagboots0"
 	base_state = "atmosmagboots"
+	species_fit = list(VOX_SHAPED)
 
 //Paramedic
 /obj/item/clothing/shoes/magboots/para

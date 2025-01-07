@@ -13,8 +13,7 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/Destroy()
 	if(contained_mob && isdatum(contained_mob))
-		qdel(contained_mob)
-		contained_mob = null
+		QDEL_NULL(contained_mob)
 	..()
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/afterattack(obj/O, mob/user,proximity)
@@ -31,6 +30,7 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/after_consume(var/mob/M)
 
+	log_attack("[M]([M.ckey]) ate [src], last touched by [fingerprintslast]")
 	if(!contained_mob)
 		return
 	if(ispath(contained_mob))
@@ -78,11 +78,16 @@
 		to_chat(M, "<span class='warning'>\The [src] expands!</span>")
 	if(!contained_mob)
 		return
+	var/mob/C
 	if(ispath(contained_mob))
-		new contained_mob(get_turf(src))
+		C = new contained_mob(get_turf(src))
 	else if(ismob(contained_mob))
-		var/mob/C = contained_mob
+		C = contained_mob
 		C.forceMove(get_turf(src))
+	if(istype(C,/mob/living/simple_animal/hostile))
+		var/mob/opener = get_mob_by_key(fingerprintslast)
+		log_admin("[key_name(fingerprintslast)] just opened \a [src] containing \a [initial(C.name)] at [src.x],[src.y],[src.z]")
+		message_admins("<span class='danger'>[key_name(fingerprintslast)] just opened \a [src] containing \a [initial(C.name)] at [src.x],[src.y],[src.z][opener ? " [formatJumpTo(opener,"(JMP)")]" : ""]</span>")
 	contained_mob = null
 	qdel(src)
 
@@ -148,3 +153,10 @@
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/cowcube
 	name = "cow cube"
 	contained_mob = /mob/living/simple_animal/cow
+
+/obj/item/weapon/reagent_containers/food/snacks/monkeycube/chococowcube
+	name = "chocolate cow cube"
+	contained_mob = /mob/living/simple_animal/cow/chocolate
+
+/obj/item/weapon/reagent_containers/food/snacks/monkeycube/cowcube/on_vending_machine_spawn()
+	reagents.chem_temp = FRIDGETEMP_FROZEN

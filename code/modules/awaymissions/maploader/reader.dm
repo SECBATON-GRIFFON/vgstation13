@@ -169,17 +169,27 @@ var/list/map_dimension_cache = list()
 		var/x_check = rotate == 0 || rotate == 180 ? map_width + x_offset : map_height + y_offset
 		var/y_check = rotate == 0 || rotate == 180 ? map_height + y_offset : map_width + x_offset
 		if(world.maxx < x_check)
+			var/old_max_x = world.maxx + 1
 			if(!map.can_enlarge)
 				WARNING("Cancelled load of [map_element] due to map bounds.")
 				return list()
 			world.maxx = x_check
+			if(get_base_turf(zcrd+z_offset) != /turf/space)
+				WARNING("Base turf in map enlargement is not /turf/space. New base turf = [get_base_turf(zcrd+z_offset)]")
+				for(var/turf/T in block(locate(old_max_x,1,zcrd+z_offset),locate(world.maxx,world.maxy,zcrd+z_offset)))
+					T.ChangeTurf(get_base_turf(zcrd+z_offset))
 			WARNING("Loading [map_element] enlarged the map. New max x = [world.maxx]")
 
 		if(world.maxy < y_check)
+			var/old_max_y = world.maxy + 1
 			if(!map.can_enlarge)
 				WARNING("Cancelled load of [map_element] due to map bounds.")
 				return list()
 			world.maxy = y_check
+			if(get_base_turf(zcrd+z_offset) != /turf/space)
+				WARNING("Base turf in map enlargement is not /turf/space. New base turf = [get_base_turf(zcrd+z_offset)]")
+				for(var/turf/T in block(locate(1,old_max_y,zcrd+z_offset),locate(world.maxx,world.maxy,zcrd+z_offset)))
+					T.ChangeTurf(get_base_turf(zcrd+z_offset))
 			WARNING("Loading [map_element] enlarged the map. New max y = [world.maxy]")
 
 		//then proceed it line by line, starting from top
@@ -318,7 +328,8 @@ var/list/map_dimension_cache = list()
 
 	//Locate the area object
 	instance = locate(members[index])
-
+	if(!isarea(instance))
+		WARNING("Instance at [members[index]] is not an area!")
 	if(!isspace(instance)) //Space is the default area and contains every loaded turf by default
 		instance.contents.Add(locate(xcrd,ycrd,zcrd))
 		spawned_atoms.Add(instance)
@@ -353,7 +364,7 @@ var/list/map_dimension_cache = list()
 		last_turf_index++
 
 	//instanciate the last /turf
-	var/turf/T = instance_atom(members[last_turf_index],members_attributes[last_turf_index],xcrd,ycrd,zcrd,rotate)
+	var/turf/T = instance_atom(members[last_turf_index],members_attributes[last_turf_index],xcrd,ycrd,zcrd,rotate,overwrite)
 
 	if(first_turf_index != last_turf_index) //More than one turf is present - go from the lowest turf to the turf before the last one
 		var/turf_index = first_turf_index
@@ -369,9 +380,11 @@ var/list/map_dimension_cache = list()
 
 	//finally instance all remainings objects/mobs
 	for(index=1,index < first_turf_index,index++)
-		var/atom/new_atom = instance_atom(members[index],members_attributes[index],xcrd,ycrd,zcrd,rotate)
+		var/atom/new_atom = instance_atom(members[index],members_attributes[index],xcrd,ycrd,zcrd,rotate,overwrite)
 		spawned_atoms.Add(new_atom)
 
+	if(!spawned_atoms.len)
+		WARNING("No atoms spawned in grid parse! (Model key: [model])")
 	return spawned_atoms
 
 ////////////////
@@ -379,14 +392,18 @@ var/list/map_dimension_cache = list()
 ////////////////
 
 //Instance an atom at (x,y,z) and gives it the variables in attributes
-/dmm_suite/proc/instance_atom(var/path,var/list/attributes, var/x, var/y, var/z, var/rotate)
+/dmm_suite/proc/instance_atom(var/path,var/list/attributes, var/x, var/y, var/z, var/rotate, var/overwrite)
 	if(!path)
+		return
+	if(!overwrite && path == get_base_turf(z))
 		return
 	var/timestart = world.timeofday
 	var/atom/instance
 	_preloader.setup(attributes, path)
 
 	var/turf/T = locate(x,y,z)
+	if(!T)
+		WARNING("Turf at [x], [y], [z] not found!")
 	if(ispath(path, /turf)) //Turfs use ChangeTurf
 		if(path != T.type)
 			instance = T.ChangeTurf(path, allow = 1)
@@ -404,6 +421,8 @@ var/list/map_dimension_cache = list()
 	var/timetook2instance = world.timeofday - timestart
 	if(timetook2instance > 1)
 		log_debug("Slow atom instance. [instance] ([instance.type]) at [T?.x],[T?.y],[T?.z] took [timetook2instance/10] seconds to instance.")
+	//if(!instance)
+		//WARNING("No instance created or found at [T?.x],[T?.y],[T?.z]!")
 	return instance
 
 //text trimming (both directions) helper proc

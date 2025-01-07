@@ -104,23 +104,23 @@
 		var/dist = get_dist_euclidian(src,A)
 		var/pull_force = size/max(1,round(dist))
 		if(istype(A,/atom/movable) && (size >= 4) && (get_dist(src,A) == 1))
-			A.singularity_pull(src, (pull_force * 3), 1)
+			A.singularity_pull(src, (pull_force * 3), 0, 1)
 			var/atom/movable/AM = A
 			if (z != map.zCentcomm || emergency_shuttle.location == 2)//preventing exploits, unless the round is over
 				AM.forceMove(loc)//KATAMARI DAMACYYyyYYyyYY
 		else if(get_dist(src,A) >= 1)
 			if(dist <= size)
-				A.singularity_pull(src, (pull_force * 3), 1)
+				A.singularity_pull(src, (pull_force * 3), 0, 1)
 				if(istype(A,/mob/living))
 					var/mob/living/M = A
 					M.take_overall_damage(5,0)
-					to_chat(M, "<span class='warning'>The [src]'s tidal force rips your skin!</span>")
+					to_chat(M, "<span class='warning'>\The [src]'s tidal force rips your skin!</span>")
 
 	for(var/mob/living/L in loc)//standing right in the center of the gravity well means double damage
 		if((L.stat == DEAD) && prob(5))
 			L.gib()
 		L.take_overall_damage(3,0)//less brute damage in the center, but the radiations caused by singularity_pull make up for it.
-		to_chat(L, "<span class='danger'>The [src]'s tidal force is crushing you!</span>")
+		to_chat(L, "<span class='danger'>\The [src]'s tidal force is crushing you!</span>")
 
 	sleep(10)
 	Pulse()

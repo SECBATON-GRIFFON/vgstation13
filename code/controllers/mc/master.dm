@@ -35,8 +35,6 @@ var/CURRENT_TICKLIMIT = TICK_LIMIT_RUNNING
 	var/init_time
 	var/tickdrift = 0
 
-	var/time_taken_to_init = 0
-
 	var/sleep_delta
 
 	var/make_runtime = 0
@@ -127,12 +125,12 @@ var/CURRENT_TICKLIMIT = TICK_LIMIT_RUNNING
 	sleep(1 SECONDS)
 	//moving this random bullshit into here, because it didn't belong in world/New()
 	generate_radio_frequencies()
-	SetupHooks() // /N3X15 project from 8 years ago (WIP). The jukebox seems to be the only thing using this
 	createDatacore()
 	make_datum_references_lists()	//initialises global lists for referencing frequently used datums (so that we only ever do it once)
 	Holiday = Get_Holiday()
 	world.update_status()
-	
+	initialize_beespecies()	//must be init before objects or pre-mapped bee packets will be borked
+
 	// Initialize subsystems.
 	// Sort subsystems by init_order, so they initialize in the correct order.
 	CURRENT_TICKLIMIT = TICK_LIMIT_MC_INIT_DEFAULT

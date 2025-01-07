@@ -160,7 +160,7 @@ var/global/list/rnwords = list("ire","ego","nahlizet","certum","veri","jatkaa","
 		word=pick(allwords)
 	var/wordexp = "[cult_words[word]] is [word]..."
 	to_chat(cult_mob, "<span class='sinister'>You remember one thing from the dark teachings of your master... [wordexp]</span>")
-	cult_mob.mind.store_memory("<B>You remember that</B> [wordexp]", 0, 0)
+	cult_mob.mind.store_memory("<B>You remember that</B> [wordexp]", category=MIND_MEMORY_ANTAGONIST, forced=TRUE)
 
 /datum/faction/cult/narsie/AdminPanelEntry()
 	var/list/dat = ..()
@@ -361,8 +361,7 @@ var/global/list/rnwords = list("ire","ego","nahlizet","certum","veri","jatkaa","
 	if (!S.target) // No targets still ? Time to reroll the objective.
 		log_admin("LEGACY CULT: qdeling the objective...")
 		objective_holder.objectives -= current_objective
-		qdel(current_objective)
-		current_objective = null
+		QDEL_NULL(current_objective)
 		getNewObjective(debug = TRUE) // This objective never happened.
 		return
 	for (var/datum/role/R in members)

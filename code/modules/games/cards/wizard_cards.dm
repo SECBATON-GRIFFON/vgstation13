@@ -67,8 +67,7 @@ var/global/list/wizard_cards_normal = list(
 
 /obj/item/toy/singlecard/wizard/Destroy()
 	if(card_use)
-		qdel(card_use)
-		card_use = null
+		QDEL_NULL(card_use)
 	..()
 
 /obj/item/toy/singlecard/wizard/update_icon()
@@ -76,9 +75,11 @@ var/global/list/wizard_cards_normal = list(
 		overlays -= char_image
 		icon_state = "wizcard_down"
 		name = "card"
+		desc = "A collectable trading card depicting various magical entities."
 	else
 		src.icon_state = initial(icon_state)
 		src.name = initial(src.name)
+		src.desc = initial(src.desc)
 		src.overlays += char_image
 
 /obj/item/toy/singlecard/wizard/attack_self(mob/user, params)

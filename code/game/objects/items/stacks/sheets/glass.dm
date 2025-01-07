@@ -120,7 +120,7 @@
 	rglass = /obj/item/stack/sheet/glass/plasmarglass
 	perunit = 2875 //average of plasma and glass
 	melt_temperature = MELTPOINT_STEEL + 500
-	glass_quality = 1.15 //Can you imagine a world in which plasmaglass is worse than rglass
+	glass_quality = 1.5 //Can you imagine a world in which plasmaglass is worse than rglass
 	shealth = 20
 	shard_type = /obj/item/weapon/shard/plasma
 
@@ -143,7 +143,7 @@
 	origin_tech = Tc_MATERIALS + "=4;" + Tc_PLASMATECH + "=2"
 	perunit = 2875
 	reinforced = 1
-	glass_quality = 1.3
+	glass_quality = 2
 	shealth = 30
 	shard_type = /obj/item/weapon/shard/plasma
 
@@ -160,7 +160,7 @@ var/list/datum/stack_recipe/rglass_recipes = list (
 	new/datum/stack_recipe("window", /obj/structure/window/reinforced/loose, 1, time = 10, on_floor = TRUE),
 	new/datum/stack_recipe("full window", /obj/structure/window/full/reinforced/loose, 2, time = 10, on_floor = TRUE),
 	new/datum/stack_recipe("windoor", /obj/structure/windoor_assembly/, 5, time = 10, start_unanchored = TRUE, on_floor = TRUE),
-	new/datum/stack_recipe("glass tile", /obj/item/stack/glass_tile/rglass, 1, time = 2, on_floor = TRUE),
+	new/datum/stack_recipe("glass tile", /obj/item/stack/tile/rglass, 1, time = 2, on_floor = TRUE),
 	)
 
 var/list/datum/stack_recipe/plasmaglass_recipes = list (
@@ -172,5 +172,5 @@ var/list/datum/stack_recipe/plasmarglass_recipes = list (
 	new/datum/stack_recipe("window", /obj/structure/window/reinforced/plasma/loose, 1, time = 10, on_floor = TRUE),
 	new/datum/stack_recipe("full window", /obj/structure/window/full/reinforced/plasma/loose, 2, time = 10, on_floor = TRUE),
 	new/datum/stack_recipe("windoor", /obj/structure/windoor_assembly/plasma, 5, time = 10, start_unanchored = TRUE, on_floor = TRUE),
-	new/datum/stack_recipe("glass tile", /obj/item/stack/glass_tile/rglass/plasma, 1, time = 2, on_floor = TRUE),
+	new/datum/stack_recipe("glass tile", /obj/item/stack/tile/rglass/plasma, 1, time = 2, on_floor = TRUE),
 	)

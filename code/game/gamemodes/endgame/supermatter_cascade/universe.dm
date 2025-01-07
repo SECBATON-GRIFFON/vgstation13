@@ -72,6 +72,7 @@ var/global/global_cascade_portal
 
 	//PlayerSet()
 	CHECK_TICK
+	load_dungeon(/datum/map_element/dungeon/rift_beach)
 	if(!endgame_exits.len)
 		message_admins("<span class='warning'><font size=7>SOMEBODY DIDNT PUT ENDGAME EXITS FOR THIS FUCKING MAP: [map.nameLong]</span></font>")
 	else
@@ -101,7 +102,6 @@ var/global/global_cascade_portal
 			return
 		sleep(300)
 		log_game("Rebooting due to universal collapse")
-		CallHook("Reboot",list())
 		world.Reboot()
 		return
 

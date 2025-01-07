@@ -23,8 +23,11 @@
 	var/geneticdamage = 0
 
 	powerpoints = 4	//evolve points
+	shows_spells = TRUE
+	spell_exclude = /spell/changeling/evolve
 
 	var/mimicing = ""
+	var/disease_immunity = 0 //If on, the changeling doesn't suffer any symptoms from diseases
 
 /datum/role/changeling/OnPostSetup(var/laterole = FALSE)
 	. = ..()
@@ -105,7 +108,8 @@
 	return chosen_dna
 
 /datum/role/changeling/process()
-	changelingRegen()
+	if(antag.current)
+		changelingRegen()
 	..()
 
 // READ: Don't use the apostrophe in name or desc. Causes script errors.
