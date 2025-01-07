@@ -77,10 +77,6 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     else
         ..() //Barricade checks
 
-/obj/structure/window/barricade/drywall/change_dir(new_dir,changer)
-    ..()
-    override_image.dir = new_dir
-
 /turf/simulated/wall/proc/drywallify() //debug helper proc
     for(var/direction in cardinal)
         if(!(junction & direction))
