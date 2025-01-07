@@ -3,8 +3,8 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
 /obj/structure/window/barricade/drywall
     name = "wall"
     desc = "A huge chunk of metal used to separate rooms."
-    icon = 'icons/turf/walls.dmi'
-    icon_state = "metal0"
+    icon = 'icons/obj/structures.dmi'
+    icon_state = "drywall"
     anchored = 1
     opacity = 1 //Not transparent
     health = 20 //Enough to punch a hole in
@@ -21,8 +21,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
 /obj/structure/window/barricade/drywall/New()
     ..()
     drywalls += src
-    override_image = image('icons/obj/structures.dmi',src,"drywall")  //As viewed by client from a dir
-    override_image.dir = src.dir
+    override_image = image('icons/turf/walls.dmi',src,"metal0")  //As viewed by client from a dir
     override_image.layer = PROJECTILE_LAYER
     override_image.override = TRUE //duh
 
@@ -35,7 +34,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
         junction = findSmoothingNeighbors()
     else
         junction = 0
-    icon_state = "metal[junction]"
+    override_image.icon_state = "metal[junction]"
     return junction
 
 /obj/structure/window/barricade/drywall/canSmoothWith()
