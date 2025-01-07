@@ -84,8 +84,9 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
 
 /turf/simulated/wall/proc/drywallify() //debug helper proc
     for(var/direction in cardinal)
-        var/obj/structure/window/barricade/drywall/D = new(src)
-        D.update_nearby_tiles() //Compel updates before
-        D.change_dir(direction)
-        D.update_nearby_tiles()
+        if(!(direction in junction))
+            var/obj/structure/window/barricade/drywall/D = new(src)
+            D.update_nearby_tiles() //Compel updates before
+            D.change_dir(direction)
+            D.update_nearby_tiles()
     ChangeTurf(dismantle_type)
