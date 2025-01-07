@@ -56,6 +56,15 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
         return 0
     return is_type_in_list(A, canSmoothWith()) && !(cannotSmoothWith() && (is_type_in_list(A, cannotSmoothWith())))
 
+/obj/structure/window/barricade/drywall/attack_hand(mob/living/user as mob)
+    if(usr.a_intent != I_HURT)
+        user.visible_message("<span class='notice'>[user] pushes \the [src].</span>", \
+        "<span class='notice'>You push \the [src] but nothing happens!</span>")
+        playsound(src, 'sound/weapons/Genhit.ogg', 25, 1)
+        src.add_fingerprint(user)
+        return // so it's more like walls this way
+    ..()
+
 /obj/structure/window/barricade/drywall/attackby(obj/item/weapon/W as obj, mob/user as mob)
     if(iswelder(W) && !busy) //Only way to deconstruct
         W.playtoolsound(loc, 75)
