@@ -20,8 +20,8 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     var/image/override_image
 
 /obj/structure/window/barricade/drywall/wood
-	name = "wooden wall"
-	desc = "A wall with wooden plating."
+    name = "wooden wall"
+    desc = "A wall with wooden plating."
     materialtype = /obj/item/stack/sheet/wood
     override_base_state = "wood"
     fire_temp_threshold = 100 //Wooden barricades REALLY don't like fire
