@@ -1,5 +1,4 @@
 var/list/obj/structure/window/barricade/drywall/drywalls = list()
-var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //As viewed by client from a dir
 
 /obj/structure/window/barricade/drywall
     name = "wall"
@@ -21,7 +20,8 @@ var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //
 /obj/structure/window/barricade/drywall/New()
     ..()
     drywalls += src
-    override_image = default_drywall_image
+    override_image = image('icons/obj/structures.dmi',src,"drywall")  //As viewed by client from a dir
+    override_image.dir = src.dir
     override_image.override = TRUE //duh
 
 /obj/structure/window/barricade/drywall/Destroy()
