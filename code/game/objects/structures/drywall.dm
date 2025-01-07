@@ -13,6 +13,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     pass_flags_self = 0 //Pretend to be a wall
     materialtype = /obj/item/stack/sheet/metal
     pryable = FALSE
+    airtight = TRUE
     fire_temp_threshold = MELTPOINT_STEEL
     fire_volume_mod = 500
     var/image/override_image
@@ -22,8 +23,7 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     drywalls += src
     override_image = image('icons/obj/structures.dmi',src,"drywall")  //As viewed by client from a dir
     override_image.dir = src.dir
-    override_image.plane = OBJ_PLANE
-    override_image.layer = ABOVE_WINDOW_LAYER
+    override_image.layer = PROJECTILE_LAYER
     override_image.override = TRUE //duh
 
 /obj/structure/window/barricade/drywall/Destroy()

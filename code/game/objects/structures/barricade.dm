@@ -18,7 +18,8 @@
 	pass_flags_self = PASSGLASS
 	var/busy = 0 //Oh god fucking do_after's
 	var/materialtype = /obj/item/stack/sheet/wood
-	var/pryable = TRUE //Some OOP friendly thing
+	var/pryable = TRUE //some OOP friendly thing
+	var/airtight = FALSE //as is this
 
 	fire_temp_threshold = 100 //Wooden barricades REALLY don't like fire
 	fire_volume_mod = 10 //They REALLY DON'T
@@ -107,7 +108,7 @@
 
 /obj/structure/window/barricade/Cross(atom/movable/mover, turf/target, height = 1.5, air_group = 0)
 	if(air_group || !height) //The mover is an airgroup
-		return 1 //We aren't airtight, only exception to PASSGLASS
+		return !airtight //We aren't airtight, only exception to PASSGLASS
 	if(istype(mover) && mover.checkpass(pass_flags_self))
 		return 1
 	if(get_dir(loc, target) == dir || get_dir(loc, mover) == dir)
@@ -151,7 +152,7 @@
 
 /obj/structure/window/barricade/full/Cross(atom/movable/mover, turf/target, height = 1.5, air_group = 0)
 	if(air_group || !height) //The mover is an airgroup
-		return 1 //We aren't airtight, only exception to PASSGLASS
+		return !airtight //We aren't airtight, only exception to PASSGLASS
 	if(istype(mover) && mover.checkpass(pass_flags_self))
 		return 1
 	return 0
