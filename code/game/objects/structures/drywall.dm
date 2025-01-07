@@ -19,6 +19,12 @@ var/list/obj/structure/window/barricade/drywall/drywalls = list()
     var/override_base_state = "metal"
     var/image/override_image
 
+/obj/structure/window/barricade/drywall/wood
+    materialtype = /obj/item/stack/sheet/wood
+    override_base_state = "wood"
+    fire_temp_threshold = 100 //Wooden barricades REALLY don't like fire
+    fire_volume_mod = 10 //They REALLY DON'T
+
 /obj/structure/window/barricade/drywall/New()
     override_image = image('icons/turf/walls.dmi',src,"[override_base_state]0")  //As viewed by client from a dir
     override_image.layer = ABOVE_PROJECTILE_LAYER
