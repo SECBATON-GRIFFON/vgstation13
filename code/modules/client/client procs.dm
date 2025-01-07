@@ -757,8 +757,7 @@ NOTE:  You will only be polled about this role once per round. To change your ch
 				update_one_way_windows(view(view,mob))	//Updating the one-way window overlay if the client has one in the range of its view.
 				break
 		for(var/obj/structure/window/barricade/drywall/W in drywalls)
-			if(W.x >= (mob.x - view) && W.x <= (mob.x + view) && W.y >= (mob.y - view) && W.y <= (mob.y + view) &&\
-			((((NORTH|SOUTH) & W.dir) && mob.x == W.x) || (((EAST|WEST) & W.dir) && mob.y == W.y)))
+			if((dir == WEST && W.x <= mob.x) || (dir == EAST && W.x >= mob.x) || (dir == SOUTH && W.y >= mob.y) || (dir == NORTH && W.x <= mob.x))
 				mob.client.images += W.override_image
 			else 
 				mob.client.images -= W.override_image
