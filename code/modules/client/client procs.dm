@@ -756,6 +756,12 @@ NOTE:  You will only be polled about this role once per round. To change your ch
 			if(((W.x >= (mob.x - view)) && (W.x <= (mob.x + view))) && ((W.y >= (mob.y - view)) && (W.y <= (mob.y + view))))
 				update_one_way_windows(view(view,mob))	//Updating the one-way window overlay if the client has one in the range of its view.
 				break
+		for(var/obj/structure/window/barricade/drywall/W in drywalls)
+			if(W.x >= (mob.x - view) && W.x <= (mob.x + view) && W.y >= (mob.y - view) && W.y <= (mob.y + view) &&\
+			((NORTH|SOUTH & dir) && mob.x == W.x) || ((EAST|WEST & dir) && mob.x == W.x))
+				mob.client.images += W.override_image
+			else 
+				mob.client.images -= W.override_image
 
 /client/proc/update_one_way_windows(var/list/v)		//Needed for one-way windows to work.
 	var/Image										//Code heavily cannibalized from a demo made by Byond member Shadowdarke.

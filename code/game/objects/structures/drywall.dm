@@ -1,8 +1,11 @@
+var/list/obj/structure/window/barricade/drywall/drywalls = list()
+var/image/default_drywall_image = image('icons/obj/structures.dmi',"drywall") //As viewed by client from a dir
+
 /obj/structure/window/barricade/drywall
     name = "wall"
     desc = "A huge chunk of metal used to separate rooms."
-    icon = 'icons/obj/structures.dmi'
-    icon_state = "drywall"
+    icon = 'icon/turf/walls.dmi'
+    icon_state = "wall0"
     anchored = 1
     opacity = 1 //Not transparent
     health = 20 //Enough to punch a hole in
@@ -13,14 +16,24 @@
     pryable = FALSE
     fire_temp_threshold = MELTPOINT_STEEL
     fire_volume_mod = 500
-    var/image/override_image //As viewed by client from a dir
+    var/image/override_image
+
+/obj/structure/window/barricade/drywall/New()
+    ..()
+    drywalls += src
+    override_image = default_drywall_image
+    override_image.override = TRUE //duh
+
+/obj/structure/window/barricade/drywall/Destroy()
+    drywalls -= src
+    ..()
 
 /obj/structure/window/barricade/drywall/relativewall()
     if(canSmoothWith())
         junction = findSmoothingNeighbors()
     else
         junction = 0
-    override_image = image('icon/turf/walls.dmi',"wall[junction]")
+    icon_state = "wall[junction]"
     return junction
 
 /obj/structure/window/barricade/drywall/canSmoothWith()
