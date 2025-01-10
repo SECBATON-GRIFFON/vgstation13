@@ -760,7 +760,19 @@ NOTE:  You will only be polled about this role once per round. To change your ch
 			if(W.loc != mob.loc && \
 			((W.dir == WEST && W.x >= mob.x) || (W.dir == EAST && W.x <= mob.x) || (W.dir == SOUTH && W.y >= mob.y) || (W.dir == NORTH && W.y <= mob.y)))
 				images += W.override_image
-			else 
+			else
+				/*var/found = FALSE
+				var/obj/structure/window/barricade/drywall/other
+				for(var/direction in cardinal)
+					if(direction == W.dir)
+						continue
+					other = locate() in get_step(W,direction)
+					if(other && other.dir != W.dir)
+						images += W.override_image
+						found = TRUE
+						break
+				if(!found)
+					images -= W.override_image*/
 				images -= W.override_image
 
 /client/proc/update_one_way_windows(var/list/v)		//Needed for one-way windows to work.
