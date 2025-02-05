@@ -41,14 +41,15 @@
 				return
 			if(target.reagents.has_only_any(list(FUEL)))
 				target.reagents.remove_reagent(FUEL, 50, 1)//Deleting 50 fuel from the reagent holder
+				to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with welding fuel.</span>")
 			else if(target.reagents.has_only_any(list(PLASMA)))
 				target.reagents.remove_reagent(PLASMA, 50, 1)//Likewise for plasma
+				to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with plasma.</span>")
 				power = 1
 			else
 				to_chat(user, "<span  class='notice'>The reagents in \the [target] aren't pure enough for this.</span>")
 				return
 			assembled = 1
-			to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with welding fuel.</span>")
 			playsound(src, 'sound/effects/refill.ogg', 50, 1, -6)
 			desc = "An improvised explosive assembly. Filled to the brim with 'Explosive flavor'"
 			overlays += image('icons/obj/grenade.dmi', icon_state = "improvised_grenade_filled")
