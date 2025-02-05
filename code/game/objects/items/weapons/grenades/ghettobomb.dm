@@ -31,15 +31,22 @@
 	var/list/shrapnel_list = new()
 	var/max_shrapnel = 8
 	var/current_shrapnel = 0
-
+	var/power = 0
 
 /obj/item/weapon/grenade/iedcasing/afterattack(atom/target, mob/user , flag) //Filling up the can
 	if(assembled == 0)
-		if(istype(target, /obj/structure/reagent_dispensers) && !target.is_open_container() && target.Adjacent(user))
-			if(target.reagents.get_reagent_amount(FUEL) < 50)
-				to_chat(user, "<span  class='notice'>There's not enough fuel left to work with.</span>")
+		if((istype(target, /obj/structure/reagent_dispensers) || istype(target, /obj/item/weapon/reagent_containers/glass)) && target.Adjacent(user))
+			if(target.reagents.get_reagent_amount(FUEL) < 50 && target.reagents.get_reagent_amount(PLASMA) < 50)
+				to_chat(user, "<span  class='notice'>There's not enough fuel left in \the [target] to work with.</span>")
 				return
-			target.reagents.remove_reagent(FUEL, 50, 1)//Deleting 50 fuel from the welding fuel tank,
+			if(target.reagents.has_only_any(list(FUEL)))
+				target.reagents.remove_reagent(FUEL, 50, 1)//Deleting 50 fuel from the reagent holder
+			else if(target.reagents.has_only_any(list(PLASMA)))
+				target.reagents.remove_reagent(PLASMA, 50, 1)//Likewise for plasma
+				power = 1
+			else
+				to_chat(user, "<span  class='notice'>The reagents in \the [target] aren't pure enough for this.</span>")
+				return
 			assembled = 1
 			to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with welding fuel.</span>")
 			playsound(src, 'sound/effects/refill.ogg', 50, 1, -6)
@@ -134,7 +141,7 @@
 /obj/item/weapon/grenade/iedcasing/prime(var/mob/user) //Blowing that can up
 	update_mob()
 	process_shrapnel()
-	explosion(get_turf(src.loc),-1,0,2, whodunnit = user)
+	explosion(get_turf(src.loc),-1+power,0+power,2+power, whodunnit = user)
 
 	if(istype(loc, /obj/item/weapon/beartrap))
 		var/obj/item/weapon/beartrap/boomtrap = loc
@@ -188,8 +195,15 @@
     assembled = 2
     active = 0
 
+
+/obj/item/weapon/grenade/iedcasing/preassembled/plasma
+	power = 1
+
 /obj/item/weapon/grenade/iedcasing/preassembled/withshrapnel
 	name = "shrapnel loaded improvised explosive"
+
+/obj/item/weapon/grenade/iedcasing/preassembled/withshrapnel/plasma
+	power = 1
 
 /obj/item/weapon/grenade/iedcasing/preassembled/withshrapnel/New()
 	..()
