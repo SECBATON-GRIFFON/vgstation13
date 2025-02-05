@@ -309,6 +309,7 @@
 	var/assembled = 2
 	var/fuse_lit = 0
 	var/seconds_left = 5
+	var/power = 0
 
 /obj/item/cannonball/fuse_bomb/admin//spawned by the adminbus, doesn't send an admin message, but the logs are still kept.
 
@@ -324,13 +325,21 @@
 
 /obj/item/cannonball/fuse_bomb/afterattack(atom/target, mob/user , flag) //Filling up the bomb
 	if(assembled == 0)
-		if(istype(target, /obj/structure/reagent_dispensers) && !target.is_open_container() && target.Adjacent(user))
-			if(target.reagents.get_reagent_amount(FUEL) < 200)
-				to_chat(user, "<span  class='notice'>There's not enough fuel left to work with.</span>")
+		if((istype(target, /obj/structure/reagent_dispensers) || istype(target, /obj/item/weapon/reagent_containers/glass)) && target.Adjacent(user))
+			if(target.reagents.get_reagent_amount(FUEL) < 200 && target.reagents.get_reagent_amount(PLASMA) < 200)
+				to_chat(user, "<span  class='notice'>There's not enough fuel left in \the [target] to work with.</span>")
 				return
-			target.reagents.remove_reagent(FUEL, 200, 1)//Deleting 200 fuel from the welding fuel tank,
+			if(target.reagents.has_only_any(list(FUEL)))
+				target.reagents.remove_reagent(FUEL, 200, 1)//Deleting 50 fuel from the reagent holder
+				to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with welding fuel.</span>")
+			else if(target.reagents.has_only_any(list(PLASMA)))
+				target.reagents.remove_reagent(PLASMA, 200, 1)//Likewise for plasma
+				to_chat(user, "<span  class='notice'>You've filled the makeshift explosive with plasma.</span>")
+				power = 1
+			else
+				to_chat(user, "<span  class='notice'>The reagents in \the [target] aren't pure enough for this.</span>")
+				return
 			assembled = 1
-			to_chat(user, "<span  class='notice'>You've filled the [src] with welding fuel.</span>")
 			playsound(src, 'sound/effects/refill.ogg', 50, 1, -6)
 			name = "fuse bomb assembly"
 			desc = "Just add fire."
@@ -407,12 +416,11 @@
 	update_icon()
 
 /obj/item/cannonball/fuse_bomb/proc/detonation(var/mob/user)
-	explosion(get_turf(src), -1, 0, 4, whodunnit = user) //buff range to compensate for this somehow breaching
+	explosion(get_turf(src), -1, 0+power, 4-power, whodunnit = user) //buff range to compensate for this not breaching
 	qdel(src)
 
-/obj/item/cannonball/fuse_bomb/admin/detonation(var/mob/user) //okay, this one can breach if it wants
-	explosion(get_turf(src), -1, 1, 3, whodunnit = user)
-	qdel(src)
+/obj/item/cannonball/fuse_bomb/admin //okay, this one can breach if it wants
+	power = 1
 
 /obj/item/cannonball/fuse_bomb/update_icon()
 	if (assembled == 2)
