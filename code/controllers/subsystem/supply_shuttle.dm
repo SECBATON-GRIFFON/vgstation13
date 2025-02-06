@@ -199,22 +199,22 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 			if(istype(TTV.attached_device,/obj/item/device/assembly/timer))
 				var/obj/item/device/assembly/timer/TM = TTV.attached_device
 				if(TM.timing)
-					timevalue = clamp(TM.time,600,1200)
+					timevalue = clamp(TM.time,60,120)
 					switch(TM.time)
-						if(0 to 600)
+						if(0 to 60)
 							goes_off = GOES_OFF_SHUTTLE
-						if(600 to 1200)
+						if(60 to 120)
 							goes_off = GOES_OFF_CENTCOM
-						if(1200 to INFINITY)
+						if(120 to INFINITY)
 							goes_off = BOMB_DISARMED
 			else if(istype(TTV.attached_device,/obj/item/device/assembly/prox_sensor))
 				var/obj/item/device/assembly/prox_sensor/PS = TTV.attached_device
 				if(PS.scanning)
 					goes_off = GOES_OFF_CENTCOM
-					timevalue = 600
+					timevalue = 60
 				else if(PS.timing)
-					timevalue = clamp(PS.time,600,1200)
-					if(PS.time < 1200)
+					timevalue = clamp(PS.time,60,120)
+					if(PS.time < 120)
 						goes_off = GOES_OFF_CENTCOM
 					else
 						goes_off = BOMB_DISARMED
