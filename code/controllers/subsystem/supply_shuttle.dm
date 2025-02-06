@@ -246,7 +246,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
 								T = pick(cargo_shuttle.linked_area.contents)
 						if(T)
-							explosion_destroy(T,T,dev/2,dev,dev*2)
+							explosion_destroy(T,T,dev,dev*2,dev*4)
 						if(!emagged)
 							CA.guilty = fprints
 						CA.announce()
