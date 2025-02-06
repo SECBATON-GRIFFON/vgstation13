@@ -235,7 +235,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 							if(GOES_OFF_CENTCOM)
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffcentcomm
 								var/area/centcom/evac/E = locate() in areas
-								T = pick(E.contents)
+								T = pick(E.area_turfs)
 								for(var/turf/T2 in spiral_block(T,dev))
 									if(prob(dev*5) && istype(T2,/turf/unsimulated/floor))
 										var/mob/living/carbon/human/H = new(T2) // ded bodies
@@ -246,7 +246,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
 								T = pick(cargo_shuttle.linked_area.contents)
 						if(T)
-							explosion_destroy(T,T,dev,dev*2,dev*4)
+							explosion_destroy(T,T,dev/2,dev,dev*2)
 						if(!emagged)
 							CA.guilty = fprints
 						CA.announce()
