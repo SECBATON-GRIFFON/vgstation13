@@ -226,7 +226,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 					//if(!at_station && !moving && goes_off == GOES_OFF_SHUTTLE)
 						//goes_off = GOES_OFF_CENTCOM
 					var/fprints = TTV.fingerprintslast
-					spawn(timevalue)
+					spawn(timevalue SECONDS)
 						var/datum/command_alert/supply_shuttle_bomb/CA
 						var/turf/T
 						switch(goes_off)
