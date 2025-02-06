@@ -228,8 +228,6 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 					var/fprints = TTV.fingerprintslast
 					spawn(timevalue)
 						var/datum/command_alert/supply_shuttle_bomb/CA
-						if(!emagged)
-							CA.guilty = fprints
 						var/turf/T
 						switch(goes_off)
 							if(BOMB_DISARMED)
@@ -249,6 +247,10 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 								T = pick(cargo_shuttle.linked_area.contents)
 						if(T)
 							explosion_destroy(T,T,dev,dev*2,dev*4)
+						if(!emagged)
+							CA.guilty = fprints
+						CA.announce()
+
 #undef GOES_OFF_CENTCOM
 #undef GOES_OFF_SHUTTLE
 #undef BOMB_DISARMED
