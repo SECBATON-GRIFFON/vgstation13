@@ -199,7 +199,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 			if(istype(TTV.attached_device,/obj/item/device/assembly/timer))
 				var/obj/item/device/assembly/timer/TM = TTV.attached_device
 				if(TM.timing)
-					timevalue = clamp(TM.timing,600,1200)
+					timevalue = clamp(TM.time,600,1200)
 					switch(TM.time)
 						if(0 to 600)
 							goes_off = GOES_OFF_SHUTTLE
@@ -213,7 +213,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 					goes_off = GOES_OFF_CENTCOM
 					timevalue = 600
 				else if(PS.timing)
-					timevalue = clamp(PS.timing,600,1200)
+					timevalue = clamp(PS.time,600,1200)
 					if(PS.time < 1200)
 						goes_off = GOES_OFF_CENTCOM
 					else
