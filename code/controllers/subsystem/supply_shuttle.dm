@@ -244,7 +244,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 										H.death()
 							if(GOES_OFF_SHUTTLE)
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
-								T = pick(cargo_shuttle.linked_area.contents)
+								T = pick(cargo_shuttle.linked_area.area_turfs)
 						if(T)
 							explosion_destroy(T,T,dev,dev*2,dev*4)
 						if(!emagged)
