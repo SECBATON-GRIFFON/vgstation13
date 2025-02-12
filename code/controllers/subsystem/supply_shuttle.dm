@@ -242,9 +242,11 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 										var/datum/outfit/special/with_id/nt_officer/NT = new
 										NT.equip(H)
 										H.death()
+								movetime = min(movetime * 2, 4 MINUTES)
 							if(GOES_OFF_SHUTTLE)
 								CA = new /datum/command_alert/supply_shuttle_bomb/wentoffshuttle
 								T = pick(cargo_shuttle.linked_area.area_turfs)
+								movetime = min(movetime * 1.5, 4 MINUTES)
 						if(T)
 							explosion_destroy(T,T,dev,dev*2,dev*4)
 						if(!emagged)
