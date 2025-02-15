@@ -527,10 +527,10 @@ var/global/list/NOIRMATRIX = list(0.33,0.33,0.33,0,\
 #define DEAD		2
 
 // channel numbers for power
-#define EQUIP	1
-#define LIGHT	2
-#define ENVIRON	3
-#define TOTAL	4	//for total power used only
+#define EQUIP	"equip"
+#define LIGHT	"light"
+#define ENVIRON	"environ"
+#define TOTAL	"total"	//for total power used only
 
 // bitflags for machine stat variable
 #define BROKEN		1

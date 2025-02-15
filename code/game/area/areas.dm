@@ -370,9 +370,9 @@ var/area/space_area
 
 
 /*
-#define EQUIP 1
-#define LIGHT 2
-#define ENVIRON 3
+#define EQUIP "equip"
+#define LIGHT "light"
+#define ENVIRON "environ"
 */
 
 /area/proc/powered(var/chan)		// return true if the area has power to given channel
