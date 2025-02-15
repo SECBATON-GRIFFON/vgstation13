@@ -521,3 +521,23 @@ BLIND     // can't see anything
 			beam.emit(spawn_by=emitter)
 		previous_loc = emitter.loc
 		previous_dir = emitter.dir
+
+/obj/item/clothing/glasses/laser
+	name = "laser goggles"
+	desc = "Become able to fire beams, with more control this time."
+	icon_state = "emitter"
+	item_state = "glasses"
+	origin_tech = Tc_POWERSTORAGE + "=5;" + Tc_MATERIALS + "=3" + Tc_ANOMALY + "=4"
+	var/userhadbefore = FALSE
+	
+/obj/item/clothing/glasses/laser/equipped(mob/M, slot)
+	..()
+	if(M_LASER in M.mutations)
+		userhadbefore = TRUE // kinda hacky but at least it leaves the wish granter alone
+	else if(slot == slot_glasses)
+		M.mutations.Add(M_LASER)
+
+/obj/item/clothing/glasses/laser/unequipped(mob/M, from_slot)
+	..()
+	if(!userhadbefore && from_slot == slot_glasses)
+		M.mutations.Remove(M_LASER)

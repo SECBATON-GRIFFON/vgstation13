@@ -158,6 +158,7 @@
 	)
 
 	var/list/rareStock = list(
+		/obj/item/clothing/glasses/laser = 1000,
 		/obj/item/clothing/suit/armor/rune = 1500,
 		/obj/item/clothing/gloves/powerfist = 1800, //I don't even know if these work!
 		/obj/item/clothing/head/bearpelt/real/spare = 800,
