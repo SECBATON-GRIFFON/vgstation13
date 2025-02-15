@@ -64,10 +64,7 @@
 	var/cell_type_path = /obj/item/weapon/cell
 	var/opened = 0                      //0=closed, 1=opened, 2=cover removed
 	var/shorted = 0
-	//var/list/channels = list("lighting" = 3,"equipment" = 3,"environ" = 3)
-	var/lighting = 3
-	var/equipment = 3
-	var/environ = 3
+	var/list/channels = list(LIGHT = 3,EQUIP = 3,ENVIRON = 3)
 	var/operating = 1
 	var/charging = 0
 	var/charge_diff = 0 				// How much charge we've gained or lost this tick (an APC can be charging and still be losing charge depending on priorities and statisfaction)
@@ -76,10 +73,7 @@
 	var/locked = 1
 	var/coverlocked = 1
 	var/tdir = null
-	//var/list/lastuseds = list("lighting" = 0,"equipment" = 0,"environ" = 0)
-	var/lastused_light = 0
-	var/lastused_equip = 0
-	var/lastused_environ = 0
+	var/list/lastuseds = list(LIGHT = 0,EQUIP = 0,ENVIRON = 0)
 	var/lastused_total = 0
 	var/main_status = 0
 	var/wiresexposed = 0
@@ -333,9 +327,9 @@
 			overlays += status_overlays_lock[locked+1]
 			overlays += status_overlays_charging[charging+1]
 			if(operating)
-				overlays += status_overlays_equipment[equipment+1]
-				overlays += status_overlays_lighting[lighting+1]
-				overlays += status_overlays_environ[environ+1]
+				overlays += status_overlays_equipment[channels[EQUIP]+1]
+				overlays += status_overlays_lighting[channels[LIGHT]+1]
+				overlays += status_overlays_environ[channels[ENVIRON]+1]
 
 	if (!(stat & (BROKEN|MAINT)) && light_range)
 		update_moody_light('icons/lighting/moody_lights.dmi', "overlay_apc", 255, light_color)
@@ -383,25 +377,25 @@
 		else if(charging == 2)
 			update_overlay |= APC_UPOVERLAY_CHARGEING2
 
-		if (!equipment)
+		if (!channels[EQUIP])
 			update_overlay |= APC_UPOVERLAY_EQUIPMENT0
-		else if(equipment == 1)
+		else if(channels[EQUIP] == 1)
 			update_overlay |= APC_UPOVERLAY_EQUIPMENT1
-		else if(equipment == 2)
+		else if(channels[EQUIP] == 2)
 			update_overlay |= APC_UPOVERLAY_EQUIPMENT2
 
-		if(!lighting)
+		if(!channels[LIGHT])
 			update_overlay |= APC_UPOVERLAY_LIGHTING0
-		else if(lighting == 1)
+		else if(channels[LIGHT] == 1)
 			update_overlay |= APC_UPOVERLAY_LIGHTING1
-		else if(lighting == 2)
+		else if(channels[LIGHT] == 2)
 			update_overlay |= APC_UPOVERLAY_LIGHTING2
 
-		if(!environ)
+		if(!channels[ENVIRON])
 			update_overlay |= APC_UPOVERLAY_ENVIRON0
-		else if(environ==1)
+		else if(channels[ENVIRON]==1)
 			update_overlay |= APC_UPOVERLAY_ENVIRON1
-		else if(environ==2)
+		else if(channels[ENVIRON]==2)
 			update_overlay |= APC_UPOVERLAY_ENVIRON2
 
 	var/results = 0
@@ -824,10 +818,10 @@
 	if(!user)
 		return
 
-	/*var/list/topicparam = list("auto" = list("eqp" = 3),"on" = list("eqp" = 2),"off" = list("eqp" = 1))
+	var/list/topicparam = list("auto" = list("eqp" = 3),"on" = list("eqp" = 2),"off" = list("eqp" = 1))
 	var/list/channeldata = list()
 	for(var/channel in channels)
-		channeldata += list(list("title" = channel,"powerLoad" = lastused[channel],"status" = channels[channel], "topicParams" = topicparam.Copy()))*/
+		channeldata += list(list("title" = channel,"powerLoad" = lastuseds[channel],"status" = channels[channel], "topicParams" = topicparam.Copy()))
 	var/list/data = list(
 		"locked" = locked,
 		"isOperating" = operating,
@@ -842,39 +836,7 @@
 		"siliconUser" = istype(user, /mob/living/silicon) || isAdminGhost(user) || OMNI_LINK(user,src), // Allow aghosts to fuck with APCs
 		"malfLocked"= malflocked,
 		"malfStatus" = get_malf_status(user),
-		//"powerChannels" = channeldata
-		"powerChannels" = list(
-			list(
-				"title" = "Equipment",
-				"powerLoad" = lastused_equip,
-				"status" = equipment,
-				"topicParams" = list(
-					"auto" = list("eqp" = 3),
-					"on"   = list("eqp" = 2),
-					"off"  = list("eqp" = 1)
-				)
-			),
-			list(
-				"title" = "Lighting",
-				"powerLoad" = lastused_light,
-				"status" = lighting,
-				"topicParams" = list(
-					"auto" = list("lgt" = 3),
-					"on"   = list("lgt" = 2),
-					"off"  = list("lgt" = 1)
-				)
-			),
-			list(
-				"title" = "Environment",
-				"powerLoad" = lastused_environ,
-				"status" = environ,
-				"topicParams" = list(
-					"auto" = list("env" = 3),
-					"on"   = list("env" = 2),
-					"off"  = list("env" = 1)
-				)
-			)
-		)
+		"powerChannels" = channeldata
 	)
 
 	// update the ui if it exists, returns null if no ui is passed/found
@@ -893,16 +855,16 @@
 
 /obj/machinery/power/apc/proc/report()
 	var/area/this_area = get_area(src)
-	return "[this_area.name] : [equipment]/[lighting]/[environ] ([lastused_total]) : [cell? cell.percent() : "N/C"] ([charging])"
+	return "[this_area.name] : [channels[EQUIP]]/[channels[LIGHT]]/[channels[ENVIRON]] ([lastused_total]) : [cell? cell.percent() : "N/C"] ([charging])"
 
 /obj/machinery/power/apc/proc/update()
 	var/area/this_area = get_area(src)
 	if(!this_area)
 		return
 	if(operating && !shorted)
-		this_area.power_light = (lighting > 1)
-		this_area.power_equip = (equipment > 1)
-		this_area.power_environ = (environ > 1)
+		this_area.power_light = (channels[LIGHT] > 1)
+		this_area.power_equip = (channels[EQUIP] > 1)
+		this_area.power_environ = (channels[ENVIRON] > 1)
 	else
 		this_area.power_light = 0
 		this_area.power_equip = 0
@@ -998,19 +960,19 @@
 
 	else if (href_list["eqp"])
 		var/val = text2num(href_list["eqp"])
-		equipment = setsubsystem(val)
+		channels[EQUIP] = setsubsystem(val)
 		update_icon()
 		update()
 
 	else if (href_list["lgt"])
 		var/val = text2num(href_list["lgt"])
-		lighting = setsubsystem(val)
+		channels[LIGHT] = setsubsystem(val)
 		update_icon()
 		update()
 
 	else if (href_list["env"])
 		var/val = text2num(href_list["env"])
-		environ = setsubsystem(val)
+		channels[ENVIRON] = setsubsystem(val)
 		update_icon()
 		update()
 
@@ -1163,9 +1125,9 @@
 		return
 
 	// Store states to update icon if any change
-	var/last_lt = lighting
-	var/last_eq = equipment
-	var/last_en = environ
+	var/last_lt = channels[LIGHT]
+	var/last_eq = channels[EQUIP]
+	var/last_en = channels[ENVIRON]
 	var/last_ch = charging
 
 	// Set power availability rating for UI
@@ -1196,41 +1158,25 @@
 	else // No cell, switch everything off
 		turn_charging_off()
 		charge_diff = 0
-		equipment = autoset(equipment, 0)
-		lighting = autoset(lighting, 0)
-		environ = autoset(environ, 0)
+		for(var/channel in channels)
+			channels[channel] = autoset(channels[channel], 0)
 		if(!make_alerts)
 			this_area.poweralert(0, src)
 
-	/*for(var/channel in lastused)
-		if (channels[channel] != APC_CHANNEL_STATUS_OFF && channels[channel] != APC_CHANNEL_STATUS_AUTO_OFF)
-			lastused[channel] += this_area.usage(channel, 2)*/
-
 	// Calculate how much power is needed, and request it for next tick
-	lastused_light = 0
-	if (lighting != APC_CHANNEL_STATUS_OFF && lighting != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_light += this_area.usage(LIGHT, 2)
-
-	lastused_equip = 0
-	if (equipment != APC_CHANNEL_STATUS_OFF && equipment != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_equip += this_area.usage(EQUIP, 2)
-
-	lastused_environ = 0
-	if (environ != APC_CHANNEL_STATUS_OFF && environ != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_environ += this_area.usage(ENVIRON, 2)
+	for(var/channel in lastuseds)
+		if (channels[channel] != APC_CHANNEL_STATUS_OFF && channels[channel] != APC_CHANNEL_STATUS_AUTO_OFF)
+			lastuseds[channel] += this_area.usage(channel, 2)
 
 	this_area.clear_usage()
 
-	/*
 	lastused_total = 0
-	for(var/channel in lastused)
-		lastused_total += lastused[channel]
-	*/
-	lastused_total = lastused_light + lastused_equip + lastused_environ
+	for(var/channel in lastuseds)
+		lastused_total += lastuseds[channel]
 	add_load(lastused_total)
 
 	// update icon & area power if anything changed
-	if(last_lt != lighting || last_eq != equipment || last_en != environ)
+	if(last_lt != channels[LIGHT] || last_eq != channels[EQUIP] || last_en != channels[ENVIRON])
 		queue_icon_update()
 		update()
 	else if (last_ch != charging)
@@ -1259,9 +1205,9 @@
 		turn_charging_off()
 		cell.use(cell.charge)
 		// This turns everything off in the case that there is still a charge left on the battery, just not enough to run the room.
-		lighting = autoset(lighting, 0)
-		equipment = autoset(equipment, 0)
-		environ = autoset(environ, 0)
+		channels[LIGHT] = autoset(channels[LIGHT], 0)
+		channels[EQUIP] = autoset(channels[EQUIP], 0)
+		channels[ENVIRON] = autoset(channels[ENVIRON], 0)
 
 /obj/machinery/power/apc/proc/process_chargemode()
 	// show cell as fully charged if so
@@ -1296,30 +1242,30 @@
 		longtermpower -= 2
 
 	if(cell.charge <= 0)								// zero charge, turn all off
-		equipment = autoset(equipment, 0)
-		lighting = autoset(lighting, 0)
-		environ = autoset(environ, 0)
+		channels[EQUIP] = autoset(channels[EQUIP], 0)
+		channels[LIGHT] = autoset(channels[LIGHT], 0)
+		channels[ENVIRON] = autoset(channels[ENVIRON], 0)
 		if(this_area.poweralm && make_alerts)
 			this_area.poweralert(0, src)
 
 	else if(cell.percent() < 15 && longtermpower < 0)	// <15%, turn off lighting & equipment
-		equipment = autoset(equipment, 2)
-		lighting = autoset(lighting, 2)
-		environ = autoset(environ, 1)
+		channels[EQUIP] = autoset(channels[EQUIP], 2)
+		channels[LIGHT] = autoset(channels[LIGHT], 2)
+		channels[ENVIRON] = autoset(channels[ENVIRON], 1)
 		if(this_area.poweralm && make_alerts)
 			this_area.poweralert(0, src)
 
 	else if(cell.percent() < 30 && longtermpower < 0)	// <30%, turn off equipment
-		equipment = autoset(equipment, 2)
-		lighting = autoset(lighting, 1)
-		environ = autoset(environ, 1)
+		channels[EQUIP] = autoset(channels[EQUIP], 2)
+		channels[LIGHT] = autoset(channels[LIGHT], 1)
+		channels[ENVIRON] = autoset(channels[ENVIRON], 1)
 		if(this_area.poweralm && make_alerts)
 			this_area.poweralert(0, src)
 
 	else												// otherwise all can be on
-		equipment = autoset(equipment, 1)
-		lighting = autoset(lighting, 1)
-		environ = autoset(environ, 1)
+		channels[EQUIP] = autoset(channels[EQUIP], 1)
+		channels[LIGHT] = autoset(channels[LIGHT], 1)
+		channels[ENVIRON] = autoset(channels[ENVIRON], 1)
 		if(cell.percent() > 35 && !this_area.poweralm && make_alerts) // 35% to prevent spamming alerts if it fluctuates
 			this_area.poweralert(1, src)
 
@@ -1377,14 +1323,12 @@
 		cell.emp_act(severity)
 	if(occupant)
 		occupant.emp_act(severity)
-	lighting = 0
-	equipment = 0
-	environ = 0
+	for(var/channel in channels)
+		channels[channel] = 0
 	update()
 	spawn(600/severity)
-		lighting = 3
-		equipment = 3
-		environ = 3
+		for(var/channel in channels)
+			channels[channel] = 3
 		update()
 	..()
 
