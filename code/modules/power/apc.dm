@@ -64,6 +64,7 @@
 	var/cell_type_path = /obj/item/weapon/cell
 	var/opened = 0                      //0=closed, 1=opened, 2=cover removed
 	var/shorted = 0
+	//var/list/channels = list("lighting" = 3,"equipment" = 3,"environ" = 3)
 	var/lighting = 3
 	var/equipment = 3
 	var/environ = 3
@@ -75,6 +76,7 @@
 	var/locked = 1
 	var/coverlocked = 1
 	var/tdir = null
+	//var/list/lastuseds = list("lighting" = 0,"equipment" = 0,"environ" = 0)
 	var/lastused_light = 0
 	var/lastused_equip = 0
 	var/lastused_environ = 0
@@ -822,6 +824,10 @@
 	if(!user)
 		return
 
+	/*var/list/topicparam = list("auto" = list("eqp" = 3),"on" = list("eqp" = 2),"off" = list("eqp" = 1))
+	var/list/channeldata = list()
+	for(var/channel in channels)
+		channeldata += list(list("title" = channel,"powerLoad" = lastused[channel],"status" = channels[channel], "topicParams" = topicparam.Copy()))*/
 	var/list/data = list(
 		"locked" = locked,
 		"isOperating" = operating,
@@ -831,12 +837,12 @@
 		"powerCellMaxCharge" = cell ? cell.maxcharge : null,
 		"chargeMode" = chargemode,
 		"chargingStatus" = charging,
-		"totalLoad" = lastused_equip + lastused_light + lastused_environ,
+		"totalLoad" = lastused_total,
 		"coverLocked" = coverlocked,
 		"siliconUser" = istype(user, /mob/living/silicon) || isAdminGhost(user) || OMNI_LINK(user,src), // Allow aghosts to fuck with APCs
 		"malfLocked"= malflocked,
 		"malfStatus" = get_malf_status(user),
-
+		//"powerChannels" = channeldata
 		"powerChannels" = list(
 			list(
 				"title" = "Equipment",
@@ -887,7 +893,7 @@
 
 /obj/machinery/power/apc/proc/report()
 	var/area/this_area = get_area(src)
-	return "[this_area.name] : [equipment]/[lighting]/[environ] ([lastused_equip+lastused_light+lastused_environ]) : [cell? cell.percent() : "N/C"] ([charging])"
+	return "[this_area.name] : [equipment]/[lighting]/[environ] ([lastused_total]) : [cell? cell.percent() : "N/C"] ([charging])"
 
 /obj/machinery/power/apc/proc/update()
 	var/area/this_area = get_area(src)
@@ -1196,6 +1202,11 @@
 		if(!make_alerts)
 			this_area.poweralert(0, src)
 
+	/*for(var/channel in lastused)
+		if (channels[channel] != APC_CHANNEL_STATUS_OFF && channels[channel] != APC_CHANNEL_STATUS_AUTO_OFF)
+			channels[channel] += this_area.usage(channel)
+			channels[channel] += this_area.usage("[channel]_static")*/
+
 	// Calculate how much power is needed, and request it for next tick
 	lastused_light = 0
 	if (lighting != APC_CHANNEL_STATUS_OFF && lighting != APC_CHANNEL_STATUS_AUTO_OFF)
@@ -1214,6 +1225,11 @@
 
 	this_area.clear_usage()
 
+	/*
+	lastused_total = 0
+	for(var/channel in lastused)
+		lastused_total += lastused[channel]
+	*/
 	lastused_total = lastused_light + lastused_equip + lastused_environ
 	add_load(lastused_total)
 
