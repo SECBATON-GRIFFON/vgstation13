@@ -1204,8 +1204,8 @@
 
 	/*for(var/channel in lastused)
 		if (channels[channel] != APC_CHANNEL_STATUS_OFF && channels[channel] != APC_CHANNEL_STATUS_AUTO_OFF)
-			channels[channel] += this_area.usage(channel)
-			channels[channel] += this_area.usage("[channel]_static")*/
+			lastused[channel] += this_area.usage(channel)
+			lastused[channel] += this_area.usage("[channel]_static")*/
 
 	// Calculate how much power is needed, and request it for next tick
 	lastused_light = 0
