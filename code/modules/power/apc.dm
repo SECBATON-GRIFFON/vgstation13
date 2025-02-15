@@ -1210,18 +1210,15 @@
 	// Calculate how much power is needed, and request it for next tick
 	lastused_light = 0
 	if (lighting != APC_CHANNEL_STATUS_OFF && lighting != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_light += this_area.usage(LIGHT)
-		lastused_light += this_area.usage(STATIC_LIGHT)
+		lastused_light += this_area.usage(LIGHT, 2)
 
 	lastused_equip = 0
 	if (equipment != APC_CHANNEL_STATUS_OFF && equipment != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_equip += this_area.usage(EQUIP)
-		lastused_equip += this_area.usage(STATIC_EQUIP)
+		lastused_equip += this_area.usage(EQUIP, 2)
 
 	lastused_environ = 0
 	if (environ != APC_CHANNEL_STATUS_OFF && environ != APC_CHANNEL_STATUS_AUTO_OFF)
-		lastused_environ += this_area.usage(ENVIRON)
-		lastused_environ += this_area.usage(STATIC_ENVIRON)
+		lastused_environ += this_area.usage(ENVIRON, 2)
 
 	this_area.clear_usage()
 

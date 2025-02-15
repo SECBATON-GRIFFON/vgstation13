@@ -401,31 +401,25 @@ var/area/space_area
 	if (fire || eject || party)
 		updateicon()
 
-/area/proc/usage(const/chan)
+/area/proc/usage(const/chan,var/staticpower = FALSE)
 	switch (chan)
 		if (LIGHT)
-			return used_light
+			return staticpower ? static_light : staticpower == 2 ? static_light + used_light : used_light
 		if (EQUIP)
-			return used_equip
+			return staticpower ? static_equip : staticpower == 2 ? static_equip + used_equip : used_equip
 		if (ENVIRON)
-			return used_environ
+			return staticpower ? static_environ : staticpower == 2 ? static_environ + used_environ : used_environ
 		if (TOTAL)
 			return used_light + used_equip + used_environ
-		if(STATIC_EQUIP)
-			return static_equip
-		if(STATIC_LIGHT)
-			return static_light
-		if(STATIC_ENVIRON)
-			return static_environ
 	return 0
 
 /area/proc/addStaticPower(value, powerchannel)
 	switch(powerchannel)
-		if(STATIC_EQUIP)
+		if(EQUIP)
 			static_equip += value
-		if(STATIC_LIGHT)
+		if(LIGHT)
 			static_light += value
-		if(STATIC_ENVIRON)
+		if(ENVIRON)
 			static_environ += value
 
 /area/proc/clear_usage()
