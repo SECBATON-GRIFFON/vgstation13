@@ -619,6 +619,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/centcom/test
 	name = "\improper Centcom Testing Facility"
+	no_air = FALSE
 
 /area/centcom/living
 	name = "\improper Centcom Living Quarters"
@@ -641,6 +642,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/centcom/holding
 	name = "\improper Holding Facility"
 	icon_state = "centcom-hold"
+	no_air = FALSE
 
 /area/centcom/ert
 	name = "\improper ERT Preparation Center"
@@ -656,6 +658,7 @@ var/global/list/adminbusteleportlocs = list()
 	requires_power = 0
 	dynamic_lighting = 0
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/syndicate_mothership/control
 	name = "\improper Syndicate Control Room"
