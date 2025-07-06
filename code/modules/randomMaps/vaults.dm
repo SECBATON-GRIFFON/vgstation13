@@ -38,6 +38,7 @@
 
 /area/vault
 	flags = NO_PERSISTENCE|NO_PACIFICATION
+	no_air = FALSE
 
 /proc/get_map_element_objects(base_type = /datum/map_element/vault)
 	var/list/list_of_vaults = typesof(base_type) - base_type

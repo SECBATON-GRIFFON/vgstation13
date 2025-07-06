@@ -138,9 +138,11 @@ Class Procs:
 
 	var/simulated_turf_count = 0
 
-	for(var/turf/simulated/S in world)
-		simulated_turf_count++
-		S.update_air_properties()
+	for(var/area/A in areas)
+		if(!A.no_air)
+			for(var/turf/simulated/S in A.area_turfs)
+				simulated_turf_count++
+				S.update_air_properties()
 
 	to_chat(world, {"<span class='info'>Total Simulated Turfs: [simulated_turf_count]
 Total Zones: [zones.len]

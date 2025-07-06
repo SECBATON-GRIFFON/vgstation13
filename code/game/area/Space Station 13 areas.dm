@@ -71,7 +71,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 
 	var/gravity = 1 // THIS REPLACES HAS_GRAVITY, now should be used as a float instead of a bool, for gravity multipliers in multi-z falling stuff
 
-	var/no_air = null
+	var/no_air = TRUE
 //	var/list/lights				// list of all lights on this area
 	var/list/all_doors = list()		//Added by Strumpetplaya - Alarm Change - Contains a list of doors adjacent to this area
 
@@ -150,6 +150,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/station//TODO: make every area in the MAIN station inherit from this.
 	name = "Station"
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/station/custom //For blueprints!
 	power_equip = 0
@@ -161,6 +162,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/arrival
 	requires_power = 0
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/arrival/start
 	name = "\improper Arrival Area"
@@ -199,6 +201,7 @@ var/global/list/adminbusteleportlocs = list()
 	shuttle_can_crush = FALSE
 	flags = NO_PERSISTENCE
 	holomap_draw_override = HOLOMAP_DRAW_EMPTY
+	parent_type = /area/station
 
 /area/shuttle/arrival
 	name = "\improper Arrival Shuttle"
@@ -724,6 +727,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/vox_station
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/vox_station/southwest_solars
 	name = "\improper aft port solars"
@@ -780,6 +784,7 @@ var/global/list/adminbusteleportlocs = list()
 	icon_state = "brig"
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/prison/arrival_airlock
 	name = "\improper Prison Station Airlock"
@@ -876,6 +881,7 @@ var/global/list/adminbusteleportlocs = list()
 	ambient_sounds = list(
 		/datum/ambience/maint1,
 		/datum/ambience/maint2)
+	parent_type = /area/station
 
 /area/maintenance/fpmaint
 	name = "Fore Port Maintenance"
@@ -972,6 +978,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/hallway
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/hallway/primary
 	holomap_color = HOLOMAP_AREACOLOR_HALLWAYS
@@ -1021,6 +1028,7 @@ var/global/list/adminbusteleportlocs = list()
 	shuttle_can_crush = FALSE
 	holomap_marker = "bridge"
 	holomap_filter = HOLOMAP_FILTER_ERT
+	parent_type = /area/station
 
 /area/bridge/meeting_room
 	name = "\improper Heads of Staff Meeting Room"
@@ -1085,18 +1093,21 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Mint"
 	icon_state = "green"
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/comms
 	name = "\improper Communications Relay"
 	icon_state = "tcomsatcham"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/server
 	name = "\improper Messaging Server Room"
 	icon_state = "server"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 //Crew
 
@@ -1105,6 +1116,7 @@ var/global/list/adminbusteleportlocs = list()
 	icon_state = "Sleep"
 	shuttle_can_crush = FALSE
 	lights_always_start_on = TRUE
+	parent_type = /area/station
 
 /area/crew_quarters/toilet
 	name = "\improper Dormitory Toilets"
@@ -1171,10 +1183,12 @@ var/global/list/adminbusteleportlocs = list()
 	shuttle_can_crush = FALSE
 	holomap_marker = "library"
 	holomap_filter = HOLOMAP_FILTER_STATIONMAP
+	parent_type = /area/station
 
 /area/chapel
 	shuttle_can_crush = FALSE
 	ambient_sounds = list(/datum/ambience/holy1,/datum/ambience/holy2,/datum/ambience/holy3,/datum/ambience/holy4)
+	parent_type = /area/station
 
 /area/chapel/main
 	name = "\improper Chapel"
@@ -1191,6 +1205,7 @@ var/global/list/adminbusteleportlocs = list()
 	icon_state = "law"
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/crew_quarters/casino
 	name = "Casino"
@@ -1209,6 +1224,7 @@ var/global/list/adminbusteleportlocs = list()
 	shuttle_can_crush = FALSE
 	flags = NO_PERSISTENCE
 	jammed = SUPER_JAMMED
+	parent_type = /area/station
 
 /area/holodeck/alphadeck
 	name = "\improper Holodeck Alpha"
@@ -1307,6 +1323,7 @@ var/global/list/adminbusteleportlocs = list()
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 	shuttle_can_crush = FALSE
 	ambient_sounds = list(/datum/ambience/engi1,/datum/ambience/engi2,/datum/ambience/engi3,/datum/ambience/engi4)
+	parent_type = /area/station
 
 /area/engineering/engine_smes
 	name = "\improper Engineering SMES"
@@ -1370,6 +1387,7 @@ var/global/list/adminbusteleportlocs = list()
 	requires_power = 0
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/solar/fport
 	name = "\improper Fore Port Solar Array"
@@ -1441,6 +1459,9 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Robotics Showroom"
 	icon_state = "showroom"
 
+/area/assembly
+	parent_type = /area/station
+
 /area/assembly/assembly_line //Derelict Assembly Line
 	name = "\improper Assembly Line"
 	icon_state = "ass_line"
@@ -1458,6 +1479,7 @@ var/global/list/adminbusteleportlocs = list()
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	jammed=1
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/gateway
 	name = "\improper Gateway"
@@ -1465,6 +1487,7 @@ var/global/list/adminbusteleportlocs = list()
 	music = "signal"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/AIsattele
 	name = "\improper AI Satellite Teleporter Room"
@@ -1472,6 +1495,7 @@ var/global/list/adminbusteleportlocs = list()
 	music = "signal"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 
 //Medbay
@@ -1479,6 +1503,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/medical
 	holomap_color = HOLOMAP_AREACOLOR_MEDICAL
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/medical/medbay
 	name = "Medbay"
@@ -1586,6 +1611,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/security
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/security/main
 	name = "\improper Security Office"
@@ -1722,6 +1748,7 @@ var/global/list/adminbusteleportlocs = list()
 	icon_state = "quart"
 	holomap_color = HOLOMAP_AREACOLOR_CARGO
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 ///////////WORK IN PROGRESS//////////
 
@@ -1768,6 +1795,7 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Custodial Closet"
 	icon_state = "janitor"
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/janitor2/
 	name = "\improper Custodial Closet"
@@ -1778,11 +1806,13 @@ var/global/list/adminbusteleportlocs = list()
 	name = "Hydroponics"
 	icon_state = "hydro"
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 //Toxins
 /area/science
 	holomap_color = HOLOMAP_AREACOLOR_SCIENCE
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/science/lab
 	name = "\improper Research and Development"
@@ -1876,6 +1906,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/storage
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/storage/tools
 	name = "Auxiliary Tool Storage"
@@ -1940,10 +1971,12 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Ice Bar"
 	icon_state = "ghettobar"
 	holomap_draw_override = HOLOMAP_DRAW_FULL
+	no_air = FALSE
 
 /area/station/garage
 	name = "\improper Public Garage"
 	icon_state = "yellow"
+	no_air = FALSE
 
 /area/surface
 	forbid_apc = TRUE
@@ -2107,10 +2140,12 @@ var/global/list/adminbusteleportlocs = list()
 	icon_state = "DJ"
 	shuttle_can_crush = FALSE
 	holomap_draw_override = HOLOMAP_DRAW_EMPTY
+	no_air = FALSE
 
 /area/djstation/solars
 	name = "\improper DJ Station Solars"
 	icon_state = "DJ"
+	no_air = FALSE
 
 //Construction
 
@@ -2118,6 +2153,7 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Construction Area"
 	icon_state = "yellow"
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/construction/mommi_nest
 	name = "\improper MoMMI Nest"
@@ -2181,10 +2217,12 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper AI Upload Chamber"
 	icon_state = "ai_upload"
 	jammed=1
+	parent_type = /area/station
 
 /area/turret_protected/ai_upload_foyer
 	name = "AI Upload Access"
 	icon_state = "ai_foyer"
+	parent_type = /area/station
 
 /area/turret_protected/ai
 	name = "\improper AI Chamber"
@@ -2192,6 +2230,7 @@ var/global/list/adminbusteleportlocs = list()
 	jammed=1
 	holomap_marker = "ai"
 	holomap_filter = HOLOMAP_FILTER_STATIONMAP_STRATEGIC
+	parent_type = /area/station
 
 /area/turret_protected/aisat
 	name = "\improper AI Satellite"
@@ -2265,6 +2304,7 @@ var/global/list/adminbusteleportlocs = list()
 	general_area_name = "Vox Trade Outpost"
 	holomap_color = HOLOMAP_AREACOLOR_CARGO
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/vox_trading_post/trading_floor
 	name = "\improper Vox Trading Floor"
@@ -2360,6 +2400,7 @@ var/global/list/adminbusteleportlocs = list()
 		/datum/ambience/tcomms2,
 		/datum/ambience/tcomms3)
 	flags = NO_PACIFICATION
+	no_air = FALSE
 
 /area/tcommsat/entrance
 	name = "\improper Satellite Teleporter"
@@ -2372,6 +2413,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/tcomms
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	shuttle_can_crush = FALSE
+	parent_type = /area/station
 
 /area/tcomms/chamber
 	name = "\improper Telecoms Chamber"
@@ -2387,6 +2429,7 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Telecomms Control Room"
 	icon_state = "tcomsatcomp"
 	jammed=1
+	parent_type = /area/station
 
 /area/turret_protected/tcomsat
 	name = "\improper Satellite Entrance"
@@ -2782,6 +2825,7 @@ var/list/shack_names = list("abandoned","deserted","forsaken","stranded","isolat
 	icon_state = "firingrange"
 
 	holomap_draw_override = HOLOMAP_DRAW_FULL
+	no_air = FALSE
 
 /area/shack/spawned_by_map_element(datum/map_element/ME, list/objects)//So each shack is its own area. Copied from /area/vault/automap.
 	var/area/shack/new_area = new src.type
@@ -3002,3 +3046,6 @@ var/list/shack_names = list("abandoned","deserted","forsaken","stranded","isolat
 	name = "\improper HELL"
 	requires_power = 0
 	dynamic_lighting = 0
+
+/area/derelictparts
+	parent_type = /area/station
