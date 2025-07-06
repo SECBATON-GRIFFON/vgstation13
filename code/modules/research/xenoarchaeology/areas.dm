@@ -8,6 +8,7 @@
 
 	holomap_color = HOLOMAP_AREACOLOR_SCIENCE
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/research_outpost/hallway
 	name = "Research Outpost Hallway"

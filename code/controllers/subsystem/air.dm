@@ -137,12 +137,19 @@ Class Procs:
 	sleep(-1)
 
 	var/simulated_turf_count = 0
+	var/list/area/unsim_areas = list()
+	var/list/area/missed_areas = list()
 
 	for(var/area/A in areas)
 		if(!A.no_air)
+			unsim_areas += A
 			for(var/turf/simulated/S in A.area_turfs)
 				simulated_turf_count++
 				S.update_air_properties()
+	for(var/area/A in areas)
+		if((locate(/turf/simulated) in A.area_turfs) && !(A in unsim_areas))
+			missed_areas |= A
+	to_chat(world,"Missed areas: [english_list(missed_areas)]")
 
 	to_chat(world, {"<span class='info'>Total Simulated Turfs: [simulated_turf_count]
 Total Zones: [zones.len]

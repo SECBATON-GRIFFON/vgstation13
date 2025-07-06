@@ -604,9 +604,11 @@ var/global/list/adminbusteleportlocs = list()
 /area/centcom/evac
 	name = "\improper Centcom Emergency Shuttle"
 	icon_state = "centcom-evac"
+	no_air = FALSE
 
 /area/centcom/suppy
 	name = "\improper Centcom Supply Shuttle"
+	no_air = FALSE
 
 /area/centcom/ferry
 	name = "\improper Centcom Transport Shuttle"
@@ -625,11 +627,13 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Centcom Special Ops"
 	icon_state = "centcom-specops"
 	dynamic_lighting = 1
+	no_air = FALSE
 
 /area/centcom/striketeam
 	name = "\improper Custom Strike Team"
 	icon_state = "centcom-specops"
 	dynamic_lighting = 1
+	no_air = FALSE
 
 /area/centcom/creed
 	name = "Creed's Office"
@@ -642,6 +646,7 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper ERT Preparation Center"
 	icon_state = "centcom-ert"
 	dynamic_lighting = 1
+	no_air = FALSE
 
 //SYNDICATES
 
@@ -697,6 +702,7 @@ var/global/list/adminbusteleportlocs = list()
 	requires_power = 0
 	dynamic_lighting = 0
 	shuttle_can_crush = FALSE
+	no_air = FALSE
 
 /area/tdome/tdome1
 	name = "\improper Thunderdome (Team 1)"
@@ -2198,6 +2204,7 @@ var/global/list/adminbusteleportlocs = list()
 	jammed=1
 	holomap_marker = "eva"
 	holomap_filter = HOLOMAP_FILTER_STATIONMAP
+	no_air = FALSE
 
 /area/ai_monitored/storage/secure
 	name = "Secure Storage"
@@ -2986,46 +2993,57 @@ var/list/shack_names = list("abandoned","deserted","forsaken","stranded","isolat
 /area/outpost_medbay
 	name = "\improper Outpost Medbay"
 	icon_state = "outpostmed"
+	no_air = FALSE
 
 /area/outpost_brig
 	name = "\improper Outpost Brig"
 	icon_state = "outpostbrig"
+	no_air = FALSE
 
 /area/outpost_engineering
 	name = "\improper Outpost Engineering"
 	icon_state = "outpostengy"
+	no_air = FALSE
 
 /area/disabled_work_platform
 	name = "\improper Disabled Work Platform"
 	icon_state = "disabledplatform"
+	no_air = FALSE
 
 /area/outpost_dock_control_center
 	name = "\improper Outpost Dock Control Center"
 	icon_state = "outpostdockcontrol"
+	no_air = FALSE
 
 /area/outpost_bridge
 	name = "\improper Outpost Bridge"
 	icon_state = "outpostbridge"
+	no_air = FALSE
 
 /area/outpost_starboard_launcher
 	name = "\improper Outpost Starboard Launcher"
 	icon_state = "outpostlauncherstarboard"
+	no_air = FALSE
 
 /area/outpost_port_launcher
 	name = "\improper Outpost Port Launcher"
 	icon_state = "outpostlauncherport"
+	no_air = FALSE
 
 /area/bridge_secure_auxilliary
 	name = "\improper Bridge Secure Auxilliary"
 	icon_state = "bridgeaux"
+	no_air = FALSE
 
 /area/trade_floor
 	name = "\improper Trade Floor"
 	icon_state = "tradefloor"
+	no_air = FALSE
 
 /area/vacant_storefront
 	name = "\improper Vacant Storefront"
 	icon_state = "vacstore"
+	no_air = FALSE
 
 //Shuttles
 /area/shuttle/engineering
