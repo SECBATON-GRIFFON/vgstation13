@@ -83,7 +83,7 @@
 	cost = 15
 	var/traitor_threshold = 4
 	var/additional_cost = 5
-	requirements = list(101,101,101,101,10,10,10,10,10,10)
+	requirements = list(101,101,101,20,10,10,10,10,10,10)
 	high_population_requirement = 15
 
 // -- Currently a copypaste of traitors. Could be fixed to be less copy & paste.
@@ -148,14 +148,25 @@
 	weight = BASE_RULESET_WEIGHT
 	weight_category = "Changeling"
 	cost = 18
+	var/additional_cost = 9
+	var/maximum_lings = 2
+	var/pop_per_ling = 12
 	requirements = list(80,70,60,60,30,20,10,10,10,10)
 	high_population_requirement = 30
 
 // -- Currently a copypaste of traitors. Could be fixed to be less copy & paste.
 /datum/dynamic_ruleset/roundstart/changeling/choose_candidates()
-	var/mob/M = pick(candidates)
-	assigned += M
-	candidates -= M
+	//Check to see how many lings the ruleset supports and if there are enough candidates.
+	var/num_changelings = min(min(floor(mode.roundstart_pop_ready / pop_per_ling), maximum_lings), candidates.len)
+	for (var/i = 1 to num_changelings)
+		if(i > 1)
+			if((mode.threat > additional_cost))
+				mode.spend_threat(additional_cost)
+			else
+				break
+		var/mob/M = pick(candidates)
+		assigned += M
+		candidates -= M
 	return (assigned.len > 0)
 
 /datum/dynamic_ruleset/roundstart/changeling/execute()
@@ -289,7 +300,7 @@
 
 /datum/dynamic_ruleset/roundstart/cwc/execute()
 	var/datum/faction/wizard/civilwar/wpf/WPF = ticker.mode.CreateFaction(/datum/faction/wizard/civilwar/wpf, null, 1)
-	var/datum/faction/wizard/civilwar/wpf/PFW = ticker.mode.CreateFaction(/datum/faction/wizard/civilwar/pfw, null, 1)
+	var/datum/faction/wizard/civilwar/pfw/PFW = ticker.mode.CreateFaction(/datum/faction/wizard/civilwar/pfw, null, 1)
 	for(var/mob/new_player/M in assigned)
 		var/datum/role/wizard/newWizard = new
 		if (WPF.members.len < PFW.members.len)
@@ -496,8 +507,7 @@ Assign your candidates in choose_candidates() instead.
 	name = "Malfunctioning AI"
 	role_category = /datum/role/malfAI
 	enemy_jobs = list("Security Officer", "Warden","Detective","Head of Security", "Captain", "Scientist", "Chemist", "Research Director", "Chief Engineer")
-	restricted_from_jobs = list("Security Officer", "Warden","Detective","Head of Security", "Captain", "Research Director", "Chief Engineer")
-	job_priority = list("AI","Cyborg")
+	restricted_from_jobs = list("Captain","Head of Personnel","Head of Security","Chief Engineer","Research Director","Chief Medical Officer","Station Engineer","Atmospheric Technician","Mechanic","Medical Doctor","Geneticist","Virologist","Paramedic","Chemist","Orderly","Research Director","Scientist","Roboticist","Bartender","Botanist","Chef","Janitor","Librarian","Internal Affairs Agent","Chaplain","Clown","Mime","Assistant","Quartermaster","Cargo Technician","Shaft Miner","Warden","Detective","Security Officer","Cyborg", "Mobile MMI")
 	required_pop = list(25,25,25,20,20,20,15,15,15,15)
 	required_candidates = 1
 	weight = BASE_RULESET_WEIGHT
@@ -512,6 +522,8 @@ Assign your candidates in choose_candidates() instead.
 // You should `not` perform any null checks on M. M being null is a sign of a problem and should runtime.
 /datum/dynamic_ruleset/roundstart/malf/choose_candidates()
 	var/mob/M = progressive_job_search() //dynamic_rulesets.dm. Handles adding the guy to assigned.
+	if(!M)
+		return 0
 	if(M.mind.assigned_role != "AI")
 		for(var/mob/living/silicon/ai/player in player_list) //mode.candidates is everyone readied up, not to be confused with candidates
 			if(player != M)	// This should always be true but in case something goes terribly terribly wrong we definitely do not want to end up displacing the malf AI
@@ -525,6 +537,19 @@ Assign your candidates in choose_candidates() instead.
 		M = M.AIize()
 		assigned.Add(M)
 	return (assigned.len > 0)
+
+/datum/dynamic_ruleset/roundstart/malf/progressive_job_search()
+	for(var/job in job_priority)
+		for(var/mob/M in candidates)
+			if(M.mind.assigned_role == job && !jobban_isbanned(M, "AI"))
+				assigned += M
+				candidates -= M
+				return M
+	while(candidates.len)
+		var/mob/M = pick_n_take(candidates)
+		if(!jobban_isbanned(M, "AI"))
+			assigned += M
+			return M
 
 /datum/dynamic_ruleset/roundstart/malf/execute()
 	var/datum/faction/malf/unction = find_active_faction_by_type(/datum/faction/malf)
@@ -550,9 +575,9 @@ Assign your candidates in choose_candidates() instead.
 			if(job_master.TryAssignJob(old_AI,level,job))
 				break
 	if(!old_AI.mind.assigned_role) // still no job
-		if(old_AI.client.prefs.alternate_option == GET_RANDOM_JOB)
+		if(old_AI.client.prefs.get_pref(/datum/preference_setting/enum/alternate_option) == GET_RANDOM_JOB)
 			job_master.GiveRandomJob(old_AI)
-		else if(old_AI.client.prefs.alternate_option == BE_ASSISTANT)
+		else if(old_AI.client.prefs.get_pref(/datum/preference_setting/enum/alternate_option) == BE_ASSISTANT)
 			job_master.AssignRole(old_AI, "Assistant")
 	if(!old_AI.mind.assigned_role)
 		to_chat(old_AI, "<span class='danger'>You have been returned to lobby due to your job preferences being filled.")
