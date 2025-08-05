@@ -59,30 +59,12 @@
 		return
 	if(!src)
 		return
-	if(istype(A, /mob/living))
-		if(!(reagents.total_volume < 1)) //Slap slap slap
-			A.visible_message("<span class='danger'>[user] [ishuman(A) ? "hits [A] in the [parse_zone(user.zone_sel.selecting)] with" : "covers [A] in"] the mop's contents</span>")
-			reagents.reaction(A,1,10, zone_sels = list(user.zone_sel.selecting)) //I hope you like my polyacid cleaner mix
-			reagents.clear_reagents()
-
-	if(istype(A, /turf/simulated) || iscleanaway(A))
-		if(reagents.total_volume < 1)
-			to_chat(user, "<span class='notice'>Your mop is dry!</span>")
-			return
-		user.visible_message("<span class='[arcanetampered ? "sinister" : "warning"]'>[user] cleans \the [get_turf(A)].</span>", "<span class='[arcanetampered ? "sinister" : "notice"]'>You clean \the [get_turf(A)].</span>")
-		user.delayNextAttack(10)
-		if(arcanetampered)
-			var/dirttype = pick(subtypesof(/obj/effect/decal/cleanable))
-			new dirttype(get_turf(A))
-		else
-			clean(get_turf(A))
-		reagents.remove_any(1) //Might be a tad wonky with "special mop mixes", but fuck it
 	update_icon()
 
 /mob/living/mop_act(obj/item/weapon/mop/M, mob/user as mob)
 	if(!(M.reagents.total_volume < 1)) //Slap slap slap
-		A.visible_message("<span class='danger'>[user] [ishuman(A) ? "hits [A] in the [parse_zone(user.zone_sel.selecting)] with" : "covers [A] in"] the mop's contents</span>")
-		reagents.reaction(A,1,10, zone_sels = list(user.zone_sel.selecting)) //I hope you like my polyacid cleaner mix
+		visible_message("<span class='danger'>[user] [ishuman(src) ? "hits [src] in the [parse_zone(user.zone_sel.selecting)] with" : "covers [src] in"] the mop's contents</span>")
+		reagents.reaction(src,1,10, zone_sels = list(user.zone_sel.selecting)) //I hope you like my polyacid cleaner mix
 		reagents.clear_reagents()
 
 /turf/mop_act(obj/item/weapon/mop/M, mob/user as mob)
@@ -101,10 +83,6 @@
 				var/dirttype = pick(subtypesof(/obj/effect/decal/cleanable))
 				new dirttype(get_turf(A))
 			else
-				for(var/obj/effect/O in src)
-					if(iscleanaway(O))
-						qdel(O)
-				clean_blood()
+				clean(src)
 			add_to_liquid(WATER,50 - reagents.total_volume)
-			playsound(src, get_sfx("mop"), 25, 1)
-			M.reagents.remove_reagent(WATER,1)
+			M.reagents.remove_any(1) //Might be a tad wonky with "special mop mixes", but fuck it
