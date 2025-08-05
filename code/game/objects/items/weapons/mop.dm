@@ -32,20 +32,6 @@
 		covering.alpha = mix_alpha_from_reagents(reagents.reagent_list)
 		overlays += covering
 
-/obj/item/weapon/mop/proc/clean(turf/simulated/A as turf)
-	for(var/obj/effect/O in A)
-		if(iscleanaway(O))
-			qdel(O)
-
-	if (A.advanced_graffiti)
-		A.overlays -= A.advanced_graffiti_overlay
-		A.advanced_graffiti_overlay = null
-		qdel(A.advanced_graffiti)
-
-	reagents.reaction(A,1,10) //Mops magically make chems ten times more efficient than usual, aka equivalent of 50 units of whatever you're using
-	A.clean_blood()
-	playsound(src, get_sfx("mop"), 25, 1)
-
 /obj/effect/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if(istype(W, /obj/item/weapon/mop))
 		return
@@ -81,8 +67,19 @@
 			user.delayNextAttack(10)
 			if(arcanetampered)
 				var/dirttype = pick(subtypesof(/obj/effect/decal/cleanable))
-				new dirttype(get_turf(A))
+				new dirttype(src)
 			else
-				M.clean(src)
+				for(var/obj/effect/O in src)
+					if(iscleanaway(O))
+						qdel(O)
+
+				if (advanced_graffiti)
+					overlays -= A.advanced_graffiti_overlay
+					advanced_graffiti_overlay = null
+					qdel(advanced_graffiti)
+
+				reagents.reaction(src,1,10) //Mops magically make chems ten times more efficient than usual, aka equivalent of 50 units of whatever you're using
+				clean_blood()
+				playsound(src, get_sfx("mop"), 25, 1)
 			add_to_liquid(WATER,50 - reagents.total_volume)
 			M.reagents.remove_any(1) //Might be a tad wonky with "special mop mixes", but fuck it
