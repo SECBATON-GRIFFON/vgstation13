@@ -68449,15 +68449,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/engineering/supermatter_room)
-"lGq" = (
-/obj/effect/liquid/mapping/fuel,
-/turf/unsimulated/floor{
-	dir = 6;
-	icon_state = "alienvault";
-	name = "sand";
-	tag = "icon-alienvault (SOUTHEAST)"
-	},
-/area/turret_protected/tcomsat)
 "lGt" = (
 /obj/structure/table,
 /obj/item/trash/candle,
