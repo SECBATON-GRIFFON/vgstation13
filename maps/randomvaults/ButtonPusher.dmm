@@ -1209,7 +1209,7 @@
 "zv" = (
 /obj/structure/rack,
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/liquid/mapping/fuel,
 /obj/item/tool/weldingtool/gatling,
 /turf/simulated/floor/plating{
 	icon_state = "panelscorched";
@@ -2257,7 +2257,7 @@
 "VZ" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/liquid/mapping/fuel,
 /turf/simulated/floor/plating{
 	icon_state = "panelscorched";
 	tag = "icon-panelscorched"

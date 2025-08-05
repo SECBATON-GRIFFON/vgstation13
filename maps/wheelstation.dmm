@@ -53128,7 +53128,7 @@
 /obj/structure/urinal{
 	pixel_y = 32
 	},
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/liquid/mapping/fuel,
 /obj/abstract/map/spawner/floorpill,
 /turf/simulated/floor/plating,
 /area/maintenance/central/capmaint)

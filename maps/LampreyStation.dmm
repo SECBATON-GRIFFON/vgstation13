@@ -24287,7 +24287,7 @@
 /area/lamprey/warzonemaintenanceblob)
 "bel" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/liquid/mapping/fuel,
 /mob/living/simple_animal/hostile/retaliate/tomato,
 /turf/simulated/floor/plating,
 /area/lamprey/warzonemaintenanceblob)
