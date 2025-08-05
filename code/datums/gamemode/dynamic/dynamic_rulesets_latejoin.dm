@@ -190,8 +190,8 @@
 /datum/dynamic_ruleset/latejoin/pulse_demon
 	name = "Pulse Demon Infiltration"
 	role_category = /datum/role/pulse_demon
-	enemy_jobs = list("Station Engineer","Chief Engineer")
-	required_enemies = list(1,1,1,1,1,1,1,1,1,1)
+	enemy_jobs = list("Station Engineer","Chief Engineer","Warden","Head of Security","Captain","AI","Cyborg")
+	required_enemies = list(2,2,2,2,2,2,2,2,2,2)
 	required_candidates = 1
 	weight = BASE_RULESET_WEIGHT
 	weight_category = "Pulse"
@@ -247,7 +247,7 @@
 	weight = BASE_RULESET_WEIGHT
 	weight_category = "Grue"
 	cost = 20
-	requirements = list(70,60,50,40,30,20,10,10,10,10)
+	requirements = list(101,101,101,40,30,20,10,10,10,10)
 	high_population_requirement = 10
 	logo = "grue-logo"
 	repeatable = TRUE

@@ -150,3 +150,34 @@
 
 /mob/living/proc/calcTackleRange()
 	return 0
+
+//Attacker accuracy will decrease the miss chance
+//Defender accuracy will increase the miss chance
+//Used in /mob/living/carbon/proc/attacked_by(), in /code/modules/mob/living/carbon/combat.dm
+/proc/get_total_accuracy_modifier(var/mob/living/carbon/attacker, var/mob/living/carbon/defender)
+	var/total_accuracy = 0
+	var/attacker_accuracy_modifier = attacker.get_attacker_accuracy_increase()
+	var/defender_accuracy_modifier = defender.get_defender_accuracy_decrease()
+	total_accuracy = total_accuracy - attacker_accuracy_modifier + defender_accuracy_modifier
+	return total_accuracy
+
+/mob/living/proc/get_attacker_accuracy_increase()
+	return 0
+
+/mob/living/proc/get_defender_accuracy_decrease()
+	return 0
+
+/mob/living/proc/attacked_by(var/obj/item/I, var/mob/living/user, var/def_zone, var/originator = null, var/crit = FALSE, var/flavor, var/force)
+	if(!I || !user)
+		return FALSE
+	switch(I.damtype)
+		if("brute")
+			take_organ_damage(force)
+			if (prob(33) && I.force) // Added blood for whacking non-humans too
+				var/turf/simulated/location = loc
+				if (istype(location))
+					location.add_blood_floor(src)
+		if("fire")
+			if (!(M_RESIST_COLD in mutations))
+				take_organ_damage(0, force)
+	return TRUE

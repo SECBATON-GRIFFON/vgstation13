@@ -113,7 +113,8 @@
 		PROCIZINE,
 		AUTISTNANITES,
 		XENOMICROBES,
-		PAISMOKE
+		PAISMOKE,
+		PANACEA
 	)
 
 /obj/item/weapon/reagent_containers/glass/beaker/vial/mystery/New()
