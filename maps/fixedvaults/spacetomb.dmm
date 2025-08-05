@@ -561,9 +561,7 @@
 	},
 /area/turret_protected/goonroom)
 "BN" = (
-/obj/effect/decal/cleanable/liquid_fuel{
-	name = "oil"
-	},
+/obj/effect/liquid/mapping/fuel,
 /turf/unsimulated/floor{
 	dir = 6;
 	icon_state = "alienvault";

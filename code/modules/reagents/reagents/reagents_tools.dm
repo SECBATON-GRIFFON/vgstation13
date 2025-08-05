@@ -22,21 +22,6 @@
 	glass_icon_state = "dr_gibb_glass"
 	glass_desc = "Unless you are an industrial tool, this is probably not safe for consumption."
 
-/datum/reagent/fuel/reaction_obj(var/obj/O, var/volume)
-	var/datum/reagent/self = src
-	if(..())
-		return 1
-	if(isturf(O.loc))
-		var/turf/T = get_turf(O)
-		self.reaction_turf(T, volume)
-
-/datum/reagent/fuel/reaction_turf(var/turf/simulated/T, var/volume)
-	if(..())
-		return 1
-
-	if(!(locate(/obj/effect/decal/cleanable/liquid_fuel) in T))
-		new /obj/effect/decal/cleanable/liquid_fuel(T, volume)
-
 /datum/reagent/fuel/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
