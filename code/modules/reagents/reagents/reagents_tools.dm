@@ -119,13 +119,6 @@
 	density = 1.11775
 	specheatcap = 2.71388
 
-/datum/reagent/lube/reaction_turf(var/turf/simulated/T, var/volume)
-	if(..())
-		return 1
-
-	if(volume >= 1)
-		T.wet(800, TURF_WET_LUBE)
-
 /datum/reagent/luminol
 	name = "Luminol"
 	id = LUMINOL

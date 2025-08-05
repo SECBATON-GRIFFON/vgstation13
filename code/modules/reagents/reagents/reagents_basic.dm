@@ -301,9 +301,6 @@
 	if(..())
 		return 1
 
-	if(volume >= 3) //Hardcoded
-		T.wet(800)
-
 	for (var/obj/effect/decal/cleanable/glue/G in T)
 		qdel(G)
 

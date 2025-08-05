@@ -290,8 +290,6 @@
 	if(..())
 		return 1
 
-	if(volume >= 3)
-		T.wet(800)
 	var/hotspot = (locate(/obj/effect/fire) in T)
 	if(hotspot)
 		var/datum/gas_mixture/lowertemp = T.remove_air(T:air:total_moles())
