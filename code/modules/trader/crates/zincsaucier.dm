@@ -206,6 +206,8 @@ var/global/global_cricket_population = 0
 	icon_state = "dishwasher"
 	pass_flags = PASSTABLE
 	anchored = FALSE
+	density = TRUE
+	layer = OPEN_DOOR_LAYER//so plates always appear properly above them
 	var/effective_range = 7
 	var/active = FALSE
 
@@ -221,7 +223,8 @@ var/global/global_cricket_population = 0
 	if(I.is_wrench(user))
 		wrenchAnchor(user,I, 4 SECONDS)
 	else if(istype(I, /obj/item/trash/plate) || istype(I, /obj/effect/decal/cleanable/broken_plate))
-		handle(I)
+		if(user.drop_item(I,loc))
+			handle(I)
 	else
 		..()
 
@@ -232,28 +235,28 @@ var/global/global_cricket_population = 0
 		to_chat(user,"<span class='warning'>\The [src] needs to be anchored first!<span>")
 		return
 	active = !active
+	playsound(loc,'sound/misc/click.ogg',30,0,-1)
+	if (active)
+		icon_state = "dishwasher_on"
+	else
+		icon_state = "dishwasher"
 	to_chat(user,"<span class='notice'>You toggle \the [src] [active ? "on" : "off"].</span>")
 
 /obj/structure/dishwasher/process()
 	if(!active)
 		return
-	var/pulled = FALSE
 	for(var/obj/effect/decal/cleanable/broken_plate/BP in view(effective_range, src))
-		if(BP.loc == loc)
-			handle(BP)
-			continue
-		pull(BP)
-		pulled = TRUE
+		if(BP.loc != loc)
+			playsound(BP.loc, 'sound/effects/vacuum.ogg', 25, 1)
+			playsound(loc, 'sound/effects/vacuum.ogg', 25, 1)
+		handle(BP)
 	for(var/obj/item/trash/plate/P in view(effective_range,src))
 		if(P.clean)
 			continue
-		if(P.loc == loc)
-			handle(P)
-			continue
-		pull(P)
-		pulled = TRUE
-	if(pulled)
-		playsound(src, 'sound/effects/vacuum.ogg', 25, 1)
+		if(P.loc != loc)
+			playsound(P.loc, 'sound/effects/vacuum.ogg', 25, 1)
+			playsound(loc, 'sound/effects/vacuum.ogg', 25, 1)
+		handle(P)
 
 /obj/structure/dishwasher/PreImpact(atom/movable/mover, speed)
 	if(istype(mover,/obj/item) && mover.throwing)
@@ -265,27 +268,42 @@ var/global/global_cricket_population = 0
 	else
 		return FALSE
 
-/obj/structure/dishwasher/proc/pull(atom/movable/AM)
-	AM.forceMove(loc)
-
 /obj/structure/dishwasher/proc/handle(obj/O)
 	var/obj/item/trash/plate/potential_stack = pref_stack(O)
 	var/obj/item/trash/plate/P
 	if(istype(O, /obj/item/trash/plate))
 		P = O
+		vacuum_anim(O)
 	else if(istype(O, /obj/effect/decal/cleanable/broken_plate))
+		vacuum_anim(O)
 		qdel(O)
 		P = new(src)
 	else
 		return
-	P.clean = TRUE
-	P.update_icon()
+	P.clean_act(CLEANLINESS_SPACECLEANER)
 	if(potential_stack)
 		P.forceMove(potential_stack)
 		potential_stack.plates += P
-		potential_stack.update_icon()
+		spawn(5)
+			potential_stack.update_icon()
+			playsound(loc, 'sound/effects/refill.ogg', 25, 1)
 	else
+		P.alpha = 0
+		spawn(5)//so we don't see the same plate appear twice
+			P.alpha = 255
+			playsound(loc, 'sound/effects/refill.ogg', 25, 1)
 		P.forceMove(loc)
+
+/obj/structure/dishwasher/proc/vacuum_anim(var/obj/O)
+	var/offset_x = ((O.x - x) * 32) + O.pixel_x
+	var/offset_y = ((O.y - y) * 32) + O.pixel_y
+	var/atom/movable/overlay/animation = anim(target = src,a_icon = 'icons/effects/effects.dmi',a_icon_state = "shieldsparkles",sleeptime = 15, lay = PROJECTILE_LAYER, offX = offset_x, offY = offset_y, col = "#C1FFFA", alph = 200, plane = EFFECTS_PLANE)
+	var/image/I = image('icons/effects/effects.dmi',"")
+	I.appearance = O.appearance
+	animation.overlays += I
+	animate(animation, pixel_x = 0, pixel_y = 0, time = 5, easing = SINE_EASING|EASE_OUT)
+	spawn(5)
+		qdel(animation)
 
 /obj/structure/dishwasher/proc/pref_stack(obj/to_stack)
 	for(var/obj/item/trash/plate/P in loc)
@@ -305,10 +323,10 @@ var/global/global_cricket_population = 0
 
 /obj/item/clothing/glasses/hud/hydro
 	name = "hydroHUD"
-	desc = "A heads-up display that displays information on plants and farm animals."
+	desc = "A heads-up display that displays information on plants and farm animals. It appears to feature corrective lenses too."
 	icon_state = "hydrohud"
 	item_state = "rwelding-g"
-	prescription = TRUE
+	nearsighted_modifier = -3
 	var/obj/item/device/analyzer/plant_analyzer/my_analyzer
 
 /obj/item/clothing/glasses/hud/hydro/New()
@@ -361,6 +379,15 @@ var/global/global_cricket_population = 0
 		update_icon_after_process = TRUE
 	..()
 
+//works as a lawnmower
+/obj/structure/bed/chair/vehicle/mower/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, var/glide_size_override = 0)
+	//if we successfully moved clear the flora in the current tile. We can't use newloc because we can't really check if we actually moved. i tried checking, and it doesn't work.
+	if(istype(loc,/turf))
+		var/turf/T=loc
+		for(var/obj/structure/flora/F in T.contents)
+			qdel(F)
+	return ..()
+
 /obj/effect/plantsegment/Crossed(var/atom/movable/AM)
 	if(istype(AM,/obj/structure/bed/chair/vehicle/mower))
 		die_off()
@@ -380,7 +407,8 @@ var/global/global_cricket_population = 0
 		visible_message("<span class='notice'>\The [src] stands up!</span>")
 		new /mob/living/simple_animal/hostile/mantini(T)
 		qdel(src)
-	..()
+	else
+		..()
 
 /mob/living/simple_animal/hostile/mantini
 	name = "mantini"
@@ -424,9 +452,8 @@ var/global/global_cricket_population = 0
 
 
 /obj/item/apiary/langstroth
-	name = "\improper Langstroth hive"
+	name = "\improper Langstroth hive kit"
 	desc = "A vertically-modular tray-based apiary. You can simply reach in with your hand and smokers will protect you while you harvest honeycombs."
-	icon = 'icons/obj/items_weird.dmi'
 	icon_state = "langstroth_item"
 	buildtype = /obj/machinery/apiary/langstroth
 
@@ -558,9 +585,25 @@ var/global/global_cricket_population = 0
 
 /obj/machinery/apiary/langstroth
 	name = "\improper Langstroth hive"
+	icon_state = "langstroth"
 	apiary_icon = "langstroth"
+	kit_type = /obj/item/apiary/langstroth
 
 /obj/machinery/apiary/langstroth/attack_hand(mob/user)
-	if(harvest_honeycombs())
-		playsound(loc, 'sound/effects/fan.ogg', 75, 1, -1)
-		visible_message("<span class='good'>\The [itemform] fans smoke, calming the residents for the harvest.</span>")
+	if(reagents.total_volume <= 0)
+		alert(user,"There's no honey to harvest yet!","[name]","Ok")
+		return
+
+	if(alert(user,"Harvest the honeycombs?[((queen_bees_inside || worker_bees_inside) && species.angery) ? " Be ready to handle some angry bees!" : ""]","[name]","Yes","No")== "Yes")
+		user.visible_message("<span class='notice'>\The [user] begins dismantling the apiary.</span>","<span class='danger'>You begin harvesting the honeycombs.</span>")
+
+		if((queen_bees_inside || worker_bees_inside) && species.angery)
+			playsound(loc, 'sound/effects/fan.ogg', 75, 1, -1)
+			anim(target = loc, a_icon = 'icons/effects/160x160.dmi', flick_anim = "incense", offX = -WORLD_ICON_SIZE*2+pixel_x, offY = -WORLD_ICON_SIZE*2+pixel_y)
+			visible_message("<span class='good'>The hive fans smoke, calming the residents for the harvest.</span>")
+
+		if(do_after(user, loc, 50))
+			if(harvest_honeycombs())
+				to_chat(user, "<span class='notice'>You successfully harvest the honeycombs.</span>")
+			else
+				to_chat(user, "<span class='notice'>You somehow didn't find a single honeycomb in there.</span>")

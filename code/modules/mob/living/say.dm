@@ -124,7 +124,7 @@ var/list/headset_modes = list(
 
 	//Muting
 	var/turf/T = get_turf(src)
-	if(T.mute_time > world.time)
+	if(T && T.mute_time > world.time)
 		return
 
 	var/message_mode = get_message_mode(message)
@@ -216,8 +216,9 @@ var/list/headset_modes = list(
 			if(findtext(speech.message, syn))
 				score.syndisponses += 1
 
-	var/message_range = 7
-	treat_speech(speech)
+	var/message_range = SPEECH_RANGE
+	if(!isDead()) //Dead players can still talk from dead bodies and it would be inconvenient to have these.
+		treat_speech(speech)
 	if(!speech.message)
 		qdel(speech)
 		return
@@ -246,9 +247,13 @@ var/list/headset_modes = list(
 	else
 		send_speech(speech, message_range, bubble_type)
 	radio(speech, message_mode) //Sends the radio signal
-	log_say("[name]/[key] [T?"(@[T.x],[T.y],[T.z])":"(@[x],[y],[z])"] [speech.language ? "As [speech.language.name] ":""]: [message_mode ? "([message_mode]):":""] [message]")
+	log_say_message(speech, message_mode, message)
 	qdel(speech)
 	return 1
+
+/mob/living/proc/log_say_message(var/datum/speech/speech, var/message_mode, var/message)
+	var/turf/T = get_turf(src)
+	log_say("[name]/[key] [T?"(@[T.x],[T.y],[T.z])":"(@[x],[y],[z])"] [speech.language ? "As [speech.language.name] ":""]: [message_mode ? "([message_mode]):":""] [message]")
 
 /mob/living/proc/resist_memes(var/datum/speech/speech)
 	if(stat || ear_deaf || speech.frequency || speech.speaker == src || !isliving(speech.speaker))
@@ -303,19 +308,24 @@ var/list/headset_modes = list(
 	if(isAI(src) && speech.frequency && !findtextEx(speech.job,"AI") && (speech.name != name))
 		var/mob/living/silicon/ai/ai = src
 		if(ai.mentions_on)
-			if(findtextEx(speech.message, "AI") || findtext(speech.message, ai.real_name))
+			/* Find "AI", "AI...", or "... AI ...", case-insensitive. Global flag set so regex.Replace() hits all matches. 					*/
+			/* We use a raw string (@"...") to avoid escaping all of the backslashes used in the pattern, as well as for readability.		*/
+			/* The first pattern is meant to help find "AI" all on its own, WITHOUT including "AI" when surrounded by letters, i.e. (rain) 	*/
+			/* It's also necessary to ensure "AI" is found when surrounded by, say, quotation marks in rendered_message, which is HTML.		*/
+			var/static/regex/pattern = regex(@"(?<!\l)AI(?!\l)|\Aai\Z|\Aai(?=\s)|(?<=\s)ai(?=\s)", "gi")
+			if(pattern.Find(speech.message) || findtext(speech.message, ai.real_name))
 				ai << 'sound/machines/twobeep.ogg'
-				rendered_message = replacetextEx(rendered_message, "AI", "<i style='color: blue;'>AI</i>")
+				rendered_message = pattern.Replace(rendered_message, "<i style='color: blue;'>AI</i>")
 				rendered_message = replacetext(rendered_message, ai.real_name, "<i style='color: blue;'>[ai.real_name]</i>")
 
 	// Runechat messages
-	if (ismob(speech.speaker) && client?.prefs.mob_chat_on_map && stat != UNCONSCIOUS && !is_deaf())
+	if (ismob(speech.speaker) && client?.prefs.get_pref(/datum/preference_setting/toggle/mob_chat_on_map) && stat != UNCONSCIOUS && !is_deaf())
 		create_chat_message(speech.speaker, speech.language, speech.message, speech.mode, speech.wrapper_classes)
-	else if (client?.prefs.obj_chat_on_map && stat != UNCONSCIOUS && !is_deaf())
+	else if (client?.prefs.get_pref(/datum/preference_setting/toggle/obj_chat_on_map) && stat != UNCONSCIOUS && !is_deaf())
 		create_chat_message(speech.speaker, speech.language, speech.message, speech.mode, speech.wrapper_classes)
 	if (ismob(speech.speaker))
 		show_message(rendered_message, type, deaf_message, deaf_type, src)
-	else if (!client.prefs.no_goonchat_for_obj || length_char(speech.message) > client?.prefs.max_chat_length) // Objects : only display if no goonchat on map or if the runemessage is too small.
+	else if (!client.prefs.get_pref(/datum/preference_setting/toggle/no_goonchat_for_obj) || length_char(speech.message) > client?.prefs.get_pref(/datum/preference_setting/numerical/max_chat_length)) // Objects : only display if no goonchat on map or if the runemessage is too small.
 		show_message(rendered_message, type, deaf_message, deaf_type, src)
 	else if (istype(speech.speaker, /obj/item/device/assembly/speaker) || istype(speech.speaker, /obj/item/device/assembly_frame)) //Speakers will still work if no_goonchat_for_obj is set to TRUE
 		show_message(rendered_message, type, deaf_message, deaf_type, src)
@@ -437,8 +447,14 @@ var/list/headset_modes = list(
 				var/mob/living/L = speech.speaker
 				var/themessage
 				var/datum/role/cultist/C = iscultist(L)
-				if (C && (C.cultist_role == CULTIST_ROLE_MENTOR))
-					themessage = text("<span class='sinisterbig'><b>[]:</b> []</span>",src.name,html_encode(speech.message))//mentor messages are bigger
+				if (C)
+					switch (C.cultist_role)
+						if (CULTIST_ROLE_MENTOR)
+							themessage = text("<span class='sinistermentor'><b>[]:</b> []</span>",src.name,html_encode(speech.message))
+						if (CULTIST_ROLE_ACOLYTE)
+							themessage = text("<span class='sinisteracolyte'><b>[]:</b> []</span>",src.name,html_encode(speech.message))
+						else
+							themessage = text("<span class='sinister'><b>[]:</b> []</span>",src.name,html_encode(speech.message))
 				else
 					themessage = text("<span class='sinister'><b>[]:</b> []</span>",src.name,html_encode(speech.message))
 				for(var/mob/M in player_list)
@@ -504,16 +520,39 @@ var/list/headset_modes = list(
 			I.affect_speech(speech, src)
 
 	if(getBrainLoss() >= 60)
-		speech.message = derpspeech(speech.message, stuttering)
+		if(braindamagespeechcooldown)
+			speech.message = null
+			emote("gibber")
+		else
+			braindamagespeechcooldown = TRUE
+			speech.message = derpspeech(speech.message, stuttering)
+			spawn(1 SECONDS)
+			braindamagespeechcooldown = FALSE
 
 	if(stuttering || (undergoing_hypothermia() == MODERATE_HYPOTHERMIA && prob(25)) )
 		speech.message = stutter(speech.message)
 
-	if(reagents && reagents.has_any_reagents(HYPERZINES))
-		speech.message = replacetext(speech.message," ","") // motor mouth
-		speech.message = replacetext(speech.message,",","") // motor mouth
-		speech.message = replacetext(speech.message,";","") // motor mouth
-		speech.message = replacetext(speech.message,"-","") // motor mouth
+	if (reagents)
+		var/datum/reagent/grugzone/G = reagents.get_reagent_by_type(/datum/reagent/grugzone)
+		if(G)
+			speech.message = replacetext(speech.message,"the ","") // me no use good gramar!
+			speech.message = replacetext(speech.message,"i ","me ")
+			speech.message = replacetext(speech.message," i"," me")
+			speech.message = replacetext(speech.message," i "," me ")
+			speech.message = replacetext(speech.message,"i'm","me")
+			speech.message = replacetext(speech.message,"im","me")
+			speech.message = replacetext(speech.message,"don't","no")
+			speech.message = replacetext(speech.message,"dont","no")
+			speech.message = replacetext(speech.message,"went","go")
+			speech.message = replacetext(speech.message,"is ","")
+			speech.message = replacetext(speech.message,"are ","")
+			
+		var/datum/reagent/hyperzine/H = reagents.get_reagent_by_type(/datum/reagent/hyperzine)//also checks for hyperzine subtypes like cocaine etc
+		if (H && (H.data != "no motor mouth"))
+			speech.message = replacetext(speech.message," ","") // motor mouth
+			speech.message = replacetext(speech.message,",","") // motor mouth
+			speech.message = replacetext(speech.message,";","") // motor mouth
+			speech.message = replacetext(speech.message,"-","") // motor mouth
 
 	for(var/obj/item/weapon/implant/vocal/VI in src)
 		if(VI.imp_in == src)
@@ -717,7 +756,8 @@ var/list/headset_modes = list(
 	var/critical = InCritical()
 
 	log_whisper("[key_name(src)] ([formatLocation(src)]): [message]")
-	treat_speech(speech)
+	if(!isDead())
+		treat_speech(speech)
 	if(!speech.message)
 		qdel(speech)
 		return
@@ -732,7 +772,8 @@ var/list/headset_modes = list(
 		speech.mode= SPEECH_MODE_FINAL
 		whispers = "whispers with their final breath"
 		said_last_words = src.stat
-	treat_speech(speech)
+	if(!isDead())
+		treat_speech(speech)
 	if(!speech.message)
 		qdel(speech)
 		return

@@ -9,43 +9,40 @@ var/datum/subsystem/more_init/SSmore_init
 	NEW_SS_GLOBAL(SSmore_init)
 
 /datum/subsystem/more_init/Initialize(timeofday)
+	log_debug("Last crew score: [last_crewscore], camera break chance: [clamp(10-(last_crewscore/1000),0,25)], \
+		light tube break chance: [clamp(2-(last_crewscore/5000),0,4)], light bulb break chance: [clamp(5-(last_crewscore/2000),0,10)]")
 	initialize_rune_words()
 	library_catalog.initialize()
 	init_mind_ui()
 	createPaiController()
 	ticker.init_snake_leaderboard()
 	ticker.init_minesweeper_leaderboard()
-	setup_news()
+	pick_discounted_items()
 
 	var/watch=start_watch()
-	log_startup_progress("Caching damage icons...")
 	cachedamageicons()
-	log_startup_progress("  Finished caching damage icons in [stop_watch(watch)]s.")
+	log_debug("  Finished caching damage icons in [stop_watch(watch)]s.", FALSE)
 
 	watch=start_watch()
-	log_startup_progress("Caching space parallax simulation...")
 	create_global_parallax_icons()
-	log_startup_progress("  Finished caching space parallax simulation in [stop_watch(watch)]s.")
+	log_debug("  Finished caching space parallax simulation in [stop_watch(watch)]s.", FALSE)
 
-	if (!config.skip_minimap_generation)
+	init_sensed_explosions_list()
+	if (!config.skip_holominimap_generation)
 		watch=start_watch()
-		log_startup_progress("Generating holominimaps...")
 		generateHoloMinimaps()
-		log_startup_progress("  Finished holominimaps in [stop_watch(watch)]s.")
+		log_debug("  Finished holominimaps in [stop_watch(watch)]s.", FALSE)
 	else
 		//holomaps_initialized = 1 //Assume holominimaps were prerendered, the worst thing that happens if they're missing is that the minimap consoles don't show a minimap - NO IT'S NOT YOU DUMBFUCK, THOSE VARS EXIST FOR A REASON
 		log_startup_progress("Not generating holominimaps - SKIP_HOLOMINIMAP_GENERATION found in config/config.txt")
-	..()
 
 	if(config.media_base_url)
 		watch = start_watch()
-		log_startup_progress("Caching jukebox playlists...")
 		load_juke_playlists()
-		log_startup_progress("  Finished caching jukebox playlists in [stop_watch(watch)]s.")
+		log_debug("  Finished caching jukebox playlists in [stop_watch(watch)]s.", FALSE)
 	..()
 
 	watch=start_watch()
-	log_startup_progress("Doing the other misc. initializations...")
 	process_teleport_locs()				//Sets up the wizard teleport locations
 	process_ghost_teleport_locs()		//Sets up ghost teleport locations.
 	process_adminbus_teleport_locs()	//Sets up adminbus teleport locations.
@@ -57,7 +54,11 @@ var/datum/subsystem/more_init/SSmore_init
 	CHECK_TICK
 	centcomm_store = new
 	create_randomized_reagents()
-	log_startup_progress("Finished doing the other misc. initializations in [stop_watch(watch)]s.")
+	log_debug("Finished doing the other misc. initializations in [stop_watch(watch)]s.", FALSE)
+
+/proc/init_sensed_explosions_list()
+	for (var/z = 1 to world.maxz)
+		sensed_explosions["z[z]"] = list()
 
 /proc/cache_machinery_components_rating()
 	var/list/cache = list()

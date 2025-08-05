@@ -23,7 +23,7 @@
 		/datum/malfhack_ability/oneuse/make_autoborger,
 		/datum/malfhack_ability/oneuse/overload_quiet,
 	)
-	
+
 	var/autoborger = FALSE
 	var/make_mommis = FALSE
 	var/is_borging = FALSE
@@ -108,12 +108,14 @@
 		return
 	if(world.timeofday >= upgrade_finished && upgrade_finished != -1)
 		if(istype(upgrading, /obj/item/weapon/cell))
-			if(R.cell)
-				R.cell.updateicon()
-				R.cell.forceMove(get_turf(src))
+			var/obj/item/weapon/cell/Rcell = R.get_cell()
+			if (Rcell)
+				Rcell.updateicon()
+				Rcell.forceMove(get_turf(src))
 			upgrade_holder -= upgrading
 			upgrading.forceMove(R)
-			R.cell = upgrading
+			var/datum/robot_component/cell_component = R.components["power cell"]
+			cell_component.install(null,upgrading)
 			upgrading = 0
 			upgrade_finished = -1
 			to_chat(R, "<span class='notice'>Upgrade completed.</span>")
@@ -247,13 +249,19 @@
 	capacitor_stored = min(capacitor_stored + (20 * transfer_rate_coeff), capacitor_max)
 	return 1
 
+/obj/machinery/recharge_station/Exited(var/atom/movable/O) // Used for teleportation from within the recharge station.
+	if (O == occupant)
+		occupant = null
+		build_icon()
+	..()
+
 /obj/machinery/recharge_station/proc/go_out(var/turf/T)
 	if(!T)
 		T = get_turf(src)
 	if(!( src.occupant ))
 		return
 	if(ishuman(occupant) && is_borging) // No escaping!
-		return 
+		return
 	if(upgrading)
 		to_chat(occupant, "<span class='notice'>The upgrade hasn't completed yet, interface with \the [src] again to halt the process.</span>")
 		return
@@ -269,7 +277,7 @@
 	src.use_power = MACHINE_POWER_USE_IDLE
 	// Removes dropped items/magically appearing mobs from the charger too
 	for (var/atom/movable/x in src.contents)
-		if(!(x in upgrade_holder | component_parts))
+		if(!(x in (upgrade_holder | component_parts)))
 			x.forceMove(src.loc)
 	return
 
@@ -319,15 +327,17 @@
 	build_icon()
 	src.use_power = MACHINE_POWER_USE_ACTIVE
 	if(isrobot(R))
-		var/mob/living/silicon/robot/RR = R
 		for(var/obj/O in upgrade_holder)
 			if(istype(O, /obj/item/weapon/cell))
 				var/obj/item/weapon/cell/some_cell = O
-				if(!RR.cell)
-					to_chat(usr, "<big><span class='notice'>Power Cell replacement available. You may opt in with the 'Apply Cell Upgrade' verb in the Object tab.</span></big>")
-				else
-					if(some_cell.maxcharge > RR.cell.maxcharge)
-						to_chat(usr, "<span class='notice'>Power Cell upgrade available. You may opt in with the 'Apply Cell Upgrade' verb in the Object tab.</span></big>")
+				var/obj/item/weapon/cell/Rcell = R.get_cell()
+				var/word = null
+				if(!Rcell)
+					word = "replacement"
+				else if(some_cell.maxcharge > Rcell.maxcharge)
+					word = "upgrade"
+				if(word)
+					to_chat(R, "<big><span class='notice'>Power Cell [word] available. You may opt in with the 'Apply Cell Upgrade' verb in the Object tab.</span></big>")
 	else if(ishuman(R) && autoborger && !is_borging)
 		do_autoborg()
 
@@ -365,9 +375,9 @@
 	var/limbs_to_ignore = list(/datum/organ/external/head, /datum/organ/external/chest, /datum/organ/external/groin)
 	var/list/limbs = list()
 	for(var/datum/organ/external/E in H.organs)
-		if(!E.is_robotic() && !is_type_in_list(E, limbs_to_ignore)) 
+		if(!E.is_robotic() && !is_type_in_list(E, limbs_to_ignore))
 			limbs += E
-	
+
 	build_icon()
 	flick("borgchargerfuckstart", src)
 	H.AdjustKnockdown(10)
@@ -385,16 +395,16 @@
 		E.explode()
 		H.handle_regular_hud_updates()
 		sleep(10)
-	
+
 	if(!src)
 		return
-	
+
 	var/mob/living/silicon/robot/R
 	if(make_mommis)
 		R = H.MoMMIfy(TRUE, TRUE, aiowner)
-	else 
+	else
 		R = H.Robotize(TRUE , TRUE , aiowner)
-	
+
 	occupant = R
 
 	if(!R)
@@ -407,11 +417,13 @@
 		is_borging = FALSE
 		return
 
-	R.cell.maxcharge = 5000	
-	R.cell.charge = 5000
+	var/obj/item/weapon/cell/Rcell = R.get_cell()
+	if(Rcell)
+		Rcell.maxcharge = 5000
+		Rcell.charge = 5000
 	R.SetKnockdown(3)
 
-	R.custom_name = pick(autoborg_silly_names) 
+	R.custom_name = pick(autoborg_silly_names)
 	R.namepick_uses = 1
 	R.updateicon()
 	R.updatename()
@@ -443,22 +455,22 @@
 				continue
 			return
 	go_out(T)
-	
+
 
 /obj/machinery/recharge_station/MouseDropTo(atom/movable/O as mob|obj, mob/user as mob)
 	if(!isliving(O) || !isliving(user))
 		return
-	if(O.loc == user || !isturf(O.loc) || !isturf(user.loc) || !user.Adjacent(O)) 
+	if(O.loc == user || !isturf(O.loc) || !isturf(user.loc) || !user.Adjacent(O))
 		return
-	if(user.incapacitated() || user.lying) 
+	if(user.incapacitated() || user.lying)
 		return
-	if(!Adjacent(user) || !user.Adjacent(src)) 
+	if(!Adjacent(user) || !user.Adjacent(src))
 		return
 	if(O.locked_to)
 		return
 	if(O.anchored)
 		return
-	if(!isrobot(O) && !ishuman(O)) 
+	if(!isrobot(O) && !ishuman(O))
 		return
 	if(!isrobot(user) && !ishuman(user))
 		return
@@ -466,5 +478,6 @@
 	if(L.stat == DEAD)
 		to_chat(user, "<span class='warning'>[O] is already dead!</span>")
 		return
-	if(do_after(user, src, 20))
+	user.visible_message("[user] starts stuffing \the [O] into \the [src].", "You start stuffing \the [O] into \the [src].")
+	if(do_after_many(user,list(O,src), 20))
 		mob_enter(O)

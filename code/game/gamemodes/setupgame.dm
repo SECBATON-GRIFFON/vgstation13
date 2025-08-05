@@ -49,7 +49,7 @@ var/ELVISBLOCK = 0
 
 // Powers
 var/SOBERBLOCK = 0
-var/JAMSIGNALSBLOCK = 0
+var/PSYRESISTBLOCK = 0
 var/STRONGBLOCK = 0
 //var/SHADOWBLOCK = 0
 var/FARSIGHTBLOCK = 0
@@ -62,6 +62,7 @@ var/EMPATHBLOCK = 0
 var/SUPERFARTBLOCK = 0
 var/IMMOLATEBLOCK = 0
 var/POLYMORPHBLOCK = 0
+var/CHARGEBLOCK = 0
 
 ///////////////////////////////
 // /vg/ Mutations
@@ -159,7 +160,7 @@ var/LACTOSEBLOCK = 0
 
 	// Powers
 	SOBERBLOCK     = getAssignedBlock("SOBER",      numsToAssign, DNA_HARD_BOUNDS, good=1)
-	JAMSIGNALSBLOCK = getAssignedBlock("JAMSIGNALS",  numsToAssign, DNA_HARD_BOUNDS, good=1)
+	PSYRESISTBLOCK = getAssignedBlock("PSYRESIST",  numsToAssign, DNA_HARD_BOUNDS, good=1)
 	//SHADOWBLOCK  = getAssignedBlock("SHADOW",     numsToAssign, DNA_HARDER_BOUNDS, good=1)
 	FARSIGHTBLOCK  = getAssignedBlock("FARSIGHT",   numsToAssign, DNA_HARDER_BOUNDS, good=1)
 	CHAMELEONBLOCK = getAssignedBlock("CHAMELEON",  numsToAssign, DNA_HARDER_BOUNDS, good=1)
@@ -172,6 +173,7 @@ var/LACTOSEBLOCK = 0
 	EMPATHBLOCK    = getAssignedBlock("EMPATH",     numsToAssign, DNA_HARD_BOUNDS, good=1)
 	SUPERFARTBLOCK = getAssignedBlock("SUPERFART",  numsToAssign, DNA_HARDER_BOUNDS, good=1)
 	POLYMORPHBLOCK = getAssignedBlock("POLYMORPH",  numsToAssign, DNA_HARDER_BOUNDS, good=1)
+	CHARGEBLOCK    = getAssignedBlock("CHARGE",     numsToAssign, DNA_HARDER_BOUNDS, good=1)
 
 	//
 	// /vg/ Blocks

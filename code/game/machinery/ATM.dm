@@ -40,6 +40,7 @@ log transactions
 	..()
 	machine_id = "[station_name()] ATM #[multinum_display(num_financial_terminals,4)]"
 	num_financial_terminals++
+	update_icon()
 	if(ticker)
 		initialize()
 
@@ -47,6 +48,18 @@ log transactions
 	if(atm_card)
 		QDEL_NULL(atm_card)
 	..()
+
+/obj/machinery/atm/power_change()
+	..()
+	update_icon()
+
+/obj/machinery/atm/update_icon()
+	if(stat & (FORCEDISABLE|NOPOWER))
+		icon_state = "atm_off"
+		kill_moody_light()
+	else
+		icon_state = "atm"
+		update_moody_light('icons/lighting/moody_lights.dmi', "overlay_atm")
 
 /obj/machinery/atm/process()
 	if(stat & (FORCEDISABLE|NOPOWER))
@@ -105,7 +118,7 @@ log transactions
 				playsound(loc, 'sound/items/polaroid2.ogg', 50, 1)
 
 			//create a transaction log entry
-			new /datum/transaction(authenticated_account, "Credit deposit", round(dosh.worth * dosh.amount * (multiplier/100)), machine_id)
+			new /datum/transaction(authenticated_account, "Credit deposit", round(dosh.worth * dosh.amount * (multiplier/100)), machine_id, source_name = user.real_name)
 
 			to_chat(user, "<span class='info'>You insert [round(dosh.worth * dosh.amount * (multiplier/100))] credit\s into \the [src].</span>")
 			src.attack_hand(user)
@@ -161,18 +174,18 @@ log transactions
 					if(CHANGE_SECURITY_LEVEL)
 						dat += "Select a new security level for this account:<br><hr>"
 						var/text = "Zero - Either the account number or card is required to access this account. Vendor transactions will pay from your bank account if your virtual wallet has insufficient funds."
-						if(authenticated_account.security_level != 0)
+						if(authenticated_account.security_level != SECURITY_AUTO_LOGIN)
 							if(authenticated_account.disabled)
 								text = "<b>ACCOUNT DISABLED CAN NOT USE</b><br><s>[text]</s>"
 							else
 								text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=0'>[text]</a>"
 						dat += "[text]<hr>"
 						text = "One - An account number and pin must be manually entered to access this account and process transactions."
-						if(authenticated_account.security_level != 1)
+						if(authenticated_account.security_level != SECURITY_MANUAL_LOGIN)
 							text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=1'>[text]</a>"
 						dat += "[text]<hr>"
 						text = "Two - In addition to account number and pin, a card is required to access this account and process transactions."
-						if(authenticated_account.security_level != 2)
+						if(authenticated_account.security_level != SECURITY_CARD_AND_MANUAL_LOGIN)
 							text = "<A href='?src=\ref[src];choice=change_security_level;new_security_level=2'>[text]</a>"
 						dat += {"[text]<hr><br>
 							<A href='?src=\ref[src];choice=view_screen;view_screen=0'>Back</a>"}
@@ -270,7 +283,7 @@ log transactions
 			dat += "<span class='warning'>Unable to connect to accounts database, please retry and if the issue persists contact Nanotrasen IT support.</span>"
 			reconnect_database()
 
-		user << browse(dat,"window=atm;size=550x650")
+		user << browse(HTML_SKELETON(dat),"window=atm;size=550x650")
 	else
 		user << browse(null,"window=atm")
 
@@ -298,13 +311,13 @@ log transactions
 					else if(transfer_amount <= authenticated_account.money)
 						var/target_account_number = text2num(href_list["target_acc_number"])
 						var/transfer_purpose = copytext(sanitize(href_list["purpose"]),1,MAX_MESSAGE_LEN)
-						if(linked_db.charge_to_account(target_account_number, authenticated_account.owner_name, transfer_purpose, machine_id, transfer_amount))
+						if(linked_db.charge_to_account(target_account_number, authenticated_account.owner_name, transfer_purpose, machine_id, transfer_amount, usr.real_name))
 							to_chat(usr, "[bicon(src)]<span class='info'>Funds transfer successful.</span>")
 							authenticated_account.money -= transfer_amount
 
 							//create an entry in the account transaction log
 							new /datum/transaction(authenticated_account, transfer_purpose, "-[transfer_amount]",\
-													machine_id, "Account #[target_account_number]")
+													machine_id, "Account #[target_account_number]", source_name = usr.real_name)
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>Funds transfer failed.</span>")
 
@@ -372,7 +385,7 @@ log transactions
 							withdraw_arbitrary_sum(usr,amount)
 
 							//create an entry in the account transaction log
-							new /datum/transaction(authenticated_account, "Credit withdrawal", "-[amount]", machine_id)
+							new /datum/transaction(authenticated_account, "Credit withdrawal", "-[amount]", machine_id, source_name = usr.real_name)
 						else
 							to_chat(usr, "[bicon(src)]<span class='warning'>You don't have enough funds to do that!</span>")
 			if("withdraw_to_wallet")
@@ -392,7 +405,7 @@ log transactions
 
 							//create an entry in the account transaction log
 							new /datum/transaction(authenticated_account, "Credit transfer to wallet", "-[amount]",\
-													machine_id, card_id.virtual_wallet.owner_name)
+													machine_id, card_id.virtual_wallet.owner_name, source_name = usr.real_name)
 
 							new /datum/transaction(card_id.virtual_wallet, "Credit transfer to wallet", "[amount]",\
 													machine_id, authenticated_account.owner_name)
@@ -415,7 +428,7 @@ log transactions
 
 							//create an entry in the account transaction log
 							new /datum/transaction(authenticated_account, "Credit transfer from wallet", "[amount]",\
-													machine_id, card_id.virtual_wallet.owner_name)
+													machine_id, card_id.virtual_wallet.owner_name, source_name = usr.real_name)
 
 							new /datum/transaction(card_id.virtual_wallet, "Credit transfer from wallet", "-[amount]",\
 													machine_id, authenticated_account.owner_name)

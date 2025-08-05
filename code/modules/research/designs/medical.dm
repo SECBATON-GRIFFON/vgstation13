@@ -99,6 +99,16 @@
 	category = "Medical"
 	build_path = /obj/item/clothing/glasses/hud/health
 
+/datum/design/health_hud_prescription
+	name = "Health Scanner Glasses"
+	desc = "Prescription lenses featuring a heads-up display that scans the humans in view and provides accurate data about their health status."
+	id = "health_hud_prescription"
+	req_tech = list(Tc_BIOTECH = 2, Tc_MAGNETS = 3)
+	build_type = PROTOLATHE
+	materials = list(MAT_IRON = 50, MAT_GLASS = 50)
+	category = "Medical"
+	build_path = /obj/item/clothing/glasses/hud/health/prescription
+
 /datum/design/chemmask
 	name = "Chemical Mask"
 	desc = "A rather sinister mask designed for connection to a chemical pack, providing the pack's safeties are disabled."
@@ -119,6 +129,16 @@
 	category = "Medical"
 	build_path = /obj/item/device/antibody_scanner
 
+/datum/design/vial_box
+	name = "Vial Box"
+	desc = "A small box for storing vials."
+	id = "vial_box"
+	req_tech = list(Tc_MATERIALS = 2)
+	build_type = PROTOLATHE
+	materials = list(MAT_GLASS = 50, MAT_IRON = 200)
+	category = "Medical"
+	build_path = /obj/item/weapon/storage/lockbox/vials
+
 /datum/design/plasmabeaker
 	name = "Plasma Beaker"
 	desc = "A beaker designed to act as a catalyst in some reactions."
@@ -128,3 +148,13 @@
 	materials = list(MAT_IRON = 3750, MAT_PLASMA = 8000)
 	category = "Medical"
 	build_path = /obj/item/weapon/reagent_containers/glass/beaker/large/plasma
+
+/datum/design/ntresearchsleeper
+	name = "Experimental Sleeper Upgrade Module"
+	desc = "An advanced module for sleepers, adding several advanced capabilities depending on hardware."
+	id = "ntresearchsleeper"
+	req_tech = list(Tc_ENGINEERING = 5, Tc_BIOTECH = 7, Tc_NANOTRASEN = 1)
+	build_type = PROTOLATHE
+	materials = list(MAT_IRON = 7500, MAT_GLASS = 3750, MAT_PLASMA = 3750, MAT_DIAMOND = 200)
+	category = "Medical"
+	build_path = /obj/item/device/plugin/sleeper/ntresearch

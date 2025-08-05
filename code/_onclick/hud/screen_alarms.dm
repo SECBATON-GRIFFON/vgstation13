@@ -103,7 +103,7 @@ var/global/list/screen_alarms_locs = list(
 		var/obj/abstract/screen/alert/alert = mobalerts[mobalerts[i]]
 		if(alert.icon_state == "template")
 			if(!icon_pref)
-				icon_pref = ui_style2icon(mymob.client.prefs.UI_style)
+				icon_pref = ui_style2icon(mymob.client.prefs.get_pref(/datum/preference_setting/string/UI_style))
 			alert.icon = icon_pref
 		alert.screen_loc = screen_alarms_locs[i]
 		mymob.client.screen |= alert
@@ -160,7 +160,7 @@ var/global/list/screen_alarms_locs = list(
 /obj/abstract/screen/alert/New()
 	..()
 	if(timeout)
-		add_timer(new /callback(src, src::qdel_self()), timeout)
+		add_timer(new /callback(src, nameof(src::qdel_self())), timeout)
 	if(emph)
 		overlays.Add(image('icons/mob/screen_alarms.dmi', icon_state = "emph_outline"))
 

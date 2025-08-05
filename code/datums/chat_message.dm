@@ -61,7 +61,7 @@ var/runechat_icon = null
 	if (owned_by)
 		owned_by.seen_messages.Remove(src)
 		owned_by.images.Remove(message)
-		owned_by.mob.unregister_event(/event/destroyed, src, src::qdel_self())
+		owned_by.mob.unregister_event(/event/destroyed, src, nameof(src::qdel_self()))
 	owned_by = null
 	message_loc = null
 	message = null
@@ -81,10 +81,10 @@ var/runechat_icon = null
 	set waitfor = FALSE
 	// Register client who owns this message
 	owned_by = owner.client
-	owner.register_event(/event/destroyed, src, src::qdel_self())
+	owner.register_event(/event/destroyed, src, nameof(src::qdel_self()))
 
 	// Clip message
-	var/maxlen = owned_by.prefs.max_chat_length
+	var/maxlen = owned_by.prefs.get_pref(/datum/preference_setting/numerical/max_chat_length)
 	if (length_char(text) > maxlen)
 		text = copytext_char(text, 1, maxlen + 1) + "..." // BYOND index moment
 
@@ -136,7 +136,7 @@ var/runechat_icon = null
 	if(!TICK_CHECK)
 		return finish_image_generation(mheight, target, owner, complete_text, lifespan)
 
-	var/callback/our_callback = new /callback(src, src::finish_image_generation(), mheight, target, owner, complete_text, lifespan)
+	var/callback/our_callback = new /callback(src, nameof(src::finish_image_generation()), mheight, target, owner, complete_text, lifespan)
 	SSrunechat.message_queue += our_callback
 	return
 
@@ -155,7 +155,7 @@ var/runechat_icon = null
 			combined_height += msg.approx_lines
 			var/sched_remaining = msg.scheduled_destruction - world.time
 			if (sched_remaining > CHAT_MESSAGE_SPAWN_TIME)
-				var/remaining_time = (sched_remaining) * (CHAT_MESSAGE_EXP_DECAY ** idx++) * (CHAT_MESSAGE_HEIGHT_DECAY ** combined_height)
+				var/remaining_time = max(0, (sched_remaining) * (CHAT_MESSAGE_EXP_DECAY ** idx++) * (CHAT_MESSAGE_HEIGHT_DECAY ** combined_height))
 				msg.scheduled_destruction = world.time + remaining_time
 				spawn(remaining_time)
 					msg.end_of_life()
@@ -213,7 +213,7 @@ var/runechat_icon = null
 	// Check for virtual speakers (aka hearing a message through a radio)
 	if (existing_extra_classes.Find("radio"))
 		return
-
+	raw_message = html_encode(raw_message)
 	var/list/extra_classes = list()
 	extra_classes += existing_extra_classes
 

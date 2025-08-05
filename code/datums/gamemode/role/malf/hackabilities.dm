@@ -10,6 +10,12 @@
 /datum/malfhack_ability/New(var/obj/machinery/M)
 	machine = M
 
+/datum/malfhack_ability/Destroy()
+	if (machine) // In case we got destroyed but the machine wasn't, this can happen in edge cases.
+		machine.hack_abilities -= src
+		machine = null
+	. = ..()
+
 /datum/malfhack_ability/proc/activate(var/mob/living/silicon/A)
 	var/datum/role/malfAI/M = A.mind.GetRole(MALF)
 	if(!istype(A) || !istype(M))
@@ -134,9 +140,10 @@
 	S.name = "[A.name] APC Copy"
 	S.add_spell(new /spell/aoe_turf/corereturn, "malf_spell_ready",/obj/abstract/screen/movable/spell_master/malf)
 
-	if (seclevel2num(get_security_level()) == SEC_LEVEL_DELTA)
+	var/datum/faction/malf/malf_faction = find_active_faction_by_member(A.mind.GetRole(MALF), A.mind)
+	if(malf_faction && malf_faction.stage >= FACTION_ENDGAME) /* If the shunting, malfunctioning AI is currently taking over the station... */
 		for(var/obj/item/weapon/pinpointer/point in pinpointer_list)
-			point.target = machine //the pinpointer will detect the shunted AI
+			point.target = machine /* ...then override all pinpointer targets to point at the APC in which the AI is shunted. */
 	S.update_perception()
 	A.mind.transfer_to(S)
 	S.cancel_camera()
@@ -240,7 +247,7 @@
 			T.cover.shake_animation(4, 4, 0.2 SECONDS, 20)
 	else
 		machine.shake_animation(4, 4, 0.2 SECONDS, 20)
-	spark(machine)
+	spark(machine, surfaceburn = TRUE)
 	spawn(4 SECONDS)
 		if(machine)
 			explosion(get_turf(machine), -1, 2, 3, 4) // Welding tank sized explosion
@@ -302,7 +309,7 @@
 	if(!fakename)
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
-	var/fakeid = copytext(sanitize(input(A, "Please enter an ID for the message .", "Occupation?", "Assistant") as text|null), 1, MAX_NAME_LEN)
+	var/fakeid = copytext(sanitize(input(A, "Please enter an ID for the message.", "Occupation?", "Assistant") as text|null), 1, MAX_NAME_LEN)
 	if(!fakeid)
 		to_chat(A, "<span class='warning'>Message cancelled.</span>")
 		return
@@ -481,6 +488,13 @@
 		return
 
 	MF.stage(FACTION_ENDGAME)
+	switch(A.chosen_core_icon_state)
+		if("ai-malf-shodan")
+			command_alert(/datum/command_alert/malf_announce/shodan)
+		if("ai-xerxes")
+			command_alert(/datum/command_alert/malf_announce/xerxes)
+		else
+			command_alert(/datum/command_alert/malf_announce)
 	M.core_upgrades -= src
 
 //--------------------------------------------------------
@@ -498,6 +512,20 @@
 	A.eyeobj.high_res = 1
 	to_chat(A, "<span class='warning'>High Resolution camera software installed.</span>")
 	A.update_perception()
+
+//--------------------------------------------------------
+
+/datum/malfhack_ability/core/explode
+	name = "Explosive Core"
+	desc = "Rigs your core to explode upon your untimely deactivation."
+	icon = "radial_alertboom"
+	cost = 20
+
+/datum/malfhack_ability/core/explode/activate(mob/living/silicon/ai/A)
+	if(!..())
+		return
+	A.explosive = TRUE
+	to_chat(A, "<span class='warning'>Your core will now detonate if it gets destroyed.</span>")
 
 //--------------------------------------------------------
 

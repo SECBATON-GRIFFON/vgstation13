@@ -6,10 +6,10 @@
 	summon_type = list(/mob/living/simple_animal/hostile/scarybat)
 	summon_amt = 3
 
-	charge_max = 2 MINUTES
+	charge_cooldown_max = 2 MINUTES
 	cooldown_min = 2 MINUTES
 	invocation = ""
-	invocation_type = SpI_NONE
+	invocation_type = SP_INV_NONE
 
 	override_base = "vamp"
 
@@ -41,12 +41,13 @@
 
 	return locs
 
-/spell/aoe_turf/conjure/bats/before_cast(list/targets, user)
+/spell/aoe_turf/conjure/bats/before_cast(list/targets, user, bypass_range = 0)
 	return targets
 
 /spell/aoe_turf/conjure/bats/on_creation(atom/movable/AM, mob/user)
 	var/datum/role/vampire/V = isvampire(user)
 	var/mob/living/simple_animal/hostile/scarybat/SB = AM
+	SB.supernatural = TRUE
 	if (V && V.faction)
 		SB.vamp_fac = V.faction
 		V.faction.members += SB

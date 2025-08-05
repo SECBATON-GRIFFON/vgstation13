@@ -63,7 +63,6 @@ DEBUG
 			log_admin("jobban_keylist was empty")
 	else
 		if(!SSdbcore.Connect())
-			world.log << "Database connection failed. Reverting to the legacy ban system."
 			diary << "Database connection failed. Reverting to the legacy ban system."
 			config.ban_legacy_system = 1
 			jobban_loadbanfile()
@@ -74,7 +73,7 @@ DEBUG
 			list(
 				"bantype" = "JOB_PERMABAN"
 			))
-		if(!query.Execute())
+		if(!query.Execute(FALSE))
 			message_admins("Error: [query.ErrorMsg()]")
 			log_sql("Error: [query.ErrorMsg()]")
 			qdel(query)
@@ -83,7 +82,6 @@ DEBUG
 		while(query.NextRow())
 			var/ckey = query.item[1]
 			var/job = query.item[2]
-
 			jobban_keylist.Add("[ckey] - [job]")
 		qdel(query)
 		//Job tempbans
@@ -91,7 +89,7 @@ DEBUG
 			list(
 				"bantype" = "JOB_TEMPBAN",
 			))
-		if(!query1.Execute())
+		if(!query1.Execute(FALSE))
 			log_sql("Error: [query1.ErrorMsg()]")
 			qdel(query1)
 			return

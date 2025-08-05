@@ -12,7 +12,6 @@ var/paxban_keylist[0]
 
 /proc/paxban_loadbanfile()
 	if(!SSdbcore.Connect())
-		world.log << "Database connection failed. Skipping pax ban loading"
 		diary << "Database connection failed. Skipping pax ban loading"
 		return
 
@@ -22,7 +21,7 @@ var/paxban_keylist[0]
 			"pax_perma" = "pax_PERMABAN",
 			"pax_temp" = "pax_TEMPBAN",
 		))
-	if(!query.Execute())
+	if(!query.Execute(FALSE))
 		message_admins("Error: [query.ErrorMsg()]")
 		log_sql("Error: [query.ErrorMsg()]")
 		qdel(query)

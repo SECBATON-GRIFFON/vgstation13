@@ -85,6 +85,9 @@ var/station_name = null
 var/game_version = "veegee"
 var/changelog_hash = ""
 var/game_year = (text2num(time2text(world.realtime, "YYYY")) + 544)
+var/time_taken_to_init = 0
+var/time_taken_in_lobby = 0
+var/roundstart_timestamp = 0
 
 var/going = 1.0
 var/master_mode = "extended"//"extended"
@@ -179,13 +182,13 @@ var/datum/nanomanager/nanomanager = new()
 
 var/sqladdress = "localhost"
 var/sqlport = 3306
-var/sqldb = "tgstation"
+var/sqldb = "feedback"
 var/sqllogin = "root"
 var/sqlpass = ""
 
 	// Feedback gathering sql connection
 
-var/sqlfdbkdb = "test"
+var/sqlfdbkdb = "feedback"
 var/sqlfdbklogin = "root"
 var/sqlfdbkpass = ""
 
@@ -274,6 +277,10 @@ var/datum/stat_collector/stat_collection = new
 //When enabled, starvation kills
 var/global/hardcore_mode = 0
 
+//Mass Buddha Mode
+//When enabled, all current mobs and all new carbon mobs will be in buddha mode (no crit/death)
+var/global/buddha_mode_everyone = 0
+
 //Global list of all unsimulated mineral turfs for xenoarch
 var/global/list/mineral_turfs = list()
 var/global/list/static_list = list('sound/effects/static/static1.ogg','sound/effects/static/static2.ogg','sound/effects/static/static3.ogg','sound/effects/static/static4.ogg','sound/effects/static/static5.ogg',)
@@ -292,27 +299,32 @@ var/list/centcommMiniMaps = list()
 var/list/extraMiniMaps = list()
 
 var/list/holomap_markers = list()
+var/list/workplace_markers = list()
 
 var/holomaps_initialized = 0
 
 //Broken mob list
 var/list/blacklisted_mobs = list(
-		/mob/living/simple_animal/space_worm,							// Unfinished. Very buggy, they seem to just spawn additional space worms everywhere and eating your own tail results in new worms spawning.
-		/mob/living/simple_animal/hostile/humanoid,						// JUST DON'T DO IT, OK?
-		/mob/living/simple_animal/hostile/retaliate/cockatrice,			// I'm just copying this from transmog.
-		/mob/living/simple_animal/hostile/giant_spider/hunter/dead,		// They are dead.
-		/mob/living/simple_animal/hostile/asteroid/hivelordbrood,		// Your motherfucking life ends in 5 seconds.
-		/mob/living/simple_animal/hologram,								// Can't live outside the holodeck.
-		/mob/living/simple_animal/hostile/carp/holocarp,				// These can but they're just a retarded hologram carp reskin for the love of god.
-		/mob/living/slime_pile,											// They are dead.
-		/mob/living/adamantine_dust, 									// Ditto
-		/mob/living/simple_animal/hostile/viscerator,					// Nope.
-		/mob/living/simple_animal/hostile/mining_drone,					// This thing is super broken in the hands of a player and it was never meant to be summoned out of actual mining drone cubes.
-		/mob/living/simple_animal/bee,									// Aren't set up to be playable
-		/mob/living/simple_animal/hostile/asteroid/goliath/david/dave,	// Isn't supposed to be spawnable by xenobio
-		/mob/living/simple_animal/hostile/bunnybot,						// See viscerator
-		/mob/living/carbon/human/NPC,									// Unfinished, with its own AI that conflicts with player movements.
-		/mob/living/simple_animal/hostile/pulse_demon/					// Your motherfucking life ends in 0 seconds.
+		/mob/living/simple_animal/space_worm,								// Unfinished. Very buggy, they seem to just spawn additional space worms everywhere and eating your own tail results in new worms spawning.
+		/mob/living/simple_animal/hostile/humanoid,							// JUST DON'T DO IT, OK?
+		/mob/living/simple_animal/hostile/retaliate/cockatrice,				// I'm just copying this from transmog.
+		/mob/living/simple_animal/hostile/giant_spider/hunter/dead,			// They are dead.
+		/mob/living/simple_animal/hostile/asteroid/hivelordbrood,			// Your motherfucking life ends in 5 seconds.
+		/mob/living/simple_animal/hostile/asteroid/hivelordbrood/guardian,	// Ditto
+		/mob/living/simple_animal/hologram,									// Can't live outside the holodeck.
+		/mob/living/simple_animal/hostile/carp/holocarp,					// These can but they're just a retarded hologram carp reskin for the love of god.
+		/mob/living/slime_pile,												// They are dead.
+		/mob/living/adamantine_dust, 										// Ditto
+		/mob/living/simple_animal/hostile/viscerator,						// Nope.
+		/mob/living/simple_animal/hostile/mining_drone,						// This thing is super broken in the hands of a player and it was never meant to be summoned out of actual mining drone cubes.
+		/mob/living/simple_animal/bee,										// Aren't set up to be playable
+		/mob/living/simple_animal/hostile/asteroid/goliath/david/dave,		// Isn't supposed to be spawnable by xenobio
+		/mob/living/simple_animal/hostile/bunnybot,							// See viscerator
+		/mob/living/carbon/human/NPC,										// Unfinished, with its own AI that conflicts with player movements.
+		/mob/living/simple_animal/hostile/pulse_demon,						// Your motherfucking life ends in 0 seconds.
+		/mob/living/simple_animal/hostile/pulse_demon/maxedout,				// Admin testing mob, do not ever spawn otherwise.
+		/mob/living/simple_animal/hostile/slime,							// Instantly kills player and destroys the MC.
+		/mob/living/simple_animal/hostile/asteroid/goldgrub,				// High chance of running off and disappearing.
 		)
 
 //Boss monster list
@@ -395,3 +407,6 @@ var/list/machinery_rating_cache = list() // list of type path -> number
 
 var/runescape_pvp = FALSE
 var/runescape_skull_display = FALSE
+
+//Custom Harm Alarm lines
+var/global/harm_alarm_line = fexists("config/custom_lines.txt") ? pick(file2list("config/custom_lines.txt")) : "BZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZT"

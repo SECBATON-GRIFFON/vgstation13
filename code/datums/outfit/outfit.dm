@@ -301,7 +301,7 @@
 	for(var/channel in frequency_list)
 		var/frequency = frequency_list[channel]
 		text += "<b>[channel]:</b> [format_frequency(frequency)] <br>"
-	mind.store_memory(jointext(text, null))
+	mind.store_memory(jointext(text, null), category=MIND_MEMORY_GENERAL, forced=TRUE)
 
 // -- Things to do AFTER all the equipment is given (ex: accessories)
 /datum/outfit/proc/post_equip(var/mob/living/carbon/human/H)
@@ -322,9 +322,12 @@
 		var/obj/structure/bed/chair/vehicle/wheelchair/W = new(H.loc)
 		W.buckle_mob(H,H)
 
-	if (H.glasses)
-		var/obj/item/clothing/glasses/G = H.glasses
-		G.prescription = 1
+	if ((H.disabilities & NEARSIGHTED) && H.glasses && (H.glasses.nearsighted_modifier >= 0) && H.glasses.prescription_type)
+		var/obj/item/clothing/glasses/prescription = new H.glasses.prescription_type(H)
+		var/obj/prev_glasses = H.glasses
+		H.u_equip(H.glasses,1)
+		qdel(prev_glasses)
+		H.equip_to_slot_or_drop(prescription, slot_glasses)
 
 	return 1
 

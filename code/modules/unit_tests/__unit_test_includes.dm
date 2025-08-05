@@ -23,4 +23,5 @@
 #include "languages.dm"
 #include "hour_calculations.dm"
 #include "liquids.dm"
+#include "sqlite_prefs.dm"
 #endif

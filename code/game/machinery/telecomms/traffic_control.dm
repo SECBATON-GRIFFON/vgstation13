@@ -135,7 +135,7 @@
 					return
 
 
-	user << browse(dat, "window=traffic_control;size=575x400")
+	user << browse(HTML_SKELETON(dat), "window=traffic_control;size=575x400")
 	onclose(user, "server_control")
 
 	temp = ""
@@ -188,7 +188,7 @@
 			return
 
 	if(href_list["print"])
-		usr << browse(print_logs(), "window=traffic_logs")
+		usr << browse(HTML_SKELETON(print_logs()), "window=traffic_logs")
 		return
 
 	if(!auth && !issilicon(usr) && !emagged)
@@ -280,6 +280,14 @@
 
 /obj/machinery/computer/telecomms/traffic/attackby(var/obj/item/weapon/D as obj, var/mob/user as mob)
 	return ..()
+
+/obj/machinery/computer/telecomms/traffic/kick_act(mob/user)
+	..()
+	if(auth)
+		if(prob(50))
+			auth.forceMove(get_turf(src))
+			visible_message("<span class='notice'>\A [auth] pops out of \the [src]!</span>")
+			auth = null
 
 /obj/machinery/computer/telecomms/traffic/emag_act(mob/user)
 	if(!emagged)

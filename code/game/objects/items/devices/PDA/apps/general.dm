@@ -79,7 +79,7 @@
 				var/log = replacetext(n, "\n", "(new line)")//no intentionally spamming admins with 100 lines, nice try
 				log_say("[pda_device] notes - [U] changed the text to: [log]")
 				for(var/mob/dead/observer/M in player_list)
-					if(M.stat == DEAD && M.client && (M.client.prefs.toggles & CHAT_GHOSTPDA))
+					if(M.stat == DEAD && M.client && (M.client.prefs.get_pref(/datum/preference_setting/binary_flag/toggles) & CHAT_GHOSTPDA))
 						M.show_message("<span class='game say'>[pda_device] notes - <span class = 'name'>[U]</span> changed the text to:</span> [log]")
 		else
 			U << browse(null, "window=pda")
@@ -142,7 +142,7 @@ var/global/list/currentevents3 = list("Border patrol around Space America has ti
 	"Renowned mime scientist Free Shrugs has discovered a new element today. He has named it '  ', he also says that it has the properties of '   '.",
 	"Archaeologists have discovered god's final message to his creation today. The message reads, 'bawk'.",
 	"Scientists have discovered a new type of elementary particle today. Our sources say it has a bad atitude, and enjoys the color blue.",
-	"Today, a man was discovered to be living with a 20 year old ghost in his house. When the ghost was questioned who killed him, he responded 'A FAGGOT!'. More at four.",
+	"Today, a man was discovered to be living with a 20 year old ghost in his house. When the ghost was questioned who killed him, he responded 'A BASTARD!'. More at four.",
 	"Scientists report that ghosts do in fact exist, however, they are huge assholes.",
 	"Supermatter researchers today have reported that the substance is highly volatile and could possibly rip apart the universe in large quantities. Discount Dan has been reported as ordering over 1000 pounds of supermatter shards.",
 	"Scientists working at the BPRF have discovered a pocket universe comprised fully of dead clown souls today. 40 scientists are being treated for madness."

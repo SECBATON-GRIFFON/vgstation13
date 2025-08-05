@@ -2,7 +2,7 @@
  * Returns:
  * 	#RRGGBB(AA) on success, null on failure
  */
-/proc/mix_color_from_reagents(const/list/reagent_list, var/puddle = FALSE)
+/proc/mix_color_from_reagents(const/list/reagent_list, var/puddle = FALSE, var/pigments_only = FALSE)
 	if(!istype(reagent_list))
 		return
 
@@ -12,6 +12,10 @@
 	var/vol_temp
 	// see libs/IconProcs/IconProcs.dm
 	for(var/datum/reagent/reagent in reagent_list)
+		if (reagent.id == BLACKCOLOR)
+			return "#000000"
+		if (pigments_only && !(reagent.flags & CHEMFLAG_PIGMENT))
+			continue
 		if(reagent.id == BLOOD && reagent.data["blood_colour"])
 			reagent_color = reagent.data["blood_colour"]
 		else
@@ -23,9 +27,9 @@
 		if(isnull(color))
 			color = reagent_color
 		else if(length(color) >= length(reagent_color))
-			color = BlendRGB(color, reagent_color, vol_temp/vol_counter)
+			color = BlendRYB(reagent_color, color, vol_temp/vol_counter)
 		else
-			color = BlendRGB(reagent_color, color, vol_temp/vol_counter)
+			color = BlendRYB(color, reagent_color, vol_temp/vol_counter)
 
 	return color
 
@@ -34,12 +38,16 @@
 		return
 
 	var/alpha
-	var/total_alpha = 0
+	var/total_alpha
+	var/total_volume
 
 	for(var/datum/reagent/reagent in reagent_list)
+		if (reagent.id == BLACKCOLOR)
+			return 255
 		total_alpha += (puddle && reagent.puddle_alpha ? reagent.puddle_alpha : reagent.alpha)
+		total_volume += reagent.volume
 
-	alpha = total_alpha / reagent_list.len
+	alpha = total_alpha / total_volume
 
 	return alpha
 

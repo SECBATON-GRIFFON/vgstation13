@@ -6,7 +6,7 @@
 	sharpness = 1.5 //very very sharp
 	var/sharpness_on = 1.5 //so badmins can VV this!
 	sharpness_flags = SHARP_BLADE | HOT_EDGE
-	heat_production = 3500
+	heat_production = 27000
 	source_temperature = TEMPERATURE_PLASMA
 	sterility = 0
 
@@ -95,7 +95,8 @@
 
 /obj/item/weapon/melee/energy/sword/New()
 	..()
-	_color = pick("red","blue","green","purple")
+	if(!_color)
+		_color = pick("red","blue","green","purple")
 	if(!active_state)
 		active_state = base_state + _color
 	update_icon()
@@ -369,13 +370,13 @@
 	to_chat(user, active ? "<span class='warning'> [src] starts vibrating.</span>" : "<span class='notice'> [src] stops vibrating.</span>")
 	playsound(user, active ? 'sound/weapons/hfmachete1.ogg' : 'sound/weapons/hfmachete0.ogg', 40, 0)
 	if(active)
-		user.register_event(/event/moved, src, src::mob_moved())
+		user.register_event(/event/moved, src, nameof(src::mob_moved()))
 	else
-		user.unregister_event(/event/moved, src, src::mob_moved())
+		user.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 	update_icon()
 
 /obj/item/weapon/melee/energy/hfmachete/dropped(mob/user)
-	user.unregister_event(/event/moved, src, src::mob_moved())
+	user.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 
 /obj/item/weapon/melee/energy/hfmachete/throw_at(atom/target, range, speed, override = 1)
 	if(!usr)
@@ -415,8 +416,12 @@
 
 /obj/item/weapon/melee/energy/hfmachete/proc/mob_moved(atom/movable/mover)
 	if(iscarbon(mover) && active)
-		for(var/obj/effect/plantsegment/P in range(mover,0))
-			qdel(P)
+		for(var/obj/P in range(mover,0))
+			if(istype(P, /obj/structure/cable/powercreeper))
+				var/obj/structure/cable/powercreeper/C = P
+				C.die()
+			else if(istype(P, /obj/effect/plantsegment))
+				qdel(P)
 
 /obj/item/weapon/melee/energy/hfmachete/attackby(obj/item/weapon/W, mob/living/user)
 	..()
@@ -474,9 +479,9 @@
 	to_chat(user, active ? "<span class='warning'> [src] starts vibrating.</span>" : "<span class='notice'> [src] stops vibrating.</span>")
 	playsound(user, active ? 'sound/weapons/hfmachete1.ogg' : 'sound/weapons/hfmachete0.ogg', 40, 0 )
 	if(active)
-		user.register_event(/event/moved, src, src::mob_moved())
+		user.register_event(/event/moved, src, nameof(src::mob_moved()))
 	else
-		user.unregister_event(/event/moved, src, src::mob_moved())
+		user.unregister_event(/event/moved, src, nameof(src::mob_moved()))
 
 /obj/item/weapon/melee/energy/hfmachete/bloodlust/IsShield()
 	if(active)
