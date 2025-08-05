@@ -115,6 +115,10 @@ var/puddle_text = FALSE
 		liquid = new(src)
 	return liquid.reagents.add_reagent(reagent,amount,data,reagtemp)
 
+/turf/proc/clear_liquids(var/list/reagents)
+	if(liquid && liquid.reagents)
+		liquid.reagents.remove_reagents(reagents)
+
 /turf/proc/trans_from_source(var/datum/reagents/from, var/amount=1, var/multiplier=1, var/preserve_data=1)
 	if(amount <= PUDDLE_TRANSFER_THRESHOLD)
 		return

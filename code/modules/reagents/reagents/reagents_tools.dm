@@ -344,7 +344,7 @@
 		if(!locate(/obj/effect/decal/cleanable/molten_item) in T)
 			var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(T)
 			I.desc = "A bit of gel left over from sodium polyacrylate absorbing liquid."
-		T.dry(TURF_WET_LUBE) //Absorbs water or lube
+		T.clear_liquids(SLIPPABLES) //Absorbs water or lube
 
 /datum/reagent/space_cleaner
 	name = "Space Cleaner"
@@ -507,7 +507,7 @@
 		return 1
 
 	if(T.is_wet())
-		T.dry(TURF_WET_LUBE) //Cleans water or lube
+		T.clear_liquids(SLIPPABLES) //Cleans water or lube
 		var/obj/effect/smoke/S = new /obj/effect/smoke(T)
 		S.time_to_live = 10 //unusually short smoke
 		//We don't need to start up the system because we only want to smoke one tile.

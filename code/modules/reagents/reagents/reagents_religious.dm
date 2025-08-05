@@ -344,7 +344,7 @@
 /datum/reagent/incense/vapor/OnDisperse(var/turf/location)
 	for(var/turf/simulated/T in view(2,location))
 		if(T.is_wet())
-			T.dry(TURF_WET_LUBE)
+			T.clear_liquids(SLIPPABLES)
 			T.turf_animation('icons/effects/water.dmi',"dry_floor",0,0,TURF_LAYER)
 
 /datum/reagent/incense/dense
