@@ -560,8 +560,7 @@ var/ZAS_fuel_energy_release_rate = zas_settings.Get(/datum/ZAS_Setting/fire_fuel
 	return TRUE
 
 /turf/simulated/flammable_reagent_check()
-	if(locate(/obj/effect/decal/cleanable/liquid_fuel) in src)
-		return TRUE
+	return liquid?.reagents?.has_reagent(FUEL)
 
 /turf/simulated/burnLiquidFuel()
 	return
@@ -788,7 +787,7 @@ var/ZAS_fuel_energy_release_rate = zas_settings.Get(/datum/ZAS_Setting/fire_fuel
 					combustion_oxy_used += solid_burn_products["oxy_used"]
 					combustion_co2_prod += solid_burn_products["co2_prod"]
 					max_temperature = max(max_temperature, solid_burn_products["max_temperature"])
-			if(A.reagents || istype(A,/obj/effect/decal/cleanable/liquid_fuel)) //burn liquids in containers on the turf
+			if(A.reagents) //burn liquids in containers on the turf
 				liquid_burn_products = A.burnLiquidFuel()
 				if(liquid_burn_products)
 					combustion_energy += liquid_burn_products["heat_out"]
@@ -834,7 +833,7 @@ var/ZAS_fuel_energy_release_rate = zas_settings.Get(/datum/ZAS_Setting/fire_fuel
 	if(T.flammable && !T.check_fire_protection() && T.thermal_mass > 0)
 		return 1
 
-	if(locate(/obj/effect/decal/cleanable/liquid_fuel) in T)
+	if(T.flammable_reagent_check())
 		return 1
 
 	for(var/atom/A in T)
@@ -851,7 +850,7 @@ var/ZAS_fuel_energy_release_rate = zas_settings.Get(/datum/ZAS_Setting/fire_fuel
 	if(T.flammable && T.thermal_mass > 0)
 		return 1
 
-	if(locate(/obj/effect/decal/cleanable/liquid_fuel) in T)
+	if(T.flammable_reagent_check())
 		return 1
 
 	if(gas[GAS_OXYGEN] && (gas[GAS_PLASMA] || gas[GAS_VOLATILE]))
