@@ -4,7 +4,6 @@
 #define DEBUG_LIQUIDS
 //#define DEBUG_LIQUIDS_SPREAD
 
-var/static/list/burnable_reagents = list(FUEL) //TODO: More types later
 var/puddle_text = FALSE
 
 /turf
@@ -247,7 +246,7 @@ var/puddle_text = FALSE
 #endif
 
 /obj/effect/liquid/flammable_reagent_check() // Copied over from old fuel overlay system and adjusted
-	return turf_on?.liquid?.reagents?.has_any_reagents(burnable_reagents)
+	return turf_on?.liquid?.reagents?.has_any_reagents(possible_fuels)
 
 /obj/effect/liquid/burnLiquidFuel()
 	//Setup
@@ -267,17 +266,16 @@ var/puddle_text = FALSE
 		in_fire = TRUE
 
 	if(flammable_reagent_check())
-		for(var/reagent in burnable_reagents)
-			if(reagent in possible_fuels)
-				var/list/fuel_stats = possible_fuels[reagent]
-				max_temperature = max(max_temperature,fuel_stats["max_temperature"])
-				heat_out = fuel_stats["thermal_energy_transfer"]
-				consumption_rate = fuel_stats["consumption_rate"]
-				oxy_used = fuel_stats["o2_cons"]
-				co2_prod = -fuel_stats["co2_cons"]
+		for(var/reagent in possible_fuels)
+			var/list/fuel_stats = possible_fuels[reagent]
+			max_temperature = max(max_temperature,fuel_stats["max_temperature"])
+			heat_out = fuel_stats["thermal_energy_transfer"]
+			consumption_rate = fuel_stats["consumption_rate"]
+			oxy_used = fuel_stats["o2_cons"]
+			co2_prod = -fuel_stats["co2_cons"]
 			if(turf_on.liquid?.reagents)
 				// liquid fuel burns 5 times as quick
-				turf_on.liquid.reagents.remove_reagent(reagent, turf_on.liquid.reagents.get_reagent_amount(reagent) * 5)
+				turf_on.liquid.reagents.remove_reagent(reagent, consumption_rate * 5)
 	else
 		qdel(src)
 
