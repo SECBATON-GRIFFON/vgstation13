@@ -73,10 +73,12 @@
 					if(iscleanaway(O))
 						qdel(O)
 
-				if (advanced_graffiti)
-					overlays -= A.advanced_graffiti_overlay
-					advanced_graffiti_overlay = null
-					qdel(advanced_graffiti)
+				if(istype(src,/turf/simulated))
+					var/turf/simulated/F = src
+					if (F.advanced_graffiti)
+						F.overlays -= F.advanced_graffiti_overlay
+						F.advanced_graffiti_overlay = null
+						qdel(F.advanced_graffiti)
 
 				reagents.reaction(src,1,10) //Mops magically make chems ten times more efficient than usual, aka equivalent of 50 units of whatever you're using
 				clean_blood()
