@@ -598,9 +598,12 @@
 	var/power = 0
 
 /datum/chemical_reaction/fuelbomb/on_reaction(var/datum/reagents/holder, var/created_volume)
-	if(holder.my_atom.is_open_container() || ismob(holder.my_atom))
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	if(A.is_open_container() || ismob(holder.my_atom))
 		if(!is_in_airtight_object(holder.my_atom)) //Don't pop while ventcrawling.
-			var/turf/location = get_turf(holder.my_atom.loc)
+			var/turf/location = get_turf(A.loc)
 
 			for(var/turf/simulated/floor/target_tile in range(0,location))
 				spawn(0)
@@ -1672,9 +1675,12 @@
 	alert_admins = ALERT_ALL_REAGENTS
 
 /datum/chemical_reaction/slime_extract/slimecritweak/on_reaction(var/datum/reagents/holder)
-	var/atom/location = holder.my_atom.loc
-	if(!istype(holder.my_atom.loc, /obj/item/weapon/grenade/chem_grenade))
-		holder.my_atom.visible_message("<span class='warning'>The slime extract begins to slowly vibrate!</span>")
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
+	var/atom/location = A.loc
+	if(!istype(location, /obj/item/weapon/grenade/chem_grenade))
+		A.visible_message("<span class='warning'>The slime extract begins to slowly vibrate!</span>")
 	else
 		location = location.loc
 
@@ -4258,7 +4264,8 @@
 
 /datum/chemical_reaction/aminocorydon/required_condition_check(datum/reagents/holder)
 	if(istype(holder.my_atom, /obj/item/weapon/reagent_containers))
-		return (locate(/obj/item/stack/sheet/mineral/clown) in holder.my_atom.contents) //you need that bananium catalyst
+		var/atom/A = holder.my_atom
+		return (locate(/obj/item/stack/sheet/mineral/clown) in A.contents) //you need that bananium catalyst
 	return FALSE
 
 /datum/chemical_reaction/synthmob/synthclown
@@ -4397,14 +4404,20 @@
 	result_amount = 1
 
 /datum/chemical_reaction/bumcivilian/required_condition_check(datum/reagents/holder)
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/A = holder.my_atom
 	if(istype(holder.my_atom, /obj/item/weapon/reagent_containers))
-		return (locate(/obj/item/stack/sheet/metal) in holder.my_atom.contents)
+		return (locate(/obj/item/stack/sheet/metal) in A.contents)
 	return 0
 
 /datum/chemical_reaction/bumcivilian/on_reaction(var/datum/reagents/holder, var/created_volume)
 	..()
+	if(!isatom(holder.my_atom))
+		return
+	var/atom/holder_atom = holder.my_atom
 	var/atom/A = get_holder_at_turf_level(holder.my_atom)
-	holder.my_atom.visible_message("<span class='warning'>Suddenly, everything around [A ? "\the [A] " : "\the [holder.my_atom] "]becomes perfectly silent...</span>")
+	holder_atom.visible_message("<span class='warning'>Suddenly, everything around [A ? "\the [A] " : "\the [holder.my_atom] "]becomes perfectly silent...</span>")
 	var/datum/reagent/bumcivilian/B = locate(/datum/reagent/bumcivilian) in holder.reagent_list
 	for(var/turf/T in view(get_turf(holder.my_atom)))
 		T.mute_time = world.time + B.mute_duration

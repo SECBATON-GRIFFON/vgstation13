@@ -509,7 +509,9 @@ var/const/INGEST = 2
 
 		if (C.reaction_temp_change)
 			chem_temp += C.reaction_temp_change
-			my_atom.process_temperature()
+			if(isatom(my_atom))
+				var/atom/A = my_atom
+				A.process_temperature()
 
 		var/created_volume = C.result_amount*multiplier
 		if(C.result)
@@ -523,17 +525,18 @@ var/const/INGEST = 2
 
 		if(C.quiet)
 			C.log_reaction(src, created_volume)
-		else
+		else if(isatom(my_atom))
+			var/atom/A = my_atom
 			if(istype(my_atom, /mob/living/carbon/human))
-				my_atom.visible_message("<span class='notice'>[my_atom] shudders a little.</span>","<span class='notice'>You shudder a little.</span>")
+				A.visible_message("<span class='notice'>[my_atom] shudders a little.</span>","<span class='notice'>You shudder a little.</span>")
 				//Since the are no fingerprints to be had here, we'll trust the attack logs to log this
 			else if(istype(my_atom, /obj/item/weapon/grenade/chem_grenade))
-				my_atom.visible_message("<span class='caution'>[bicon(my_atom)] Something comes out of \the [my_atom].</span>")
+				A.visible_message("<span class='caution'>[bicon(my_atom)] Something comes out of \the [my_atom].</span>")
 				//Logging inside chem_grenade.dm, prime()
 			else
-				my_atom.visible_message("<span class='notice'>[bicon(my_atom)] The solution begins to bubble.</span>")
+				A.visible_message("<span class='notice'>[bicon(my_atom)] The solution begins to bubble.</span>")
 				C.log_reaction(src, created_volume)
-			if(!(my_atom.flags & SILENTCONTAINER))
+			if(!(A.flags & SILENTCONTAINER))
 				playsound(my_atom, 'sound/effects/bubbles.ogg', 80, 1)
 
 		C.on_reaction(src, created_volume)
@@ -972,9 +975,11 @@ var/const/INGEST = 2
 		// This causes them to hard-del because the atom.reagents is nulled early in the Destroy() chain
 		// And is never deleted properly.
 		// The proper fix is of course to rework how datum/reagents work but I'll not do that.
-		if (my_atom.reagents == src)
-			my_atom.reagents = null
-		my_atom = null
+		if(isatom(my_atom))
+			var/atom/A = my_atom
+			if (A.reagents == src)
+				A.reagents = null
+			my_atom = null
 	..()
 
 /**
@@ -1190,11 +1195,16 @@ var/const/INGEST = 2
 	if(gcDestroyed)
 		return
 
-	if (!my_atom || my_atom.gcDestroyed || my_atom.timestopped)
+	if (!my_atom || my_atom.gcDestroyed)
 		return
 
 	if (!total_volume || !total_thermal_mass)
 		return
+
+	if(isatom(my_atom))
+		var/atom/A = my_atom
+		if(A.timestopped)
+			return
 
 	var/datum/gas_mixture/the_air = (get_turf(my_atom))?.return_air()
 	if (!the_air)
