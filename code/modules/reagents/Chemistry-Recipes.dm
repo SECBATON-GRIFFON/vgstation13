@@ -1975,7 +1975,7 @@
 	if(!isatom(holder.my_atom))
 		return
 	var/atom/A = holder.my_atom
-	var/obj/item/device/flashlight/lamp/slime/P = new /obj/item/device/flashlight/lamp/slime
+	var/obj/item/device/flashlight/slime/P = new /obj/item/device/flashlight/slime
 	P.forceMove(get_turf(A))
 	..()
 

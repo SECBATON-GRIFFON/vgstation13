@@ -907,10 +907,6 @@ var/const/INGEST = 2
 	for(var/i in input_reagents)
 		. += get_reagent_amount(i)
 
-/datum/reagents/proc/get_reagent_amounts(var/list/reagents)
-	for(var/R in reagents)
-		. += get_reagent_amount(R)
-
 /datum/reagents/proc/get_reagents()
 	var/res = ""
 	for(var/datum/reagent/A in reagent_list)
