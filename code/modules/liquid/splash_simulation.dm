@@ -206,7 +206,7 @@ var/puddle_text = FALSE
 			continue
 		if(!T.can_accept_liquid(opposite_dirs[direction])) //Check if this liquid can enter the tile
 			continue
-		if(T.liquid && T.liquid == src.turf_on.liquid)
+		if(T.liquid && ((T.liquid == src.turf_on.liquid) || T.liquid.liquid_objects.len > 1))
 			continue
 		spread_turfs += T
 		if(!(src in turf_on.liquid.edge_objects))
