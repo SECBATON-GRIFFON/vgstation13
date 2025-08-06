@@ -248,18 +248,46 @@ var/puddle_text = FALSE
 	log_debug("Liquid is now [turf_on.liquid.reagents.total_volume]u, [turf_on.liquid.liquid_objects.len] objects after spread.")
 #endif
 
-/obj/effect/liquid/getFireFuel() // Copied over from old fuel overlay system and adjusted
-	var/total_fuel = 0
-	if(turf_on.liquid && turf_on.liquid.reagents)
-		for(var/id in burnable_reagents)
-			total_fuel += turf_on.liquid.reagents.get_reagent_amount(id)
-	return total_fuel
+/obj/effect/liquid/flammable_reagent_check() // Copied over from old fuel overlay system and adjusted
+	return turf_on?.liquid?.reagents?.has_any_reagents(burnable_reagents)
 
-/obj/effect/liquid/burnFireFuel(var/used_fuel_ratio, var/used_reactants_ratio)
-	if(turf_on.liquid && turf_on.liquid.reagents)
-		for(var/id in burnable_reagents)
-			// liquid fuel burns 5 times as quick
-			turf_on.liquid.reagents.remove_reagent(id, turf_on.liquid.reagents.get_reagent_amount(id) * used_fuel_ratio * used_reactants_ratio * 5)
+/obj/effect/liquid/burnLiquidFuel()
+	//Setup
+	if(!turf_on)
+		extinguish()
+		return
+
+	var/heat_out = 0 //MJ
+	var/oxy_used = 0 //mols
+	var/co2_prod = 0 //mols (some reagents consume co2 when they burn)
+	var/max_temperature = 0 //K
+	var/consumption_rate = 0 //units per tick
+
+	//Check if a fire is present at the current location.
+	var/in_fire = FALSE
+	if(locate(/obj/effect/fire) in turf_on)
+		in_fire = TRUE
+
+	if(flammable_reagent_check())
+		for(var/reagent in burnable_reagents)
+			if(reagent in possible_fuels)
+				var/list/fuel_stats = possible_fuels[reagent]
+				max_temperature = max(max_temperature,fuel_stats["max_temperature"])
+				heat_out = fuel_stats["thermal_energy_transfer"]
+				consumption_rate = fuel_stats["consumption_rate"]
+				oxy_used = fuel_stats["o2_cons"]
+				co2_prod = -fuel_stats["co2_cons"]
+			if(turf_on.liquid?.reagents)
+				// liquid fuel burns 5 times as quick
+				turf_on.liquid.reagents.remove_reagent(id, turf_on.liquid.reagents.get_reagent_amount(reagent) * 5)
+	else
+		qdel(src)
+
+	//Start a fire on the tile if a burning object is present without an underlying fire effect.
+	if(!in_fire)
+		try_hotspot_expose(max_temperature, FULL_FLAME, 1)
+
+	return list("heat_out"=heat_out,"oxy_used"=oxy_used,"co2_prod"=co2_prod,"max_temperature"=max_temperature)
 
 /obj/effect/liquid/Crossed(atom/movable/AM)
 	if(turf_on.liquid.reagents && (isobj(AM) || ismob(AM))) // Only for reaction_obj and reaction_mob, no misc types.
