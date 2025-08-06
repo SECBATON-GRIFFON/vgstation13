@@ -1,8 +1,6 @@
 #define PUDDLE_TRANSFER_THRESHOLD 0.05
 #define MAX_PUDDLE_VOLUME 50
 #define CIRCLE_PUDDLE_VOLUME 40 //39.26899 technically but this is close enough
-#define DEBUG_LIQUIDS
-//#define DEBUG_LIQUIDS_SPREAD
 
 var/puddle_text = FALSE
 
