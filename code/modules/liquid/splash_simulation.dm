@@ -279,7 +279,7 @@ var/puddle_text = FALSE
 				co2_prod = -fuel_stats["co2_cons"]
 			if(turf_on.liquid?.reagents)
 				// liquid fuel burns 5 times as quick
-				turf_on.liquid.reagents.remove_reagent(id, turf_on.liquid.reagents.get_reagent_amount(reagent) * 5)
+				turf_on.liquid.reagents.remove_reagent(reagent, turf_on.liquid.reagents.get_reagent_amount(reagent) * 5)
 	else
 		qdel(src)
 
