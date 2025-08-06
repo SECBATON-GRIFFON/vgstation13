@@ -233,8 +233,6 @@ var/puddle_text = FALSE
 		if(!T)
 			log_debug("Puddle reached map edge at [turf_on]. ([turf_on.x],[turf_on.y],[turf_on.z])")
 			continue
-		if(T.liquid && T.liquid == turf_on.liquid)
-			continue
 		if(T.clears_reagents)
 			turf_on.liquid.reagents.remove_all(average_volume)
 			continue
