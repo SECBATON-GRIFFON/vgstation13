@@ -382,13 +382,13 @@ var/puddle_text = FALSE
 	return 1
 
 /turf/simulated/can_accept_liquid(from_direction)
-	for(var/obj/O in src)
-		if(!O.liquid_pass(from_direction))
-			return 0
-	return !density
+	return can_leave_liquid(from_direction)
 
 /turf/simulated/can_leave_liquid(to_direction)
-	return can_accept_liquid(to_direction)
+	for(var/obj/O in src)
+		if(!O.liquid_pass(to_direction))
+			return 0
+	return !density
 
 /turf/simulated/wall/can_accept_liquid(from_direction)
 	return 0
