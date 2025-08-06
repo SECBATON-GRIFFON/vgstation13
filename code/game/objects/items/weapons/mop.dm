@@ -63,7 +63,7 @@
 				to_chat(user, "<span class='notice'>Your mop is dry!</span>")
 			return
 		if(M.reagents.has_reagent(WATER) && liquid.reagents.total_volume < 50)
-			user.visible_message("<span class='[arcanetampered ? "sinister" : "warning"]'>[user] cleans \the [src].</span>", "<span class='[arcanetampered ? "sinister" : "notice"]'>You clean \the [get_turf(A)].</span>")
+			user.visible_message("<span class='[arcanetampered ? "sinister" : "warning"]'>[user] cleans \the [src].</span>", "<span class='[arcanetampered ? "sinister" : "notice"]'>You clean \the [src].</span>")
 			user.delayNextAttack(10)
 			if(arcanetampered)
 				var/dirttype = pick(subtypesof(/obj/effect/decal/cleanable))
