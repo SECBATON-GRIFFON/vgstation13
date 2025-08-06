@@ -373,46 +373,36 @@ var/puddle_text = FALSE
 
 /turf/proc/can_accept_liquid(from_direction)
 	return 0
-/turf/proc/can_leave_liquid(from_direction)
+/turf/proc/can_leave_liquid(to_direction)
 	return 0
 
 /turf/space/can_accept_liquid(from_direction)
 	return 1
-/turf/space/can_leave_liquid(from_direction)
+/turf/space/can_leave_liquid(to_direction)
 	return 1
 
-/turf/simulated/floor/can_accept_liquid(from_direction)
-	for(var/obj/structure/window/W in src)
-		if(W.is_fulltile)
-			return 0
-		if(W.dir & from_direction)
-			return 0
+/turf/simulated/can_accept_liquid(from_direction)
 	for(var/obj/O in src)
-		if(!O.liquid_pass())
+		if(!O.liquid_pass(from_direction))
 			return 0
-	return 1
+	return !density
 
-/turf/simulated/floor/can_leave_liquid(to_direction)
-	for(var/obj/structure/window/W in src)
-		if(W.is_fulltile)
-			return 0
-		if(W.dir & to_direction)
-			return 0
-	for(var/obj/O in src)
-		if(!O.liquid_pass())
-			return 0
-	return 1
+/turf/simulated/can_leave_liquid(to_direction)
+	return can_accept_liquid(to_direction)
 
 /turf/simulated/wall/can_accept_liquid(from_direction)
 	return 0
-/turf/simulated/wall/can_leave_liquid(from_direction)
+/turf/simulated/wall/can_leave_liquid(to_direction)
 	return 0
 
-/obj/proc/liquid_pass()
+/obj/proc/liquid_pass(from_direction)
 	return 1
 
-/obj/machinery/door/liquid_pass()
+/obj/machinery/door/liquid_pass(from_direction)
 	return !density
+
+/obj/structure/window/liquid_pass(from_direction)
+	return !is_fulltile && !(dir & from_direction)
 
 /obj/effect/liquid/mapping
 	var/reagent_type = ""
