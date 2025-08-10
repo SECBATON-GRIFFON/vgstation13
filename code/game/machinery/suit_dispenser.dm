@@ -378,6 +378,7 @@ var/list/dispenser_presets = list()
 	name = "Medical"
 	to_spawn = list(/obj/item/clothing/glasses/hud/health/prescription,
 		/obj/item/weapon/gun/syringe/rapidsyringe,
+		/obj/item/weapon/storage/box/syndisyringes,
 		/obj/item/weapon/storage/firstaid/adv,
 		/obj/item/weapon/reagent_containers/hypospray,
 		/obj/item/weapon/storage/pill_bottle/hyperzine,
