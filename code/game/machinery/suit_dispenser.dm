@@ -99,7 +99,8 @@ var/list/dispenser_presets = list()
 	if(!(S && T)) // in case we got destroyed while we slept
 		return 1
 	for(var/O in S.to_spawn)
-		new O(T)
+		for(var/i in 1 to (S.to_spawn[O] > 0 ? S.to_spawn[O] : 1))
+			new O(T)
 	if(emagged)
 		emagged = FALSE
 	if(greet && user && !user.stat) // in case we got destroyed while we slept
@@ -338,11 +339,9 @@ var/list/dispenser_presets = list()
 	name = "Ballistics"
 	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription, //Changed to prescription sunglasses for near-sighted players
 		/obj/item/weapon/gun/projectile/automatic/c20r,
-		/obj/item/ammo_storage/magazine/a12mm/ops,
-		/obj/item/ammo_storage/magazine/a12mm/ops,
+		/obj/item/ammo_storage/magazine/a12mm/ops = 2,
 		/obj/item/weapon/gun/projectile/beretta,
-		/obj/item/ammo_storage/magazine/beretta,
-		/obj/item/ammo_storage/magazine/beretta
+		/obj/item/ammo_storage/magazine/beretta = 2
 		)
 
 // Classic alternate setup with a twist. Laser Rifle as a primary, but ion carbine as a backup and extra EMP nades for those ENERGY needs. Zap-zap the borgs
@@ -351,8 +350,7 @@ var/list/dispenser_presets = list()
 	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription,
 		/obj/item/weapon/gun/energy/laser/rifle/syndie,
 		/obj/item/weapon/gun/energy/ionrifle/ioncarbine,
-		/obj/item/weapon/grenade/empgrenade,
-		/obj/item/weapon/grenade/empgrenade
+		/obj/item/weapon/grenade/empgrenade = 2
 		)
 
 // Boom boom, shake the room as the kids say. RPG as primary and grenade launcher as secondary, with C4 and nades reserve. He blows
@@ -361,11 +359,8 @@ var/list/dispenser_presets = list()
 	to_spawn = list(/obj/item/clothing/glasses/sunglasses/prescription,
 		/obj/item/weapon/gun/projectile/rocketlauncher,
 		/obj/item/weapon/gun/grenadelauncher/syndicate,
-		/obj/item/ammo_casing/rocket_rpg,
-		/obj/item/ammo_casing/rocket_rpg,
-		/obj/item/ammo_casing/rocket_rpg,
-		/obj/item/weapon/storage/box/syndigrenades,
-		/obj/item/weapon/storage/box/syndigrenades
+		/obj/item/ammo_casing/rocket_rpg = 3,
+		/obj/item/weapon/storage/box/syndigrenades = 2,
 		)
 
 // Really powerful melee weapons and energy shield, along with random extra goods and eviscerator nades. A dream come true
@@ -398,9 +393,7 @@ var/list/dispenser_presets = list()
 		/obj/item/weapon/storage/belt/utility/complete,
 		/obj/item/weapon/storage/box/lethalshells,
 		/obj/item/weapon/melee/energy/sword,
-		/obj/item/weapon/c4,
-		/obj/item/weapon/c4,
-		/obj/item/weapon/c4,
+		/obj/item/weapon/c4 = 3,
 		/obj/item/clothing/glasses/welding/superior,
 		/obj/item/clothing/shoes/magboots/syndie/elite,
 		)
