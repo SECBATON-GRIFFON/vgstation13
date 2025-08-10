@@ -160,10 +160,6 @@
 			agent_number++
 		N.antag.current.flavor_text = null
 
-		spawn()
-			concrete_outfit.chosen_spec = equip_nuke_loadout(synd_mind.current)
-			concrete_outfit.equip_special_items(synd_mind.current)
-
 	if(nuke_spawn && synd_spawn.len > 0)
 		var/obj/machinery/nuclearbomb/the_bomb = new /obj/machinery/nuclearbomb(nuke_spawn.loc)
 		the_bomb.r_code = nuke_code
@@ -178,13 +174,6 @@
 				R.antag.current.fully_replace_character_name(R.antag.current.real_name, "[leader == R ? "[title] ":""][pick(first_names_male)] [last_name ? "[last_name]":"[pick(last_names)]"]")
 			if(FEMALE)
 				R.antag.current.fully_replace_character_name(R.antag.current.real_name, "[leader == R ? "[title] ":""][pick(first_names_female)] [last_name ? "[last_name]":"[pick(last_names)]"]")
-
-//This is separate because the mob will have to make a decision as to what it wants as a loadout. Once this is chosen, the gear will be slapped onto them to not waste time
-/datum/faction/syndicate/nuke_op/proc/equip_nuke_loadout(mob/living/carbon/human/synd_mob)
-
-	var/chosen_loadout = input(synd_mob, "Your operation is about to begin. What kind of operations would you like to specialize into?") in list("Ballistics", "Energy", "Demolition", "Melee", "Medical", "Engineering", "Stealth", "Ship and Cameras")
-
-	return chosen_loadout
 
 /datum/faction/syndicate/nuke_op/proc/prepare_syndicate_leader(var/datum/mind/synd_mind, var/nuke_code)
 

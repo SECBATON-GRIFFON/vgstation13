@@ -419,3 +419,70 @@ var/list/dispenser_presets = list()
 		/obj/item/device/megaphone/madscientist,
 		/obj/item/weapon/circuitboard/teleporter,
 		)
+
+/obj/machinery/suit_dispenser/voxraider
+	name = "Loadout Dispenser"
+	desc = "A bootleg of an industrial U-Tak-It Dispenser unit designed to fetch all kinds of shoal raider gear."
+	suits = list(/datum/suit/voxraider/default,
+				/datum/suit/voxraider/engineer,
+				/datum/suit/voxraider/saboteur,
+				/datum/suit/voxraider/medic)
+
+/obj/machinery/suit_dispenser/voxraider/can_use(var/mob/living/carbon/human/user)
+	if(!..())
+		return
+	if(!isvoxraider(user))
+		to_chat(user,"<span class='warning'>Access Denied. You aren't a Vox Raider.</span>")
+		return 0
+	return 1
+
+/obj/machinery/suit_dispenser/voxraider/emag_act(var/mob/user)
+	if(user)
+		user.visible_message("<span class='warning'>\The [user] slides a weird looking ID into \the [src], and sparks come flying out!</span>","<span class='warning'>You make some pretty sparks fly out of the machine for your own amusement.</span>")
+	playsound(src, pick(spark_sound), 75, 1)
+	spark(src,4)
+
+
+/datum/suit/voxraider/default
+	name = "Raider"
+	to_spawn = list(
+			/obj/item/weapon/crossbow/preloaded,
+			/obj/item/stack/rods/twentystack,
+			/obj/item/clothing/suit/space/vox/carapace,
+			/obj/item/clothing/head/helmet/space/vox/carapace,
+			/obj/item/weapon/melee/telebaton,
+			/obj/item/clothing/glasses/hud/thermal/monocle,
+			/obj/item/device/chameleon,
+		)
+
+/datum/suit/voxraider/engineer
+	name = "Engineer"
+	to_spawn = list(
+			/obj/item/clothing/suit/space/vox/pressure,
+			/obj/item/clothing/head/helmet/space/vox/pressure,
+			/obj/item/weapon/storage/belt/utility/full,
+			/obj/item/clothing/glasses/scanner/meson
+		)
+
+/datum/suit/voxraider/saboteur
+	name = "Saboteur"
+	to_spawn = list(
+			/obj/item/clothing/suit/space/vox/carapace,
+			/obj/item/clothing/head/helmet/space/vox/carapace,
+			/obj/item/weapon/storage/belt/utility/full,
+			/obj/item/clothing/glasses/hud/thermal/monocle,
+			/obj/item/weapon/card/emag,
+			/obj/item/weapon/gun/dartgun/vox/raider,
+			/obj/item/device/multitool
+		)
+
+/datum/suit/voxraider/medic
+	name = "Medic"
+	to_spawn = list(
+			/obj/item/clothing/suit/space/vox/pressure,
+			/obj/item/clothing/head/helmet/space/vox/pressure,
+			/obj/item/weapon/storage/belt/utility/full,
+			/obj/item/clothing/glasses/hud/health,
+			/obj/item/tool/circular_saw,
+			/obj/item/weapon/gun/dartgun/vox/medical
+		)

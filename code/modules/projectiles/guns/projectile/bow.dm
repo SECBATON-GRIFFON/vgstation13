@@ -56,6 +56,12 @@
 	var/mob/living/current_user = null    // Used to see if the person drawing the bow started drawing it.
 	var/obj/item/weapon/arrow = null      // Nocked arrow.
 	var/obj/item/weapon/cell/cell = null  // Used for firing special projectiles like rods.
+	var/cell_type = null
+
+/obj/item/weapon/crossbow/New()
+	. = ..()
+	if(cell_type)
+		cell = new cell_type(src)
 
 /obj/item/weapon/crossbow/get_cell()
 	return cell
@@ -303,3 +309,5 @@
 	else
 		..()
 
+/obj/item/weapon/crossbow/preloaded
+	cell_type = /obj/item/weapon/cell/crap

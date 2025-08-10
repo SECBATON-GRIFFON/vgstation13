@@ -343,10 +343,6 @@
 	give_disabilities_equipment = FALSE
 	var/is_leader = FALSE
 
-	var/list/specs = list()
-
-	var/chosen_spec = null
-
 	var/assignment_leader = "Striketeam Leader"
 	var/assignment_member = "Striketeam Member"
 
@@ -366,33 +362,3 @@
 	W.SetOwnerDNAInfo(H)
 	H.equip_to_slot_or_drop(W, slot_wear_id)
 	return W
-
-/datum/outfit/striketeam/proc/equip_special_items(var/mob/living/carbon/human/H)
-	if (!chosen_spec)
-		return
-
-	if (!(chosen_spec in specs))
-		CRASH("Trying to give [chosen_spec] to [H], but cannot find this spec in [src.type].")
-
-	var/list/to_equip = specs[chosen_spec]
-
-	for (var/slot_str in to_equip)
-		var/equipment = to_equip[slot_str]
-
-		switch (slot_str)
-			if (ACCESSORY_ITEM) // It's an accesory. We put it in their hands if possible.
-				H.put_in_hands(new equipment(H))
-
-			else // It's a concrete item.
-				var/slot = text2num(slot_str) // slots stored are STRINGS.
-
-				if (islist(equipment)) // List of things to equip
-					for (var/item in equipment)
-						for (var/i = 1 to equipment[item]) // Give them this much of that item
-							var/concrete_item = new item(H)
-							if (!H.equip_to_slot_or_drop(concrete_item, slot)) // Can't put them in the designate slot ? Put it in their hands.
-								H.put_in_hands(concrete_item)
-				else
-					var/concrete_item = new equipment(H)
-					if (!H.equip_to_slot_or_drop(concrete_item, slot))
-						H.put_in_hands(concrete_item)

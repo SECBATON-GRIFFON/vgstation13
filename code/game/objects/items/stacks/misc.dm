@@ -135,6 +135,8 @@
 		Grille.add_fingerprint(user)
 		use(2)
 
+/obj/item/stack/rods/twentystack
+	amount = 20
 
 /obj/item/stack/chains
 	name = "chain"

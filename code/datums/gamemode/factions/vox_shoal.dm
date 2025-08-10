@@ -182,13 +182,6 @@ var/list/potential_bonus_items = list(
 	vox.regenerate_icons()
 	vox.mind.store_memory("The priority items for the day are: [english_list(bonus_items_of_the_day)]", category=MIND_MEMORY_ANTAGONIST, forced=TRUE)
 
-	/*
-	spawn()
-		var/chosen_loadout = input(vox, "The raid is about to begin. What kind of operations would you like to specialize into?") in list("Raider", "Engineer", "Saboteur", "Medic")
-		concrete_outfit.chosen_spec = chosen_loadout
-		concrete_outfit.equip_special_items(vox)
-	*/
-
 /datum/faction/vox_shoal/process()
 	if (completed)
 		return
