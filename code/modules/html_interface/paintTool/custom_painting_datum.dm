@@ -29,6 +29,7 @@
 	if(isAI(user))
 		nano_paint = TRUE
 		components = list("AI screen pixels")
+		nano_palette += input(user, "Please select the first color.", "AI core look") as color
 	else if (!held_item)
 		held_item = user.get_active_hand()
 
