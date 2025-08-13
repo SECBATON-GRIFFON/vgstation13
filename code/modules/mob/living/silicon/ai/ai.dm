@@ -36,6 +36,7 @@ var/list/ai_list = list()
 	var/obj/item/device/multitool/aiMulti = null
 	var/obj/item/device/station_map/station_holomap = null
 	var/obj/item/device/camera/silicon/aicamera = null
+	var/datum/custom_painting/custom_AI_look = null
 	var/busy = FALSE //Toggle Floor Bolt busy var.
 	var/chosen_core_icon_state = "ai"
 	var/datum/intercom_settings/intercom_clipboard = null //Clipboard for copy/pasting intercom settings
@@ -295,6 +296,7 @@ var/static/list/ai_icon_states = list(
 		"Wasp" = "ai-wasp",
 		"Xerxes" = "ai-xerxes",
 		"Yes Man" = "yes-man",
+		"Custom" = "ai"
 	)
 
 /mob/living/silicon/ai/verb/pick_icon()
@@ -309,6 +311,12 @@ var/static/list/ai_icon_states = list(
 	ASSERT(chosen_state)
 	chosen_core_icon_state = chosen_state
 	update_icon()
+	if(selected == "Custom")
+		custom_AI_look = new /datum/custom_painting(src, 32, 32, base_color = "#00000000")
+		var/datum/painting_utensil/p = new(src)
+		custom_AI_look.interact(src, p)
+	else if(custom_AI_look)
+		QDEL_NULL(custom_AI_look)
 
 /mob/living/silicon/ai/verb/pick_hologram_color()
 	set category = "AI Commands"

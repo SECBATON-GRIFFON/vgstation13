@@ -26,7 +26,10 @@
 /datum/painting_utensil/New(mob/user, obj/item/held_item)
 	if (!user) // Special case
 		return
-	if (!held_item)
+	if(isAI(user))
+		nano_paint = TRUE
+		components = list("AI screen pixels")
+	else if (!held_item)
 		held_item = user.get_active_hand()
 
 	// Painting with a pen
