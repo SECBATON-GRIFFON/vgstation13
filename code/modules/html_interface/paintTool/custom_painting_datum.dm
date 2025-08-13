@@ -27,7 +27,7 @@
 	if (!user) // Special case
 		return
 	if(isAI(user) || isAIEye(user))
-		nano_paint = TRUE
+		nano_paint = PAINTLIGHT_FULL
 		components = list("AI screen pixels")
 		nano_palette += "#FFFFFF"
 		base_color = "#FFFFFF"
