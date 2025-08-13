@@ -839,7 +839,7 @@ function loadPage(list) {
 
 		var/atom/A = locate(href_list["displacement"])
 		if(!istype(A))
-			to_chat(user, "This can only be done to instances of atoms.")
+			to_chat(usr, "This can only be done to instances of atoms.")
 			return
 
 		var/icon/I = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
@@ -857,7 +857,7 @@ function loadPage(list) {
 
 		var/atom/A = locate(href_list["clear_displacement"])
 		if(!istype(A))
-			to_chat(user, "This can only be done to instances of atoms.")
+			to_chat(usr, "This can only be done to instances of atoms.")
 			return
 
 		A.kill_displacement_map()
