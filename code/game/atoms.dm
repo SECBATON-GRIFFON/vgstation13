@@ -1195,15 +1195,9 @@ its easier to just keep the beam vertical.
 	if(file)
 		displacement_map = icon(file,state)
 	filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
-	for(var/_overlay in overlays) //For whatever reason we can't use a typed var in here
-		var/image/overlay = _overlay
-		overlay.filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
 
 /atom/proc/kill_displacement_map()
 	filters["displacement"] = null
-	for(var/_overlay in overlays) //For whatever reason we can't use a typed var in here
-		var/image/overlay = _overlay
-		overlay.filters["displacement"] = null
 	displacement_map = null
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
