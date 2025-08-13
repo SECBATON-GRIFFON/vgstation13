@@ -847,7 +847,10 @@ function loadPage(list) {
 			to_chat(usr, "No icon selected.")
 			return
 
+		var/state = input(usr, "How much to displace by?","Displacement amount","")
 		var/size = input(usr, "How much to displace by?","Displacement amount",32) as num
+
+		I = icon(I,state)
 
 		A.update_displacement_map(I,size)
 
