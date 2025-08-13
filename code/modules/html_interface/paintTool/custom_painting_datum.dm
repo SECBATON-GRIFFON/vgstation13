@@ -340,6 +340,9 @@
 
 	// Change painting brush color
 	else if (href_list["newcolor"])
+		if(isAI(usr) || isAIEye(usr))
+			pallette = input(usr,"Select a new colour","New colour") as color
+			return
 		var/mob/user = usr
 		var/obj/item/held_item = user.get_active_hand()
 		if (istype(held_item,/obj/item/painting_brush))
