@@ -296,7 +296,7 @@ var/static/list/ai_icon_states = list(
 		"Wasp" = "ai-wasp",
 		"Xerxes" = "ai-xerxes",
 		"Yes Man" = "yes-man",
-		"Custom" = "ai"
+		"Custom" = "ai-custom"
 	)
 
 /mob/living/silicon/ai/verb/pick_icon()
