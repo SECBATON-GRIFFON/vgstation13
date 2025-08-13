@@ -217,8 +217,6 @@ For the main html chat area
 
 //Global chat procs
 
-/var/list/bicon_cache = list()
-
 //Converts an icon to base64. Operates by putting the icon in the iconCache savefile,
 // exporting it as text, and then parsing the base64 from that.
 // (This relies on byond automatically storing icons in savefiles as base64)
@@ -243,7 +241,7 @@ For the main html chat area
 	return replacetext(copytext(partial2[1], 2, -1), "\n", "")
 
 /proc/bicon(atom/A)
-	if(isatom(A))
+	if(isatom(A) && A.overlays.len)
 		A = A.appearance //The caching is not very smart if you use the object directly.
 
 	spawn(5){} //Do nothing. Just hold onto a ref of A for a moment. Hopefully there will be a better way to do this later.
