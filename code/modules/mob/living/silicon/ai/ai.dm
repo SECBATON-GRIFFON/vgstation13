@@ -312,7 +312,7 @@ var/static/list/ai_icon_states = list(
 	chosen_core_icon_state = chosen_state
 	update_icon()
 	if(selected == "Custom")
-		custom_AI_look = new /datum/custom_painting(src, 32, 32, base_color = "#00000000")
+		custom_AI_look = new /datum/custom_painting(src, 27, 26, 4, 5, "#00000000")
 		var/datum/painting_utensil/p = new(src)
 		custom_AI_look.interact(src, p)
 	else if(custom_AI_look)
