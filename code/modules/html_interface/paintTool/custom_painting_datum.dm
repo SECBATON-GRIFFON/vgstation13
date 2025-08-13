@@ -31,7 +31,7 @@
 		components = list("AI screen pixels")
 		nano_palette += "#FFFFFF"
 		base_color = "#000000"
-		palette += input(user, "Please select the first color.", "AI core look") as color
+		palette += "#FFFFFF"
 	else if (!held_item)
 		held_item = user.get_active_hand()
 
@@ -370,16 +370,14 @@
 		if(isAIEye(usr))
 			var/mob/camera/aiEye/AIE = usr
 			AI = AIE.ai
-		if(istype(AI))
-			AI.update_icon()
-			return TRUE
 
 		var/datum/painting_utensil/pu = new /datum/painting_utensil(usr)
 		if(!pu.palette.len)
 			to_chat(usr, "<span class='warning'>You need to be holding a painting utensil in your active hand.</span>")
 			return
 
-		if (!do_after(usr, parent, 30))
+		var/is_ai = istype(AI)
+		if (!is_ai && !do_after(usr, parent, 30))
 			return
 
 		components |= pu.components//This won't get us all the components if the player changed c
@@ -394,13 +392,17 @@
 
 		if (copy == PAINTING_OC_COPY)
 			copy = PAINTING_OC_MODIFIED_COPY
-		show_on_scoreboard = TRUE
+		show_on_scoreboard = is_ai
 
 		//Save and sanitize author, title and description
 		author = copytext(sanitize(url_decode(href_list["author"])), 1, MAX_NAME_LEN)
 		title = copytext(sanitize(url_decode(href_list["title"])), 1, MAX_NAME_LEN)
 		description = copytext(sanitize(url_decode(href_list["description"])), 1, MAX_MESSAGE_LEN)
 		contributing_artists += usr.ckey
+
+		if(is_ai)
+			AI.update_icon()
+			return TRUE
 
 		// Should I be using COMSIG or events for this ? :thinking:
 		if (istype(parent, /turf/simulated/floor))
