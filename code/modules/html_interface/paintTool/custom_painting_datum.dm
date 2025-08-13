@@ -26,7 +26,7 @@
 /datum/painting_utensil/New(mob/user, obj/item/held_item)
 	if (!user) // Special case
 		return
-	if(isAI(user))
+	if(isAI(user) || isAIEye(user))
 		nano_paint = TRUE
 		components = list("AI screen pixels")
 		nano_palette += "#FFFFFF"
@@ -363,6 +363,16 @@
 		// Make sure the player can actually paint
 		if(!usr || usr.incapacitated())
 			return
+
+		var/mob/living/silicon/AI
+		if(isAI(usr))
+			AI = usr
+		if(isAIEye(usr))
+			var/mob/camera/aiEye/AIE = usr
+			AI = AIE.ai
+		if(istype(AI))
+			AI.update_icon()
+			return TRUE
 
 		var/datum/painting_utensil/pu = new /datum/painting_utensil(usr)
 		if(!pu.palette.len)

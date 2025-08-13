@@ -37,6 +37,7 @@ var/list/ai_list = list()
 	var/obj/item/device/station_map/station_holomap = null
 	var/obj/item/device/camera/silicon/aicamera = null
 	var/datum/custom_painting/custom_AI_look = null
+	var/image/custom_look_overlay
 	var/busy = FALSE //Toggle Floor Bolt busy var.
 	var/chosen_core_icon_state = "ai"
 	var/datum/intercom_settings/intercom_clipboard = null //Clipboard for copy/pasting intercom settings
@@ -312,7 +313,8 @@ var/static/list/ai_icon_states = list(
 	chosen_core_icon_state = chosen_state
 	update_icon()
 	if(selected == "Custom")
-		custom_AI_look = new /datum/custom_painting(src, 27, 26, 4, 5, "#00000000")
+		if(!custom_AI_look)
+			custom_AI_look = new /datum/custom_painting(src, 27, 26, 4, 5, "#00000000")
 		var/datum/painting_utensil/p = new(src)
 		custom_AI_look.interact(src, p)
 	else if(custom_AI_look)
@@ -956,6 +958,12 @@ var/static/list/ai_icon_states = list(
 			icon_state = "ai-crash"
 		return
 	icon_state = chosen_core_icon_state
+	if(custom_AI_look)
+		overlays -= custom_look_overlay
+		custom_look_overlay = image(custom_AI_look.render_on(icon(icon, icon_state)))
+		custom_look_overlay.layer = layer + 1
+		//custom_look_overlay.SwapColor("#aaaaaaff", "#ffffff00")
+		overlays += custom_look_overlay
 
 /mob/living/silicon/ai/update_perception()
 	if(ai_flags & HIGHRESCAMS)
