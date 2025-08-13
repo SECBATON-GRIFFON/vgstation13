@@ -30,7 +30,7 @@
 		nano_paint = TRUE
 		components = list("AI screen pixels")
 		nano_palette += "#FFFFFF"
-		base_color = "#000000"
+		base_color = "#FFFFFF"
 		palette = list("#000000", "#ffffff", "#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff")
 	else if (!held_item)
 		held_item = user.get_active_hand()
