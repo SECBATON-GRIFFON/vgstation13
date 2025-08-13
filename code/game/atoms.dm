@@ -1191,12 +1191,13 @@ its easier to just keep the beam vertical.
 	luminosity = initial(luminosity)
 
 /atom/proc/update_displacement_map(file,state="",displacement_size=WORLD_ICON_SIZE)
+	kill_displacement_map()
 	if(file)
 		displacement_map = icon(file,state)
-	filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
+	appearance.filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
 
 /atom/proc/kill_displacement_map()
-	filters["displacement"] = null
+	appearance.filters["displacement"] = null
 	displacement_map = null
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
