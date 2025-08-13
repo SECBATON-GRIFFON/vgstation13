@@ -19,7 +19,6 @@
 	feedback_add_details("admin_verb","DG2") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 
-
 /* 21st sept 2010
 Updated by Skie -- Still not perfect but better!
 Stuff you can't do:
@@ -37,7 +36,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 		return
 
 	spawn(0)
-		var/target = null
+		var/datum/target = null
 		var/targetselected = 0
 		var/lst[] // List reference
 		lst = new/list() // Make the list
@@ -984,7 +983,7 @@ var/global/blood_virus_spreading_disabled = 0
 		"15x15 (4 players)",
 		"39x23 (10 players)",
 		)
-	var/arena_type = input("What size for the arena?", "Arena Construction") in arena_sizes | null
+	var/arena_type = input("What size for the arena?", "Arena Construction") as null|anything in arena_sizes
 
 	if(!arena_type)
 		return
@@ -1586,3 +1585,14 @@ var/obj/blend_test = null
 		output = "No unconnected vents/scrubbers found."
 
 	usr << browse (output, "window=unconnected-atmos-search")
+
+/client/proc/rig_crew_score()
+	set category = "Debug"
+	set name = "Rig crew score"
+	set desc = "Manually adjust round-end crew score."
+
+	if(!check_rights(R_FUN))
+		return
+
+	score.badmin_score = input(usr,"What score do you want?","Badmin score",score.badmin_score) as num
+	score.badmin_override = alert(usr,"Override or add to the round-end score?","Badmin score","Override","Add") == "Override"
