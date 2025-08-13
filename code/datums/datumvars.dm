@@ -842,17 +842,15 @@ function loadPage(list) {
 			to_chat(usr, "This can only be done to instances of atoms.")
 			return
 
-		var/icon/I = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
-		if(!I)
+		var/file = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
+		if(!file)
 			to_chat(usr, "No icon selected.")
 			return
 
-		var/state = input(usr, "How much to displace by?","Displacement amount","")
-		var/size = input(usr, "How much to displace by?","Displacement amount",32) as num
+		var/state = input(usr, "Which icon state to use?","Displacement state","")
+		var/size = input(usr, "How much to displace by?","Displacement amount",WORLD_ICON_SIZE) as num
 
-		I = icon(I,state)
-
-		A.update_displacement_map(I,size)
+		A.update_displacement_map(file,state,size)
 
 	else if(href_list["clear_displacement"])
 		if(!check_rights(0))

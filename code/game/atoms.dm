@@ -1190,9 +1190,9 @@ its easier to just keep the beam vertical.
 		moody_lights.Remove(i)
 	luminosity = initial(luminosity)
 
-/atom/proc/update_displacement_map(icon/I,displacement_size=WORLD_ICON_SIZE)
-	if(I)
-		displacement_map = I
+/atom/proc/update_displacement_map(file,state="",displacement_size=WORLD_ICON_SIZE)
+	if(file)
+		displacement_map = icon(file,state)
 	filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
 
 /atom/proc/kill_displacement_map()
