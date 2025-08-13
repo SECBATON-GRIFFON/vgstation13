@@ -31,7 +31,7 @@
 		components = list("AI screen pixels")
 		nano_palette += "#FFFFFF"
 		base_color = "#000000"
-		palette += "#FFFFFF"
+		palette = list("#000000", "#ffffff", "#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff")
 	else if (!held_item)
 		held_item = user.get_active_hand()
 
@@ -340,9 +340,6 @@
 
 	// Change painting brush color
 	else if (href_list["newcolor"])
-		if(isAI(usr) || isAIEye(usr))
-			pallette = input(usr,"Select a new colour","New colour") as color
-			return
 		var/mob/user = usr
 		var/obj/item/held_item = user.get_active_hand()
 		if (istype(held_item,/obj/item/painting_brush))
