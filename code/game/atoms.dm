@@ -65,6 +65,8 @@ var/global/list/ghdel_profiling_roundstart = list()
 	var/image/moody_light
 	var/list/moody_lights
 
+	var/icon/displacement_map
+
 /atom/proc/beam_connect(var/obj/effect/beam/B)
 	if(!last_beamchecks)
 		last_beamchecks = list()
@@ -1187,6 +1189,15 @@ its easier to just keep the beam vertical.
 		overlays -= moody_lights[i]
 		moody_lights.Remove(i)
 	luminosity = initial(luminosity)
+
+/atom/proc/update_displacement_map(icon/I,displacement_size=WORLD_ICON_SIZE)
+	if(I)
+		displacement_map = I
+	filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
+
+/atom/proc/kill_displacement_map()
+	filters["displacement"] = null
+	displacement_map = null
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
 	return FALSE

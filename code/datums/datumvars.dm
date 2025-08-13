@@ -134,6 +134,8 @@
 
 	if(istype(D,/atom))
 		body += "<option value='?_src_=vars;teleport_to=\ref[D]'>Teleport To</option>"
+		body += "<option value='?_src_=vars;displacement=\ref[D]'>Set Displacement Map</option>"
+		body += "<option value='?_src_=vars;clear_displacement=\ref[D]'>Clear Displacement Map</option>"
 
 	if(istransformable(D))
 		body += "<option value='?_src_=vars;edit_transform=\ref[D]'>Edit Transform Matrix</option>"
@@ -830,6 +832,25 @@ function loadPage(list) {
 			return
 
 		user.teleport_to(A)
+
+	else if(href_list["displacement"])
+		if(!check_rights(0))
+			return
+
+		var/icon/I = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
+		if(!istype(I))
+			to_chat(usr, "No icon selected.")
+			return
+
+		var/size = input(usr, "How much to displace by?","Displacement amount",32) as num
+
+		update_displacement_map(I,size)
+
+	else if(href_list["clear_displacement"])
+		if(!check_rights(0))
+			return
+
+		kill_displacement_map()
 
 	else if(href_list["delete"])
 		if(!check_rights(0))
