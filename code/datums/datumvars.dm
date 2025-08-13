@@ -843,7 +843,7 @@ function loadPage(list) {
 			return
 
 		var/icon/I = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
-		if(!istype(I))
+		if(!I)
 			to_chat(usr, "No icon selected.")
 			return
 
