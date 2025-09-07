@@ -278,7 +278,7 @@ var/const/Sqrt2	= 1.41421356
 		input &= (input - 1)
 		.++
 
-#if UNIT_TESTS_ENABLED
+#if GEN_UNIT_TESTS_ENABLED
 /datum/unit_test/count_set_bitflags/start()
 	assert_eq(count_set_bitflags(0), 0)
 	assert_eq(count_set_bitflags(1|2|4|8|16|32|64|128|256|512|1024|2048|4096|8192|16384|32768|65535|131072|262144|524288|1048576|2097152|4194304|8388608), 23)

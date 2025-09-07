@@ -13,6 +13,7 @@ dme = "vgstation13.dme"
 def append_unit_tests_macros_to_compile_options_file():
     with open("__DEFINES/__compile_options.dm", "a") as file:
         file.write("#define UNIT_TESTS_ENABLED 1\n")
+        file.write("#define GEN_UNIT_TESTS_ENABLED 1\n")
         file.write("#define UNIT_TESTS_AUTORUN 1\n")
         file.write("#define UNIT_TESTS_STOP_SERVER_WHEN_DONE 1\n")
         file.write("#define MAP_OVERRIDE 6\n")
@@ -27,6 +28,12 @@ def append_maps_to_dme(maps):
         content = MAP_INCLUDE_RE.sub(includes, content, count=1)
         f.seek(0, 0)
         f.write(content)
+    with open("__DEFINES/__compile_options.dm", "a") as file:
+        file.write("#define MAP_UNIT_TESTS_ENABLED 1\n")
+        file.write("#define UNIT_TESTS_AUTORUN 1\n")
+        file.write("#define UNIT_TESTS_STOP_SERVER_WHEN_DONE 1\n")
+        file.write("#define MAP_OVERRIDE 6\n")
+        file.write("#define GAMETICKER_LOBBY_DURATION 2 SECONDS\n")
 
 def main():
     mapfiles = os.environ.get("ALL_MAPS") # Extra map files to replace the regular map file in the DME with.

@@ -6,10 +6,6 @@ import asyncio
 import travis_utils
 
 def main():
-    if os.environ.get("DM_UNIT_TESTS") != "1":
-        print("DM_UNIT_TESTS is not set, not running tests.")
-        return
-
     dmb = "vgstation13.dmb"
 
     executable = "DreamDaemon"

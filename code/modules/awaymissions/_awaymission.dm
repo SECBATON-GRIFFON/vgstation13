@@ -141,7 +141,7 @@ Example of the second method:
 
 var/static/list/away_mission_subtypes = subtypesof(/datum/map_element/away_mission)
 
-#if UNIT_TESTS_ENABLED
+#if GEN_UNIT_TESTS_ENABLED
 /datum/unit_test/away_missions/start()
 	for(var/M in away_mission_subtypes)
 		var/datum/map_element/away_mission/mission = M

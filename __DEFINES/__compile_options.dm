@@ -51,8 +51,12 @@
 // You can turn those on and off manually if you prefer, instead of setting this
 #define DEVELOPER_MODE 0
 
-// If 1, unit tests will be compiled
+// If 1, unit tests will be compiled. Below for specific types (at least 1 is required)
 #define UNIT_TESTS_ENABLED 0
+// If 1, general unit tests will be compiled
+#define GEN_UNIT_TESTS_ENABLED 0
+// If 1, map-specific unit tests will be compiled
+#define MAP_UNIT_TESTS_ENABLED 0
 // If 1, unit tests run automatically
 #define UNIT_TESTS_AUTORUN 0
 // If 1, the server stops after the tests are done

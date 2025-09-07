@@ -1,4 +1,4 @@
-#if UNIT_TESTS_ENABLED
+#if GEN_UNIT_TESTS_ENABLED
 #include "_unit_test.dm"
 #include "autolathe.dm"
 #include "borer.dm"
@@ -24,3 +24,7 @@
 #include "hour_calculations.dm"
 #include "sqlite_prefs.dm"
 #endif
+#if MAP_UNIT_TESTS_ENABLED
+#include "map_specific.dm"
+#endif
+
