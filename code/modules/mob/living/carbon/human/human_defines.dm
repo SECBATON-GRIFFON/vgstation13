@@ -77,6 +77,7 @@
 	fire_dmi = 'icons/mob/OnFire.dmi'
 	fire_sprite = "Standing"
 	plane = HUMAN_PLANE
+	appearance_flags = KEEP_TOGETHER
 
 	var/show_client_status_on_examine = TRUE //If false, don't display catatonic/braindead messages to non-admins
 
