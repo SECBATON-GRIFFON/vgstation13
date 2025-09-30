@@ -85,8 +85,33 @@
 		if(L.stat != DEAD)
 			e.amount *= 0.5
 	e.start()
-	holder.clear_reagents()
+	holder.clear_reagents(TRUE)
 	holder.add_reagent(POTASSIUM_HYDROXIDE, created_volume)
+
+/datum/chemical_reaction/fake_explosion_potassium
+	name = "Honk Potassium Explosion"
+	id = "explosion_honk"
+	result = null
+	required_reagents = list(POTASSIUM = 1, HONKSERUM = 1)
+	result_amount = 2
+	secondary = 1
+	var/volume_divisor = 3
+
+/datum/chemical_reaction/fake_explosion_potassium/on_reaction(var/datum/reagents/holder, var/created_volume)
+	var/range = min (MAX_EXPLOSION_RANGE, round(created_volume/volume_divisor) - 1)
+	var/devastation = round(min(3, range * 0.25)) // clamps to 3 devastation for grenades
+	var/heavy = round(min(5, range * 0.5)) // clamps to 5 heavy range for grenades
+	var/light = min(7, range) // clamps to 7 light range for grenades
+	var/flash = range * 1.5
+	explosion_effect(get_turf(holder.my_atom),devastation,heavy,light,flash)
+
+/datum/chemical_reaction/fake_explosion_potassium/bigger
+	name = "Honkoglycerin Explosion"
+	id = "explosion_honk_2"
+	result = null
+	required_reagents = list(HONKSERUM = 3, SACIDS = 5, PACIDS = 4)
+	result_amount = 8
+	volume_divisor = 2
 
 /datum/chemical_reaction/explosion_potassium/holy
 	id = "holy_explosion_potassium"
@@ -146,7 +171,8 @@
 	//100 created volume = 4 heavy range & 7 light range. A few tiles smaller than traitor EMP grandes.
 	//200 created volume = 8 heavy range & 14 light range. 4 tiles larger than traitor EMP grenades.
 	empulse(location, round(created_volume / 24), round(created_volume / 14), 1)
-	holder.clear_reagents()
+	holder.clear_reagents(TRUE)
+	holder.add_reagent(FERROURANIUM,created_volume/10)
 
 /datum/chemical_reaction/silicate
 	name = "Silicate"
@@ -785,7 +811,7 @@
 			S.start()
 			sleep(10)
 			S.start()
-	holder.clear_reagents()
+	holder.clear_reagents(TRUE)
 
 /datum/chemical_reaction/chemsmoke/bleach
 	name = "Bleach Fumes"
@@ -1139,6 +1165,20 @@
 	required_reagents = list(NANOBOTS = 1, MUTAGEN = 5, SILICATE = 5, IRON = 10)
 	result_amount = 2.5
 
+/datum/chemical_reaction/engnanobots
+	name = "Energetic Nanobots"
+	id = ENGNANOBOTS
+	result = ENGNANOBOTS
+	required_reagents = list(NANOBOTS = 1, FERROURANIUM = 10)
+	result_amount = 2.5
+
+/datum/chemical_reaction/cargonanobots
+	name = "Cargonian Nanobots"
+	id = CARGONANOBOTS
+	result = CARGONANOBOTS
+	required_reagents = list(NANOBOTS = 1, PLASMA = 50)
+	result_amount = 2.5
+
 //Surgery tools from chemicals because why not? Requires a vial to make them and consumes it as a part of making the tool.
 //DO NOT COPY PASTE THESE WITHOUT SOME KIND OF CONTAINER/HOLDER CHECK BECAUSE qdel WILL DELETE ANY REAGENT CONTAINER WITHOUT IT. IE PLAYERS
 /datum/chemical_reaction/fixoveinmake
@@ -1200,7 +1240,7 @@
 		var/datum/effect/system/foam_spread/s = new()
 		s.set_up(created_volume, location, holder, 0)
 		s.start()
-	holder.clear_reagents()
+	holder.clear_reagents(TRUE)
 
 /datum/chemical_reaction/metalfoam
 	name = "Metal Foam"
@@ -1395,7 +1435,7 @@
 /datum/chemical_reaction/slime_extract/required_condition_check(datum/reagents/holder)
 	if(istype(holder.my_atom, /obj/item/slime_extract))
 		var/obj/item/slime_extract/S = holder.my_atom
-		if(S.Uses > 0)
+		if(S.uses > 0)
 			return 1
 	return 0
 
@@ -1407,9 +1447,9 @@
 		B.forceMove(get_turf(holder.my_atom))
 	if(istype(holder.my_atom, /obj/item/slime_extract))
 		var/obj/item/slime_extract/S = holder.my_atom
-		S.Uses--
+		S.uses--
 		S.update_icon()
-		if(S.Uses <= 0)
+		if(S.uses <= 0)
 			if(!istype(S.loc, /obj/item/weapon/grenade/chem_grenade) && !quiet)
 				S.visible_message("<span class='notice'>[bicon(holder.my_atom)] \The [holder.my_atom]'s power is consumed in the reaction.</span>")
 			qdel(S)
@@ -2120,9 +2160,8 @@
 	required_container = /obj/item/slime_extract/adamantine
 
 /datum/chemical_reaction/slime_extract/slimegolem/on_reaction(var/datum/reagents/holder)
-	var/obj/effect/golem_rune/Z = new /obj/effect/golem_rune
-	Z.forceMove(get_turf(holder.my_atom))
-	Z.announce_to_ghosts()
+	var/obj/effect/decal/cleanable/golem_rune/Z = new /obj/effect/decal/cleanable/golem_rune(get_turf(holder.my_atom))
+	Z.creator = usr
 	..()
 
 /datum/chemical_reaction/slime_extract/slimediamond2
@@ -2536,6 +2575,13 @@
 	required_reagents = list(FLOUR = 10, MILK = 30, LIQUIDBUTTER = 2, EGG_YOLK = 8, SODIUMCHLORIDE = 1, SUGARS = 5)
 	result_amount = 56 // 1:1
 
+/datum/chemical_reaction/paincake_mix
+	name = "Paincake Mix"
+	id = PAINCAKE
+	result = PAINCAKE
+	required_reagents = list(NOVAFLOUR = 10, MILK = 30, LIQUIDBUTTER = 2, EGG_YOLK = 8, SODIUMCHLORIDE = 1, SUGARS = 5) //Not sure if I should replace the egg with pacid, so it's just a flour difference.
+	result_amount = 56 // 1:1
+
 //Jesus christ how horrible
 /datum/chemical_reaction/cream
 	name = "Cream"
@@ -2563,6 +2609,15 @@
 	required_reagents = list(WATER = 1, DRY_RAMEN = 3)
 	result_amount = 3
 	required_temp = 100+T0C
+
+/datum/chemical_reaction/hot_ramen_2
+	name = "Hot Ramen"
+	id = HOT_RAMEN
+	result = HOT_RAMEN
+	required_reagents = list(WATER = 1, DRY_RAMEN = 3)
+	result_amount = 3
+	required_container = /obj/item/weapon/reagent_containers/food/drinks/dry_ramen/heating
+	reaction_temp_change = 100
 
 /datum/chemical_reaction/hell_ramen
 	name = "Hell Ramen"
@@ -2722,6 +2777,21 @@
 	result = BEER
 	required_reagents = list(FLOUR = 10)
 	required_catalysts = list(ENZYME = 5)
+	result_amount = 10
+
+/datum/chemical_reaction/applecider
+	name = "Apple Cider"
+	id = CIDER
+	result = CIDER
+	required_reagents = list(APPLEJUICE = 10)
+	required_catalysts = list(ENZYME = 5)
+	result_amount = 10
+
+/datum/chemical_reaction/snakebite
+	name = "Snakebite"
+	id = SNAKEBITE
+	result = SNAKEBITE
+	required_reagents = list(BEER = 5, CIDER = 5)
 	result_amount = 10
 
 /datum/chemical_reaction/vodka
@@ -3738,13 +3808,28 @@
 	required_reagents = list(SODIUM = 2, SILICON = 1, OXYGEN = 3)
 	result_amount = 5
 
-
 /datum/chemical_reaction/untable
 	name = "Untable Mutagen"
 	id = UNTABLE_MUTAGEN
 	result = UNTABLE_MUTAGEN
 	required_reagents = list(FORMIC_ACID = 1, PHENOL = 1, RADIUM = 1)
 	result_amount = 3
+
+/datum/chemical_reaction/metatable
+	name = "Metatable Mutagen"
+	id = METATABLE_MUTAGEN
+	result = METATABLE_MUTAGEN
+	required_reagents = list(UNTABLE_MUTAGEN = 1, CHARCOAL = 1)
+	required_catalysts = list(ENZYME = 5)
+	result_amount = 2
+
+/datum/chemical_reaction/metastable
+	name = "Metastable Mutagen"
+	id = METASTABLE_MUTAGEN
+	result = METASTABLE_MUTAGEN
+	required_reagents = list(MUTAGEN = 1, CHARCOAL = 1)
+	required_catalysts = list(ENZYME = 5)
+	result_amount = 2
 
 //Karmotrine Drinks
 
@@ -3976,6 +4061,7 @@
 	id = null
 	result = null
 	result_amount = 1
+	var/mobAprob = 80
 	var/mob2spawnA = null
 	var/mob2spawnB = null
 
@@ -4015,7 +4101,7 @@
 	if(!location)
 		location = get_turf(holder.my_atom)
 	for(var/i=1 to created_volume)
-		if(prob(80)) //here so aminoblatella can spawn its two variants of roach on the mutagen reaction, does not affect aminocyprinidol, since that only makes baby carps
+		if(prob(mobAprob)) //here so aminoblatella can spawn its two variants of roach on the mutagen reaction, does not affect aminocyprinidol, since that only makes baby carps
 			new mob2spawnA(location)
 		else
 			new mob2spawnB(location)
@@ -4082,6 +4168,44 @@
 	result_amount = 1
 	mob2spawnA = /mob/living/simple_animal/hostile/bigroach
 	mob2spawnB = /mob/living/simple_animal/hostile/bigroach/queen //greater odds than getting a queen via mutating roaches (0.5%)
+
+/datum/chemical_reaction/aminocorydon
+	name = "Aminocorydon"
+	id = AMINOCORYDON
+	result = AMINOCORYDON
+	required_reagents = list(AMINOMICIN = 1, BANANA = 5)
+	result_amount = 1
+
+/datum/chemical_reaction/aminocorydon/required_condition_check(datum/reagents/holder)
+	if(istype(holder.my_atom, /obj/item/weapon/reagent_containers))
+		return (locate(/obj/item/stack/sheet/mineral/clown) in holder.my_atom.contents) //you need that bananium catalyst
+	return FALSE
+
+/datum/chemical_reaction/synthmob/synthclown
+	name = "Synthclown"
+	id = "synthclown"
+	result = null
+	required_reagents = list(NUTRIMENT = 1, AMINOCORYDON = 1)
+	result_amount = 3
+	mob2spawn = /mob/living/simple_animal/hostile/retaliate/clown //don't do this
+
+/datum/chemical_reaction/synthmob/synthmime
+	name = "Synthmime"
+	id = "synthmime"
+	result = null
+	required_reagents = list(NOTHING = 1, AMINOCORYDON = 1)
+	result_amount = 3
+	mob2spawn = /mob/living/simple_animal/hostile/retaliate/mime
+
+/datum/chemical_reaction/synthmobhostile/synthcluwneguette
+	name = "Synthcluwneguette"
+	id = "synthcluwneguette"
+	result = null
+	required_reagents = list(HONKSERUM = 10, AMINOCORYDON = 1)
+	result_amount = 1
+	mobAprob = 95 //we only rarely want a mime
+	mob2spawnA = /mob/living/simple_animal/hostile/retaliate/cluwne
+	mob2spawnB = /mob/living/simple_animal/hostile/retaliate/faguette
 
 /datum/chemical_reaction/ectoplasm
 	name = "Ectoplasm"
@@ -4240,12 +4364,20 @@
 	result = VOMIT
 	required_reagents = list(NUTRIMENT = 1, SACID = 1)
 	required_catalysts = list(ENZYME = 5)
+	result_amount = 2
 
 /datum/chemical_reaction/squash
 	name = "Squash"
 	id = SQUASH
 	result = SQUASH
 	required_reagents = list(MANLYDORF = 1, DEGENERATECALCIUM = 1, HYPERZINE = 1)
+	result_amount = 2
+
+/datum/chemical_reaction/priaxate
+	name = "Priaxate"
+	id = PRIAXATE
+	result = PRIAXATE
+	required_reagents = list(GRAVY = 1, TRICORDRAZINE = 1)
 	result_amount = 2
 
 #undef ALERT_AMOUNT_ONLY

@@ -99,9 +99,15 @@ Please contact me on #coderbus IRC. ~Carn x //FUCK YOU CARN
 	update_overlays_standing()
 	update_transform()
 	update_hands_icons()
+	update_luminosity()
 	if(istype(loc,/obj/structure/inflatable/shelter))
 		var/obj/O = loc
 		O.update_icon() //Shelters use an overlay of the human inside, so if we change state we want the appearance to reflect that.
+
+/mob/living/carbon/human/proc/update_luminosity()//due to moody lights we might want people to show up in the dark even if they aren't actually emitting light
+	luminosity = 0
+	for (var/obj/item/I in contents)
+		luminosity = max(luminosity, I.luminosity)
 
 /mob/living/carbon/human/proc/update_overlays_standing()
 	if(species && species.override_icon)
@@ -287,6 +293,26 @@ var/global/list/damage_icon_parts = list()
 	update_tail_layer(FALSE)
 	if(update_icons)
 		update_icons()
+
+/mob/living/carbon/human/proc/get_skin_color()
+	var/husk = (M_HUSK in mutations)
+	var/hulk = (M_HULK in mutations) && !ishorrorform(src) && mind.special_role != HIGHLANDER // Part of the species.
+	var/skeleton = (M_SKELETON in mutations)
+
+	var/base_rgb = species.flesh_color
+	if(base_rgb == null)
+		base_rgb = rgb(255, 202, 149)
+	if(!skeleton && !husk && !hulk)
+		if(species.anatomy_flags & MULTICOLOR)
+			return AddRGB(base_rgb, rgb(multicolor_skin_r, multicolor_skin_g, multicolor_skin_b))
+		else if(species.anatomy_flags & RGBSKINTONE)
+			return AddRGB(base_rgb, rgb(my_appearance.r_hair, my_appearance.g_hair, my_appearance.b_hair))
+		else if(species.anatomy_flags & HAS_SKIN_TONE)
+			if(my_appearance.s_tone >= 0)
+				return AddRGB(base_rgb, rgb(my_appearance.s_tone, my_appearance.s_tone, my_appearance.s_tone))
+			else
+				return SubRGB(base_rgb, rgb(-my_appearance.s_tone, -my_appearance.s_tone, -my_appearance.s_tone))
+	return base_rgb
 
 //HAIR OVERLAY
 /mob/living/carbon/human/update_hair(update_icons = TRUE)

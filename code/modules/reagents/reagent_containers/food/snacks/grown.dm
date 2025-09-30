@@ -394,6 +394,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	desc = "Nutritious!"
 	filling_color = "#A332AD"
 	plantname = "grapes"
+	harmfultocorgis = TRUE
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/greengrapes
 	name = "bunch of green grapes"
@@ -401,6 +402,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	potency = 25
 	filling_color = "#A6FFA3"
 	plantname = "greengrapes"
+	harmfultocorgis = TRUE
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/peanut
 	name = "peanut"
@@ -408,6 +410,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	filling_color = "857e27"
 	potency = 25
 	plantname = "peanut"
+	harmfultocorgis = TRUE
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/rocknut
 	name = "rocknut"
@@ -486,6 +489,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	potency = 50
 	filling_color = "#9C8E54"
 	plantname = "cocoa"
+	harmfultocorgis = TRUE
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/sugarcane
 	name = "sugarcane"
@@ -902,6 +906,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	filling_color = "EDEDE1"
 	plantname = "garlic"
 	hydroflags = HYDRO_VOX
+	harmfultocorgis = TRUE
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/breadfruit
 	name = "breadfruit"
@@ -1041,6 +1046,7 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	icon = 'icons/obj/hydroponics/avocado.dmi'
 	filling_color = "#EAE791"
 	plantname = "avocado"
+	harmfultocorgis = TRUE
 	var/cant_eat_msg = "'s skin is much too tough to chew."
 	var/cut = FALSE
 
@@ -1054,12 +1060,19 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	..()
 	if(W.sharpness_flags & SHARP_BLADE)
 		if(cut && cant_eat_msg)
-			new /obj/item/seeds/avocadoseed/whole(loc)
-			new /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/pitted(loc)
-			user.create_in_hands(src, /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/pitted, vismsg = "\The [user] removes the pit from \the [src] with \the [W].", msg = "You remove the pit from \the [src] with \the [W].")
+			var/obj/item/seeds/avocadoseed/whole/sneed = new(get_turf(src))
+			var/obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/pitted/slice = new(get_turf(src))
+			reagents.trans_to(slice, reagents.total_volume)
+			sneed.seed = seed
+			sneed.update_seed()
+			user.create_in_hands(src, slice, vismsg = "\The [user] removes the pit from \the [src] with \the [W].", msg = "You remove the pit from \the [src] with \the [W].")
 		else if(!cut)
-			var/list/halves = list(new /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut(get_turf(src)), new /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/pitted(get_turf(src)))
+			var/obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/mypit = new(get_turf(src))
+			var/list/halves = list(new /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut/pitted(get_turf(src)), mypit)
+			for(var/obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cado in halves)
+				reagents.trans_to(cado, (reagents.total_volume/2))
 			user.create_in_hands(src, pick(halves), vismsg = "\The [user] slices \the [src] in half with \the [W].", msg = "You slice \the [src] in half with \the [W].")
+			mypit.seed = seed
 
 /obj/item/weapon/reagent_containers/food/snacks/grown/avocado/cut
 	name = "avocado half"
@@ -1197,3 +1210,17 @@ var/list/strange_seed_product_blacklist = subtypesof(/obj/item/weapon/reagent_co
 	potency = 20
 	filling_color = "#7E80DE"
 	plantname = "flax"
+
+/obj/item/weapon/reagent_containers/food/snacks/grown/berries/jungle
+	icon = 'icons/obj/hydroponics/berry.dmi'
+	icon_state = "produce2"
+	desc = "They taste like... burning."
+
+/obj/item/weapon/reagent_containers/food/snacks/grown/berries/jungle/New()
+	..()
+	icon_state = "produce2" //the icon state is set in ..()
+	reagents.add_reagent(NUTRIMENT,1) //we want 3 total. there's already 2 from ..()
+	bitesize=3 //consume it in 1 bite.
+	if(prob(33))
+		reagents.add_reagent(TOXIN,1)
+		bitesize=4

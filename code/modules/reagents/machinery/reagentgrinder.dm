@@ -32,6 +32,8 @@ var/global/list/juice_items = list (
 	var/speed_multiplier = 1
 	var/list/blend_items = list (
 
+		/obj/item/trash/scrap                 = list(IRON = 10),
+
 		//Sheets
 		/obj/item/stack/sheet/metal           = list(IRON = 20),
 		/obj/item/stack/sheet/mineral/plasma  = list(PLASMA = 20),
@@ -46,7 +48,7 @@ var/global/list/juice_items = list (
 		/obj/item/trash/candle				  = list(WAX = 1),
 		/obj/item/weapon/grown/nettle         = list(FORMIC_ACID = 0),
 		/obj/item/weapon/grown/deathnettle    = list(PHENOL = 0),
-		/obj/item/stack/sheet/charcoal        = list("charcoal" = 20),
+		/obj/item/stack/sheet/charcoal        = list(CHARCOAL = 20),
 		/obj/item/stack/sheet/bone	          = list(BONEMARROW = 20),
 
 		//Blender Stuff
@@ -72,6 +74,11 @@ var/global/list/juice_items = list (
 		/obj/item/weapon/reagent_containers/food = list(),
 		/obj/item/ice_crystal                = list(ICE = 10),
 		/obj/item/weapon/grown/novaflower    = list(NOVAFLOUR = 10),
+		/obj/item/device/flashlight/flare     = list(SULFUR = 10),
+		/obj/item/stack/cable_coil            = list(COPPER = 10),
+		/obj/item/weapon/cell                 = list(LITHIUM = 10),
+		/obj/item/clothing/head/butt          = list(MERCURY = 10),
+		/obj/item/weapon/match                = list(PHOSPHORUS = 2),
 	)
 
 

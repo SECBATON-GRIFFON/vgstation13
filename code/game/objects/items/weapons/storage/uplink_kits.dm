@@ -296,6 +296,15 @@
 		/obj/item/clothing/glasses/hud/security/sunglasses/syndishades,
 	)
 
+/obj/item/weapon/storage/box/syndie_kit/kitchengun
+	name = "Kitchen gun"
+	items_to_spawn = list(
+		/obj/item/weapon/gun/projectile/glock/fancy/kitchengun,
+		/obj/item/ammo_storage/magazine/m380auto,
+		/obj/item/ammo_storage/magazine/m380auto,
+		/obj/item/clothing/glasses/scanner/night
+	)
+
 /obj/item/weapon/storage/box/syndie_kit/boolets
 	name = "Shotgun shells"
 	items_to_spawn = list(/obj/item/ammo_casing/shotgun/fakebeanbag = 6)
@@ -379,7 +388,7 @@
 //Contains unique gear not found anywhere else
 /obj/item/weapon/storage/box/syndicate_experimental/New()
 	..()
-	var/selection = pick("damocles", "bomber vest", "bike horn")
+	var/selection = pick("damocles", "bomber vest", "bike horn", "ZKZ transactional rifle")
 	switch(selection)
 		if("damocles")
 			new /obj/item/weapon/damocles(src)
@@ -387,6 +396,8 @@
 			new /obj/item/clothing/suit/bomber_vest(src)
 		if("bike horn")
 			new /obj/item/weapon/bikehorn/syndicate(src)
+		if("ZKZ transactional rifle")
+			new /obj/item/weapon/gun/projectile/zkz(src)
 
 /obj/item/weapon/storage/box/syndie_kit/cratesender
 	name = "box (CS)"

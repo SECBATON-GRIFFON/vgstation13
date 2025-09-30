@@ -148,6 +148,7 @@
 /datum/reagent/chefspecial/on_overdose(var/mob/living/M)
 	M.death(0)
 	M.attack_log += "\[[time_stamp()]\]<font color='red'>Died a quick and painless death by <font color='green'>Chef Excellence's Special Sauce</font>.</font>"
+	log_attack("[key_name(M)] was killed by Chef Excellence's Special Sauce (CHEFSPECIAL).")
 
 //Otherwise known as a "Mickey Finn"
 /datum/reagent/chloralhydrate
@@ -478,6 +479,64 @@
 		I.desc = "Looks like this was \an [O] some time ago."
 		O.visible_message("<span class='warning'>\The [O] melts.</span>")
 		qdel(O)
+
+/datum/reagent/mutagen/metastable
+	name = "Metastable Mutagen"
+	id = METASTABLE_MUTAGEN
+	description = "A modified variant of Unstable Mutagen that causes controlled mutations in plants and accelerates the onset of symptoms due to radiation poisoning."
+
+/datum/reagent/mutagen/metastable/on_mob_life(var/mob/living/M)
+	if(!M.dna)
+		return //No robots, AIs, aliens, Ians or other mobs should be affected by this.
+	if(!M)
+		M = holder.my_atom
+	if(..())
+		return 1
+	M.apply_radiation(3,RAD_INTERNAL)
+	if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+		H.rad_tick += 20 * REM //QUICKLY advances the rad_tick
+
+/datum/reagent/mutagen/metastable/on_plant_life(obj/machinery/portable_atmospherics/hydroponics/T)
+	if(!holder)
+		return
+	if(!T)
+		T = holder.my_atom //Try to find the mob through the holder
+	if(!istype(T)) //Still can't find it, abort
+		return
+	var/amount = T.reagents.get_reagent_amount(id)
+	if(amount >= 1)
+		if(prob(30))
+			T.mutate(GENE_PHYTOCHEMISTRY, PLANT_CHEMICAL)
+			if(prob(50))
+				T.reagents.remove_reagent(id, 1)
+	else if(amount > 0)
+		T.reagents.remove_reagent(id, amount)
+
+/datum/reagent/mutagen/metastable/metatable
+	name = "Metatable Mutagen"
+	id = METATABLE_MUTAGEN
+	description = "Causes controlled mutations in plants and tables, and accelerates the onset of radiation symptoms."
+
+/datum/reagent/mutagen/metastable/metatable/reaction_obj(var/obj/O, var/volume)
+	if(..())
+		return 1
+
+	if(!(O.dissolvable() == PACID))
+		return
+	var/list/tabletypes = list(/obj/structure/table,
+								/obj/structure/table/woodentable,
+								/obj/structure/table/woodentable/poker,
+								/obj/structure/table/glass,
+								/obj/structure/table/glass/plasma,
+								/obj/structure/table/plastic,
+								/obj/structure/table/reinforced,
+								/obj/structure/table/reinforced/clockwork
+								)
+	if(istype(O,/obj/structure/table))
+		var/selectedtable = pick(tabletypes)
+		O.visible_message("<span class='warning'>\The [O] suddenly changes shape!</span>")
+		new selectedtable(O.loc) //the new call for tables automatically deletes the previous one, so no need for a qdel here
 
 /datum/reagent/nanites
 	name = "Nanites"
