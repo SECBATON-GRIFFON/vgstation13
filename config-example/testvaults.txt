@@ -1,4 +1,6 @@
 # List of map elements to load for the map "test_vault.dmm", leave the file below this line blank to load vault types only.
+# Uncomment below to rotate a vault in all angles to test rotations
+#ROTATE
 
 #/datum/map_element/vault/clownroid
 #/datum/map_element/vault/sokoban

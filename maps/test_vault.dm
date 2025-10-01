@@ -14,13 +14,18 @@
 	zLevels = list(/datum/zLevel/vault)
 	enabled_jobs = list(/datum/job/trader)
 	zCentcomm = 1
+	var/vaults_rotate = FALSE
 
 /datum/map/active/map_specific_init()
 	generate_mapvaults()
 
 /datum/map/active/generate_mapvaults()
 	for(var/datum/map_element/ME in get_map_elements_from_config())
-		load_dungeon(ME)
+		if(vaults_rotate)
+			for(var/rotation in rightangles)
+				load_dungeon(ME,rotation,TRUE)
+		else
+			load_dungeon(ME)
 		new /obj/item/beacon(ME.location)
 
 /datum/map/active/proc/get_map_elements_from_config()
@@ -31,6 +36,8 @@
 			continue
 		if(copytext(line,1,2) == "#")
 			continue
+		if(!vaults_rotate && (copytext(line,1,6) == "ROTAT"))
+			vaults_rotate = TRUE
 		if(copytext(line,1,2) == "/" && ispath(text2path(line),/datum/map_element))
 			var/ourpath = text2path(line)
 			vaults += new ourpath
