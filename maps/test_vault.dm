@@ -23,7 +23,8 @@
 	for(var/datum/map_element/ME in get_map_elements_from_config())
 		if(vaults_rotate)
 			for(var/rotation in rightangles)
-				load_dungeon(ME,rotation,TRUE)
+
+				load_dungeon(new ME.type,rotation,TRUE)
 		else
 			load_dungeon(ME)
 		new /obj/item/beacon(ME.location)
