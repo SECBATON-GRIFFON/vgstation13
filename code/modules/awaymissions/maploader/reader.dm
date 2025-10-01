@@ -242,6 +242,9 @@ var/list/map_dimension_cache = list()
 			if(!map_element.location)
 				//Set location to the lower left corner, if it hasn't already been set
 				map_element.location = locate(x_offset + 1, y_offset + 1, z_offset)
+			if(!map_element.location)
+				//Still not set? Use this as a backup
+				map_element.location = locate(x_offset, y_offset, z_offset)
 
 		//reached End Of File
 		if(findtext(tfile,quote+"}",zpos,0)+2==tfile_len)
