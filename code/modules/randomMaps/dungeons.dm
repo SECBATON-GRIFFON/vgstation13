@@ -92,7 +92,7 @@ var/turf/dungeon_area = null
 				spawn_x = dungeon_area.x
 
 	if(!ME.width) //If the map element doesn't have its width/height calculated yet, do it now and add the map element to the dungeon list
-		ME.assign_dimensions()
+		ME.assign_dimensions(rotate)
 	existing_dungeons.Add(ME) //Add it now, to prevent issues occuring when two dungeons are loaded at once
 
 	//Reduce X and Y by 1 because these arguments are actually offsets, and they're added to 1;1 in the map loader. Without this, spawning something at 1;1 would result in it getting spawned at 2;2

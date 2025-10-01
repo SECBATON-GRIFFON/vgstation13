@@ -76,11 +76,18 @@ var/list/datum/map_element/map_elements = list()
 
 	return list(width, height)
 
-/datum/map_element/proc/assign_dimensions()
+/datum/map_element/proc/assign_dimensions(rotate = 0)
 	var/list/dimensions = get_dimensions()
 
-	width = dimensions[1]
-	height = dimensions[2]
+	if((rotate % 90) != 0) //If not divisible by 90, make it
+		rotate += (rotate % 90)
+
+	if(rotate == 0 || rotate == 180)
+		width = dimensions[1]
+		height = dimensions[2]
+	else
+		width = dimensions[2]
+		height = dimensions[1]
 
 //Return a list with strings associated with points
 //For example: list("Discovered a vault!" = 500) will add 500 points to the crew's score for discovering a vault
