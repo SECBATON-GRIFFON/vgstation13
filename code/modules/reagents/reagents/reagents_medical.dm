@@ -1338,6 +1338,24 @@ var/global/list/charcoal_doesnt_remove=list(
 		M.mind.suiciding = FALSE
 		to_chat(M, "<span class='numb'>Whoah... You feel like this life is worth living after all!</span>")
 
+/datum/reagent/moclobemide
+	name = "Moclobemide"
+	id = MOCLOBEMIDE
+	description = "Frees the mind greatly. Not recommended for use with those of more unstable minds."
+	reagent_state = REAGENT_STATE_LIQUID
+	color = "#C8A5DC"
+	custom_metabolism = 0.01
+	density = 1.19
+	specheatcap = 3.99
+
+/datum/reagent/moclobemide/on_mob_life(var/mob/living/M as mob)
+	if(..())
+		return 1
+	if(holder.has_any_reagents(list(PAROXETINE,CITALOPRAM,SYNAPTIZINE,FLUORINE)))
+		holder.remove_reagents(list(PAROXETINE,CITALOPRAM,SYNAPTIZINE,FLUORINE), 2 * REM)
+	if(M.hallucination > 0)
+		M.hallucination += 10
+
 /datum/reagent/peptobismol
 	name = "Peptobismol"
 	id = PEPTOBISMOL

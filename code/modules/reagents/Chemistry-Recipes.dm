@@ -347,6 +347,13 @@
 	required_reagents = list(SUGARS = 1, LITHIUM = 1, WATER = 1)
 	result_amount = 3
 
+/datum/chemical_reaction/moclobemide
+	name = "Moclobemide"
+	id = MOCLOBEMIDE
+	result = MOCLOBEMIDE
+	required_reagents = list(SYNAPTIZINE = 1, NITROGEN = 1, FLUORINE = 1) //Flourine is actually in paroxetine instead of this but whatever, here's another use for it
+	result_amount = 3
+
 /datum/chemical_reaction/hyronalin
 	name = "Hyronalin"
 	id = HYRONALIN

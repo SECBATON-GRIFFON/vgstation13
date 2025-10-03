@@ -107,6 +107,7 @@
 #define PANACEA				"panacea"
 #define PROCIZINE 			"procizine"
 #define SYNAPTIZINE 			"synaptizine"
+#define MOCLOBEMIDE 			"moclobemide"
 #define IMPEDREZENE 			"impedrezene"
 #define HYRONALIN 			"hyronalin"
 #define ARITHRAZINE 			"arithrazine"
