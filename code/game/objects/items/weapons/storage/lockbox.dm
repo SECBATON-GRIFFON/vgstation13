@@ -95,13 +95,10 @@
 			return
 		return toggle(user, I.registered_name)
 	if(!electronics && istype(W,/obj/item/weapon/circuitboard/airlock))
-		if(W.icon_state == "door_electronics_smoked")
-			to_chat(user, "<span class='warning'>Repair \the [W] before putting it in!</span>")
-		else if(user.drop_item(W,src))
-			electronics = W
+		if(add_access_electronics(W,user))
 			to_chat(user, "<span class='notice'>You add \the [electronics] to \the [src].</span>")
 			playsound(loc, 'sound/items/Deconstruct.ogg', 50, 1)
-			add_access_electronics(electronics,user)
+			electronics = W
 			emagged = 0
 			locked = 0
 			update_icon()

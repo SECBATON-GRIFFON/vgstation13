@@ -168,16 +168,7 @@
 			return
 
 		if(panel_open && istype(W,/obj/item/weapon/circuitboard/airlock))
-			if(W.icon_state == "door_electronics_smoked")
-				to_chat(user, "<span class='warning'>Repair \the [W] before putting it in!</span>")
-			if(user.drop_item(W,src))
-				electronics = W
-				if(electronics.conf_access?.len)
-					if(electronics.one_access)
-						req_one_access = electronics.conf_access
-					else
-						req_access = electronics.conf_access
-				electronics.installed = TRUE
+			if(add_access_electronics(W,user))
 				playsound(loc, 'sound/items/Deconstruct.ogg', 50, 1)
 				to_chat(user, "<span class='notice'>You add [electronics] to [src].</span>")
 			return

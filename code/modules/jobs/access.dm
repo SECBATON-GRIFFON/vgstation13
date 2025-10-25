@@ -232,6 +232,9 @@
 		A = new(src)
 	else
 		if(user && (A.loc == user))
+			if(A.icon_state == "door_electronics_smoked")
+				to_chat(user, "<span class='warning'>Repair \the [W] before putting it in!</span>")
+				return
 			if(!user.drop_item(A,src))
 				return
 		if(A.loc != src)
