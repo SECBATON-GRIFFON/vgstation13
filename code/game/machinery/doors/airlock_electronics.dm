@@ -108,7 +108,7 @@
 	if(..())
 		return 1 //Its not as though this does ANYTHING
 	if(!Adjacent(usr) || usr.incapacitated() || (!ishigherbeing(usr) && !isrobot(usr)) || icon_state == "door_electronics_smoked" || installed)
-		return
+		return 1
 
 	if(href_list["login"])
 		if(ishuman(usr))
@@ -122,7 +122,7 @@
 
 	if(locked)
 		to_chat(usr, "<span class='warning'>Access denied.</span>")
-		return
+		return 1
 
 	if(href_list["logout"])
 		locked = 1
@@ -193,10 +193,53 @@
 	if(!locked)
 		. += "DNA ACCESS<br><br>Unique identifiers:<br>"
 
+		var/i = 0
 		for(var/UI in buf.dna.UI)
-			. += "<font style = 'background: green'>[UI]</font><br>"
+			i++
+			. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[UI]</a><br>"
 
 		. += "<br>Structural enzymes:<br>"
 
+		i = 0
 		for(var/SE in buf.dna.SE)
-			. += "<font style = 'background: green'>[SE]</font><br>"
+			i++
+			. += "<a style='background: green' href='?src=\ref[src];dna_access=SE;dna_pos=[i];dna_value=[SE]'>[SE]</a><br>"
+
+
+/obj/item/weapon/circuitboard/airlock/dna/Topic(href, href_list)
+	if(..())
+		return 1
+
+	if(href_list["dna_access"])
+		toggle_dna_access(href_list["dna_access"],href_list["dna_pos"],href_list["dna_value"])
+
+	interact(usr)
+
+/obj/item/weapon/circuitboard/airlock/dna/proc/toggle_dna_access(var/type,var/pos,var/value)
+	if (value == "all")
+		conf_ui = null
+		conf_se = null
+	else
+		var/req = text2num(value)
+
+		switch(type)
+			if("UI")
+				if (conf_ui == null)
+					conf_ui = list()
+
+				if (!(req in conf_ui))
+					conf_ui[pos] += req
+				else
+					conf_ui -= pos
+					if (!conf_ui.len)
+						conf_ui = null
+			if("SE")
+				if (conf_se == null)
+					conf_se = list()
+
+				if (!(req in conf_se))
+					conf_se[pos] += req
+				else
+					conf_se -= pos
+					if (!conf_se.len)
+						conf_se = null
