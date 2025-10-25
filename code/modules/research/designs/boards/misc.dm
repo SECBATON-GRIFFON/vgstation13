@@ -30,7 +30,7 @@
 
 /datum/design/dna_access
 	name = "Circuit Design (DNA Access)"
-	desc = "Allows for the construction of circuit boards used to check access requirements."
+	desc = "Allows for the construction of circuit boards used to check access and DNA requirements."
 	id = "dna_access"
 	req_tech = list(Tc_PROGRAMMING = 4, Tc_BIOTECH = 2)
 	build_type = IMPRINTER

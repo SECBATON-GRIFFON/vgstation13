@@ -194,9 +194,9 @@
 	. = ..()
 
 	if(!locked)
-		. += "<div style='clear: both'><h1>DNA ACCESS</h1>"
+		. += "<div style='clear: both'><hr><h1>DNA ACCESS</h1>"
 		. += "<a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br>"
-		. += "<div style='float: left'>Unique identifiers:<br>"
+		. += "<div style='float: left'><b>Unique identifiers</b><br>"
 
 		var/i = 0
 		for(var/UI in buf.dna.UI)
@@ -209,7 +209,7 @@
 				. += "<a style='background: red' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
 
 		. += "</div>"
-		. += "<div style='float: left'>Structural enzymes:<br>"
+		. += "<div style='float: left'><b>Structural enzymes</b><br>"
 
 		i = 0
 		for(var/SE in buf.dna.SE)
