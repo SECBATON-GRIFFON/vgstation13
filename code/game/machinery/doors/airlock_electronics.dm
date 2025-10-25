@@ -201,7 +201,7 @@
 		var/i = 0
 		for(var/UI in buf.dna.UI)
 			i++
-			if (!conf_ui || !conf_ui.len || !(num2text[i] in conf_ui))
+			if (!conf_ui || !conf_ui.len || !(num2text(i) in conf_ui))
 				. += "<a href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
 			else if(one_access)
 				. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
@@ -214,7 +214,7 @@
 		i = 0
 		for(var/SE in buf.dna.SE)
 			i++
-			if (!conf_se || !conf_se.len || !(num2text[i] in conf_se))
+			if (!conf_se || !conf_se.len || !(num2text(i) in conf_se))
 				. += "<a href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
 			else if(one_access)
 				. += "<a style='background: green' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
