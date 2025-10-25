@@ -184,3 +184,17 @@
 			to_chat(user,"<span class='notice'>DNA data copied from \the [D] to \the [src].</span>")
 		else
 			to_chat(user,"<span class='warning'>This [D.name] has no DNA data on it.</span>")
+
+/obj/item/weapon/circuitboard/airlock/dna/get_dat(mob/user)
+	. = ..()
+
+	if(!locked)
+		. += "DNA ACCESS<br><br>Unique identifiers:<br>"
+
+		for(var/UI in buf.dna.UI)
+			. += "<font style = 'background: green'>[UI]</font><br>"
+
+		. += "<br>Structural enzymes:<br>"
+
+		for(var/SE in buf.dna.SE)
+			. += "<font style = 'background: green'>[SE]</font><br>"
