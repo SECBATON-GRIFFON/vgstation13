@@ -166,7 +166,7 @@
 /obj/item/weapon/circuitboard/airlock/dna
 	name = "\proper DNA access electronics"
 	desc = "A circuit board used to operate access and DNA controls on various machinery."
-	icon_state = "door_electronics"
+	icon_state = "door_electronics_dna"
 	var/datum/dna2/record/buf = null
 	var/list/conf_ui = null
 	var/list/conf_se = null
@@ -176,6 +176,8 @@
 	. = ..()
 	buf = new
 	buf.dna = new
+	buf.dna.ResetUI()
+	buf.dna.ResetSE()
 
 /obj/item/weapon/circuitboard/airlock/dna/attackby(obj/item/W, mob/user)
 	. = ..()
@@ -199,7 +201,7 @@
 		var/i = 0
 		for(var/UI in buf.dna.UI)
 			i++
-			. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[UI]</a><br>"
+			. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
 
 		. += "</div>"
 		. += "<br>Structural enzymes:<br>"
@@ -208,7 +210,7 @@
 		i = 0
 		for(var/SE in buf.dna.SE)
 			i++
-			. += "<a style='background: green' href='?src=\ref[src];dna_access=SE;dna_pos=[i];dna_value=[SE]'>[SE]</a><br>"
+			. += "<a style='background: green' href='?src=\ref[src];dna_access=SE;dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
 
 		. += "</div>"
 
