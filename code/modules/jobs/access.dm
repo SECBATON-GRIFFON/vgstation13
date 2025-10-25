@@ -140,10 +140,10 @@
 		if(HasBelow(z) && (req_access_dir & DOWN))
 			condition |= M.z < src.z
 		if(condition)
-			return can_access(ACL,req_access,req_one_access)
+			return can_access(ACL,req_access,req_one_access,M.dna,req_dna,req_one_dna)
 		else
 			return access_not_dir
-	return can_access(ACL,req_access,req_one_access)
+	return can_access(ACL,req_access,req_one_access,M.dna,req_dna,req_one_dna)
 
 /obj/item/var/time_since_last_random_access = 0
 /obj/item/var/list/arcane_access = list()
@@ -237,7 +237,7 @@
 		else
 			req_access = A.conf_access
 			req_one_access = null
-		if(istype(A,obj/item/weapon/circuitboard/airlock/dna))
+		if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
 			var/obj/item/weapon/circuitboard/airlock/dna/D = A
 			if(D.buf)
 				if(A.one_access)
@@ -255,7 +255,7 @@
 	A.conf_access= A.one_access ? req_one_access : req_access
 	A.dir_access = req_access_dir
 	A.access_nodir = access_not_dir
-	if(istype(A,obj/item/weapon/circuitboard/airlock/dna))
+	if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
 		var/obj/item/weapon/circuitboard/airlock/dna/D = A
 		D.buf = A.one_access ? req_one_dna : req_dna
 	req_access = list()
@@ -270,7 +270,7 @@
 
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.
-/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null)
+/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null,var/datum/dna/mob_dna=null,var/datum/dna2/record/req_dna=null,var/datum/dna2/record/req_one_dna=null)
 	// No perms set?  He's in.
 	if(!req_access  && !req_one_access)
 		return 1
