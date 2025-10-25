@@ -103,13 +103,16 @@
 /var/const/access_paramedic = 500
 /var/const/access_mechanic = 501
 
-/obj/var/list/req_access = null
-/obj/var/list/backup_access = null
-/obj/var/req_access_txt = "0"			// A user must have ALL of these accesses to use the object
-/obj/var/list/req_one_access = null
-/obj/var/req_one_access_txt = "0"		// If this list is populated, a user must have at least ONE of these accesses to use the object
-/obj/var/req_access_dir = 0				// The dir the user must be facing to do access checks on
-/obj/var/access_not_dir = TRUE			// Behaviour if the user is not in the access dir
+/obj
+	var/list/req_access = null
+	var/list/backup_access = null
+	var/req_access_txt = "0"			// A user must have ALL of these accesses to use the object
+	var/list/req_one_access = null
+	var/req_one_access_txt = "0"		// If this list is populated, a user must have at least ONE of these accesses to use the object
+	var/req_access_dir = 0				// The dir the user must be facing to do access checks on
+	var/access_not_dir = TRUE			// Behaviour if the user is not in the access dir
+	var/datum/dna2/record/req_dna = null // Note: NEVER set this to new, or from Clone()d DNA data, it's wasteful
+	var/datum/dna2/record/req_one_dna = null // Same here
 
 //returns 1 if this mob has sufficient access to use this object
 /obj/proc/allowed(var/mob/M)
