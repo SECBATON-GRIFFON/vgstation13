@@ -170,6 +170,7 @@
 	var/datum/dna2/record/buf = null
 	var/list/conf_ui = null
 	var/list/conf_se = null
+	var/conf_dna_tolerance = 128
 
 /obj/item/weapon/circuitboard/airlock/dna/New()
 	. = ..()
@@ -191,7 +192,7 @@
 	. = ..()
 
 	if(!locked)
-		. += "DNA ACCESS<br><br>Unique identifiers:<br>"
+		. += "DNA ACCESS<br><a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br><br>Unique identifiers:<br>"
 
 		var/i = 0
 		for(var/UI in buf.dna.UI)
@@ -212,6 +213,9 @@
 
 	if(href_list["dna_access"])
 		toggle_dna_access(href_list["dna_access"],href_list["dna_pos"],href_list["dna_value"])
+
+	if(href_list["dna_tolerance"])
+		conf_dna_tolerance = clamp(input(usr,"Set the maximum range in which DNA values will be accepted (0-4096)","DNA tolerance",128),0,4096)
 
 	interact(usr)
 

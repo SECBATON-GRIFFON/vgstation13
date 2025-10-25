@@ -115,6 +115,7 @@
 	var/list/req_one_ui = null
 	var/list/req_se = null
 	var/list/req_one_se = null
+	var/req_dna_tolerance = 128			// The range to be within for the DNA values to be good, given how fine they are
 
 //returns 1 if this mob has sufficient access to use this object
 /obj/proc/allowed(var/mob/M)
@@ -142,10 +143,10 @@
 		if(HasBelow(z) && (req_access_dir & DOWN))
 			condition |= M.z < src.z
 		if(condition)
-			return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se)
+			return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se,req_dna_tolerance)
 		else
 			return access_not_dir
-	return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se)
+	return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se,req_dna_tolerance)
 
 /obj/item/var/time_since_last_random_access = 0
 /obj/item/var/list/arcane_access = list()
@@ -239,6 +240,8 @@
 		else
 			req_access = A.conf_access
 			req_one_access = null
+		req_access_dir = A.dir_access
+		access_not_dir = A.access_nodir
 		if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
 			var/obj/item/weapon/circuitboard/airlock/dna/D = A
 			if(A.one_access)
@@ -251,6 +254,7 @@
 				req_one_ui = null
 				req_se = D.conf_se
 				req_one_se = null
+			req_dna_tolerance = D.conf_dna_tolerance
 		if(delete_electronics)
 			qdel(A)
 
