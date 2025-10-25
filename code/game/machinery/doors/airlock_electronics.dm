@@ -192,20 +192,25 @@
 	. = ..()
 
 	if(!locked)
-		. += "DNA ACCESS<br><a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br><br>Unique identifiers:<br>"
+		. += "<h1>DNA ACCESS</h1>"
+		. += "<a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br><br>Unique identifiers:<br>"
+		. += "<div style='clear: both'>"
 
 		var/i = 0
 		for(var/UI in buf.dna.UI)
 			i++
 			. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[UI]</a><br>"
 
+		. += "</div>"
 		. += "<br>Structural enzymes:<br>"
+		. += "<div style='clear: both'>"
 
 		i = 0
 		for(var/SE in buf.dna.SE)
 			i++
 			. += "<a style='background: green' href='?src=\ref[src];dna_access=SE;dna_pos=[i];dna_value=[SE]'>[SE]</a><br>"
 
+		. += "</div>"
 
 /obj/item/weapon/circuitboard/airlock/dna/Topic(href, href_list)
 	if(..())
