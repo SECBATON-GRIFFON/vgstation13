@@ -224,6 +224,37 @@
 		return 0
 	return 1
 
+/obj/proc/add_access_electronics(obj/item/weapon/circuitboard/airlock/A, mob/user, delete_electronics = FALSE)
+	var/inside = A.loc == src || (user && user.drop_item(A,src))
+	if(!user && !inside)
+		A.forceMove(src)
+		inside = TRUE
+	if(inside)
+		A.installed = TRUE
+		if(A.one_access)
+			req_access = null
+			req_one_access = A.conf_access
+		else
+			req_access = A.conf_access
+			req_one_access = null
+		if(delete_electronics)
+			qdel(A)
+
+/obj/proc/remove_access_electronics(obj/item/weapon/circuitboard/airlock/A, mob/user)
+	if(!A)
+		A = new(loc)
+	A.installed = FALSE
+	A.one_access= !(req_access && req_access.len)
+	if(!A.one_access)
+		A.conf_access=req_access
+	else
+		A.conf_access=req_one_access
+	req_access = list()
+	req_one_access = list()
+	A.forceMove(loc)
+	if(user)
+		user.put_in_hands(A)
+
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.
 /proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null)

@@ -1254,12 +1254,7 @@
 			new part(loc)
 
 	if(prob(40))
-		var/obj/item/weapon/circuitboard/airlock/C = new(loc)
-		C.one_access=!(req_access && req_access.len>0)
-		if(!C.one_access)
-			C.conf_access=req_access
-		else
-			C.conf_access=req_one_access
+		remove_access_electronics()
 
 	qdel(src)
 
@@ -1341,18 +1336,7 @@
 		W.playtoolsound(T, 50)
 
 		if(do_after(user, src, 100))
-			var/obj/item/weapon/circuitboard/airlock/C = new(src)
-			C.one_access=!(req_access && req_access.len>0)
-
-			if(!C.one_access)
-				C.conf_access=req_access
-			else
-				C.conf_access=req_one_access
-
-			if(!destroyed)
-				new /obj/item/stack/sheet/glass/glass(T, 1)
-
-			C.forceMove(T)
+			remove_access_electronics(null,user)
 
 			var/obj/structure/mannequin_frame/new_frame = new(T)
 			new_frame.icon_state = "mannequin_cyber_human"
@@ -1539,15 +1523,8 @@
 		return 0
 
 	if(istype(used_atom, /obj/item/weapon/circuitboard/airlock))
-		var/obj/item/weapon/circuitboard/airlock/circuit = used_atom
 		var/obj/structure/mannequin_frame/const_holder = holder
-		if(circuit.one_access)
-			const_holder.req_access = null
-			const_holder.req_one_access = circuit.conf_access
-		else
-			const_holder.req_access = circuit.conf_access
-			const_holder.req_one_access = null
-
+		const_holder.add_access_electronics(used_atom,user)
 		const_holder.icon_state = "mannequin_cyber_human"
 		const_holder.overlays -= mutable_appearance(const_holder.icon, "lightout")
 

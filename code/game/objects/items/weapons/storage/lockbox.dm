@@ -101,11 +101,7 @@
 			electronics = W
 			to_chat(user, "<span class='notice'>You add \the [electronics] to \the [src].</span>")
 			playsound(loc, 'sound/items/Deconstruct.ogg', 50, 1)
-			if(electronics.conf_access?.len)
-				if(electronics.one_access)
-					req_one_access = electronics.conf_access
-				else
-					req_access = electronics.conf_access
+			add_access_electronics(electronics,user)
 			emagged = 0
 			locked = 0
 			update_icon()

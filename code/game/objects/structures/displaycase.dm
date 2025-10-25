@@ -161,15 +161,7 @@
 		W.playtoolsound(src, 50)
 		dump()
 
-		var/obj/item/weapon/circuitboard/airlock/C = circuit
-		if(!C)
-			C = new (src)
-			C.installed = 1
-		C.one_access=!(req_access && req_access.len>0)
-		if(!C.one_access)
-			C.conf_access=req_access
-		else
-			C.conf_access=req_one_access
+		remove_access_electronics(user,circuit)
 
 		if(!destroyed)
 			var /obj/machinery/constructable_frame/machine_frame/new_machine_frame = new(get_turf(src))
