@@ -270,7 +270,7 @@
 
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.
-/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null,var/datum/dna/mob_dna=null,var/datum/dna2/record/req_dna=null,var/datum/dna2/record/req_one_dna=null)
+/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null,var/datum/dna/mob_dna=null,var/datum/dna2/record/req_dna=null,var/datum/dna2/record/req_one_dna=null,var/req_dna_tolerance=128)
 	// No perms set?  He's in.
 	if(!req_access  && !req_one_access)
 		return 1
@@ -280,6 +280,15 @@
 	// Blank permissions set?  He's in.
 	if(!req_access.len && (!req_one_access || !req_one_access.len))
 		return 1
+
+	// Doesn't have req_dna, if applicable
+	if(req_dna)
+		for(var/i in 1 to DNA_UI_LENGTH)
+			if round(mob_dna.UI[i],req_dna_tolerance) != round(req_dna.dna.UI[i],req_dna_tolerance)
+				return 0
+		for(var/i in 1 to DNA_SE_LENGTH)
+			if round(mob_dna.SE[i],req_dna_tolerance) != round(req_dna.dna.SE[i],req_dna_tolerance)
+				return 0
 
 	// User doesn't have any accesses?  Fuck off.
 	if(!L)
