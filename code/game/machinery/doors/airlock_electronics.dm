@@ -194,24 +194,34 @@
 	. = ..()
 
 	if(!locked)
-		. += "<h1>DNA ACCESS</h1>"
-		. += "<a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br><br>Unique identifiers:<br>"
-		. += "<div style='clear: both'>"
+		. += "<div style='clear: both'><h1>DNA ACCESS</h1>"
+		. += "<a href='?src=\ref[src];dna_tolerance=1'>Set DNA value tolerance</a><br>"
+		. += "<div style='float: left'>Unique identifiers:<br>"
 
 		var/i = 0
 		for(var/UI in buf.dna.UI)
 			i++
-			. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+			if (!conf_ui || !conf_ui.len || !(num2text[i] in conf_ui))
+				. += "<a href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+			else if(one_access)
+				. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+			else
+				. += "<a style='background: red' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
 
 		. += "</div>"
-		. += "<br>Structural enzymes:<br>"
-		. += "<div style='clear: both'>"
+		. += "<div style='float: left'>Structural enzymes:<br>"
 
 		i = 0
 		for(var/SE in buf.dna.SE)
 			i++
-			. += "<a style='background: green' href='?src=\ref[src];dna_access=SE;dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+			if (!conf_se || !conf_se.len || !(num2text[i] in conf_se))
+				. += "<a href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+			else if(one_access)
+				. += "<a style='background: green' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+			else
+				. += "<a style='background: red' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
 
+		. += "</div>"
 		. += "</div>"
 
 /obj/item/weapon/circuitboard/airlock/dna/Topic(href, href_list)
