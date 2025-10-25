@@ -236,18 +236,11 @@
 			new_closet = change_type(has_lock_type)
 
 			if(new_closet)
-				if(!(user.drop_item(E, new_closet)))
+				if(!(add_access_electronics(E, user)))
 					return //Abort if we can't drop the electronics for some reason (eg. Superglue)
 
 				to_chat(user, "<span class='notice'>You installed the electronics!</span>")
 				new_closet.electronics = E
-				E.installed = 1
-
-				if(E.one_access)
-					new_closet.req_access = null
-					new_closet.req_one_access = E.conf_access
-				else
-					new_closet.req_access = E.conf_access
 
 				new_closet.locked = 0
 				new_closet.update_icon()
@@ -318,9 +311,7 @@
 	new_closet.fingerprints = src.fingerprints
 	new_closet.fingerprintshidden = src.fingerprintshidden
 
-	new_closet.electronics = src.electronics
-	new_closet.req_access = src.req_access
-	new_closet.req_one_access = src.req_one_access
+	new_closet.electronics = new_closet.add_access_electronics(electronics)
 
 	new_closet.update_icon()
 

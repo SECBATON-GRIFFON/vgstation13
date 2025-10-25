@@ -21,12 +21,7 @@
 /obj/item/weapon/storage/lockbox/New()
 	. = ..()
 	if(startswithelectronics)
-		electronics = new(src)
-		if(req_access)
-			electronics.conf_access = req_access
-		else if(req_one_access)
-			electronics.conf_access = req_one_access
-			electronics.one_access = 1
+		add_access_electronics()
 
 /obj/item/weapon/storage/lockbox/Destroy()
 	QDEL_NULL(electronics)
@@ -120,12 +115,9 @@
 		if(W.is_screwdriver() && electronics)
 			to_chat(user, "<span class='notice'>You unsecure \the [electronics] from \the [src].</span>")
 			W.playtoolsound(loc, 50)
-			electronics.forceMove(loc)
-			user.put_in_hands(electronics)
-			req_access = list()
-			req_one_access = list()
 			if(emagged)
 				electronics.icon_state = "door_electronics_smoked"
+			remove_access_electronics()
 			electronics = null
 			emagged = 0
 			locked = 0
