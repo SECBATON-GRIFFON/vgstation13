@@ -196,8 +196,9 @@
 	if(!locked)
 		. += "<div style='clear: both'><hr><h1>DNA ACCESS</h1>"
 		. += "DNA value tolerance is set to <a href='?src=\ref[src];dna_tolerance=1'>[conf_dna_tolerance]</a><br>"
-		. += "<div style='float: left'><b>Unique identifiers</b><br>"
 
+		. += "<div style='float: left'><b>Unique identifiers</b><br>"
+		. += conf_se == null ? "<font style='background: red'>All</font><br>" : "<a href='?src=\ref[src];dna_access=UI,dna_pos=all'>All</a><br>"
 		var/i = 0
 		for(var/UI in buf.dna.UI)
 			i++
@@ -210,6 +211,7 @@
 
 		. += "</div>"
 		. += "<div style='float: left'><b>Structural enzymes</b><br>"
+		. += conf_se == null ? "<font style='background: red'>All</font><br>" : "<a href='?src=\ref[src];dna_access=SE,dna_pos=all'>All</a><br>"
 
 		i = 0
 		for(var/SE in buf.dna.SE)
@@ -237,9 +239,12 @@
 	interact(usr)
 
 /obj/item/weapon/circuitboard/airlock/dna/proc/toggle_dna_access(var/type,var/pos,var/value)
-	if (value == "all")
-		conf_ui = null
-		conf_se = null
+	if (pos == "all")
+		switch(type)
+			if("UI")
+				conf_ui = null
+			if("SE")
+				conf_se = null
 	else
 		var/req = text2num(value)
 
