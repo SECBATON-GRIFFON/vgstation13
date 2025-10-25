@@ -38,7 +38,7 @@
 	if((istype(req_access) && req_access.len) || istext(req_access))
 		icon_state = "[icon_state]"
 		base_state = icon_state
-	set_electronics()
+	add_access_electronics()
 	if(smartwindow && window_is_opaque)
 		set_opacity(1)
 		update_nearby_tiles()
@@ -182,7 +182,7 @@
 		playsound(src, "shatter", 70, 1)
 		new shard_type(loc)
 		new /obj/item/stack/cable_coil(loc, 2)
-		eject_electronics()
+		remove_access_electronics()
 		qdel(src)
 		return TRUE
 	else
@@ -233,7 +233,7 @@
 	if(operating)
 		return
 	var/dmg=0
-	if(istype(user,/mob/living/simple_animal))	
+	if(istype(user,/mob/living/simple_animal))
 		var/mob/living/simple_animal/M = user
 		if(M.melee_damage_upper <= 0)
 			return
@@ -351,25 +351,8 @@
 	WA.facing = (is_left_opening() ? "l" : "r")
 	WA.update_name()
 	WA.update_icon()
-	eject_electronics() // Pop out electronics
-
-/obj/machinery/door/window/proc/set_electronics()
-	if(!electronics)
-		electronics = new /obj/item/weapon/circuitboard/airlock(src)
-		electronics.installed = TRUE
-	if(req_access && req_access.len > 0)
-		electronics.conf_access = req_access
-	else if(req_one_access && req_one_access.len > 0)
-		electronics.conf_access = req_one_access
-		electronics.one_access = 1
-	electronics.dir_access = req_access_dir
-	electronics.access_nodir = access_not_dir
-
-/obj/machinery/door/window/proc/eject_electronics()
-	if(electronics)
-		electronics.installed = FALSE
-		electronics.forceMove(loc)
-		electronics = null
+	remove_access_electronics() // Pop out electronics
+	electronics = null
 
 /obj/machinery/door/window/wirejack(var/mob/living/silicon/pai/P)
 	if(..())

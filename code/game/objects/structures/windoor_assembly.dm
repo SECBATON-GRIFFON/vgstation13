@@ -66,24 +66,8 @@
 	windoor.base_state = (facing == "l" ? "left" : "right")
 	windoor.icon_state = windoor.base_state
 	transfer_fingerprints_to(windoor)
-	set_windoor_electronics(windoor)
+	windoor.add_access_electronics(electronics)
 	return windoor
-
-/obj/structure/windoor_assembly/proc/set_windoor_electronics(var/obj/machinery/door/window/windoor)
-	if(electronics)
-		if(electronics.one_access)
-			windoor.req_access = null
-			windoor.req_one_access = electronics.conf_access
-		else
-			windoor.req_access = electronics.conf_access
-		windoor.req_access_dir = src.electronics.dir_access
-		windoor.access_not_dir = src.electronics.access_nodir
-		electronics.forceMove(windoor)
-		windoor.electronics = electronics
-		electronics.installed = TRUE
-		windoor.set_electronics()
-		electronics = null
-
 
 /obj/structure/windoor_assembly/attackby(obj/item/W, mob/user)
 

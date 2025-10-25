@@ -228,35 +228,40 @@
 	return 1
 
 /obj/proc/add_access_electronics(obj/item/weapon/circuitboard/airlock/A, mob/user, delete_electronics = FALSE)
-	var/inside = A.loc == src || (user && user.drop_item(A,src))
-	if(!user && !inside)
-		A.forceMove(src)
-		inside = TRUE
-	if(inside)
-		A.installed = TRUE
+	if(!A)
+		A = new(src)
+	else
+		if(user && (A.loc == user))
+			if(!user.drop_item(A,src))
+				return
+		if(A.loc != src)
+			A.forceMove(src)
+	A.installed = TRUE
+	if(A.one_access)
+		req_access = null
+		req_one_access = A.conf_access
+	else
+		req_access = A.conf_access
+		req_one_access = null
+	req_access_dir = A.dir_access
+	access_not_dir = A.access_nodir
+	if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
+		var/obj/item/weapon/circuitboard/airlock/dna/D = A
 		if(A.one_access)
-			req_access = null
-			req_one_access = A.conf_access
+			req_ui = null
+			req_one_ui = D.conf_ui
+			req_se = null
+			req_one_se = D.conf_se
 		else
-			req_access = A.conf_access
-			req_one_access = null
-		req_access_dir = A.dir_access
-		access_not_dir = A.access_nodir
-		if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
-			var/obj/item/weapon/circuitboard/airlock/dna/D = A
-			if(A.one_access)
-				req_ui = null
-				req_one_ui = D.conf_ui
-				req_se = null
-				req_one_se = D.conf_se
-			else
-				req_ui = D.conf_ui
-				req_one_ui = null
-				req_se = D.conf_se
-				req_one_se = null
-			req_dna_tolerance = D.conf_dna_tolerance
-		if(delete_electronics)
-			qdel(A)
+			req_ui = D.conf_ui
+			req_one_ui = null
+			req_se = D.conf_se
+			req_one_se = null
+		req_dna_tolerance = D.conf_dna_tolerance
+	if(delete_electronics)
+		qdel(A)
+	else
+		return A
 
 /obj/proc/remove_access_electronics(obj/item/weapon/circuitboard/airlock/A, mob/user)
 	if(!A)
@@ -281,6 +286,7 @@
 	A.forceMove(loc)
 	if(user)
 		user.put_in_hands(A)
+	return A
 
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.

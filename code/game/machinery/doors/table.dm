@@ -26,15 +26,7 @@
 	update_adjacent()
 	if(req_access_txt != "0" || req_one_access_txt != "0")
 		set_up_access()
-		electronics = new /obj/item/weapon/circuitboard/airlock(src)
-		electronics.installed = TRUE
-		if(req_access?.len)
-			electronics.conf_access = req_access
-		else if(req_one_access?.len)
-			electronics.conf_access = req_one_access
-			electronics.one_access = 1
-		electronics.dir_access = req_access_dir
-		electronics.access_nodir = access_not_dir
+		electronics = add_access_electronics()
 
 /obj/machinery/door/table/Destroy()
 	QDEL_NULL(electronics)
@@ -150,15 +142,8 @@
 	else
 		return open()
 
-/obj/machinery/door/table/proc/remove_electronics()
-	if (electronics)
-		electronics.forceMove(loc)
-		electronics = null
-	req_access = list()
-	req_one_access = list()
-
 /obj/machinery/door/table/proc/dismantle()
-	remove_electronics()
+	remove_access_electronics()
 	if(sheet_type)
 		new sheet_type(loc,sheet_amt)
 	qdel(src)
@@ -207,7 +192,7 @@
 			W.playtoolsound(src, 100)
 			if(do_after(user, src, 40) && src && panel_open && electronics)
 				to_chat(user, "<span class='notice'>You removed [electronics]!</span>")
-				remove_electronics()
+				remove_access_electronics(electronics,user)
 			return
 
 	if(!allowed(user))
