@@ -111,8 +111,10 @@
 	var/req_one_access_txt = "0"		// If this list is populated, a user must have at least ONE of these accesses to use the object
 	var/req_access_dir = 0				// The dir the user must be facing to do access checks on
 	var/access_not_dir = TRUE			// Behaviour if the user is not in the access dir
-	var/datum/dna2/record/req_dna = null // Note: NEVER set this to new, or from Clone()d DNA data, it's wasteful
-	var/datum/dna2/record/req_one_dna = null // Same here
+	var/list/req_ui = null
+	var/list/req_one_ui = null
+	var/list/req_se = null
+	var/list/req_one_se = null
 
 //returns 1 if this mob has sufficient access to use this object
 /obj/proc/allowed(var/mob/M)
@@ -140,10 +142,10 @@
 		if(HasBelow(z) && (req_access_dir & DOWN))
 			condition |= M.z < src.z
 		if(condition)
-			return can_access(ACL,req_access,req_one_access,M.dna,req_dna,req_one_dna)
+			return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se)
 		else
 			return access_not_dir
-	return can_access(ACL,req_access,req_one_access,M.dna,req_dna,req_one_dna)
+	return can_access(ACL,req_access,req_one_access,M.dna,req_ui,req_one_ui,req_se,req_one_se)
 
 /obj/item/var/time_since_last_random_access = 0
 /obj/item/var/list/arcane_access = list()
@@ -239,11 +241,16 @@
 			req_one_access = null
 		if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
 			var/obj/item/weapon/circuitboard/airlock/dna/D = A
-			if(D.buf)
-				if(A.one_access)
-					req_dna = D.buf
-				else
-					req_one_dna = D.buf
+			if(A.one_access)
+				req_ui = null
+				req_one_ui = D.conf_ui
+				req_se = null
+				req_one_se = D.conf_se
+			else
+				req_ui = D.conf_ui
+				req_one_ui = null
+				req_se = D.conf_se
+				req_one_se = null
 		if(delete_electronics)
 			qdel(A)
 
@@ -257,20 +264,23 @@
 	A.access_nodir = access_not_dir
 	if(istype(A,/obj/item/weapon/circuitboard/airlock/dna))
 		var/obj/item/weapon/circuitboard/airlock/dna/D = A
-		D.buf = A.one_access ? req_one_dna : req_dna
+		D.conf_ui = A.one_access ? req_one_ui : req_ui
+		D.conf_se = A.one_access ? req_one_se : req_se
 	req_access = list()
 	req_one_access = list()
 	req_access_dir = 0
 	access_not_dir = 1
-	req_dna = null
-	req_one_dna = null
+	req_ui = list()
+	req_one_ui = list()
+	req_se = list()
+	req_one_se = list()
 	A.forceMove(loc)
 	if(user)
 		user.put_in_hands(A)
 
 // /vg/ - Generic Access Checks.
 // Allows more flexible access checks.
-/proc/can_access(var/list/L, var/list/req_access=null,var/list/req_one_access=null,var/datum/dna/mob_dna=null,var/datum/dna2/record/req_dna=null,var/datum/dna2/record/req_one_dna=null,var/req_dna_tolerance=128)
+/proc/can_access(list/L, list/req_access=null,list/req_one_access=null,datum/dna/mob_dna=null,list/req_ui=null,list/req_one_ui=null,list/req_se=null,list/req_one_se=null,req_dna_tolerance=128)
 	// No perms set?  He's in.
 	if(!req_access  && !req_one_access)
 		return 1
@@ -281,13 +291,14 @@
 	if(!req_access.len && (!req_one_access || !req_one_access.len))
 		return 1
 
-	// Doesn't have req_dna, if applicable
-	if(req_dna)
-		for(var/i in 1 to DNA_UI_LENGTH)
-			if(round(mob_dna.UI[i],req_dna_tolerance) != round(req_dna.dna.UI[i],req_dna_tolerance))
+	// Doesn't have req_ui, if applicable
+	if(req_ui)
+		for(var/i in req_ui)
+			if(round(mob_dna.UI[text2num(i)],req_dna_tolerance) != round(req_ui[i],req_dna_tolerance))
 				return 0
-		for(var/i in 1 to DNA_SE_LENGTH)
-			if(round(mob_dna.SE[i],req_dna_tolerance) != round(req_dna.dna.SE[i],req_dna_tolerance))
+	if(req_se)
+		for(var/i in req_se)
+			if(round(mob_dna.SE[text2num(i)],req_dna_tolerance) != round(req_se[i],req_dna_tolerance))
 				return 0
 
 	// User doesn't have any accesses?  Fuck off.
