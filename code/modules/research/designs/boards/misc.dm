@@ -18,15 +18,25 @@
 	category = "Engineering Boards"
 	build_path = /obj/item/weapon/circuitboard/fire_alarm
 
-/datum/design/airlock
-	name = "Circuit Design (Airlock)"
-	desc = "Allows for the construction of circuit boards used to build an airlock."
-	id = "airlock"
+/datum/design/access
+	name = "Circuit Design (Access)"
+	desc = "Allows for the construction of circuit boards used to check access requirements."
+	id = "access"
 	req_tech = list(Tc_PROGRAMMING = 2)
 	build_type = IMPRINTER
 	materials = list(MAT_GLASS = 2000, SACID = 3)
 	category = "Engineering Boards"
 	build_path = /obj/item/weapon/circuitboard/airlock
+
+/datum/design/dna_access
+	name = "Circuit Design (DNA Access)"
+	desc = "Allows for the construction of circuit boards used to check access requirements."
+	id = "dna_access"
+	req_tech = list(Tc_PROGRAMMING = 4, Tc_BIOTECH = 2)
+	build_type = IMPRINTER
+	materials = list(MAT_GLASS = 2000, SACID = 3)
+	category = "Engineering Boards"
+	build_path = /obj/item/weapon/circuitboard/airlock/dna
 
 /datum/design/intercom
 	name = "Circuit Design (Intercom)"

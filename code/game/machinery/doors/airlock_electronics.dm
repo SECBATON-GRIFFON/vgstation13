@@ -53,55 +53,56 @@
 	interact(user)
 
 /obj/item/weapon/circuitboard/airlock/interact(mob/user as mob)
-	var/t1 = ""
+	var/datum/browser/popup = new(user, "airlock_electronics", "Access Control", 640, 480)
+	popup.set_content(get_dat())
+	popup.open()
+
+/obj/item/weapon/circuitboard/airlock/proc/get_dat()
+	. = ""
 
 	if (last_configurator)
-		t1 += "Operator: [last_configurator]<br>"
+		. += "Operator: [last_configurator]<br>"
 
 	if (locked)
 		if(isrobot(user))
-			t1 += "<a href='?src=\ref[src];login=1'>Log In</a><hr>"
+			. += "<a href='?src=\ref[src];login=1'>Log In</a><hr>"
 		else
-			t1 += "<a href='?src=\ref[src];login=1'>Set access</a><hr>"
+			. += "<a href='?src=\ref[src];login=1'>Set access</a><hr>"
 	else
-		t1 += "<a href='?src=\ref[src];logout=1'>Finish</a><hr>"
+		. += "<a href='?src=\ref[src];logout=1'>Finish</a><hr>"
 
-		t1 += "Access requirement is set to "
-		t1 += one_access ? "<a style='background: green' href='?src=\ref[src];one_access=1'>ONE</a><hr>" : "<a style='background: red' href='?src=\ref[src];one_access=1'>ALL</a><hr>"
+		. += "Access requirement is set to "
+		. += one_access ? "<a style='background: green' href='?src=\ref[src];one_access=1'>ONE</a><hr>" : "<a style='background: red' href='?src=\ref[src];one_access=1'>ALL</a><hr>"
 
-		t1 += "Access direction is set to "
-		t1 += "<a href='?src=\ref[src];access_dir=1'>[dir2arrow(dir_access)]</a><hr>"
+		. += "Access direction is set to "
+		. += "<a href='?src=\ref[src];access_dir=1'>[dir2arrow(dir_access)]</a><hr>"
 
 		if(dir_access)
-			t1 += "Accessing while not in access direction is set to "
-			t1 += access_nodir ? "<a style='background: green' href='?src=\ref[src];notdir=1'>TRUE</a><hr>" : "<a style='background: red' href='?src=\ref[src];notdir=1'>FALSE</a><hr>"
+			. += "Accessing while not in access direction is set to "
+			. += access_nodir ? "<a style='background: green' href='?src=\ref[src];notdir=1'>TRUE</a><hr>" : "<a style='background: red' href='?src=\ref[src];notdir=1'>FALSE</a><hr>"
 
-		t1 += conf_access == null ? "<font style='background: red'>All</font><br>" : "<a href='?src=\ref[src];access=all'>All</a><br>"
+		. += conf_access == null ? "<font style='background: red'>All</font><br>" : "<a href='?src=\ref[src];access=all'>All</a><br>"
 
-		t1 += "<br>"
+		. += "<br>"
 
-		t1 += "<div style='clear: both'>"
+		. += "<div style='clear: both'>"
 
 		for(var/i = 1; i <= 7; i++)
-			t1 += "<div style='float: left'>"
-			t1 += "<b>[get_region_accesses_name(i)]</b><br>"
+			. += "<div style='float: left'>"
+			. += "<b>[get_region_accesses_name(i)]</b><br>"
 			for(var/access in get_region_accesses(i))
 				var/aname = get_access_desc(access)
 
 				if (!conf_access || !conf_access.len || !(access in conf_access))
-					t1 += "<a href='?src=\ref[src];access=[access]'>[aname]</a><br>"
+					. += "<a href='?src=\ref[src];access=[access]'>[aname]</a><br>"
 				else if(one_access)
-					t1 += "<a style='background: green' href='?src=\ref[src];access=[access]'>[aname]</a><br>"
+					. += "<a style='background: green' href='?src=\ref[src];access=[access]'>[aname]</a><br>"
 				else
-					t1 += "<a style='background: red' href='?src=\ref[src];access=[access]'>[aname]</a><br>"
-			t1 += "<br>"
-			t1 += "</div>"
+					. += "<a style='background: red' href='?src=\ref[src];access=[access]'>[aname]</a><br>"
+			. += "<br>"
+			. += "</div>"
 
-		t1 += "</div>"
-
-	var/datum/browser/popup = new(user, "airlock_electronics", "Access Control", 640, 480)
-	popup.set_content(t1)
-	popup.open()
+		. += "</div>"
 
 /obj/item/weapon/circuitboard/airlock/Topic(href, href_list)
 	if(..())
@@ -161,3 +162,25 @@
 			conf_access -= req
 			if (!conf_access.len)
 				conf_access = null
+
+/obj/item/weapon/circuitboard/airlock/dna
+	name = "\proper DNA access electronics"
+	desc = "A circuit board used to operate access and DNA controls on various machinery."
+	icon_state = "door_electronics"
+	var/datum/dna2/record/buf=null
+
+/obj/item/weapon/circuitboard/airlock/dna/New()
+	. = ..()
+	buf = new
+	buf.dna = new
+
+/obj/item/weapon/circuitboard/airlock/dna/attackby(obj/item/W, mob/user)
+	. = ..()
+	if(istype(W,/obj/item/weapon/disk/data))
+		var/obj/item/weapon/disk/data/D = W
+		if(D.buf)
+			qdel(buf)
+			buf = D.buf.Clone()
+			to_chat(user,"<span class='notice'>DNA data copied from \the [D] to \the [src].</span>")
+		else
+			to_chat(user,"<span class='warning'>This [D.name] has no DNA data on it.</span>")
