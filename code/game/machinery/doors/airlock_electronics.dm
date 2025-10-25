@@ -195,7 +195,7 @@
 
 	if(!locked)
 		. += "<div style='clear: both'><hr><h1>DNA ACCESS</h1>"
-		. += "Dna value tolerance is set to <a href='?src=\ref[src];dna_tolerance=1'>[conf_dna_tolerance]</a><br>"
+		. += "DNA value tolerance is set to <a href='?src=\ref[src];dna_tolerance=1'>[conf_dna_tolerance]</a><br>"
 		. += "<div style='float: left'><b>Unique identifiers</b><br>"
 
 		var/i = 0
