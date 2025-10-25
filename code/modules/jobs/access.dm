@@ -292,14 +292,26 @@
 		return 1
 
 	// Doesn't have req_ui, if applicable
-	if(req_ui)
+	if(req_ui?.len)
 		for(var/i in req_ui)
 			if(round(mob_dna.UI[text2num(i)],req_dna_tolerance) != round(req_ui[i],req_dna_tolerance))
 				return 0
-	if(req_se)
+	// Doesn't have req_se, if applicable
+	if(req_se?.len)
 		for(var/i in req_se)
 			if(round(mob_dna.SE[text2num(i)],req_dna_tolerance) != round(req_se[i],req_dna_tolerance))
 				return 0
+
+	// If he has at least one req_one ui, he's in.
+	if(req_one_ui?.len)
+		for(var/i in req_ui)
+			if(round(mob_dna.UI[text2num(i)],req_dna_tolerance) != round(req_ui[i],req_dna_tolerance))
+				return 1
+	// If he has at least one req_one se, he's in.
+	if(req_one_se?.len)
+		for(var/i in req_se)
+			if(round(mob_dna.SE[text2num(i)],req_dna_tolerance) != round(req_se[i],req_dna_tolerance))
+				return 1
 
 	// User doesn't have any accesses?  Fuck off.
 	if(!L)
@@ -313,7 +325,7 @@
 			return 0
 
 	// If he has at least one req_one access, he's in.
-	if(req_one_access && req_one_access.len)
+	if(req_one_access?.len)
 		for(var/req in req_one_access)
 			if(req in L) //has an access from the single access list
 				return 1
