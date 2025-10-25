@@ -284,10 +284,10 @@
 	// Doesn't have req_dna, if applicable
 	if(req_dna)
 		for(var/i in 1 to DNA_UI_LENGTH)
-			if round(mob_dna.UI[i],req_dna_tolerance) != round(req_dna.dna.UI[i],req_dna_tolerance)
+			if(round(mob_dna.UI[i],req_dna_tolerance) != round(req_dna.dna.UI[i],req_dna_tolerance))
 				return 0
 		for(var/i in 1 to DNA_SE_LENGTH)
-			if round(mob_dna.SE[i],req_dna_tolerance) != round(req_dna.dna.SE[i],req_dna_tolerance)
+			if(round(mob_dna.SE[i],req_dna_tolerance) != round(req_dna.dna.SE[i],req_dna_tolerance))
 				return 0
 
 	// User doesn't have any accesses?  Fuck off.
