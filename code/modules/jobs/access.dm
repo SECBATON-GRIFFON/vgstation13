@@ -237,6 +237,13 @@
 		else
 			req_access = A.conf_access
 			req_one_access = null
+		if(istype(A,obj/item/weapon/circuitboard/airlock/dna))
+			var/obj/item/weapon/circuitboard/airlock/dna/D = A
+			if(D.buf)
+				if(A.one_access)
+					req_dna = D.buf
+				else
+					req_one_dna = D.buf
 		if(delete_electronics)
 			qdel(A)
 
@@ -245,12 +252,18 @@
 		A = new(loc)
 	A.installed = FALSE
 	A.one_access= !(req_access && req_access.len)
-	if(!A.one_access)
-		A.conf_access=req_access
-	else
-		A.conf_access=req_one_access
+	A.conf_access= A.one_access ? req_one_access : req_access
+	A.dir_access = req_access_dir
+	A.access_nodir = access_not_dir
+	if(istype(A,obj/item/weapon/circuitboard/airlock/dna))
+		var/obj/item/weapon/circuitboard/airlock/dna/D = A
+		D.buf = A.one_access ? req_one_dna : req_dna
 	req_access = list()
 	req_one_access = list()
+	req_access_dir = 0
+	access_not_dir = 1
+	req_dna = null
+	req_one_dna = null
 	A.forceMove(loc)
 	if(user)
 		user.put_in_hands(A)
