@@ -167,14 +167,13 @@
 			var /obj/machinery/constructable_frame/machine_frame/new_machine_frame = new(get_turf(src))
 			new_machine_frame.build_path = 1
 			new_machine_frame.build_state = 2
-			new_machine_frame.circuit = C
-			C.forceMove(new_machine_frame)
+			new_machine_frame.circuit = src.circuit
+			circuit.forceMove(new_machine_frame)
 			circuit = null
-			C = null
 			new_machine_frame.icon_state="box_glass_circuit"
 		else
-			C.forceMove(get_turf(src))
-			C.installed = 0
+			circuit.forceMove(get_turf(src))
+			circuit.installed = 0
 			new /obj/machinery/constructable_frame/machine_frame(get_turf(src))
 		qdel(src)
 		return

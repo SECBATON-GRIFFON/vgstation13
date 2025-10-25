@@ -54,10 +54,10 @@
 
 /obj/item/weapon/circuitboard/airlock/interact(mob/user as mob)
 	var/datum/browser/popup = new(user, "airlock_electronics", "Access Control", 640, 480)
-	popup.set_content(get_dat())
+	popup.set_content(get_dat(user))
 	popup.open()
 
-/obj/item/weapon/circuitboard/airlock/proc/get_dat()
+/obj/item/weapon/circuitboard/airlock/proc/get_dat(mob/user)
 	. = ""
 
 	if (last_configurator)
