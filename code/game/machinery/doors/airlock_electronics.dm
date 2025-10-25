@@ -167,7 +167,9 @@
 	name = "\proper DNA access electronics"
 	desc = "A circuit board used to operate access and DNA controls on various machinery."
 	icon_state = "door_electronics"
-	var/datum/dna2/record/buf=null
+	var/datum/dna2/record/buf = null
+	var/list/conf_ui = null
+	var/list/conf_se = null
 
 /obj/item/weapon/circuitboard/airlock/dna/New()
 	. = ..()
