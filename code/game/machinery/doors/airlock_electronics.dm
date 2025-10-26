@@ -203,11 +203,12 @@
 		for(var/UI in buf.dna.UI)
 			i++
 			if (!conf_ui || !conf_ui.len || !(num2text(i) in conf_ui))
-				. += "<a href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+				. += "<a href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[add_zero(num2hex(UI),3)]</a>"
 			else if(one_access)
-				. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+				. += "<a style='background: green' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[add_zero(num2hex(UI),3)]</a>"
 			else
-				. += "<a style='background: red' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[num2hex(UI)]</a><br>"
+				. += "<a style='background: red' href='?src=\ref[src];dna_access=UI,dna_pos=[i];dna_value=[UI]'>[add_zero(num2hex(UI),3)]</a>"
+			. += "<a href='?src=\ref[src];dna_edit=UI,dna_pos=[i]'>(Edit)</a><br>"
 
 		. += "</div>"
 		. += "<div style='float: left'><b>Structural enzymes</b><br>"
@@ -217,11 +218,12 @@
 		for(var/SE in buf.dna.SE)
 			i++
 			if (!conf_se || !conf_se.len || !(num2text(i) in conf_se))
-				. += "<a href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+				. += "<a href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[add_zero(num2hex(SE),3)]</a>"
 			else if(one_access)
-				. += "<a style='background: green' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+				. += "<a style='background: green' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[add_zero(num2hex(SE),3)]</a>"
 			else
-				. += "<a style='background: red' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[num2hex(SE)]</a><br>"
+				. += "<a style='background: red' href='?src=\ref[src];dna_access=SE,dna_pos=[i];dna_value=[SE]'>[add_zero(num2hex(SE),3)]</a>"
+			. += "<a href='?src=\ref[src];dna_edit=SE,dna_pos=[i]'>(Edit)</a><br>"
 
 		. += "</div>"
 		. += "</div>"
@@ -236,7 +238,32 @@
 	if(href_list["dna_tolerance"])
 		conf_dna_tolerance = clamp(input(usr,"Set the maximum range in which DNA values will be accepted (0-4096)","DNA tolerance",128),0,4096)
 
+	if(href_list["dna_edit"])
+		edit_dna_value(usr,href_list["dna_edit"],href_list["dna_pos"])
+
 	interact(usr)
+
+/obj/item/weapon/circuitboard/airlock/dna/proc/edit_dna_value(mob/user,var/type,var/pos)
+	var/posnum = text2num(pos)
+	var/value = 0
+	switch(type)
+		if("UI")
+			value = buf.dna.GetUIBlock(posnum)
+		if("SE")
+			value = buf.dna.GetSEBlock(posnum)
+	value = input(user,"Set a new value for this block (000-FFF)","Set value",value) as text
+	if(!value)
+		return
+	if(hex2num(value) > 4096)
+		value = "FFF"
+	if(hex2num(value) < 0)
+		value = "0"
+	switch(type)
+		if("UI")
+			buf.dna.SetUIBlock(posnum,value)
+		if("SE")
+			buf.dna.SetSEBlock(posnum,value)
+
 
 /obj/item/weapon/circuitboard/airlock/dna/proc/toggle_dna_access(var/type,var/pos,var/value)
 	if (pos == "all")
