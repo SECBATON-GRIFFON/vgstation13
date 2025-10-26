@@ -195,7 +195,7 @@
 
 	if(!locked)
 		. += "<div style='clear: both'><hr><h1>DNA ACCESS</h1>"
-		. += "DNA value tolerance is set to <a href='?src=\ref[src];dna_tolerance=1'>[conf_dna_tolerance]</a><br>"
+		. += "DNA value tolerance is set to <a href='?src=\ref[src];dna_tolerance=1'>[num2hex(conf_dna_tolerance)]</a><br>"
 
 		. += "<div style='float: left'><b>Unique identifiers</b><br>"
 		. += conf_se == null ? "<font style='background: red'>All</font><br>" : "<a href='?src=\ref[src];dna_access=UI,dna_pos=all'>All</a><br>"
@@ -236,11 +236,14 @@
 		toggle_dna_access(href_list["dna_access"],href_list["dna_pos"],href_list["dna_value"])
 
 	if(href_list["dna_tolerance"])
-		conf_dna_tolerance = clamp(input(usr,"Set the maximum range in which DNA values will be accepted (0-4096)","DNA tolerance",128),0,4096)
+		set_dna_tolerance()
 
 	if(href_list["dna_edit"])
 		edit_dna_value(usr,href_list["dna_edit"],href_list["dna_pos"])
 
+/obj/item/weapon/circuitboard/airlock/dna/proc/set_dna_tolerance()
+	var/hex_tolerance = input(usr,"Set the maximum range in which DNA values will be accepted (0-FFF)","DNA tolerance","80") as text
+	conf_dna_tolerance = clamp(hex2num(hex_tolerance),0,4096)
 	interact(usr)
 
 /obj/item/weapon/circuitboard/airlock/dna/proc/edit_dna_value(mob/user,var/type,var/pos)
@@ -263,7 +266,7 @@
 			buf.dna.SetUIBlock(posnum,value)
 		if("SE")
 			buf.dna.SetSEBlock(posnum,value)
-
+	interact(usr)
 
 /obj/item/weapon/circuitboard/airlock/dna/proc/toggle_dna_access(var/type,var/pos,var/value)
 	if (pos == "all")
@@ -296,3 +299,4 @@
 					conf_se -= pos
 					if (!conf_se.len)
 						conf_se = null
+	interact(usr)
