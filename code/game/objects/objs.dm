@@ -65,8 +65,11 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 	var/is_cooktop //If true, the object can be used in conjunction with a cooking vessel, eg. a frying pan, to cook food.
 	var/obj/item/weapon/reagent_containers/pan/cookvessel //The vessel being used to cook food in. If generalized out to other types of vessels, make sure to also generalize the frying pan's cook_start(), etc. as well.
 
-	//Is the object covered in ash?
-	var/ash_covered = FALSE
+	var/verb_rotates = FALSE
+	var/alt_click_rotates = FALSE
+	var/ghost_can_rotate = FALSE
+	var/rotates_anchored = FALSE
+	var/rotate_type = null
 
 /obj/New()
 	..()
@@ -92,6 +95,9 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 		var/turf/simulated/T = get_turf(src)
 		if(istype(T))
 			T.zone?.burnable_atoms |= src
+	if(verb_rotates)
+		verbs += /obj/proc/rotate_cw
+		verbs += /obj/proc/rotate_ccw
 
 //More cooking stuff:
 /obj/proc/can_cook() //Returns true if object is currently in a state that would allow for food to be cooked on it (eg. the grill is currently powered on). Can (and generally should) be overriden to check for more specific conditions.
@@ -175,10 +181,10 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 
 	if(handle_item_attack(W, user))
 		return
-	
+
 	if(emag_check(W,user))
 		. = 1
-			
+
 	if(can_take_pai && istype(W, /obj/item/device/paicard))
 		if(integratedpai)
 			to_chat(user, "<span class = 'notice'>There's already a Personal AI inserted.</span>")
@@ -237,7 +243,7 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 		return 0
 	else
 		delayNextpAIMove(getpAIMovementDelay())
-		if (user.client.prefs.stumble && ((world.time - user.last_movement) > 5) && getpAIMovementDelay() < 2)
+		if (user.client.prefs.get_pref(/datum/preference_setting/toggle/stumble) && ((world.time - user.last_movement) > 5) && getpAIMovementDelay() < 2)
 			delayNextpAIMove(3)	//if set, delays the second step when a mob starts moving to attempt to make precise high ping movement easier
 		user.last_movement=world.time
 		return 1
@@ -281,6 +287,50 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 		return P
 	return 0
 
+/obj/AltClick(mob/user)
+	if(alt_click_rotates & Adjacent(user))
+		rotate_ccw()
+	return ..()
+
+/obj/proc/rotate_cw()
+	set name = "Rotate Clockwise"
+	set category = "Object"
+	set src in oview(1)
+
+	rotate(270)
+	return 1
+
+/obj/proc/rotate_ccw()
+	set name = "Rotate Counter Clockwise"
+	set category = "Object"
+	set src in oview(1)
+
+	rotate(90)
+	return 1
+
+/obj/proc/rotate(var/angle = 90)
+	if(ghost_can_rotate && isobserver(usr))
+		var/mob/dead/observer/ghost = usr
+		if(ghost.last_obj_spin <= world.time - 5) //do not spam this
+			investigation_log(I_GHOST, "|| was rotated by [key_name(ghost)][ghost.locked_to ? ", who was haunting [ghost.locked_to]" : ""]")
+		ghost.last_obj_spin = world.time
+	else if (usr.incapacitated())
+		to_chat(usr, "<span class='warning'>You cannot rotate this while incapacitated!</span>")
+		return 0
+	if(!rotates_anchored && anchored)
+		var/turf/T = loc
+		if(T)
+			for(var/obj/O in T)
+				var/rotated_type = rotate_type || src.type
+				if(istype(O,rotated_type) && !O.anchored && O.dir == src.dir)
+					O.rotate(angle)
+					return 0
+		to_chat(usr, "<span class='warning'>\The [src] is fastened to the floor, therefore you can't rotate it!</span>")
+		return 0
+
+	change_dir(turn(dir, angle))
+	return 1
+
 /obj/recycle(var/datum/materials/rec)
 	if(..())
 		return 1
@@ -303,7 +353,6 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 	..()
 	if (cleanliness >= CLEANLINESS_WATER)
 		unglue()
-		ash_covered = FALSE
 
 /obj/proc/cultify()
 	qdel(src)
@@ -451,7 +500,6 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 
 /obj/ignite()
 	if(..())
-		ash_covered = TRUE
 		remove_particles(PS_SMOKE)
 
 /obj/item/checkburn()
@@ -467,13 +515,11 @@ var/global/list/reagents_to_always_log = list(AMUTATIONTOXIN, CYANIDE, CHEFSPECI
 	var/datum/gas_mixture/G = return_air()
 	if(!G)
 		return
-	while(G.temperature >= (autoignition_temperature * 0.75))
-		if(!G)
-			break
+	while(G && G.temperature >= (autoignition_temperature * 0.75))
 		if(!smoking)
 			add_particles(PS_SMOKE)
 			smoking = TRUE
-		var/rate = clamp(lerp(G.temperature,autoignition_temperature * 0.75,autoignition_temperature,0.1,1),0.1,1)
+		var/rate = clamp(lerp_generic(G.temperature,autoignition_temperature * 0.75,autoignition_temperature,0.1,1),0.1,1)
 		adjust_particles(PVAR_SPAWNING,rate,PS_SMOKE)
 		sleep(10 SECONDS)
 		G = return_air()
@@ -616,15 +662,9 @@ a {
 		else
 			dat += "<p><b>MULTITOOL BUFFER:</b> <a href='?src=\ref[src];buffer=1'>\[Add Machine\]</a></p>"
 	dat += "</body></html>"
-	user << browse(dat, "window=mtcomputer")
+	user << browse(HTML_SKELETON(dat), "window=mtcomputer")
 	user.set_machine(src)
 	onclose(user, "mtcomputer")
-
-/obj/update_icon()
-	if(ash_covered)
-		cut_overlay(charred_overlay)
-		process_charred_overlay()
-	return
 
 /mob/proc/unset_machine()
 	if(machine)
@@ -689,6 +729,13 @@ a {
 		user.visible_message(	"<span class='notice'>[user] [anchored ? "wrench" : "unwrench"]es \the [src] [anchored ? "in place" : "from its fixture"]</span>",
 								"<span class='notice'>[bicon(src)] You [anchored ? "wrench" : "unwrench"] \the [src] [anchored ? "in place" : "from its fixture"].</span>",
 								"<span class='notice'>You hear a ratchet.</span>")
+		if(verb_rotates)
+			if(anchored)
+				verbs |= /obj/proc/rotate_cw
+				verbs |= /obj/proc/rotate_ccw
+			else
+				verbs -= /obj/proc/rotate_cw
+				verbs -= /obj/proc/rotate_ccw
 		return TRUE
 	return FALSE
 
@@ -976,10 +1023,10 @@ a {
  * Arguments:
  * * ID- An ID card representing what access we have (and thus if we can open things like airlocks or windows to pass through them). The ID card's physical location does not matter, just the reference
  * * to_dir- What direction we're trying to move in, relevant for things like directional windows that only block movement in certain directions
- * * caller- The movable we're checking pass flags for, if we're making any such checks
+ * * astar_caller- The movable we're checking pass flags for, if we're making any such checks
  **/
-/obj/proc/CanAStarPass(obj/item/weapon/card/id/ID, to_dir, atom/movable/caller)
-	if(istype(caller) && (caller.pass_flags & pass_flags_self))
+/obj/proc/CanAStarPass(obj/item/weapon/card/id/ID, to_dir, atom/movable/astar_caller)
+	if(istype(astar_caller) && (astar_caller.pass_flags & pass_flags_self))
 		return TRUE
 	. = !density
 

@@ -261,7 +261,7 @@
 	ui = nanomanager.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if(!ui)
 		// the ui does not exist, so we'll create a new() one
-		// for a list of parameters and their descriptions see the code docs in \code\\modules\nano\nanoui.dm 
+		// for a list of parameters and their descriptions see the code docs in \code\\modules\nano\nanoui.dm
 		ui = new(user, src, ui_key, template_path, "Waste Disposal Unit", 430, 150)
 		// when the ui is first opened this is the data it will use
 		ui.set_initial_data(data)
@@ -522,6 +522,7 @@
 
 			attackby(dropping, user)
 		else if(istype(dropping, /obj/structure/closet/crate) && can_load_crates())
+			to_chat(user,"<span class='notice'>You begin lifting \the [dropping] into \the [src].</span>")
 			if(do_after(user,src,20))
 				if(dropping.locked_to || !user.canmove || user.incapacitated() || !isturf(dropping.loc))
 					return
@@ -651,6 +652,8 @@
 		AM.forceMove(src)
 		if(istype(AM, /obj/item/delivery/large) && !hasmob)
 			var/obj/item/delivery/large/T = AM
+			for(var/obj/structure/closet/crate/my_box in T.contents)
+				my_box.jiggle_all(W_CLASS_SMALL) //Properly packaged, less shaking!
 			src.destinationTag = T.sortTag
 		if(istype(AM, /obj/item/delivery) && !hasmob)
 			var/obj/item/delivery/T = AM
@@ -658,6 +661,9 @@
 		if(istype(AM, /obj/item/weapon/paper/envelope) && !hasmob)
 			var/obj/item/weapon/paper/envelope/E = AM
 			src.destinationTag = E.sortTag
+		if(istype(AM, /obj/structure/closet/crate))
+			var/obj/structure/closet/crate/my_box = AM
+			my_box.jiggle_all(W_CLASS_MEDIUM)
 
 // start the movement process
 // argument is the disposal unit the holder started in
@@ -1581,7 +1587,7 @@
 	// for broken pipe, remove and turn into scrap
 
 /obj/structure/disposalpipe/broken/welded()
-//	var/obj/item/scrap/S = new(src.loc)
+//	var/obj/item/trash/scrap/S = new(src.loc)
 //	S.set_components(200,0,0)
 	qdel(src)
 

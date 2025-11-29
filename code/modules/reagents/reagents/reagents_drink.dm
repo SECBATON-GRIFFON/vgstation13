@@ -642,13 +642,13 @@
 				M.bodytemperature -= rand(5,20)
 			if(isslimeperson(H))
 				M.bodytemperature -= rand(5,20)
-		if(15 to 25)
+		if(16 to 25)
 			M.bodytemperature -= 0.2 * TEMPERATURE_DAMAGE_COEFFICIENT
 			if(isslime(M))
 				M.bodytemperature -= rand(10,20)
 			if(isslimeperson(H))
 				M.bodytemperature -= rand(10,20)
-		if(25 to INFINITY)
+		if(26 to INFINITY)
 			M.bodytemperature -= 0.3 * TEMPERATURE_DAMAGE_COEFFICIENT
 			if(prob(1))
 				M.emote("shiver")
@@ -696,6 +696,8 @@
 	glass_icon_state = "doctorsdelightglass"
 	glass_name = "\improper Doctor's Delight"
 	glass_desc = "A rejuvenating mixture of juices, guaranteed to keep you healthy until the next toolboxing takes place."
+	fission_time=3500 // 50 minutes (0hr 50m)
+	fission_absorbtion=3000
 
 /datum/reagent/drink/doctor_delight/on_mob_life(var/mob/living/M)
 	if(..())

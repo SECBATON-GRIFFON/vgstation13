@@ -1068,10 +1068,10 @@
 	tag = "icon-adapter_2 (EAST)"
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/item/weapon/stool,
 /obj/structure/cable/green{
@@ -1595,10 +1595,10 @@
 	tag = "icon-adapter_2 (WEST)"
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 4;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/plating/vox,
 /area/vox_trading_post/trading_floor)
@@ -3666,7 +3666,8 @@
 	department = "Science";
 	departmentType = 2;
 	name = "Science Requests Console";
-	pixel_x = 30
+	pixel_x = 30;
+	phone_name = "Research And Development"
 	},
 /turf/simulated/floor{
 	icon_state = "white"
@@ -3849,7 +3850,7 @@
 /turf/simulated/wall/r_wall,
 /area/security/interrogation)
 "aVQ" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /obj/item/weapon/reagent_containers/glass/bucket{
@@ -5748,15 +5749,15 @@
 	name = "Upper Terminal"
 	})
 "bsv" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/structure/mirror{
 	pixel_x = 24
@@ -6022,7 +6023,7 @@
 	pixel_x = -28;
 	pixel_y = -3
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -11
 	},
@@ -8194,7 +8195,7 @@
 /obj/machinery/camera{
 	name = "Research Division Access"
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -9336,7 +9337,7 @@
 	},
 /area/science/lab)
 "cku" = (
-/obj/effect/landmark/map_element/oldstation,
+/obj/effect/landmark/map_element/randomderelict,
 /turf/space,
 /area)
 "ckC" = (
@@ -12321,8 +12322,8 @@
 "cTK" = (
 /obj/structure/bed/chair,
 /obj/machinery/atmospherics/unary/vent_scrubber{
-	on = 1;
-	default_scrubbed_gases = list("carbon_dioxide")
+	default_scrubbed_gases = list("carbon_dioxide");
+	on = 1
 	},
 /obj/structure/cable/orange{
 	d1 = 1;
@@ -13755,7 +13756,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -13952,7 +13953,7 @@
 /area/hallway/primary/aft)
 "dnY" = (
 /obj/machinery/atmospherics/unary/portables_connector,
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 1;
 	pixel_y = 25
 	},
@@ -14691,9 +14692,9 @@
 /area/maintenance/aft)
 "duS" = (
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/structure/cable/green{
 	icon_state = "6-10"
@@ -17120,11 +17121,9 @@
 	name = "Upper Backrooms"
 	})
 "ebQ" = (
-/obj/machinery/door/window{
-	base_state = "right";
-	dir = 2;
-	name = "Library Desk Door";
-	req_access_txt = "37"
+/obj/machinery/door/table/wood{
+	req_access_txt = "37";
+	dir = 1
 	},
 /turf/simulated/floor/carpet/shag,
 /area/library)
@@ -19898,7 +19897,9 @@
 	name = "Starboard Backrooms"
 	})
 "eMz" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /obj/machinery/firealarm{
 	pixel_y = 24
 	},
@@ -20373,7 +20374,8 @@
 /obj/machinery/requests_console{
 	department = "Security";
 	departmentType = 5;
-	pixel_x = -30
+	pixel_x = -30;
+	phone_name = "Brig"
 	},
 /obj/structure/closet/wardrobe/red,
 /obj/structure/window/reinforced,
@@ -21517,10 +21519,7 @@
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{
 	dir = 4
 	},
-/obj/machinery/door/window{
-	base_state = "right";
-	dir = 8;
-	name = "Bar Door";
+/obj/machinery/door/table/reinforced{
 	req_one_access_txt = "25;28"
 	},
 /turf/simulated/floor{
@@ -21551,7 +21550,9 @@
 	name = "\improper AIShip Docking Moors"
 	})
 "faI" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/research_outpost/hallway{
 	icon_state = "hallA";
@@ -22573,7 +22574,9 @@
 	},
 /area/hallway/primary/aft)
 "fnY" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /turf/simulated/floor/plating,
 /area/science/chargebay)
 "fnZ" = (
@@ -24184,7 +24187,7 @@
 /turf/simulated/floor,
 /area/engineering/break_room)
 "fKI" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /turf/unsimulated/floor{
@@ -24615,7 +24618,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/disposal)
 "fQn" = (
-/obj/structure/urinal{
+/obj/structure/wc/urinal{
 	pixel_y = 32
 	},
 /turf/unsimulated/floor{
@@ -24623,7 +24626,7 @@
 	},
 /area/syndicate_mothership)
 "fQw" = (
-/obj/structure/urinal{
+/obj/structure/wc/urinal{
 	pixel_y = 32
 	},
 /obj/effect/decal/cleanable/vomit,
@@ -24938,7 +24941,7 @@
 	},
 /area/syndicate_mothership)
 "fTG" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -25099,9 +25102,9 @@
 	dir = 4
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "dark"
@@ -25308,10 +25311,10 @@
 	name = "Trader"
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 4;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/structure/cable/green{
 	icon_state = "1-6"
@@ -26027,10 +26030,10 @@
 	tag = "icon-adapter_2 (WEST)"
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 4;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "checker";
@@ -28184,7 +28187,9 @@
 	name = "Xenoarchaeology Hallway"
 	})
 "gKc" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /turf/unsimulated/floor{
 	icon_state = "floor4"
 	},
@@ -29623,7 +29628,7 @@
 /turf/simulated/floor/shuttle/plating,
 /area/shuttle/supply)
 "hdn" = (
-/obj/structure/toilet{
+/obj/structure/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one seems unspeakably filthy.";
 	dir = 4
 	},
@@ -30483,7 +30488,8 @@
 /obj/machinery/requests_console{
 	department = "Cargo Bay";
 	departmentType = 2;
-	pixel_x = 30
+	pixel_x = 30;
+	phone_name = "Mining Dock"
 	},
 /turf/simulated/floor{
 	dir = 4;
@@ -30517,6 +30523,13 @@
 "hpK" = (
 /obj/machinery/camera/autoname{
 	dir = 1
+	},
+/obj/item/device/gps/planetary,
+/obj/item/device/gps/planetary,
+/obj/item/device/gps/planetary,
+/obj/machinery/planet_scanner{
+	anchored = 1;
+	icon_state = "scanner_idle"
 	},
 /turf/simulated/floor{
 	icon_state = "blue"
@@ -31047,6 +31060,12 @@
 	},
 /turf/simulated/floor,
 /area/science/chargebay)
+"hve" = (
+/obj/machinery/computer/tetris,
+/turf/simulated/floor{
+	icon_state = "white"
+	},
+/area/science/lab)
 "hvf" = (
 /obj/structure/shuttle/diag_wall/smooth{
 	dir = 4
@@ -31079,10 +31098,10 @@
 /area/centcom/suppy)
 "hvG" = (
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "dark"
@@ -33636,7 +33655,7 @@
 	dir = 4;
 	pixel_x = -22
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -35274,9 +35293,9 @@
 	tag = "icon-adapter_2 (NORTH)"
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "asteroidplating"
@@ -36994,7 +37013,7 @@
 	},
 /area/centcom/living)
 "iZe" = (
-/obj/structure/toilet,
+/obj/structure/wc/toilet,
 /turf/simulated/floor{
 	icon_state = "showroomfloor"
 	},
@@ -37867,7 +37886,6 @@
 	})
 "jkj" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_dock_airlock_exterior";
@@ -38651,7 +38669,7 @@
 	name = "\improper Central Terminal"
 	})
 "jsM" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /obj/machinery/media/receiver/boombox/wallmount/muzak{
@@ -38774,7 +38792,8 @@
 /obj/item/weapon/book/manual/detective,
 /obj/machinery/requests_console{
 	department = "Detective's office";
-	pixel_y = -30
+	pixel_y = -30;
+	departmentType = 5
 	},
 /turf/simulated/floor/carpet,
 /area/security/detectives_office)
@@ -39259,6 +39278,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
+/obj/machinery/computer/tetris,
 /turf/simulated/floor{
 	icon_state = "floorgrime"
 	},
@@ -39724,7 +39744,7 @@
 	one_way = 1
 	},
 /obj/structure/curtain/open/privacy,
-/obj/structure/toilet,
+/obj/structure/wc/toilet,
 /obj/structure/cable/orange{
 	d1 = 1;
 	d2 = 2;
@@ -39759,7 +39779,7 @@
 	},
 /area/centcom/test)
 "jHp" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{
@@ -39901,7 +39921,7 @@
 /area/engineering/engine)
 "jJw" = (
 /obj/machinery/bot/farmbot/duey,
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -39994,7 +40014,7 @@
 	dir = 4;
 	pixel_x = -22
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -40994,7 +41014,7 @@
 	name = "Starboard Backrooms"
 	})
 "jVU" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -42071,7 +42091,9 @@
 	},
 /area/centcom/test)
 "kiN" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /turf/unsimulated/floor{
 	icon_state = "floor"
 	},
@@ -42108,7 +42130,7 @@
 	name = "Lower Backrooms"
 	})
 "kjs" = (
-/obj/machinery/computer/mech_bay_power_console,
+/obj/machinery/computer/mech_bay_power_console/autolink_west,
 /turf/unsimulated/floor{
 	icon_state = "floor"
 	},
@@ -43573,9 +43595,9 @@
 	req_access = null
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 1;
-	name = "Vox Air Scrubber (1)";
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	name = "Vox Air Scrubber (1)"
 	},
 /turf/simulated/floor/vox{
 	icon_state = "asteroidplating"
@@ -43595,7 +43617,7 @@
 "kBh" = (
 /obj/machinery/atmospherics/trinary/mixer/mirrored{
 	dir = 1;
-	name = "Air to MIx"
+	name = "Air to Mix"
 	},
 /turf/simulated/floor,
 /area/engineering/atmos)
@@ -43959,7 +43981,7 @@
 	},
 /area/centcom/ert)
 "kGv" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /turf/unsimulated/floor{
@@ -45003,7 +45025,6 @@
 /area/centcom/control)
 "kTS" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_dock_airlock_interior";
@@ -45310,7 +45331,8 @@
 /obj/machinery/requests_console{
 	department = "Security";
 	departmentType = 5;
-	pixel_y = -30
+	pixel_y = -30;
+	phone_name = "Arrivals Checkpoint"
 	},
 /turf/simulated/floor{
 	icon_state = "red"
@@ -45846,7 +45868,6 @@
 /area/centcom/ert)
 "ldB" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_goodsfloor_airlock_interior";
@@ -45940,7 +45961,7 @@
 	},
 /area/centcom/ert)
 "lei" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -48380,7 +48401,6 @@
 /area/centcom/test)
 "lJb" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_tradehall_airlock_exterior";
@@ -48677,7 +48697,7 @@
 	},
 /area/medical/genetics)
 "lNg" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -49720,7 +49740,6 @@
 	dir = 4
 	},
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_solars_airlock_interior";
@@ -52205,7 +52224,9 @@
 /turf/space,
 /area/centcom/specops)
 "mDm" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /turf/unsimulated/floor{
 	dir = 8;
 	icon_state = "dark-markings"
@@ -52235,7 +52256,7 @@
 	},
 /area/hydroponics)
 "mDC" = (
-/obj/machinery/computer/mech_bay_power_console,
+/obj/machinery/computer/mech_bay_power_console/autolink_west,
 /turf/unsimulated/floor{
 	icon_state = "dark"
 	},
@@ -52772,7 +52793,7 @@
 	},
 /area/shuttle/trade/start)
 "mKL" = (
-/obj/structure/toilet{
+/obj/structure/wc/toilet{
 	dir = 4
 	},
 /obj/machinery/door_control{
@@ -52790,7 +52811,7 @@
 	},
 /area/crew_quarters/toilet)
 "mKV" = (
-/obj/structure/toilet{
+/obj/structure/wc/toilet{
 	pixel_y = 8
 	},
 /obj/effect/landmark{
@@ -55360,7 +55381,7 @@
 /turf/space,
 /area/shuttle/escape/centcom)
 "nsJ" = (
-/obj/structure/urinal{
+/obj/structure/wc/urinal{
 	pixel_y = 32
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
@@ -55369,7 +55390,7 @@
 	},
 /area/crew_quarters/toilet)
 "nsN" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -55480,7 +55501,7 @@
 	name = "Lower Backrooms"
 	})
 "nty" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	desc = "A sink used for washing one's hands and face. It looks rusty and home-made";
 	name = "old sink";
 	pixel_y = 28
@@ -55956,7 +55977,7 @@
 	},
 /area/centcom/control)
 "nzu" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -56163,7 +56184,6 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_solars_airlock_exterior";
@@ -60791,8 +60811,8 @@
 	icon_state = "warning_corner"
 	},
 /obj/machinery/atmospherics/binary/volume_pump{
-	name = "Cold Gas Circulator";
-	dir = 8
+	dir = 8;
+	name = "Cold Gas Circulator"
 	},
 /turf/simulated/floor,
 /area/engineering/burn_chamber{
@@ -60836,7 +60856,7 @@
 	},
 /area/hallway/primary/aft)
 "oNh" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12
 	},
@@ -62936,13 +62956,6 @@
 	},
 /area/tdome/tdomeobserve)
 "ppA" = (
-/obj/machinery/door/window{
-	base_state = "right";
-	dir = 2;
-	icon_state = "right";
-	name = "Captain's Desk Door";
-	req_access_txt = "20"
-	},
 /obj/machinery/atmospherics/pipe/manifold/supply/hidden{
 	dir = 8
 	},
@@ -62956,6 +62969,10 @@
 /obj/machinery/light_switch{
 	pixel_x = -24;
 	pixel_y = -4
+	},
+/obj/machinery/door/table/wood{
+	req_access_txt = "20";
+	dir = 2
 	},
 /turf/simulated/floor/carpet,
 /area/crew_quarters/captain)
@@ -64548,7 +64565,7 @@
 	},
 /area/engineering/atmos)
 "pLv" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -64905,8 +64922,8 @@
 	})
 "pPx" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
-	dir = 8;
-	default_scrubbed_gases = list("carbon_dioxide")
+	default_scrubbed_gases = list("carbon_dioxide");
+	dir = 8
 	},
 /turf/simulated/floor/engine,
 /area/science/breakroom{
@@ -65991,17 +66008,17 @@
 /area/medical/medbay)
 "qkl" = (
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "asteroidplating"
 	},
 /area/vox_trading_post/trading_floor)
 "qkF" = (
-/obj/structure/toilet{
+/obj/structure/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. Oh god, this ancient thing has been festering in here for years.";
 	dir = 4
 	},
@@ -67048,10 +67065,10 @@
 /area/crew_quarters/theatre)
 "qHq" = (
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layered{
 	dir = 4;
@@ -69093,7 +69110,7 @@
 /obj/structure/mirror{
 	pixel_y = -32
 	},
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -69771,7 +69788,7 @@
 /turf/simulated/wall,
 /area/medical/surgery)
 "rOz" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -69843,7 +69860,6 @@
 	})
 "rPv" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_tradehall_airlock_interior";
@@ -70618,7 +70634,7 @@
 	name = "Upper Terminal"
 	})
 "shK" = (
-/obj/structure/sink/kitchen{
+/obj/structure/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /turf/simulated/floor/vox{
@@ -70982,7 +70998,7 @@
 /turf/simulated/floor/plating,
 /area/bridge)
 "srW" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -71717,10 +71733,10 @@
 	})
 "sGa" = (
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /obj/machinery/alarm/vox{
 	alarm_frequency = 1331;
@@ -72964,7 +72980,7 @@
 /turf/space,
 /area)
 "tmY" = (
-/obj/structure/toilet{
+/obj/structure/wc/toilet{
 	pixel_y = 8
 	},
 /obj/effect/glowshroom/single,
@@ -73099,7 +73115,7 @@
 /turf/simulated/floor,
 /area/security/main)
 "tqf" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -73450,10 +73466,10 @@
 	})
 "tyt" = (
 /obj/machinery/atmospherics/unary/vent_pump{
+	dir = 1;
 	frequency = 1331;
 	name = "Outpost Air Vent";
-	on = 1;
-	dir = 1
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "dark"
@@ -73617,10 +73633,10 @@
 	dir = 4
 	},
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "asteroidplating"
@@ -74358,7 +74374,8 @@
 	department = "Science";
 	departmentType = 2;
 	name = "Science Requests Console";
-	pixel_y = 30
+	pixel_y = 30;
+	phone_name = "Toxins"
 	},
 /turf/simulated/floor{
 	icon_state = "white"
@@ -75321,7 +75338,8 @@
 /obj/machinery/requests_console{
 	department = "Cargo Bay";
 	departmentType = 2;
-	pixel_x = 30
+	pixel_x = 30;
+	phone_name = "Cargo Lobby"
 	},
 /turf/simulated/floor{
 	dir = 4;
@@ -77157,11 +77175,11 @@
 "vkJ" = (
 /obj/machinery/atmospherics/pipe/layer_adapter/supply/hidden,
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 1;
 	frequency = 1331;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox{
 	icon_state = "dark"
@@ -77574,10 +77592,10 @@
 "vvt" = (
 /obj/machinery/washing_machine,
 /obj/machinery/atmospherics/unary/vent_scrubber{
+	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" );
 	dir = 8;
 	name = "Outpost Air Scrubber";
-	on = 1;
-	default_scrubbed_gases = list( "carbon_dioxide", "plasma", "oxygen" )
+	on = 1
 	},
 /turf/simulated/floor/vox/wood,
 /area/vox_trading_post/dorms)
@@ -78551,7 +78569,7 @@
 	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	pixel_y = 24
 	},
 /turf/simulated/floor{
@@ -78708,7 +78726,9 @@
 /turf/simulated/floor,
 /area/engineering/atmos)
 "vZi" = (
-/obj/machinery/mech_bay_recharge_port,
+/obj/machinery/mech_bay_recharge_port{
+	dir = 4
+	},
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -79977,7 +79997,7 @@
 	},
 /area/vox_trading_post/gardens)
 "wEj" = (
-/obj/structure/sink{
+/obj/structure/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -80247,7 +80267,6 @@
 /area/turret_protected/tcomms_control_room)
 "wKT" = (
 /obj/machinery/door/airlock/external{
-	autoclose = 0;
 	frequency = 1331;
 	icon_state = "door_locked";
 	id_tag = "vox_goodsfloor_airlock_exterior";
@@ -83168,8 +83187,8 @@
 	},
 /obj/item/weapon/circuitboard/mining,
 /obj/item/weapon/circuitboard/circuit_imprinter{
-	pixel_y = -3;
-	pixel_x = 3
+	pixel_x = 3;
+	pixel_y = -3
 	},
 /turf/simulated/floor/plating,
 /area/storage/tech)
@@ -197125,7 +197144,7 @@ bdS
 bDR
 bSF
 vou
-cRZ
+hve
 dks
 usk
 xZL

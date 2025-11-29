@@ -108,6 +108,10 @@
 	items = list(/obj/item/clothing/head/beret)
 	result = /obj/item/weapon/reagent_containers/food/snacks/mimeburger
 
+/datum/recipe/nothingburger
+	reagents = list(FLOUR = 5, NOTHING = 5)
+	result = /obj/item/weapon/reagent_containers/food/snacks/nothingburger
+
 /datum/recipe/donutburger
 	items = list(
 		/obj/item/weapon/reagent_containers/food/snacks/meat,
@@ -332,6 +336,12 @@
 		)
 	result = /obj/item/weapon/reagent_containers/food/snacks/multispawner/slider/mime
 
+/datum/recipe/sliders/nothing
+	priority = 1
+	reagents = list(FLOUR = 10, NOTHING = 10)
+	items = list()
+	result = /obj/item/weapon/reagent_containers/food/snacks/multispawner/slider/nothing
+
 /datum/recipe/sliders/slippery
 	reagents = list(FLOUR = 10, LUBE = 5)
 	items = list(
@@ -346,6 +356,10 @@
 /datum/recipe/friedegg
 	reagents = list(SODIUMCHLORIDE = 1, BLACKPEPPER = 1)
 	items = list(/obj/item/weapon/reagent_containers/food/snacks/egg)
+	result = /obj/item/weapon/reagent_containers/food/snacks/friedegg
+
+/datum/recipe/friedeggalt
+	reagents = list(SODIUMCHLORIDE = 1, BLACKPEPPER = 1, EGGYOLK = 4) //one egg worth
 	result = /obj/item/weapon/reagent_containers/food/snacks/friedegg
 
 /datum/recipe/boiledegg
@@ -3823,7 +3837,7 @@
 	reagents = list(SODIUMCHLORIDE = 10)
 	result = /obj/item/weapon/reagent_containers/food/snacks/multispawner/saltcube
 	cookable_with = COOKABLE_WITH_MIXING
-	
+
 /datum/recipe/saltcube
 	reagents = list(SUGARS = 10)
 	result = /obj/item/weapon/reagent_containers/food/snacks/multispawner/sugarcube
