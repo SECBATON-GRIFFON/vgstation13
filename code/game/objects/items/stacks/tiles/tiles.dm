@@ -99,11 +99,6 @@
 				QDEL_NULL(active) //otherwise remove the draggable screen
 
 /obj/item/stack/tile/drag_use(mob/user, turf/T)
-	if(T.canBuildFloortile(src.type) && istype(T,/turf/simulated/floor))
-		var/turf/simulated/floor/F = T
-		F.make_tiled_floor(src)
-		playsound(T, 'sound/weapons/Genhit.ogg', 25, 1)
-		return
 	if(T.canBuildPlating() == BUILD_SUCCESS) //This deletes lattices, only necessary for BUILD_SUCCESS
 		var/L = locate(/obj/structure/lattice) in T
 		if(!L)
