@@ -25,7 +25,7 @@
 	},
 /area/beach)
 "j" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /turf/simulated/floor/wood{
@@ -154,7 +154,7 @@
 /turf/unsimulated/beach/sand,
 /area/beach)
 "R" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8;
 	pixel_y = -6
 	},

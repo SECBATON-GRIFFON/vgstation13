@@ -1204,7 +1204,7 @@
 	},
 /area/awaymission/wwgov)
 "dB" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /mob/living/simple_animal/hostile/creature,
 /turf/simulated/floor{
 	icon_state = "white";
@@ -1367,7 +1367,7 @@
 	},
 /area/awaymission/wwgov)
 "dV" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	tag = "icon-shower (EAST)"
 	},
@@ -1378,7 +1378,7 @@
 	},
 /area/awaymission/wwmines)
 "dW" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8;
 	tag = "icon-shower (WEST)"
 	},
@@ -1814,7 +1814,7 @@
 /turf/simulated/floor,
 /area/awaymission/wwrefine)
 "fe" = (
-/obj/structure/wc/sink,
+/obj/machinery/atmospherics/unary/wc/sink,
 /turf/simulated/floor/wood,
 /area/awaymission/wwmines)
 "ff" = (
@@ -1907,13 +1907,13 @@
 /turf/simulated/floor,
 /area/awaymission/wwrefine)
 "fp" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /turf/simulated/floor/wood,
 /area/awaymission/wwmines)
 "fq" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /obj/item/ammo_storage/speedloader/a357,

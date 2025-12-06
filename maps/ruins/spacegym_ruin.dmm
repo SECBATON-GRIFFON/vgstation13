@@ -54,11 +54,11 @@
 /turf/simulated/floor/airless,
 /area/vault/gym)
 "m" = (
-/obj/machinery/shower,
+/obj/machinery/atmospherics/unary/wc/shower,
 /turf/simulated/floor/airless,
 /area/vault/gym)
 "n" = (
-/obj/machinery/shower,
+/obj/machinery/atmospherics/unary/wc/shower,
 /obj/item/weapon/storage/pill_bottle/creatine,
 /obj/effect/decal/cleanable/cobweb2,
 /turf/simulated/floor/airless,

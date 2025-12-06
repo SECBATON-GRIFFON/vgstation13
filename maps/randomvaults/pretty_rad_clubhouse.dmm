@@ -9,7 +9,7 @@
 /area/vault/mechclubhouse)
 "c" = (
 /obj/structure/curtain/open/shower,
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8
 	},
 /turf/simulated/floor/mineral/plastic,
@@ -232,7 +232,7 @@
 /turf/simulated/floor/carpet,
 /area/vault/mechclubhouse)
 "V" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8
 	},
 /obj/item/weapon/soap,
@@ -248,7 +248,7 @@
 /turf/space,
 /area/vault/mechclubhouse)
 "Y" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /turf/simulated/floor/mineral/plastic,

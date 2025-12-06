@@ -72,6 +72,14 @@
 		parent.build_pipeline(src)
 	return parent.air
 
+/obj/machinery/atmospherics/proc/return_fluid()
+	return reagents
+
+/obj/machinery/atmospherics/pipe/return_fluid()
+	if(!parent)
+		parent = new /datum/pipeline
+		parent.build_pipeline(src)
+	return parent.fluid
 
 /obj/machinery/atmospherics/pipe/build_network()
 	if(!parent)

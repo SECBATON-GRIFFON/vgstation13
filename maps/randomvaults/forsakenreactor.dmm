@@ -149,7 +149,7 @@
 	},
 /area/vault/forsakenreactor)
 "bO" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one is a gruesome sight indeed.";
 	dir = 1
 	},
@@ -1209,7 +1209,7 @@
 /turf/simulated/floor,
 /area/vault/forsakenreactor)
 "pC" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8
 	},
 /obj/structure/window/reinforced,
@@ -1869,7 +1869,7 @@
 /turf/simulated/floor/airless,
 /area/vault/forsakenreactor)
 "zI" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one is a gruesome sight indeed.";
 	dir = 1
 	},
@@ -2307,7 +2307,7 @@
 /turf/simulated/floor/plating,
 /area/vault/forsakenreactor)
 "HB" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -2847,7 +2847,7 @@
 	},
 /area/vault/forsakenreactor)
 "Ow" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/structure/window/reinforced,
@@ -3234,7 +3234,7 @@
 	},
 /area/vault/forsakenreactor)
 "VP" = (
-/obj/machinery/shower,
+/obj/machinery/atmospherics/unary/wc/shower,
 /turf/simulated/floor{
 	icon_state = "freezerfloor"
 	},

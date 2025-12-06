@@ -1179,7 +1179,7 @@
 	},
 /area/derelict/maintenance/maintenance_central)
 "hM" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /turf/simulated/floor{
@@ -1326,7 +1326,7 @@
 /turf/simulated/floor/plating,
 /area/derelict/maintenance/maintenance_starboard)
 "iT" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/effect/decal/cleanable/dirt,
@@ -1800,7 +1800,7 @@
 /turf/simulated/floor/plating,
 /area/derelict/maintenance/maintenance_central)
 "lA" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one is a gruesome sight indeed.";
 	dir = 4
 	},
@@ -2606,7 +2606,7 @@
 /turf/simulated/floor/wood,
 /area/derelict/theatre)
 "pV" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 1;
 	pixel_y = 25
 	},
@@ -2928,7 +2928,7 @@
 /turf/simulated/floor/plating,
 /area/derelict/maintenance/maintenance_fore)
 "sz" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8
 	},
 /obj/machinery/door_control{
@@ -3440,7 +3440,7 @@
 /turf/simulated/floor,
 /area/derelict/holodeck)
 "vV" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one is a gruesome sight indeed.";
 	dir = 4
 	},
@@ -3794,7 +3794,7 @@
 	},
 /area/derelict/mall)
 "xT" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /turf/simulated/floor/plating,
@@ -5184,10 +5184,10 @@
 /turf/simulated/floor,
 /area/derelict/crew_quarters)
 "Ht" = (
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	pixel_y = 32
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -5559,7 +5559,7 @@
 /turf/simulated/floor/plating,
 /area/derelict/maintenance/maintenance_fore)
 "JM" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one is a gruesome sight indeed.";
 	dir = 4
 	},
@@ -5758,7 +5758,7 @@
 	},
 /area/derelict/mall)
 "Lf" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -6347,7 +6347,7 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -7216,10 +7216,10 @@
 	},
 /area/derelict/maintenance/maintenance_central)
 "TG" = (
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	pixel_y = 32
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -7411,7 +7411,7 @@
 /turf/simulated/floor/plating,
 /area/derelict/maintenance/maintenance_port)
 "UM" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8
 	},
 /turf/simulated/floor{

@@ -1,20 +1,22 @@
 //todo: toothbrushes, and some sort of "toilet-filthinator" for the hos
 
-/obj/structure/wc
+/obj/machinery/atmospherics/unary/wc
 	name = "base WC object"
 	icon = 'icons/obj/watercloset.dmi'
 	density = 0
 	anchored = 1
+	use_power = MACHINE_POWER_USE_NONE
+	machine_flags = WRENCHMOVE
 	var/obj/item/watersource = null
 	var/watertype = /obj/item/reagent_core //TODO: Make /obj/item/weapon/reagent_containers/glass/beaker/water when plumbing starts to exist.
 	var/can_be_wrenched = TRUE
 
-/obj/structure/wc/New()
+/obj/machinery/atmospherics/unary/wc/New()
 	. = ..()
 	if(watertype)
 		watersource = new watertype
 
-/obj/structure/wc/verb/empty_container_into()
+/obj/machinery/atmospherics/unary/wc/verb/empty_container_into()
 	set name = "Empty container into"
 	set category = "Object"
 	set src in oview(1)
@@ -30,19 +32,17 @@
 		return
 	return container.drain_into(usr, src)
 
-/obj/structure/wc/proc/is_open()
+/obj/machinery/atmospherics/unary/wc/proc/is_open()
 	return TRUE
 
-/obj/structure/wc/AltClick()
+/obj/machinery/atmospherics/unary/wc/AltClick()
 	if(Adjacent(usr))
 		return empty_container_into()
 	return ..()
 
-/obj/structure/wc/attackby(obj/item/I as obj, mob/living/user as mob)
-	if(can_be_wrenched && I.is_wrench(user))
-		to_chat(user, "<span class='notice'>You [anchored ? "un":""]bolt \the [src]'s grounding lines.</span>")
-		anchored = !anchored
-		return 1
+/obj/machinery/atmospherics/unary/wc/attackby(obj/item/I as obj, mob/living/user as mob)
+	if(..())
+		return
 	if(!anchored)
 		if(!watersource && (istype(I,/obj/item/weapon/reagent_containers/glass/beaker) || istype(I,/obj/item/reagent_core)))
 			if(user.drop_item(I,src))
@@ -52,7 +52,7 @@
 		to_chat(user, "<span class='warning'>\The [src] needs to be bolted to the floor to work.</span>")
 		return 1
 
-/obj/structure/wc/attack_hand(mob/living/user)
+/obj/machinery/atmospherics/unary/wc/attack_hand(mob/living/user)
 	if(!anchored)
 		if(watersource)
 			user.put_in_hands(watersource)
@@ -62,7 +62,14 @@
 		to_chat(user, "<span class='warning'>\The [src] needs to be bolted to the floor to work.</span>")
 		return 1
 
-/obj/structure/wc/toilet
+/obj/machinery/atmospherics/unary/wc/process()
+	var/obj/machinery/atmospherics/node = get_node(1)
+	if(node)
+		var/datum/reagents/fluids = node.return_fluid()
+		if(fluids && watersource && watersource.reagents)
+			fluids.trans_to(watersource,watersource.reagents.maximum_volume-watersource.reagents.total_volume)
+
+/obj/machinery/atmospherics/unary/wc/toilet
 	name = "toilet"
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one seems remarkably clean."
 	icon_state = "toilet00"
@@ -72,15 +79,15 @@
 	var/mob/living/swirlie = null	//the mob being given a swirlie
 	var/base_icon = "toilet"
 
-/obj/structure/wc/toilet/New()
+/obj/machinery/atmospherics/unary/wc/toilet/New()
 	. = ..()
 	open = round(rand(0, 1))
 	update_icon()
 
-/obj/structure/wc/toilet/is_open()
+/obj/machinery/atmospherics/unary/wc/toilet/is_open()
 	return open
 
-/obj/structure/wc/toilet/attack_hand(mob/living/user)
+/obj/machinery/atmospherics/unary/wc/toilet/attack_hand(mob/living/user)
 	if(..())
 		return
 	if(user.attack_delayer.blocked())
@@ -111,15 +118,15 @@
 	open = !open
 	update_icon()
 
-/obj/structure/wc/toilet/proc/get_contents_w_class()
+/obj/machinery/atmospherics/unary/wc/toilet/proc/get_contents_w_class()
 	. = 0
 	for(var/obj/item/I in contents)
 		. += I.w_class
 
-/obj/structure/wc/toilet/update_icon()
+/obj/machinery/atmospherics/unary/wc/toilet/update_icon()
 	icon_state = "[base_icon][open][cistern]"
 
-/obj/structure/wc/toilet/attackby(obj/item/I as obj, mob/living/user as mob)
+/obj/machinery/atmospherics/unary/wc/toilet/attackby(obj/item/I as obj, mob/living/user as mob)
 	if(..())
 		return 1
 	if(open && cistern && rodded == 0 && istype(I,/obj/item/stack/rods))
@@ -205,17 +212,17 @@
 				watersource.reagents.reaction(I, TOUCH) // Handles water affecting items, such as making dissolvable items dissolve.
 			return
 
-/obj/structure/wc/toilet/bite_act(mob/user)
+/obj/machinery/atmospherics/unary/wc/toilet/bite_act(mob/user)
 	user.simple_message("<span class='notice'>That would be disgusting.</span>", "<span class='info'>You're not high enough for that... Yet.</span>") //Second message 4 hallucinations
 
-/obj/structure/wc/urinal
+/obj/machinery/atmospherics/unary/wc/urinal
 	name = "urinal"
 	desc = "The HU-452, an experimental urinal."
 	icon_state = "urinal"
 	can_be_wrenched = FALSE //mustard gas prevention
 	watertype = null //unused
 
-/obj/structure/wc/urinal/attackby(obj/item/I as obj, mob/user as mob)
+/obj/machinery/atmospherics/unary/wc/urinal/attackby(obj/item/I as obj, mob/user as mob)
 	if(..())
 		return 1
 
@@ -240,36 +247,26 @@
 			else
 				to_chat(user, "<span class='notice'>You need a tighter grip.</span>")
 
-/obj/structure/wc/urinal/bite_act(mob/user)
+/obj/machinery/atmospherics/unary/wc/urinal/bite_act(mob/user)
 	user.simple_message("<span class='notice'>That would be disgusting.</span>", "<span class='info'>You're not high enough for that... Yet.</span>") //Second message 4 hallucinations
 
-/obj/machinery/shower
+/obj/machinery/atmospherics/unary/wc/shower
 	name = "shower"
 	desc = "The HS-451. Installed in the 2550s by the Nanotrasen Hygiene Division."
-	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "shower"
 	icon_state_open = "shower_t"
-	density = 0
-	anchored = 1
-	use_power = MACHINE_POWER_USE_NONE
 	var/on = 0
 	var/obj/effect/mymist = null
 	var/ismist = 0 //Needs a var so we can make it linger~
 	var/watertemp = "cool" //Freezing, normal, or boiling
-	var/obj/item/watersource = null
-	var/watertype = /obj/item/reagent_core //TODO: Make /obj/item/weapon/reagent_containers/glass/beaker/water when plumbing starts to exist.
 	var/clean_power = CLEANLINESS_SPACECLEANER//Nanotrasen showers scrub you clean
 	var/coldtemp = -137
 	var/hottemp = 60
 
-	machine_flags = SCREWTOGGLE
+	machine_flags = WRENCHMOVE|SCREWTOGGLE
 
 	ghost_read = 0
 	ghost_write = 0
-
-/obj/machinery/shower/New() //Our showers actually wet people and floors now
-	..()
-	watersource = new watertype
 
 //Add heat controls? When emagged, you can freeze to death in it?
 
@@ -281,25 +278,17 @@
 	anchored = 1
 	mouse_opacity = 0
 
-/obj/machinery/shower/togglePanelOpen(var/obj/toggleitem, var/mob/user)
+/obj/machinery/atmospherics/unary/wc/shower/togglePanelOpen(var/obj/toggleitem, var/mob/user)
 	if(on)
 		to_chat(user, "<span class='warning'>You need to turn off \the [src] first.</span>")
 		return
 	..()
 
-/obj/machinery/shower/attack_hand(mob/M as mob)
+/obj/machinery/atmospherics/unary/wc/shower/attack_hand(mob/M as mob)
 	if(..())
 		return
 	if(panel_open)
 		to_chat(M, "<span class='warning'>\The [src]'s maintenance hatch needs to be closed first.</span>")
-		return
-	if(!anchored)
-		if(watersource)
-			M.put_in_hands(watersource)
-			watersource = null
-			to_chat(M, "<span class='warning'>You remove [M] from [src].</span>")
-		else
-			to_chat(M, "<span class='warning'>\The [src] needs to be bolted to the floor to work.</span>")
 		return
 
 	on = !on
@@ -313,17 +302,11 @@
 			else
 				G.clean_blood()
 
-/obj/machinery/shower/attackby(obj/item/I as obj, mob/user as mob)
-
-	..()
-
+/obj/machinery/atmospherics/unary/wc/shower/attackby(obj/item/I as obj, mob/user as mob)
+	if(..())
+		return
 	if(I.type == /obj/item/device/analyzer)
 		to_chat(user, "<span class='notice'>The water's temperature seems to be [watertemp].</span>")
-	if(!anchored && !watersource && istype(I,/obj/item/weapon/reagent_containers/glass/beaker))
-		if(user.drop_item(I,src))
-			watersource = I
-			to_chat(user, "<span class='notice'>You add [I] as a reagent source for [src].</span>")
-			return 1
 	if(panel_open) //The panel is open
 		if(I.is_wrench(user))
 			user.visible_message("<span class='warning'>[user] begins to adjust \the [src]'s temperature valve with \a [I.name].</span>", \
@@ -340,23 +323,8 @@
 				user.visible_message("<span class='warning'>[user] adjusts \the [src]'s temperature with \a [I.name].</span>",
 				"<span class='notice'>You adjust \the [src]'s temperature with \a [I.name], the water is now [watertemp].</span>")
 				add_fingerprint(user)
-	else
-		if(I.is_wrench(user))
-			user.visible_message("<span class='warning'>[user] starts adjusting the bolts on \the [src].</span>", \
-								 "<span class='notice'>You start adjusting the bolts on \the [src].</span>")
-			playsound(src, 'sound/items/Ratchet.ogg', 100, 1)
-			if(do_after(user, src, 50))
-				if(anchored)
-					src.visible_message("<span class='warning'>[user] unbolts \the [src] from the floor.</span>", \
-								 "<span class='notice'>You unbolt \the [src] from the floor.</span>")
-					on = 0
-					anchored = 0
-					update_icon()
-				else
-					src.visible_message("<span class='warning'>[user] bolts \the [src] to the floor.</span>", \
-								 "<span class='notice'>You bolt \the [src] to the floor.</span>")
-					anchored = 1
-/obj/machinery/shower/update_icon()	//This is terribly unreadable, but basically it makes the shower mist up
+
+/obj/machinery/atmospherics/unary/wc/shower/update_icon()	//This is terribly unreadable, but basically it makes the shower mist up
 	overlays.len = 0 //Once it's been on for a while, in addition to handling the water overlay.
 	if(mymist)
 		QDEL_NULL(mymist)
@@ -388,7 +356,7 @@
 				QDEL_NULL(mymist)
 				ismist = 0
 
-/obj/machinery/shower/Crossed(atom/movable/O)
+/obj/machinery/atmospherics/unary/wc/shower/Crossed(atom/movable/O)
 	..()
 	wash(O)
 
@@ -398,7 +366,7 @@
 
 #define CLEAN_PROB 75 //Percentage
 
-/obj/machinery/shower/proc/wash(atom/movable/O as obj|mob)
+/obj/machinery/atmospherics/unary/wc/shower/proc/wash(atom/movable/O as obj|mob)
 	if(!on)
 		return
 
@@ -482,7 +450,8 @@
 			if(istype(E, /obj/effect/rune_legacy) || istype(E, /obj/effect/decal/cleanable) || istype(E, /obj/effect/overlay))
 				qdel(E)
 
-/obj/machinery/shower/process()
+/obj/machinery/atmospherics/unary/wc/shower/process()
+	..()
 	if(!on)
 		return
 	for(var/atom/movable/O in loc)
@@ -496,7 +465,7 @@
 			watersource.reagents.trans_to(G, 5)
 	watersource.reagents.reaction(get_turf(src), TOUCH)
 
-/obj/machinery/shower/proc/check_heat(mob/living/carbon/C as mob)
+/obj/machinery/atmospherics/unary/wc/shower/proc/check_heat(mob/living/carbon/C as mob)
 	if(!on)
 		return
 
@@ -516,20 +485,20 @@
 			C.bodytemperature = min(T0C + 37.5, C.bodytemperature + 1)
 			return
 
-/obj/machinery/shower/npc_tamper_act(mob/living/L)
+/obj/machinery/atmospherics/unary/wc/shower/npc_tamper_act(mob/living/L)
 	attack_hand(L)
 
-/obj/structure/wc/sink
+/obj/machinery/atmospherics/unary/wc/sink
 	name = "sink"
 	icon_state = "sink"
 	desc = "A sink used for washing one's hands and face."
 	var/clean_power = CLEANLINESS_SPACECLEANER//Nanotrasen sinks are equipped with state of the art water propulsion for extra cleanliness
 	var/busy = 0 	//Something's being washed at the moment
 
-/obj/structure/wc/sink/splashable()
+/obj/machinery/atmospherics/unary/wc/sink/splashable()
 	return FALSE
 
-/obj/structure/wc/sink/attack_hand(mob/M as mob)
+/obj/machinery/atmospherics/unary/wc/sink/attack_hand(mob/M as mob)
 	if(isrobot(M) || isAI(M))
 		return
 
@@ -573,7 +542,7 @@
 		watersource.reagents.reaction(M, TOUCH, zone_sels = list(LIMB_LEFT_HAND,LIMB_RIGHT_HAND))
 	busy = FALSE
 
-/obj/structure/wc/sink/mop_act(obj/item/weapon/mop/M, mob/user)
+/obj/machinery/atmospherics/unary/wc/sink/mop_act(obj/item/weapon/mop/M, mob/user)
 	if(busy)
 		return 1
 	if(!watersource || watersource.reagents.is_empty())
@@ -595,7 +564,7 @@
 	busy = FALSE
 	return 1
 
-/obj/structure/wc/sink/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/atmospherics/unary/wc/sink/attackby(obj/item/O as obj, mob/user as mob)
 	if(busy)
 		to_chat(user, "<span class='warning'>Someone's already washing here.</span>")
 		return
@@ -684,7 +653,7 @@
 
 		busy = FALSE
 
-/obj/structure/wc/sink/npc_tamper_act(mob/living/L)
+/obj/machinery/atmospherics/unary/wc/sink/npc_tamper_act(mob/living/L)
 	if(istype(L, /mob/living/simple_animal/hostile/gremlin))
 		visible_message("<span class='danger'>\The [L] climbs into \the [src] and turns the faucet on!</span>")
 
@@ -693,22 +662,22 @@
 
 	return NPC_TAMPER_ACT_NOMSG
 
-/obj/structure/wc/sink/kitchen
+/obj/machinery/atmospherics/unary/wc/sink/kitchen
 	name = "kitchen sink"
 	icon_state = "sink_alt"
 
 
-/obj/structure/wc/sink/puddle	//splishy splashy ^_^
+/obj/machinery/atmospherics/unary/wc/sink/puddle	//splishy splashy ^_^
 	name = "puddle"
 	icon_state = "puddle"
 	desc = "You can see your reflection! You look awful!"
 
-/obj/structure/wc/sink/puddle/attack_hand(mob/M as mob)
+/obj/machinery/atmospherics/unary/wc/sink/puddle/attack_hand(mob/M as mob)
 	icon_state = "puddle-splash"
 	..()
 	icon_state = "puddle"
 
-/obj/structure/wc/sink/puddle/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/atmospherics/unary/wc/sink/puddle/attackby(obj/item/O as obj, mob/user as mob)
 	icon_state = "puddle-splash"
 	..()
 	icon_state = "puddle"

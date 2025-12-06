@@ -9,7 +9,7 @@
 /area/vault/mechclubhouse)
 "c" = (
 /obj/structure/curtain/open/shower,
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8
 	},
 /turf/simulated/floor/mineral/plastic,

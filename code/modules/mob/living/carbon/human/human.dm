@@ -800,7 +800,7 @@
 			else
 				var/skip_message = 0
 
-				var/obj/structure/wc/toilet/T = locate(/obj/structure/wc/toilet) in location //Look for a toilet
+				var/obj/machinery/atmospherics/unary/wc/toilet/T = locate(/obj/machinery/atmospherics/unary/wc/toilet) in location //Look for a toilet
 				if(T && T.open)
 					src.visible_message("<span class='warning'>[src] throws up into \the [T]!</span>", "<span class='danger'>You throw up into \the [T]!</span>")
 					skip_message = 1

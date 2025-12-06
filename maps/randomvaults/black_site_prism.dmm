@@ -1129,7 +1129,7 @@
 	},
 /area/vault/black_site_prism)
 "oQ" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/structure/window/reinforced{
@@ -1764,7 +1764,7 @@
 	},
 /area/vault/black_site_prism)
 "wT" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /obj/structure/window/reinforced{
@@ -1874,7 +1874,7 @@
 	},
 /area/vault/black_site_prism)
 "xY" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -1884,7 +1884,7 @@
 	},
 /area/vault/black_site_prism)
 "xZ" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	dir = 8;
 	pixel_x = 12
 	},
@@ -3561,7 +3561,7 @@
 	},
 /area/vault/black_site_prism)
 "Ux" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /obj/structure/window/reinforced{

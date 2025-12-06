@@ -604,7 +604,7 @@
 	corpsegender = 1;
 	name = "Lisa"
 	},
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	tag = "icon-shower (EAST)"
 	},

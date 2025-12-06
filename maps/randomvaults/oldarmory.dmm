@@ -291,7 +291,7 @@
 /turf/simulated/wall,
 /area/vault/oldarmory)
 "bp" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -11
 	},
@@ -317,7 +317,7 @@
 	},
 /area/vault/oldarmory)
 "bs" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /obj/machinery/light/small{
@@ -384,7 +384,7 @@
 	},
 /area/vault/oldarmory)
 "bF" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /obj/machinery/light/small,

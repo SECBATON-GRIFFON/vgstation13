@@ -1006,14 +1006,14 @@
 //////////////////////////////
 
 //Idea: Items placed in the cistern of this thing should just melt
-/obj/structure/wc/toilet/acid
+/obj/machinery/atmospherics/unary/wc/toilet/acid
 	name = "acid toilet"
 	desc = "The WD-451, a torque rotation-based, waste disposal unit for small matter. This one seems remarkably acidic."
 	icon_state = "acidtoilet00"
 	watertype = /obj/item/reagent_core/acid
 	base_icon = "acidtoilet"
 
-/obj/machinery/shower/acid // Acid showers have an effect called "vapor" instead of mist, and they have a tendency to melt things left under them too long
+/obj/machinery/atmospherics/unary/wc/shower/acid // Acid showers have an effect called "vapor" instead of mist, and they have a tendency to melt things left under them too long
 	name = "acid shower"
 	desc = "The CB-762. Installed by the Mothership's Hygiene Division."
 	icon = 'icons/obj/acidcloset.dmi'
@@ -1032,7 +1032,7 @@
 	anchored = 1
 	mouse_opacity = 0
 
-/obj/structure/wc/sink/acid
+/obj/machinery/atmospherics/unary/wc/sink/acid
 	name = "acid sink"
 	desc = "A sink used for washing one's hands and face. This one seems to use acid instead of water."
 	icon = 'icons/obj/acidcloset.dmi'

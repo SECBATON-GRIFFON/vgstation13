@@ -127,7 +127,7 @@
 /obj/structure/mirror{
 	pixel_x = -32
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12
 	},
@@ -140,7 +140,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aau" = (
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	pixel_y = 32
 	},
 /turf/simulated/floor/plating,
@@ -611,7 +611,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "abq" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /turf/simulated/floor/plating,
@@ -621,7 +621,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/asmaint2)
 "abs" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /turf/simulated/floor/plating,
@@ -8851,7 +8851,7 @@
 /area/maintenance/asmaint2)
 "apP" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /turf/simulated/floor/plating,
@@ -8902,7 +8902,7 @@
 /obj/structure/mirror{
 	pixel_y = 28
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 20
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layered{
@@ -8919,7 +8919,7 @@
 /obj/structure/mirror{
 	pixel_y = 28
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 20
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layered{
@@ -9275,7 +9275,7 @@
 	},
 /area/crew_quarters/toilet)
 "aqv" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	pixel_x = 7
 	},
@@ -9301,7 +9301,7 @@
 	},
 /area/crew_quarters/toilet)
 "aqy" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8;
 	pixel_x = -7
 	},
@@ -9710,7 +9710,7 @@
 /turf/simulated/floor/plating,
 /area/bridge)
 "aqY" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /obj/machinery/door_control{
@@ -9729,7 +9729,7 @@
 	},
 /area/crew_quarters/toilet)
 "aqZ" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /obj/machinery/door_control{
@@ -16502,7 +16502,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/asmaint2)
 "aCM" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -17792,7 +17792,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/apmaint2)
 "aGn" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /obj/structure/curtain/black{
 	icon_state = "open_1";
 	opacity = 0
@@ -19678,7 +19678,7 @@
 	},
 /area/medical/storage)
 "aLh" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -22485,7 +22485,7 @@
 /obj/structure/mirror{
 	pixel_y = 32
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 18
 	},
 /obj/effect/landmark/start{
@@ -29005,7 +29005,7 @@
 /obj/structure/window/reinforced/tinted{
 	dir = 1
 	},
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	dir = 8;
 	name = "medical sink";
 	pixel_x = 13
@@ -29913,7 +29913,7 @@
 	name = "Security Equipment Storage"
 	})
 "bjq" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8;
 	pixel_x = -7
 	},
@@ -34638,7 +34638,7 @@
 	},
 /area/security/perma)
 "bqD" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /obj/structure/curtain/open/privacy,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -34648,7 +34648,7 @@
 	},
 /area/security/perma)
 "bqE" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /obj/structure/curtain/open/privacy,
 /obj/structure/window/reinforced{
 	dir = 4
@@ -36033,7 +36033,7 @@
 	},
 /area/security/perma)
 "bsH" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 12;
 	pixel_y = -2
@@ -36046,7 +36046,7 @@
 	},
 /area/security/perma)
 "bsI" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/item/weapon/soap/nanotrasen,
@@ -42591,7 +42591,7 @@
 	},
 /area/syndicate_mothership)
 "bFo" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /turf/unsimulated/floor{
@@ -42714,7 +42714,7 @@
 	},
 /area/syndicate_mothership)
 "bFU" = (
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	pixel_y = 32
 	},
 /turf/unsimulated/floor{
@@ -42722,7 +42722,7 @@
 	},
 /area/syndicate_mothership)
 "bFV" = (
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	pixel_y = 32
 	},
 /obj/effect/decal/cleanable/vomit,
@@ -42800,7 +42800,7 @@
 	},
 /area/syndicate_mothership)
 "bGm" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -46884,7 +46884,7 @@
 /area/centcom/test)
 "bSp" = (
 /obj/machinery/bot/farmbot/duey,
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -47143,7 +47143,7 @@
 	},
 /area/centcom/ert)
 "bTa" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -47989,7 +47989,7 @@
 	},
 /area/centcom/ert)
 "bVc" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /turf/unsimulated/floor{
@@ -49679,7 +49679,7 @@
 	},
 /area/centcom/ert)
 "bYK" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -53147,7 +53147,7 @@
 	},
 /area/shuttle/escape/centcom)
 "chB" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /turf/unsimulated/beach/sand,
@@ -55310,7 +55310,7 @@
 /obj/machinery/alarm/vox{
 	pixel_y = 24
 	},
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/item/weapon/soap/deluxe,
@@ -55324,7 +55324,7 @@
 	dir = 4;
 	on = 1
 	},
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 30
 	},
 /obj/structure/mirror{
@@ -55619,7 +55619,7 @@
 	},
 /area/vox_trading_post/trade_processing)
 "cFe" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /turf/simulated/floor/vox{
@@ -59068,7 +59068,7 @@
 /turf/simulated/floor/vox,
 /area/vox_trading_post/gardens)
 "cLY" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -59101,7 +59101,7 @@
 	},
 /area/vox_trading_post/gardens)
 "cMb" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12
 	},
@@ -60939,7 +60939,7 @@
 /turf/simulated/floor/plating,
 /area/science/telescience)
 "cPQ" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. Oh god, this ancient thing has been festering in here for years.";
 	dir = 4
 	},
@@ -60957,7 +60957,7 @@
 	name = "Outpost Living Quarters"
 	})
 "cPR" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -61142,7 +61142,7 @@
 /area/research_outpost/xenobot)
 "cQh" = (
 /obj/machinery/atmospherics/unary/portables_connector,
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 1;
 	pixel_y = 25
 	},
@@ -61574,7 +61574,7 @@
 /turf/space,
 /area/research_outpost/xenobot)
 "cQK" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /turf/simulated/floor{
@@ -65226,7 +65226,7 @@
 	},
 /area/science/xenobiology)
 "cXw" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -66572,7 +66572,7 @@
 	},
 /area/science/xenobiology)
 "cZC" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},
@@ -68161,7 +68161,7 @@
 	},
 /area/crew_quarters/bar)
 "eGW" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -68365,7 +68365,7 @@
 	},
 /area/crew_quarters/bar)
 "faH" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	pixel_y = 18
 	},
 /obj/structure/curtain/medical,
@@ -69367,7 +69367,7 @@
 /turf/simulated/floor/shuttle,
 /area/shuttle/escape/centcom)
 "gDj" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	dir = 4;
 	name = "medical sink";
 	pixel_x = -13
@@ -70923,7 +70923,7 @@
 	},
 /area/medical/medbay)
 "jsl" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -71400,7 +71400,7 @@
 /turf/simulated/floor/engine,
 /area/science/podbay)
 "kvt" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -71457,7 +71457,7 @@
 /turf/simulated/floor/wood,
 /area/crew_quarters/theatre)
 "kBZ" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	dir = 4;
 	name = "medical sink";
 	pixel_x = -13
@@ -71749,7 +71749,7 @@
 /obj/machinery/door/window/brigdoor{
 	dir = 8
 	},
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 1
 	},
 /obj/structure/curtain/open/shower/security,
@@ -71859,7 +71859,7 @@
 /turf/simulated/wall/r_wall,
 /area/security/brig)
 "luD" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -75166,11 +75166,11 @@
 	},
 /area/hydroponics)
 "rgt" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	pixel_y = 32
 	},
 /obj/machinery/access_button{
@@ -76247,7 +76247,7 @@
 	},
 /area/medical/medbay)
 "tgL" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	pixel_y = 28
 	},
 /obj/item/weapon/reagent_containers/food/drinks/bottle/greyvodka,
@@ -76634,7 +76634,7 @@
 /turf/simulated/floor/engine/vacuum,
 /area/engineering/burn_chamber)
 "tOH" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},
@@ -76654,7 +76654,7 @@
 	},
 /area/medical/medbay)
 "tPC" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	name = "medical sink";
 	pixel_y = 22
 	},

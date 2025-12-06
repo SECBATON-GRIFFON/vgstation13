@@ -684,7 +684,7 @@
 	corpsegender = 1;
 	name = "Lisa"
 	},
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	tag = "icon-shower (EAST)"
 	},
@@ -697,7 +697,7 @@
 	},
 /area/vault/zathura)
 "cf" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 16
 	},
 /obj/structure/mirror{
@@ -710,7 +710,7 @@
 	},
 /area/vault/zathura)
 "cg" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	pixel_y = 10
 	},
 /turf/simulated/floor{

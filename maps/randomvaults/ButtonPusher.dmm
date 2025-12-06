@@ -566,7 +566,7 @@
 /area/vault/radioactivelab)
 "mn" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	name = "chemical shower";
 	desc = "The HS-400. Installed in the 2400s by the Nanotrasen Hygiene Division.";
 	pixel_y = 10
@@ -1199,7 +1199,7 @@
 "zt" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/cobweb2,
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /turf/simulated/floor/plating{
@@ -1533,7 +1533,7 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/vomit/pre_dry,
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 13;
 	pixel_y = -1

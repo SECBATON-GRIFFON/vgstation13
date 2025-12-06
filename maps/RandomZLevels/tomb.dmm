@@ -2568,7 +2568,7 @@
 /turf/simulated/wall,
 /area/awaymission/tomb/outside/expedition_camp)
 "hR" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /turf/unsimulated/beach/sand{

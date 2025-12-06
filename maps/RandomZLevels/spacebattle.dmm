@@ -2650,7 +2650,7 @@
 	},
 /area/awaymission/spacebattle/syndicate7)
 "hZ" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	tag = "icon-shower (EAST)";
 	dir = 4
 	},
@@ -2665,7 +2665,7 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "ib" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	tag = "icon-shower (WEST)";
 	dir = 8
 	},
@@ -2674,7 +2674,7 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "ic" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /turf/simulated/floor{
 	icon_state = "freezerfloor"
 	},
@@ -2712,7 +2712,7 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "ij" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	tag = "icon-shower (EAST)";
 	dir = 4
 	},
@@ -2721,7 +2721,7 @@
 	},
 /area/awaymission/spacebattle/cruiser)
 "ik" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	tag = "icon-shower (WEST)";
 	dir = 8
 	},
@@ -2778,7 +2778,7 @@
 	},
 /area/awaymission/spacebattle/syndicate7)
 "is" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},

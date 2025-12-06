@@ -97,16 +97,16 @@
 
 /obj/structure/largecrate/porcelain/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if(iscrowbar(W))
-		var/obj/structure/wc/toilet/T = new (loc)
+		var/obj/machinery/atmospherics/unary/wc/toilet/T = new (loc)
 		T.anchored = 0
-		var/obj/structure/wc/sink/S = new (loc)
+		var/obj/machinery/atmospherics/unary/wc/sink/S = new (loc)
 		S.anchored = 0
 	..()
 
 /obj/structure/largecrate/showers/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if(iscrowbar(W))
 		for(var/i = 0, i < 2, i++)
-			var/obj/machinery/shower/S = new (loc)
+			var/obj/machinery/atmospherics/unary/wc/shower/S = new (loc)
 			S.anchored = 0
 			S.panel_open = 1
 	..()

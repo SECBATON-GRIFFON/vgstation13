@@ -1025,7 +1025,7 @@
 /turf/simulated/floor,
 /area/awaymission/northblock)
 "da" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	tag = "icon-shower (EAST)"
 	},
@@ -1272,7 +1272,7 @@
 	},
 /area/awaymission/northblock)
 "dB" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4;
 	pixel_y = -10
 	},
@@ -2978,7 +2978,7 @@
 /turf/simulated/floor/airless,
 /area/awaymission/midblock)
 "hD" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	pixel_y = 32
 	},
 /turf/simulated/floor,
@@ -3467,7 +3467,7 @@
 /turf/simulated/floor,
 /area/awaymission/arrivalblock)
 "iQ" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 4
 	},
 /turf/simulated/floor{
@@ -4105,7 +4105,7 @@
 /turf/simulated/floor,
 /area/awaymission/arrivalblock)
 "kL" = (
-/obj/structure/wc/sink/kitchen{
+/obj/machinery/atmospherics/unary/wc/sink/kitchen{
 	pixel_y = 32
 	},
 /turf/simulated/floor,
@@ -4474,7 +4474,7 @@
 	},
 /area/awaymission/southblock)
 "lH" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	pixel_y = 32
 	},
 /turf/simulated/floor{

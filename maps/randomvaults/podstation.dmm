@@ -459,7 +459,7 @@
 /area/vault/podstation/exterior)
 "hD" = (
 /mob/living/simple_animal/cockroach,
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 8;
 	pixel_x = -12;
 	pixel_y = 2
@@ -516,7 +516,7 @@
 /area/vault/podstation/interior)
 "iv" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/wc/urinal{
+/obj/machinery/atmospherics/unary/wc/urinal{
 	dir = 4;
 	pixel_x = -30
 	},
@@ -1566,7 +1566,7 @@
 	},
 /area/vault/podstation/exterior)
 "GO" = (
-/obj/structure/wc/sink/kitchen,
+/obj/machinery/atmospherics/unary/wc/sink/kitchen,
 /turf/simulated/wall,
 /area/vault/podstation/interior)
 "Hg" = (
@@ -2399,7 +2399,7 @@
 	},
 /area/vault/podstation/exterior)
 "ZP" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8
 	},
 /obj/effect/decal/cleanable/vomit/pre_dry,

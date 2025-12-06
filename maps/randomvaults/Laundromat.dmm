@@ -300,7 +300,7 @@
 /area/vault/laundromat)
 "oC" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 12
 	},

@@ -1,5 +1,6 @@
 /datum/pipeline
 	var/datum/gas_mixture/air
+	var/datum/reagents/fluid
 
 	var/list/obj/machinery/atmospherics/pipe/members = list()
 	var/list/obj/machinery/atmospherics/pipe/edges = list() //Used for building networks
@@ -14,10 +15,11 @@
 /datum/pipeline/Destroy()
 	if(network) //For the pipenet rebuild
 		QDEL_NULL(network)
-	if(air) //For the pipeline rebuild next tick
-		if(air.total_moles)
+	if(air || fluid) //For the pipeline rebuild next tick
+		if(air.total_moles || fluid.total_volume)
 			temporarily_store_air()
 		QDEL_NULL(air)
+		QDEL_NULL(fluid)
 	//Null the fuck out of all these references
 	for(var/obj/machinery/atmospherics/pipe/M in members) //Edges are a subset of members
 		M.parent = null
@@ -48,6 +50,9 @@
 		member.air_temporary.volume = member.volume
 		member.air_temporary.copy_from(air)
 
+		member.create_reagents(member.volume)
+		fluid.copy_to(member)
+
 /datum/pipeline/proc/build_pipeline(obj/machinery/atmospherics/pipe/base)
 	var/list/possible_expansions = list(base)
 	members = list(base)
@@ -62,6 +67,12 @@
 		base.air_temporary = null
 	else
 		air = new
+
+	if(base.reagents)
+		fluid = base.reagents
+		base.reagents = null
+	else
+		fluid = new
 
 	while(possible_expansions.len>0)
 		for(var/obj/machinery/atmospherics/pipe/borderline in possible_expansions)
@@ -86,6 +97,9 @@
 
 						if(item.air_temporary)
 							air.merge(item.air_temporary)
+						if(item.reagents)
+							fluid.maximum_volume += item.reagents.maximum_volume
+							item.reagents.trans_to(fluid,item.reagents.total_volume)
 
 					edge_check--
 

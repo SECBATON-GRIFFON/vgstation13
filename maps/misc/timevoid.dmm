@@ -87,7 +87,7 @@
 	icon = 'icons/effects/floor_decals.dmi';
 	icon_state = "bot"
 	},
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 4
 	},
 /obj/structure/curtain/open/shower/right,

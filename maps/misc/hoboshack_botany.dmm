@@ -467,7 +467,7 @@
 /turf/simulated/floor/wood,
 /area/shack)
 "LG" = (
-/obj/structure/wc/toilet,
+/obj/machinery/atmospherics/unary/wc/toilet,
 /obj/item/weapon/soap,
 /obj/effect/landmark/hobostart,
 /obj/effect/glowshroom,
@@ -547,7 +547,7 @@
 /turf/simulated/floor/wood,
 /area/shack)
 "Ts" = (
-/obj/structure/wc/sink{
+/obj/machinery/atmospherics/unary/wc/sink{
 	dir = 4;
 	pixel_x = 11
 	},

@@ -234,7 +234,7 @@
 	},
 /area/awaymission/listeningpost)
 "aK" = (
-/obj/machinery/shower{
+/obj/machinery/atmospherics/unary/wc/shower{
 	dir = 8;
 	tag = "icon-shower (WEST)"
 	},
@@ -243,7 +243,7 @@
 	},
 /area/awaymission/listeningpost)
 "aL" = (
-/obj/structure/wc/toilet{
+/obj/machinery/atmospherics/unary/wc/toilet{
 	dir = 8;
 	tag = "icon-toilet00 (WEST)"
 	},

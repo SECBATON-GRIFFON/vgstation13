@@ -220,7 +220,7 @@
 	containertype = /obj/structure/largecrate/porcelain
 	containername = "porcelain crate"
 	group = "Supplies"
-	containsicon = /obj/structure/wc/toilet
+	containsicon = /obj/machinery/atmospherics/unary/wc/toilet
 	containsdesc = "A crate containing one sink and one toilet. Necessary for a proper dorm environment."
 
 /datum/supply_packs/showers
@@ -230,7 +230,7 @@
 	containertype = /obj/structure/largecrate/showers
 	containername = "showers crate"
 	group = "Supplies"
-	containsicon = /obj/machinery/shower
+	containsicon = /obj/machinery/atmospherics/unary/wc/shower
 	containsdesc = "Hit the showers! Contains two showers."
 
 /datum/supply_packs/clock

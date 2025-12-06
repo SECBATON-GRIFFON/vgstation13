@@ -289,3 +289,186 @@
 	desc = "Pumping oxygen and nitrous oxide."
 	overlay_color = "#7EA7E0"
 	gases = list(GAS_OXYGEN = 0.5, GAS_SLEEPING = 0.5)
+
+/obj/machinery/atmospherics/unary/fluid_miner
+	name = "fluid miner"
+	desc = "Fluids mined from the gas giant below (above?) flow into this reservoir."
+	icon = 'icons/obj/atmospherics/miner.dmi'
+	icon_state = "miner"
+	power_channel=ENVIRON
+	var/base_power_usage = 100						//their base powerdraw, can be increased
+	idle_power_usage = 10							//draw when off, stays constant
+
+	starting_materials = null
+	w_type = NOT_RECYCLABLE
+	var/rate										//units generated last tick.
+	var/units_outputted								//units outputted last tick.
+	var/base_reagent_production = 4500				//base units per tick - without external power
+	var/max_units = 10000							//base units output - without external power
+	var/output_temperature = T20C
+	var/on = TRUE
+
+/*	var/datum/power_connection/consumer/power_connection*/
+//	var/power_load = 5000							//draw external power from a wire node
+	var/power_load_last_tick = 0					//prevent cheeky way to make loadsa reagents
+	var/power_load_two_ticks_ago = 0
+
+	var/list/reagents_generated = list(WATER = 1) 	//which reagents the miner generates
+
+	var/overlay_color = "#FFFFFF"
+
+	machine_flags = WRENCHMOVE | FIXED2WORK
+
+
+/obj/machinery/atmospherics/unary/fluid_miner/New()
+	..()
+	power_change()
+	update_icon()
+
+/obj/machinery/atmospherics/unary/fluid_miner/verb/set_power_consumption()
+	set category = "Object"
+	set name = "Set power consumption"
+	set src in oview(1)
+	if(!(isAdminGhost(usr) || ishuman(usr) || issilicon(usr)))
+		to_chat(usr, "You are not capable of such fine manipulation.")
+		return
+	var/power = input("moar power", "Set power consumption", active_power_usage) as num
+	if(power < 0)
+		to_chat(usr, "You remember the tales of negative units and fluid dynamics and reconsider.")
+		return
+/*	power_load = power
+	power_connection.active_usage = power*/
+	active_power_usage = power
+
+/obj/machinery/atmospherics/unary/fluid_miner/proc/set_rate(var/amount)
+	//rate is in units
+	rate = amount
+
+//actually create the reagents and pump them into the pipeline
+//max out at max_units
+//unless running on exernal power, which raises the reagent limit the more power you add
+/obj/machinery/atmospherics/unary/fluid_miner/proc/transfer_reagents()
+	var/extra_power_bonus = 0
+	extra_power_bonus = active_power_usage * WATT_TO_KPA_OF_EXTERNAL_PRESSURE_LIMIT
+/*	if(power_connection.connected)	//raise max pressure if powered
+		var/power_actually_consumed = power_connection.get_satisfaction() * power_load_last_tick
+		extra_power_pressure_bonus = power_actually_consumed * WATT_TO_KPA_OF_EXTERNAL_PRESSURE_LIMIT*/
+
+	var/unit_delta = max(0, (max_units + extra_power_bonus))
+	if(unit_delta > 0.1 && node1)
+		var/datum/reagents/fluid_output = node1.return_fluid()
+		if(fluid_output)
+			units_outputted = unit_delta * CELL_VOLUME
+			units_outputted = min(units_outputted, CELL_VOLUME)
+			for(var/reag_id in reagents_generated)
+				fluid_output.add_reagent(reag_id,units_outputted*reagents_generated[reag_id])
+	else
+		units_outputted = 0
+
+/obj/machinery/atmospherics/unary/fluid_miner/examine(mob/user)
+	. = ..()
+	if(stat & NOPOWER)
+		to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Lack of power.</span>")
+		return
+/*	if(power_connection.connected)
+		var/power_actually_consumed = power_connection.get_satisfaction() * power_load_last_tick
+		to_chat(user, "<span class='info'>Connected to wire network and drawing [power_actually_consumed] of the requested [power_load]W.</span>")
+	else
+		to_chat(user, "<span class='info'>Not connected to external power.</span>")*/
+	if (!on || (stat & FORCEDISABLE))
+		to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Turned off.</span>")
+		return
+	if(stat & BROKEN)
+		to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Broken.</span>")
+		return
+	to_chat(user, "<span class='info'>Currently consuming [active_power_usage]W from the APC's environment channel.</span>")
+	to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Functional and outputting [units_outputted] out of [rate] moles per cycle.</span>")
+
+/obj/machinery/atmospherics/unary/fluid_miner/wrenchAnchor(var/mob/user, var/obj/item/I)
+	. = ..()
+	if(!.)
+		return
+	if(on)
+		on = 0
+		update_icon()
+/*	if(anchored)
+		power_connection.connect()
+	else
+		power_connection.disconnect()
+	power_load_last_tick = 0*/
+
+// Critical equipment.
+/obj/machinery/atmospherics/unary/fluid_miner/ex_act(severity)
+	return
+
+// Critical equipment.
+/obj/machinery/atmospherics/unary/fluid_miner/blob_act()
+	return
+
+/obj/machinery/atmospherics/unary/fluid_miner/power_change()
+	..()
+	set_rate(base_reagent_production)
+	active_power_usage = base_power_usage
+	power_load_last_tick = base_power_usage
+	power_load_two_ticks_ago = base_power_usage
+/*	power_load_last_tick = 0
+	if(!power_connection.connected)
+		power_connection.connect()*/
+	if(on)
+		use_power = MACHINE_POWER_USE_ACTIVE
+	else
+		use_power = MACHINE_POWER_USE_IDLE
+	update_icon()
+
+/obj/machinery/atmospherics/unary/fluid_miner/attack_ghost(var/mob/user)
+	return
+
+/obj/machinery/atmospherics/unary/fluid_miner/attack_hand(var/mob/user)
+	..()
+	if(!Adjacent(user))
+		to_chat(user, "<span class='warning'>You can't toggle \the [src] from that far away.</span>")
+	else if(anchored)
+		on=!on
+		power_change()
+		to_chat(user, "<span class='warning'>You toggle \the [src] [on ? "on" : "off"].</span>")
+	else
+		to_chat(user, "<span class='warning'>\The [src] needs to be bolted to the ground first.</span>")
+
+/obj/machinery/atmospherics/unary/fluid_miner/update_icon()
+	overlays = 0
+	if(stat & (FORCEDISABLE|NOPOWER))
+		return
+	if(on)
+		var/new_icon_state="on"
+		var/new_color = overlay_color
+		if(stat & BROKEN)
+			new_icon_state="broken"
+			new_color="#FF0000"
+		var/image/I = image(icon, icon_state=new_icon_state, dir=src.dir)
+		I.color=new_color
+		overlays += I
+
+/obj/machinery/atmospherics/unary/fluid_miner/process()
+	if(stat & (FORCEDISABLE|NOPOWER))
+		return
+	if(!on)
+		return
+
+	var/oldstat=stat
+	if(!istype(loc,/turf/simulated))
+		stat |= BROKEN
+	else
+		stat &= ~BROKEN
+	if(stat!=oldstat)
+		update_icon()
+	if(stat & BROKEN)
+		return
+
+	/*if(power_connection.connected)
+		var/extra_mined_gas = draw_power() * WATT_TO_KPA_COEFFICIENT
+		set_rate(base_gas_production + extra_mined_gas)	*/
+	var/extra_mined_units = power_load_two_ticks_ago * WATT_TO_KPA_COEFFICIENT
+	power_load_two_ticks_ago = power_load_last_tick
+	power_load_last_tick = active_power_usage
+	set_rate(base_reagent_production + extra_mined_units)
+	transfer_reagents()
