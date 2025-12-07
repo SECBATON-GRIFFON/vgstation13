@@ -12,6 +12,7 @@
 	slimeadd_message = "You throw the slime into the dispenser's tank"
 	slimes_accepted = SLIME_BLACK|SLIME_PYRITE
 	slimeadd_success_message = "A new option appears on the dispenser screen"
+	output_dir = NORTH
 	var/energy = 0
 	var/max_energy = 50
 	var/rechargerate = 2
@@ -52,7 +53,8 @@
 	var/list/upgrade_chems = list(
 		PLASMA
 		)
-	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | EMAGGABLE
+	var/obj/machinery/atmospherics/output_port
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | EMAGGABLE | MULTIOUTPUT
 	var/max_beaker_size = W_CLASS_SMALL
 /*
 USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
@@ -129,7 +131,16 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	else
 		spawn(rand(0, 15))
 			stat |= NOPOWER
+	find_port()
 	nanomanager.update_uis(src) // update all UIs attached to src
+
+/obj/machinery/chem_dispenser/proc/find_port()
+	if(!anchored)
+		output_port = null
+	else
+		var/obj/machinery/atmospherics/temp_port = locate(/obj/machinery/atmospherics) in output_dir
+		if(temp_port && (get_dir(temp_port,src) in temp_port.initialize_directions))
+			output_port = temp_port
 
 /obj/machinery/chem_dispenser/emag_act()
 	..()
@@ -146,6 +157,12 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	return FALSE
 
 /obj/machinery/chem_dispenser/process()
+	if(anchored && output_port)
+		var/datum/reagents/fluids = output_port.return_fluid()
+		energy = min(energy + fluids.total_volume, max_energy)
+		fluids.remove_all(min(fluids.total_volume, max_energy))
+	if(energy >= max_energy)
+		return
 	if(recharged < 0)
 		recharge()
 		recharged = 15
