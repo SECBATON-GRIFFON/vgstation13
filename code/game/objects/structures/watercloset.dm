@@ -7,6 +7,8 @@
 	anchored = 1
 	use_power = MACHINE_POWER_USE_NONE
 	machine_flags = WRENCHMOVE
+	layer = OBJ_LAYER
+	plane = OBJ_PLANE
 	var/obj/item/watersource = null
 	var/watertype = /obj/item/reagent_core //TODO: Make /obj/item/weapon/reagent_containers/glass/beaker/water when plumbing starts to exist.
 	var/can_be_wrenched = TRUE
