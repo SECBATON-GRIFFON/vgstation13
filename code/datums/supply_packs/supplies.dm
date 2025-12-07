@@ -233,6 +233,20 @@
 	containsicon = /obj/machinery/atmospherics/unary/wc/shower
 	containsdesc = "Hit the showers! Contains two showers."
 
+/datum/supply_packs/reagent_cores
+	name = "Reagent cores"
+	contains = list(/obj/item/reagent_core,
+					/obj/item/reagent_core,
+					/obj/item/reagent_core,
+					/obj/item/reagent_core/acid,
+					/obj/item/reagent_core/acid,
+					/obj/item/reagent_core/acid)
+	cost = 10
+	containertype = /obj/structure/closet/crate/basic
+	containername = "reagent cores"
+	group = "Supplies"
+	containsdesc = "Self refilling outlets for reagents to be used in plumbing equipment."
+
 /datum/supply_packs/clock
 	name = "Grandfather Clock"
 	contains = list(/obj/structure/clock/unanchored)

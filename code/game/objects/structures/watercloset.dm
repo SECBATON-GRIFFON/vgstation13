@@ -217,6 +217,10 @@
 /obj/machinery/atmospherics/unary/wc/toilet/bite_act(mob/user)
 	user.simple_message("<span class='notice'>That would be disgusting.</span>", "<span class='info'>You're not high enough for that... Yet.</span>") //Second message 4 hallucinations
 
+/obj/machinery/atmospherics/unary/wc/toilet/empty
+	watertype = null
+	anchored = 0
+
 /obj/machinery/atmospherics/unary/wc/urinal
 	name = "urinal"
 	desc = "The HU-452, an experimental urinal."
@@ -490,6 +494,11 @@
 /obj/machinery/atmospherics/unary/wc/shower/npc_tamper_act(mob/living/L)
 	attack_hand(L)
 
+/obj/machinery/atmospherics/unary/wc/shower/empty
+	watertype = null
+	anchored = 0
+	panel_open = 1
+
 /obj/machinery/atmospherics/unary/wc/sink
 	name = "sink"
 	icon_state = "sink"
@@ -664,10 +673,13 @@
 
 	return NPC_TAMPER_ACT_NOMSG
 
+/obj/machinery/atmospherics/unary/wc/sink/empty
+	watertype = null
+	anchored = 0
+
 /obj/machinery/atmospherics/unary/wc/sink/kitchen
 	name = "kitchen sink"
 	icon_state = "sink_alt"
-
 
 /obj/machinery/atmospherics/unary/wc/sink/puddle	//splishy splashy ^_^
 	name = "puddle"
