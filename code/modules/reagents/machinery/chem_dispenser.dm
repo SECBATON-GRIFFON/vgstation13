@@ -310,19 +310,24 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	return 1 // update UIs attached to this object
 
 /obj/machinery/chem_dispenser/proc/dispense_reagent(reagent, amount)
-	if (dispensable_reagents.Find(reagent) && container != null)
-		var/obj/item/weapon/reagent_containers/B = src.container
-		var/datum/reagents/R = B.reagents
-		if(!R)
-			if(!B.gcDestroyed)
-				B.create_reagents(B.volume)
-			else
-				QDEL_NULL(B)
-				return
-		var/space = R.maximum_volume - R.total_volume
-		var/reagent_temperature = dispensable_reagents[reagent] ? dispensable_reagents[reagent] : T0C+20
-		R.add_reagent(reagent, min(amount, energy * 10, space), reagtemp = reagent_temperature)
-		energy = max(energy - min(amount, energy * 10, space) / 10, 0)
+	if (dispensable_reagents.Find(reagent))
+		var/datum/reagents/to_use
+		if(container != null)
+			var/obj/item/weapon/reagent_containers/B = src.container
+			to_use = B.reagents
+			if(!to_use)
+				if(!B.gcDestroyed)
+					B.create_reagents(B.volume)
+				else
+					QDEL_NULL(B)
+					return
+		else if(output_port)
+			to_use = output_port.return_fluid()
+		if(to_use)
+			var/space = to_use.maximum_volume - to_use.total_volume
+			var/reagent_temperature = dispensable_reagents[reagent] ? dispensable_reagents[reagent] : T0C+20
+			to_use.add_reagent(reagent, min(amount, energy * 10, space), reagtemp = reagent_temperature)
+			energy = max(energy - min(amount, energy * 10, space) / 10, 0)
 
 /obj/machinery/chem_dispenser/kick_act(mob/living/H)
 	..()
