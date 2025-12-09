@@ -290,7 +290,7 @@
 	overlay_color = "#7EA7E0"
 	gases = list(GAS_OXYGEN = 0.5, GAS_SLEEPING = 0.5)
 
-/obj/machinery/atmospherics/unary/fluid_miner
+/obj/machinery/atmospherics/fluid_miner
 	name = "fluid miner"
 	desc = "Fluids mined from the gas giant below (above?) flow into this reservoir."
 	icon = 'icons/obj/atmospherics/miner.dmi'
@@ -317,15 +317,17 @@
 
 	var/overlay_color = "#FFFFFF"
 
+	var/obj/machinery/atmospherics/output_port
+
 	machine_flags = WRENCHMOVE | FIXED2WORK
 
 
-/obj/machinery/atmospherics/unary/fluid_miner/New()
+/obj/machinery/atmospherics/fluid_miner/New()
 	..()
 	power_change()
 	update_icon()
 
-/obj/machinery/atmospherics/unary/fluid_miner/verb/set_power_consumption()
+/obj/machinery/atmospherics/fluid_miner/verb/set_power_consumption()
 	set category = "Object"
 	set name = "Set power consumption"
 	set src in oview(1)
@@ -340,14 +342,14 @@
 	power_connection.active_usage = power*/
 	active_power_usage = power
 
-/obj/machinery/atmospherics/unary/fluid_miner/proc/set_rate(var/amount)
+/obj/machinery/atmospherics/fluid_miner/proc/set_rate(var/amount)
 	//rate is in units
 	rate = amount
 
 //actually create the reagents and pump them into the pipeline
 //max out at max_units
 //unless running on exernal power, which raises the reagent limit the more power you add
-/obj/machinery/atmospherics/unary/fluid_miner/proc/transfer_reagents()
+/obj/machinery/atmospherics/fluid_miner/proc/transfer_reagents()
 	var/extra_power_bonus = 0
 	extra_power_bonus = active_power_usage * WATT_TO_KPA_OF_EXTERNAL_PRESSURE_LIMIT
 /*	if(power_connection.connected)	//raise max pressure if powered
@@ -355,8 +357,8 @@
 		extra_power_pressure_bonus = power_actually_consumed * WATT_TO_KPA_OF_EXTERNAL_PRESSURE_LIMIT*/
 
 	var/unit_delta = max(0, (max_units + extra_power_bonus))
-	if(unit_delta > 0.1 && node1)
-		var/datum/reagents/fluid_output = node1.return_fluid()
+	if(unit_delta > 0.1 && output_port)
+		var/datum/reagents/fluid_output = output_port.return_fluid()
 		if(fluid_output)
 			units_outputted = unit_delta * CELL_VOLUME
 			units_outputted = min(units_outputted, CELL_VOLUME)
@@ -365,7 +367,7 @@
 	else
 		units_outputted = 0
 
-/obj/machinery/atmospherics/unary/fluid_miner/examine(mob/user)
+/obj/machinery/atmospherics/fluid_miner/examine(mob/user)
 	. = ..()
 	if(stat & NOPOWER)
 		to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Lack of power.</span>")
@@ -384,7 +386,7 @@
 	to_chat(user, "<span class='info'>Currently consuming [active_power_usage]W from the APC's environment channel.</span>")
 	to_chat(user, "<span class='info'>\The [src]'s status terminal reads: Functional and outputting [units_outputted] out of [rate] moles per cycle.</span>")
 
-/obj/machinery/atmospherics/unary/fluid_miner/wrenchAnchor(var/mob/user, var/obj/item/I)
+/obj/machinery/atmospherics/fluid_miner/wrenchAnchor(var/mob/user, var/obj/item/I)
 	. = ..()
 	if(!.)
 		return
@@ -398,14 +400,14 @@
 	power_load_last_tick = 0*/
 
 // Critical equipment.
-/obj/machinery/atmospherics/unary/fluid_miner/ex_act(severity)
+/obj/machinery/atmospherics/fluid_miner/ex_act(severity)
 	return
 
 // Critical equipment.
-/obj/machinery/atmospherics/unary/fluid_miner/blob_act()
+/obj/machinery/atmospherics/fluid_miner/blob_act()
 	return
 
-/obj/machinery/atmospherics/unary/fluid_miner/power_change()
+/obj/machinery/atmospherics/fluid_miner/power_change()
 	..()
 	set_rate(base_reagent_production)
 	active_power_usage = base_power_usage
@@ -419,11 +421,20 @@
 	else
 		use_power = MACHINE_POWER_USE_IDLE
 	update_icon()
+	find_port()
 
-/obj/machinery/atmospherics/unary/fluid_miner/attack_ghost(var/mob/user)
+/obj/machinery/atmospherics/fluid_miner/proc/find_port()
+	if(!anchored)
+		output_port = null
+	else
+		var/obj/machinery/atmospherics/temp_port = locate(/obj/machinery/atmospherics) in output_dir
+		if(temp_port && (get_dir(temp_port,src) in temp_port.initialize_directions))
+			output_port = temp_port
+
+/obj/machinery/atmospherics/fluid_miner/attack_ghost(var/mob/user)
 	return
 
-/obj/machinery/atmospherics/unary/fluid_miner/attack_hand(var/mob/user)
+/obj/machinery/atmospherics/fluid_miner/attack_hand(var/mob/user)
 	..()
 	if(!Adjacent(user))
 		to_chat(user, "<span class='warning'>You can't toggle \the [src] from that far away.</span>")
@@ -434,7 +445,7 @@
 	else
 		to_chat(user, "<span class='warning'>\The [src] needs to be bolted to the ground first.</span>")
 
-/obj/machinery/atmospherics/unary/fluid_miner/update_icon()
+/obj/machinery/atmospherics/fluid_miner/update_icon()
 	overlays = 0
 	if(stat & (FORCEDISABLE|NOPOWER))
 		return
