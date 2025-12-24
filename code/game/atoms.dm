@@ -68,8 +68,6 @@ var/global/list/ghdel_profiling_roundstart = list()
 	var/image/moody_light
 	var/list/moody_lights
 
-	var/icon/displacement_map
-
 /atom/proc/beam_connect(var/obj/effect/beam/B)
 	if(!last_beamchecks)
 		last_beamchecks = list()
@@ -1128,16 +1126,6 @@ its easier to just keep the beam vertical.
 	if (blood_color && blood_DNA && blood_DNA.len)
 		return TRUE
 	return FALSE
-
-/atom/proc/update_displacement_map(file,state="",displacement_size=WORLD_ICON_SIZE)
-	kill_displacement_map()
-	if(file)
-		displacement_map = icon(file,state)
-	filters += filter(type="displace",name="displacement",size=displacement_size,icon=displacement_map)
-
-/atom/proc/kill_displacement_map()
-	filters["displacement"] = null
-	displacement_map = null
 
 /atom/proc/silicate_act(var/atom/A, var/mob/user)
 	return FALSE

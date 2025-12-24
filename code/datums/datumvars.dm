@@ -134,8 +134,6 @@
 
 	if(istype(D,/atom))
 		body += "<option value='?_src_=vars;teleport_to=\ref[D]'>Teleport To</option>"
-		body += "<option value='?_src_=vars;displacement=\ref[D]'>Set Displacement Map</option>"
-		body += "<option value='?_src_=vars;clear_displacement=\ref[D]'>Clear Displacement Map</option>"
 
 	if(istransformable(D))
 		body += "<option value='?_src_=vars;edit_transform=\ref[D]'>Edit Transform Matrix</option>"
@@ -926,36 +924,6 @@ function loadPage(list) {
 			return
 
 		user.teleport_to(A)
-
-	else if(href_list["displacement"])
-		if(!check_rights(0))
-			return
-
-		var/atom/A = locate(href_list["displacement"])
-		if(!istype(A))
-			to_chat(usr, "This can only be done to instances of atoms.")
-			return
-
-		var/file = input(usr, "Choose an icon file for your displacement map", "Displacement map") as null|icon
-		if(!file)
-			to_chat(usr, "No icon selected.")
-			return
-
-		var/state = input(usr, "Which icon state to use?","Displacement state","")
-		var/size = input(usr, "How much to displace by?","Displacement amount",WORLD_ICON_SIZE) as num
-
-		A.update_displacement_map(file,state,size)
-
-	else if(href_list["clear_displacement"])
-		if(!check_rights(0))
-			return
-
-		var/atom/A = locate(href_list["clear_displacement"])
-		if(!istype(A))
-			to_chat(usr, "This can only be done to instances of atoms.")
-			return
-
-		A.kill_displacement_map()
 
 	else if(href_list["delete"])
 		if(!check_rights(0))
