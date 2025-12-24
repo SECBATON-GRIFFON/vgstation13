@@ -40,7 +40,6 @@ Pipelines + Other Objects -> Pipe network
 	var/obj/machinery/atmospherics/mirror //not actually an object reference, but a type. The reflection of the current pipe
 	var/default_colour = null
 	var/image/pipe_image
-	var/transparent = FALSE // painted transparent?
 	plane = ABOVE_TURF_PLANE
 	layer = PIPE_LAYER
 	var/piping_layer = PIPING_LAYER_DEFAULT //used in multi-pipe-on-tile - pipes only connect if they're on the same pipe layer
@@ -150,7 +149,7 @@ Pipelines + Other Objects -> Pipe network
 	else if(can_be_coloured && default_colour)
 		color = default_colour
 		default_colour = null
-	alpha = invisibility || transparent ? 128 : 255
+	alpha = invisibility ? 128 : 255
 	if (!update_icon_ready)
 		update_icon_ready = 1
 	else
@@ -161,8 +160,9 @@ Pipelines + Other Objects -> Pipe network
 	for (var/obj/machinery/atmospherics/connected_node in node_list)
 		var/con_dir = get_dir(src, connected_node)
 		missing_nodes -= con_dir // finds all the directions that aren't pointed to by a node
-		var/image/nodecon = icon_node_con(con_dir)
-		if(nodecon)
+		var/image/nodecon_ref = icon_node_con(con_dir)
+		if(nodecon_ref)
+			var/image/nodecon = image(nodecon_ref)
 			nodecon.color = node_color_for(connected_node)
 			nodecon.plane = node_plane()
 			nodecon.layer = node_layer()

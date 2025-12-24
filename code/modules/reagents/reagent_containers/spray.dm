@@ -23,7 +23,7 @@
 	var/delay_spraying = TRUE // Whether to delay the next attack after using it
 
 	//! List of things to avoid spraying on close range. TODO Remove snowflake, handle this in every attackby() properly.
-	var/list/ignore_spray_types = list(/obj/item/weapon/storage, /obj/structure/table, /obj/structure/rack, /obj/structure/closet, /obj/structure/sink)
+	var/list/ignore_spray_types = list(/obj/item/weapon/storage, /obj/structure/table, /obj/structure/rack, /obj/structure/closet, /obj/structure/wc/sink)
 
 /obj/item/weapon/reagent_containers/spray/New()
 	..()
@@ -87,8 +87,8 @@
 	amount_per_transfer_from_this = (amount_per_transfer_from_this == 10 ? 5 : 10)
 	to_chat(user, "<span class='notice'>You switched [amount_per_transfer_from_this == 10 ? "on" : "off"] the pressure nozzle. You'll now use [amount_per_transfer_from_this] units per spray.</span>")
 
-/obj/item/weapon/reagent_containers/spray/restock()
-	if(preset_reagent)
+/obj/item/weapon/reagent_containers/spray/restock(nanobots = FALSE)
+	if(!nanobots && preset_reagent)
 		reagents.add_reagent(preset_reagent, 2)
 
 /obj/item/weapon/reagent_containers/spray/proc/make_puff(var/atom/target, var/mob/user)
@@ -221,7 +221,7 @@
 /obj/item/weapon/reagent_containers/spray/pacid
 	name = "Polyacid spray"
 	preset_reagent = PACID
-	
+
 /obj/item/weapon/reagent_containers/spray/lube
 	name = "Lube spray"
 	preset_reagent = LUBE

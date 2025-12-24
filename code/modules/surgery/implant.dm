@@ -148,6 +148,7 @@
 		to_chat(user, "<span class='warning'>You tear some vessels trying to fit such big object in this cavity.")
 		var/datum/wound/internal_bleeding/I = new (15)
 		affected.wounds += I
+		affected.internally_bleeding = TRUE
 		affected.owner.custom_pain("You feel something rip in your [affected.display_name]!", 1, scream=TRUE)
 	user.drop_item(tool)
 	affected.hidden = tool
@@ -196,7 +197,7 @@
 	if (affected.implants.len)
 		var/obj/item/obj = affected.implants[affected.implants.len]
 		user.visible_message("<span class='notice'>[user] takes something out of incision on [target]'s [affected.display_name] with \the [tool].</span>", \
-		"<span class='notice'>You take [obj] out of incision on [target]'s [affected.display_name]s with \the [tool].</span>" )
+		"<span class='notice'>You take \the [obj] out of the incision on \the [target]'s [affected.display_name] with \the [tool].</span>" )
 		affected.implants -= obj
 
 		//Handle possessive brain borers.
@@ -214,7 +215,7 @@
 			obj.forceMove(get_turf(target))
 	else if (affected.hidden)
 		user.visible_message("<span class='notice'>[user] takes something out of incision on [target]'s [affected.display_name] with \the [tool].</span>", \
-		"<span class='notice'>You take something out of incision on [target]'s [affected.display_name]s with \the [tool].</span>" )
+		"<span class='notice'>You take something out of the incision on \the [target]'s [affected.display_name] with \the [tool].</span>" )
 		affected.hidden.forceMove(get_turf(target))
 		user.put_in_hands(affected.hidden)
 		if(!affected.hidden.blood_DNA)
@@ -225,7 +226,7 @@
 
 	else if (tool.clumsy_check(user) && prob(20))
 		user.visible_message("<span class='notice'>[user] takes something out of incision on [target]'s [affected.display_name] with \the [tool].</span>", \
-		"<span class='notice'>You take something out of incision on [target]'s [affected.display_name]s with \the [tool].</span>" )
+		"<span class='notice'>You take something out of the incision on \the [target]'s [affected.display_name] with \the [tool].</span>" )
 		var/obj/clowndigobj = pick(/obj/item/weapon/bikehorn/rubberducky, /obj/item/weapon/reagent_containers/food/snacks/pie, /obj/item/toy/singlecard, /obj/item/clothing/accessory/waterflower)
 		clowndigobj = new clowndigobj(target.loc)
 		if (istype(clowndigobj, /obj/item/toy/singlecard))

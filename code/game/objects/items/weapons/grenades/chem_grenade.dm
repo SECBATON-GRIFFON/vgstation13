@@ -28,6 +28,7 @@
 	var/obj/item/slime_extract/secondExtract = null	//for Ex grenades
 	var/obj/item/weapon/reagent_containers/glass/beaker/noreactgrenade/reservoir = null
 	var/mob/primed_by = "N/A" //"name (ckey)". For logging purposes
+	var/disguised = FALSE //use this to hide if the device has an assembly, such as with disguised lipstick grenades...
 	mech_flags = null
 	det_time =0 //recycling this variable to be used by the grenade launcher's timer override function since chemnades use their assembly's timer instead.
 
@@ -178,7 +179,7 @@
 
 /obj/item/weapon/grenade/chem_grenade/examine(mob/user)
 	..()
-	if(detonator)
+	if(detonator && !disguised)
 		to_chat(user, "<span class='info'>With an attached [detonator.name]</span>")
 
 /obj/item/weapon/grenade/chem_grenade/Crossed(AM as mob|obj)
@@ -280,6 +281,10 @@
 	investigation_log(I_CHEMS, "has detonated, containing [reservoir.reagents.get_reagent_ids(1)] - Primed by: [primed_by]")
 
 	reservoir.reagents.trans_to(src, reservoir.reagents.total_volume)
+
+	if (QDELETED(src) || !reagents || !reagents.total_volume)
+		// incase the grenade was explosive and the explosion already qdel'd the grenade
+		return
 
 	if(reagents.total_volume) //The possible reactions didnt use up all reagents.
 		reagents.splashplosion(affected_area)
