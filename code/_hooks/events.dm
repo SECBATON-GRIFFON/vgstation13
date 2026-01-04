@@ -268,6 +268,16 @@
 // atom/movable/exiter: the movable exiting the area
 /event/area_exited
 
+// Arguments:
+// mob/killer: the person who killed
+// mob/victim: the person who got killed
+/event/kill
+
+// Arguments:
+// time: shuttle timer
+// direction: shuttle direction
+/event/shuttletimer
+
 // Called by miscellaneous functions not covered by entered, equipped and unequipped events for cameranet updates
 // Arguments:
 // atom/movable/mover: the atom changing status on the cameranet
@@ -279,6 +289,18 @@
 // newarea: the new area being entered
 // oldarea: the old area being left
 /event/mob_area_changed
+
+// Called when a mob enters a planet
+// Arguments:
+// mob/living/M: the mob entering the planet
+// datum/planet_type/planet: the planet being entered
+/event/planet_entered
+
+// Called when a mob exits a planet
+// Arguments:
+// mob/living/M: the mob exiting the planet
+// datum/planet_type/planet: the planet being exited
+/event/planet_exited
 
 // Note: the following are used by datum/component/ai subtypes to give instructions to each other.
 // AI components are expected to INVOKE_EVENT these to send commands to other components
@@ -360,8 +382,8 @@
 		registered_events[event_type] = list()
 	var/key = "[ref(target)]:[procname]"
 	registered_events[event_type][key] = list(
-		EVENT_HANDLER_OBJREF_INDEX = target,
-		EVENT_HANDLER_PROCNAME_INDEX = procname
+		/*EVENT_HANDLER_OBJREF_INDEX*/ target,
+		/*EVENT_HANDLER_PROCNAME_INDEX*/ procname
 	)
 
 /**

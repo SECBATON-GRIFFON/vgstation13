@@ -317,8 +317,8 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 		if(T.density)
 			continue
 		var/contcount
-		for(var/atom/A in T.contents)
-			if(islightingoverlay(A) || istype(A, /obj/machinery/conveyor))
+		for(var/atom/movable/MA in T.contents)
+			if(MA.anchored && !istype(MA,/obj/structure/shuttle))
 				continue
 			contcount++
 		if(contcount)
@@ -347,6 +347,10 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 		//supply manifest generation begin
 
 		var/obj/item/weapon/paper/manifest/slip = new /obj/item/weapon/paper/manifest(A)
+
+		if(istype(A, /obj/structure/closet/crate))
+			var/obj/structure/closet/crate/my_box = A
+			my_box.jiggle_all(W_CLASS_MEDIUM)
 
 		slip.name = "Shipping Manifest for [SO.orderedby]'s Order"
 		slip.info = {"<h3>[command_name()] Shipping Manifest for [SO.orderedby]'s Order</h3><hr><br>
@@ -534,7 +538,6 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 
 /datum/subsystem/supply_shuttle/proc/add_centcomm_order(var/datum/centcomm_order/C)
 	centcomm_orders.Add(C)
-	var/name = "External order form - [C.name] order number [C.id]"
 	var/info = {"<h3>Central Command supply requisition form</h3><hr>
 	 			INDEX: #[C.id]<br>
 	 			REQUESTED BY: [C.name]<br>
@@ -547,10 +550,7 @@ var/datum/subsystem/supply_shuttle/SSsupply_shuttle
 		return
 	for(var/obj/machinery/computer/supplycomp/S in supply_consoles)
 		if(S.printccrequests)
-			var/obj/item/weapon/paper/reqform = new /obj/item/weapon/paper(S.loc)
-			reqform.name = name
-			reqform.info = info
-			reqform.update_icon()
+			C.generate_form(S.loc)
 		S.say("New Central Command request available!")
 		playsound(S, 'sound/machines/twobeep.ogg', 50, 1)
 

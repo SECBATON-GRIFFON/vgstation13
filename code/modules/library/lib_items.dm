@@ -249,10 +249,28 @@
 		return
 	if (!isobserver(user))
 		playsound(user, "pageturn", 50, 1, -5)
-	if(src.dat)
-		user << browse("<TT><I>Penned by [author].</I></TT> <BR>" + "[dat]", "window=[name];size=[book_width]x[book_height]")
+	if(wiki_page)
+		dat = {"
+		<html>
+		<body style="margin:5px;padding:0px;overflow:hidden">
+			<iframe width='100%' height='100%' frameborder="0" style="overflow:hidden;height:100%;width:100%" src="http://ss13.moe/wiki/index.php?title=[wiki_page]&printable=yes"></iframe>
+		</body>
+		</html>
+		"}
 		if(!isobserver(user))
-			user.visible_message("[user] opens a book titled \"[src.title]\" and begins reading intently.")
+			user.visible_message("<span class='notice'>[user] opens a manual titled \"[src.title]\" and begins reading intently.</span>")
+		user << browse(dat, "window=[name];size=[book_width]x[book_height]")
+		return
+	// typechecking src is the big gay but here it's kinda the most straightforward way to handle.
+	// Manuals have well-formed HTML so HTML_SKELETON isn't needed here
+	if (istype(src, /obj/item/weapon/book/manual))
+		if(!isobserver(user))
+			user.visible_message("<span class='notice'>[user] opens a manual titled \"[src.title]\" and begins reading intently.</span>")
+		user << browse(dat, "window=[name];size=[book_width]x[book_height]")
+	if(src.dat)
+		user << browse(HTML_SKELETON("<TT><I>Penned by [author].</I></TT> <BR>[dat]"), "window=[name];size=[book_width]x[book_height]")
+		if(!isobserver(user))
+			user.visible_message("<span class='notice'>[user] opens a book titled \"[src.title]\" and begins reading intently.</span>")
 		onclose(user, "book")
 	else if(occult)
 		to_chat(user, "<span class='sinister'>As you read the book, your mind is assaulted by foul, arcane energies!</span>")
@@ -416,6 +434,49 @@
 	name = pick(possible_names)
 	title = name
 	icon_state = "book[rand(1, 9)]"
+
+
+/*
+ * Random Library Books, from the Library!
+ */
+
+/obj/item/weapon/book/library_randomized/
+	var/worksafe = TRUE
+
+/obj/item/weapon/book/library_randomized/dangerous/
+	//not safe
+	worksafe = FALSE
+
+/obj/item/weapon/book/library_randomized/New()
+	. = ..()
+	if(SSobj && SSobj.initialized)
+		initialize()
+
+/obj/item/weapon/book/library_randomized/initialize()
+	. = ..()
+	var/datum/cachedbook/newbook = library_catalog.getRandomItem(worksafe)
+	if(!newbook || !newbook.id)
+		//failed to find a book. Likely not using a SQL DB. This is a failsafe.
+		//Picks a random useful manual!
+		var/Btype = pick(typesof(/obj/item/weapon/book/manual)-/obj/item/weapon/book/manual)
+		var/obj/item/weapon/book/B = new Btype
+		name = B.name
+		title = B.title
+		author = B.author
+		dat = B.dat
+		icon_state = B.icon_state
+		item_state = icon_state
+		qdel(B)
+		return
+	name = "Book: [newbook.title]"
+	title = newbook.title
+	author = newbook.author
+	dat = newbook.content
+	if(newbook.cover)
+		icon_state = newbook.cover
+	else
+		icon_state = "book[rand(1,9)]"
+	item_state = icon_state
 
 /*
  * Barcode Scanner

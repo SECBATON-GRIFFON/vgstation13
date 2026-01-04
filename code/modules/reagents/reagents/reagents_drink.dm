@@ -183,6 +183,7 @@
 	description = "Freshly squeezed juice from red grapes. Quite sweet."
 	color = "#512284" //rgb: 81, 34, 132
 	nutriment_factor = 2.5 * REAGENTS_METABOLISM
+	harms_animal_type = /mob/living/simple_animal/corgi
 
 /datum/reagent/drink/ggrapejuice
 	name = "Green Grape Juice"
@@ -190,6 +191,7 @@
 	description = "Freshly squeezed juice from green grapes. Smoothly sweet."
 	color = "#B79E42" //rgb: 183, 158, 66
 	nutriment_factor = 2.5 * REAGENTS_METABOLISM
+	harms_animal_type = /mob/living/simple_animal/corgi
 
 /datum/reagent/drink/berryjuice
 	name = "Berry Juice"
@@ -640,13 +642,13 @@
 				M.bodytemperature -= rand(5,20)
 			if(isslimeperson(H))
 				M.bodytemperature -= rand(5,20)
-		if(15 to 25)
+		if(16 to 25)
 			M.bodytemperature -= 0.2 * TEMPERATURE_DAMAGE_COEFFICIENT
 			if(isslime(M))
 				M.bodytemperature -= rand(10,20)
 			if(isslimeperson(H))
 				M.bodytemperature -= rand(10,20)
-		if(25 to INFINITY)
+		if(26 to INFINITY)
 			M.bodytemperature -= 0.3 * TEMPERATURE_DAMAGE_COEFFICIENT
 			if(prob(1))
 				M.emote("shiver")
@@ -694,6 +696,8 @@
 	glass_icon_state = "doctorsdelightglass"
 	glass_name = "\improper Doctor's Delight"
 	glass_desc = "A rejuvenating mixture of juices, guaranteed to keep you healthy until the next toolboxing takes place."
+	fission_time=3500 // 50 minutes (0hr 50m)
+	fission_absorbtion=3000
 
 /datum/reagent/drink/doctor_delight/on_mob_life(var/mob/living/M)
 	if(..())
@@ -708,7 +712,7 @@
 	if(M.getToxLoss())
 		M.adjustToxLoss(-2)
 	if(M.dizziness != 0)
-		M.dizziness = max(0, M.dizziness - 15)
+		M.AdjustDizzy(-15)
 	if(M.confused != 0)
 		M.remove_confused(5)
 
@@ -1021,7 +1025,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	if(M.getToxLoss() && prob(25))
 		M.adjustToxLoss(-1)
 	if(M.dizziness != 0)
-		M.dizziness = max(0, M.dizziness - 15)
+		M.AdjustDizzy(-15)
 	if(M.confused != 0)
 		M.remove_confused(5)
 	M.reagents.add_reagent (IRON, 0.1)

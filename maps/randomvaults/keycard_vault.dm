@@ -43,7 +43,7 @@
 		new key_type(get_turf(LM))
 		qdel(LM)
 
-/datum/map_element/vault/keycards/load()
+/datum/map_element/vault/keycards/load(x,y,z,rotate=0,overwrite=FALSE,override_can_rotate=FALSE)
 	. = ..()
 	var/list/turfs = .
 	ASSERT(thevault)
@@ -75,7 +75,7 @@
 	file_path = "maps/randomvaults/dungeons/keycard_vault_normal.dmm"
 	var/datum/map_element/vault/keycards/parent
 
-/datum/map_element/dungeon/keycard_vault/load()
+/datum/map_element/dungeon/keycard_vault/load(x,y,z,rotate=0,overwrite=FALSE,override_can_rotate=FALSE)
 	. = ..()
 	var/list/turfs = .
 	ASSERT(parent)
@@ -191,7 +191,7 @@
 
 /obj/item/keycard
 	name = "mysterious keycard"
-	desc = "A keycard for opening a door somewhere"
+	desc = "A keycard for opening a door somewhere."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "keycard"
 	var/insert_type = 0 // What kind of bitflag does this access on the door?

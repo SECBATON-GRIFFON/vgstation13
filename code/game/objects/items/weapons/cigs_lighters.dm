@@ -27,7 +27,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/lit = 0
 	var/smoketime = 10
 	var/brightness_on = 1 //Barely enough to see where you're standing, it's a shitty discount match
-	heat_production = 1000
+	heat_production = 5000
 	source_temperature = TEMPERATURE_FLAME
 	w_class = W_CLASS_TINY
 	w_type = RECYK_WOOD
@@ -211,7 +211,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/list/unlit_attack_verb = list("prods", "pokes")
 	var/list/lit_attack_verb = list("burns", "singes")
 	attack_verb = list("prods", "pokes")
-	heat_production = 1000
+	heat_production = 5000
 	source_temperature = TEMPERATURE_FLAME
 	light_color = LIGHT_COLOR_FIRE
 	slot_flags = SLOT_MASK|SLOT_EARS
@@ -231,6 +231,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/burn_on_end = FALSE
 	surgerysound = 'sound/items/cautery.ogg'
 	var/light_icon = "cig-light"
+	var/requires_oxygen = TRUE
 
 /obj/item/clothing/mask/cigarette/New()
 	base_name = name
@@ -470,7 +471,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	if (smoketime == 5 && ismob(loc))
 		to_chat(M, "<span class='warning'>Your [name] is about to go out.</span>")
 	var/datum/gas_mixture/env = location.return_air()
-	if(smoketime <= 0 || env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME))
+	if(smoketime <= 0 || (requires_oxygen && env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME)))
 		if(smoketime > 0 && ishuman(loc))
 			var/mob/living/carbon/human/mysmoker = loc
 			if(mysmoker.internal?.air_contents.partial_pressure(GAS_OXYGEN) > 0)
@@ -561,6 +562,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	slot_flags = SLOT_MASK
 	type_butt = /obj/item/trash/cigbutt/bidibutt
 	burn_on_end = TRUE
+	requires_oxygen = FALSE
 
 /obj/item/clothing/mask/cigarette/goldencarp
 	name = "\improper Golden Carp cigarette"
@@ -621,7 +623,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 		return
 
 /obj/item/clothing/mask/cigarette/bugged/attack_self(mob/user as mob)
-	if(lit)
+	if(cig_tag && lit)
 		user.visible_message("<span class='notice'>[user] calmly drops and treads on the [name], putting it out.</span>")
 		var/turf/T = get_turf(src)
 		var/obj/item/trash/cigbutt/bugged/new_butt = new /obj/item/trash/cigbutt/bugged(T)
@@ -840,7 +842,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	slot_flags = SLOT_MASK
 	overlay_on = "pipelit"
 	species_fit = list(VOX_SHAPED, GREY_SHAPED)
-	smoketime = 100
+	smoketime = 200
 
 /obj/item/clothing/mask/cigarette/pipe/light(var/flavor_text = "[usr] lights the [name].")
 	if(!src.lit)
@@ -928,7 +930,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/lightersound = list('sound/items/lighter1.ogg','sound/items/lighter2.ogg')
 	var/fuel = 20
 	var/fueltime
-	heat_production = 1500
+	heat_production = 10000
 	source_temperature = TEMPERATURE_FLAME
 	slot_flags = SLOT_BELT
 	var/list/unlit_attack_verb = list("prods", "pokes")
@@ -940,6 +942,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/base_icon = "lighter"
 	surgerysound = 'sound/items/cautery.ogg'
 	var/light_icon = "lighter-light"
+	var/requires_oxygen=TRUE //if we're underwater, then how is there a fire...?
 
 /obj/item/weapon/lighter/New()
 	..()
@@ -969,7 +972,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 
 /obj/item/weapon/lighter/examine(mob/user)
 	..()
-	to_chat(user, "The lighter is [lit ? "":"un"]lit")
+	to_chat(user, "The lighter is [lit ? "":"un"]lit.")
 
 //Also updates the name, the damage and item_state for good measure
 /obj/item/weapon/lighter/update_icon()
@@ -1038,7 +1041,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 	var/turf/T = get_turf(src)
 	var/datum/gas_mixture/env = T.return_air()
 	user.delayNextAttack(5) //Hold on there cowboy
-	if(!fuel || env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME))
+	if(requires_oxygen && (!fuel || env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME)))
 		user.visible_message("<span class='rose'>[user] attempts to light \the [src] to no avail.</span>", \
 		"<span class='notice'>You try to light \the [src], but no flame appears.</span>")
 		return
@@ -1102,7 +1105,7 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 			visible_message("<span class='warning'>Without warning, \the [src] suddenly shuts off.</span>")
 			fueltime = null
 	var/datum/gas_mixture/env = location.return_air()
-	if(env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME))
+	if(requires_oxygen && env.molar_density(GAS_OXYGEN) < (5 / CELL_VOLUME))
 		lit = 0
 		update_brightness()
 		visible_message("<span class='warning'>Without warning, the flame on \the [src] suddenly goes out in a weak fashion.</span>")
@@ -1141,3 +1144,10 @@ MATCHBOXES ARE ALSO IN FANCY.DM
 		user.visible_message("<span class='rose'>You hear a quiet click as [user] shuts off \the [src] without even looking at what they're doing. Wow.</span>", \
 		"<span class='rose'>You hear a quiet click as you shut off \the [src] without even looking at what you are doing.</span>")
 	update_brightness()
+
+
+//it even works in nitrogen!
+/obj/item/weapon/lighter/vox
+	name = "shoal lighter"
+	desc = "A budget lighter. Engineered to be as cheap as possible, and work without oxygen."
+	requires_oxygen=FALSE

@@ -92,6 +92,9 @@
 	var/list/quick_equip_priority = list() //stuff to override the quick equip thing so it goes in this first
 
 	var/last_burn
+	var/smoking = FALSE //is the obj emitting smoke particles
+
+	var/vent_use = FALSE //can this be used while ventcrawling
 
 /obj/item/New()
 	..()
@@ -112,6 +115,11 @@
 		H.drop_from_inventory(src) // items at the very least get unequipped from their mob before being deleted
 	for(var/x in actions)
 		qdel(x)
+	if(istype(loc, /obj/item/weapon/storage)) //Update the storage screen for current users.
+		var/obj/item/weapon/storage/S = loc
+		spawn() //Allows properly removing the item from storage so that there's not an unused slot in the middle of its inventory until next refresh.
+			if(S && !S.gcDestroyed) //Double check to see if the storage still exists.
+				S.refresh_all()
 	..()
 
 
@@ -130,8 +138,8 @@
 /obj/item/proc/return_thermal_protection()
 	return return_cover_protection(body_parts_covered) * (1 - heat_conductivity)
 
-/obj/item/acid_melt()
-	var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(loc)
+/obj/item/acid_melt(atom/customloc = null)
+	var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(customloc || loc)
 	I.desc = "Looks like this was \a [src] some time ago."
 	visible_message("<span class='warning'>\The [src] melts.</span>")
 	qdel(src)
@@ -257,7 +265,7 @@ var/global/objects_thrown_when_explode = FALSE
 	add_hiddenprint(usr)
 	return FALSE
 
-/obj/item/proc/restock() //used for borg recharging
+/obj/item/proc/restock(nanobots = FALSE) //used for borg recharging and engi nanites
 	return
 
 /obj/item/proc/SlipDropped(var/mob/living/user, var/slip_dir, var/slipperiness = TURF_WET_WATER)
@@ -479,6 +487,8 @@ var/global/objects_thrown_when_explode = FALSE
 	for(var/X in actions)
 		var/datum/action/A = X
 		A.Remove(user)
+	if (sound_emitter)
+		sound_emitter.update_source(src)
 
 ///called when an item is stripped off by another person, called BEFORE it is dropped. return 1 to prevent it from actually being stripped.
 /obj/item/proc/before_stripped(mob/wearer as mob, mob/stripper as mob, slot)
@@ -495,6 +505,8 @@ var/global/objects_thrown_when_explode = FALSE
 
 // called after an item is picked up (loc has already changed)
 /obj/item/proc/pickup(mob/user)
+	if (sound_emitter)
+		sound_emitter.update_source(user)
 	return
 
 // called before an item is passed to another person through the give proc - TRUE allows the give, see carbon/give.dm
@@ -1070,7 +1082,7 @@ var/global/objects_thrown_when_explode = FALSE
 		return CANNOT_EQUIP //Unsupported slot
 		//END GRINCH
 
-/obj/item/can_pickup(mob/living/user, var/actually_picking_up = TRUE, var/silent = FALSE)
+/obj/item/proc/can_pickup(mob/living/user, var/actually_picking_up = TRUE, var/silent = FALSE)
 	if(!(user) || !isliving(user)) //BS12 EDIT
 		return FALSE
 	if(actually_picking_up && prepickup(user))
@@ -1091,11 +1103,7 @@ var/global/objects_thrown_when_explode = FALSE
 		return FALSE
 	return TRUE
 
-/obj/item/verb_pickup(mob/living/user)
-	//set src in oview(1)
-	//set category = "Object"
-	//set name = "Pick up"
-
+/obj/item/proc/verb_pickup(mob/living/user)
 	if(!can_pickup(user))
 		return FALSE
 
@@ -1122,6 +1130,15 @@ var/global/objects_thrown_when_explode = FALSE
 	if(istype(user, /mob/living/carbon/monkey))
 		attack_paw(user)
 	return
+
+/obj/item/proc/can_quick_store(var/obj/item/I) //proc used to check that the current object can store another through quick equip
+	return 0
+
+
+/obj/item/proc/quick_store(var/obj/item/I, mob/user) //proc used to handle quick storing
+	if(user?.client)
+		user.client.last_quick_stored = world.time
+	return 0
 
 //Used in twohanding
 /obj/item/proc/wield(mob/user, var/inactive = FALSE)
@@ -1687,6 +1704,7 @@ var/global/objects_thrown_when_explode = FALSE
 		armor["melee"] = min(90, armor["melee"]*(material_type.armor_mod*(quality/B_AVERAGE)))
 		armor["bullet"] = min(90, armor["bullet"]*(material_type.armor_mod*(quality/B_AVERAGE)))
 		armor["laser"] = min(90, armor["laser"]*(material_type.armor_mod*(quality/B_AVERAGE)))
+	toolspeed = fancytrunc(toolspeed * (0.6687**(quality-4)),2)
 
 /////// DISEASE STUFF //////////////////////////////////////////////////////////////////////////
 
@@ -1773,7 +1791,7 @@ var/global/objects_thrown_when_explode = FALSE
 	extinguish_with_hands(user)
 
 /obj/item/proc/extinguish_with_hands(var/mob/user)
-	if(!isliving(user))
+	if(user.stat || !Adjacent(user, src) || !isliving(user))
 		return
 	if(src.on_fire)
 		extinguish()
@@ -1794,3 +1812,27 @@ var/global/objects_thrown_when_explode = FALSE
 		var/mob/living/L = user
 		L.apply_damage(10,BURN,(pick(LIMB_LEFT_HAND, LIMB_RIGHT_HAND)))
 		L.visible_message("[user] snuffs out the burning [src].","You snuff out the burning [src], burning your hand in the process.")
+
+/obj/item/checkburn()
+	if(!flammable)
+		CRASH("[src] tried to burn despite not being flammable!")
+	if(on_fire)
+		return
+	if(!smoking)
+		checksmoke()
+	..()
+
+/obj/item/proc/checksmoke()
+	var/datum/gas_mixture/G = return_air()
+	if(!G)
+		return
+	while(G && G.temperature >= (autoignition_temperature * 0.75))
+		if(!smoking)
+			add_particles(PS_SMOKE)
+			smoking = TRUE
+		var/rate = clamp(lerp_generic(G.temperature,autoignition_temperature * 0.75,autoignition_temperature,0.1,1),0.1,1)
+		adjust_particles(PVAR_SPAWNING,rate,PS_SMOKE)
+		sleep(10 SECONDS)
+		G = return_air()
+	remove_particles(PS_SMOKE)
+	smoking = FALSE

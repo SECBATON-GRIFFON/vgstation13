@@ -1,7 +1,7 @@
 //Because BYOND only lets atoms have 1 type of particles at a given time, we use holders to let atoms stack particle effects
 
 /atom
-	var/list/particle_systems = list()
+	var/list/particle_systems
 
 //-----------------------------------------------
 /atom/proc/add_to_vis(var/stuff)
@@ -27,6 +27,8 @@
 /atom/proc/add_particles(var/particle_string)
 	if (!particle_string)
 		return
+	if (!particle_systems)
+		particle_systems = list()
 	if (particle_string in particle_systems)
 		return
 
@@ -104,7 +106,7 @@
 	target.add_to_vis(holder)
 
 //-----------------------------------------------
-/atom/proc/adjust_particles(var/adjustment, var/new_value, var/particle_string)
+/atom/proc/adjust_particles(var/adjustment, var/new_value, var/particle_string, var/new_drift = list(0,0,0,0))
 	if (!particle_string) //If we don't specify which particle we want to shift, just shift all of them
 		for (var/string in particle_systems)
 			adjust_particles(adjustment ,new_value, string)
@@ -139,6 +141,9 @@
 			holder.pixel_x = new_value
 		if (PVAR_PIXEL_Y)
 			holder.pixel_y = new_value
+		if (PVAR_DRIFT)
+			//new_drift is an array whose value correspond to (min_x, min_y, max_x, max_y)
+			holder.particles.drift = generator("box", list(new_drift[1], new_drift[2]), list(new_drift[3], new_drift[4]))
 		//add more as needed
 
 //HOLDER
@@ -171,6 +176,7 @@ var/list/particle_string_to_type = list(
 	PS_CULT_SMOKE = /particles/cult_smoke,
 	PS_CULT_SMOKE2 = /particles/cult_smoke/alt,
 	PS_CULT_SMOKE_BOX = /particles/cult_smoke/box,
+	PS_PILLAR_BEACON = /particles/pillar_beacon,
 	PS_CULT_HALO = /particles/cult_halo,
 	PS_SPACE_RUNES = /particles/space_runes,
 	PS_NARSIEHASRISEN1 = /particles/narsie_has_risen,
@@ -183,6 +189,9 @@ var/list/particle_string_to_type = list(
 	PS_SACRED_FLAME = /particles/sacred_flame,
 	PS_SACRED_FLAME2 = /particles/sacred_flame/alt,
 	PS_BIBLE_PAGE = /particles/bible_page,
+	PS_SHADOW_SMOKE = /particles/cult_smoke,
+	PS_SHADOW_SMOKE2 = /particles/cult_smoke/alt,
+	PS_GAS_VENT = /particles/gas_vent
 	)
 
 /particles
@@ -338,6 +347,27 @@ var/list/particle_string_to_type = list(
 
 	plane = FLOAT_PLANE
 
+//PILLAR BEACON
+/particles/pillar_beacon
+	width = 192
+	height = 192
+	count = 18
+	spawning = 0.6
+	color = "#FF281B"
+
+	lifespan = 20
+	fadein = 3
+	fade = 5
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = "blood_gauge"
+
+	position = list(0, 36)
+	scale = list(2, 2)
+	grow = list(-0.03, -0.03)
+	drift = generator("box", list(-0.02,-0.02), list(0.02,0.02))
+
+	plane = ABOVE_LIGHTING_PLANE
+
 //CULT HALO
 /particles/cult_halo
 	width = 32
@@ -410,6 +440,25 @@ var/list/particle_string_to_type = list(
 	icon_state = "zas_dust"
 	position = generator("box", list(-15,-15), list(15,15))
 	velocity = list(0,0)
+
+//Gas vents
+/particles/gas_vent
+	width = 96
+	height = 96
+	count = 20
+	spawning = 2
+
+	color = "#FFFFFF99"
+	lifespan = 1 SECONDS
+	fade = 0.5 SECONDS
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = "gas"
+	position = generator("box", list(-3,12), list(3,12))
+	velocity = generator("box", list(-0.8,1.5), list(0.8,2.5))
+	friction = 0.15
+	drift = generator("box", list(-0.5,-0.1), list(0.5,0.1))
+	scale = list(0.5, 0.5)
+	grow = list(0.08, 0.08)
 
 /turf
 	var/last_dust_time = 0
@@ -568,4 +617,66 @@ var/list/particle_string_to_type = list(
 	grow = generator("box", list(-0.3,-0.3), list(0,0))
 
 	appearance_flags = RESET_COLOR|RESET_ALPHA
+	plane = ABOVE_LIGHTING_PLANE
+
+/particles/rain
+	width = 32
+	height = 32
+	count = 20
+
+	lifespan = 2
+	fade = 1
+	spawning = 0
+
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = list("rain_1","rain_2","rain_3")
+	position = generator("box", list(-1,12), list(1,12))
+	velocity = list(0,10)
+	friction = 0.1
+	drift = generator("box", list(-0.2,0), list(0.2,0))
+
+	appearance_flags = RESET_COLOR
+	blend_mode = BLEND_ADD
+	plane = ABOVE_LIGHTING_PLANE
+
+/particles/ash
+	width = 64
+	height = 64
+	count = 20
+
+	lifespan = 5
+	fade = 2
+	spawning = 1
+
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = list("ash_1","ash_2","ash_3")
+	position = generator("box", list(-15,-15), list(15,15))
+	velocity = generator("box", list(-1,2), list(1,2))
+	friction = 0.1
+	drift = generator("box", list(-0.2,-0.2), list(0.2,0.2))
+	scale = list(0.6, 0.6)
+	grow = list(0.05, 0.05)
+
+	appearance_flags = RESET_COLOR
+	plane = ABOVE_LIGHTING_PLANE
+
+/particles/fallout
+	width = 64
+	height = 64
+	count = 20
+
+	lifespan = 10
+	fade = 5
+	spawning = 1
+
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = list("fallout_1","fallout_2","fallout_3")
+	position = generator("box", list(-15,-15), list(15,15))
+	velocity = generator("box", list(-1,1), list(1,1))
+	friction = 0.1
+	drift = generator("box", list(-0.2,-0.2), list(0.2,0.2))
+	scale = list(0.6, 0.6)
+	grow = list(0.05, 0.05)
+
+	appearance_flags = RESET_COLOR
 	plane = ABOVE_LIGHTING_PLANE

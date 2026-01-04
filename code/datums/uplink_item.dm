@@ -17,6 +17,8 @@ var/list/discounted_items_of_the_round = list()
 	var/list/possible_picks = list()
 	for (var/thing in traitor_items)
 		var/datum/uplink_item/u_item = thing
+		if(initial(u_item.cost) <= 1) // no point discounting these
+			continue
 		if (thing in forbidden_items)
 			continue
 		if (initial(u_item.item))
@@ -26,7 +28,7 @@ var/list/discounted_items_of_the_round = list()
 		var/picked = pick(possible_picks)
 		possible_picks -= picked
 		item_list += picked
-		world.log << "Picked: [picked]"
+		//world.log << "Picked: [picked]" //this lasted 19 months before getting silenced
 
 	discounted_items_of_the_round = item_list
 
@@ -362,7 +364,7 @@ var/list/discounted_items_of_the_round = list()
 
 /datum/uplink_item/stealthy_weapons/framecart
 	name = "F.R.A.M.E PDA Cartridge"
-	desc = "When inserted into a PDA, gives you four charges allowing you to create a fake uplink on PDAs of crewmembers who have messaging enabled. The fake uplinks will use the same unlock code as your uplink if applicable, or else generate a new one. TC can also be inserted into the cartridge to send to the PDA"
+	desc = "When inserted into a PDA, gives you four charges allowing you to create a fake uplink on PDAs of crewmembers who have messaging enabled. The fake uplinks will use the same unlock code as your uplink if applicable, or else generate a new one. TC can also be inserted into the cartridge to send to the PDA."
 	item = /obj/item/weapon/cartridge/syndifake
 	cost = 6
 
@@ -567,6 +569,14 @@ var/list/discounted_items_of_the_round = list()
 	discounted_cost = 6
 	jobs_with_discount = SCIENCE_POSITIONS
 
+/datum/uplink_item/sabotage_tools/seismic_remote
+	name = "Seismic Artillery Remote"
+	desc = "This device can periodically fire a remote syndicate bluespace artillery, detonating a seismic impact on direct intercept with the station, superficially resembling a real explosion and even alerting nearby bhangmeters as if legitimate."
+	item = /obj/item/device/seismic_remote
+	cost = 2
+	discounted_cost = 1
+	jobs_with_discount = SCIENCE_POSITIONS
+
 /datum/uplink_item/sabotage_tools/radstorm_remote
 	name = "Dirty Bomb Artillery Remote"
 	desc = "This device can fire a remote syndicate bluespace artillery every 15 minutes, detonating a dirty bomb on direct intercept with the station, causing an artificial radstorm. The cannon will NOT fire if a radstom is already ongoing."
@@ -707,6 +717,12 @@ var/list/discounted_items_of_the_round = list()
  	name = "Raincoat"
  	desc = "It's hip to be square! Fireaxe not included."
  	item = /obj/item/clothing/suit/raincoat
+ 	cost = 1
+
+/datum/uplink_item/badass/killbot
+ 	name = "KILLbot"
+ 	desc = "A phrase spouting device perfectly suited for the loud spree killer's ego."
+ 	item = /obj/item/device/roganbot/killbot
  	cost = 1
 
 /datum/uplink_item/badass/experimental_gear
@@ -1064,6 +1080,14 @@ var/list/discounted_items_of_the_round = list()
 	discounted_cost = 10
 	jobs_with_discount = list("Chef")
 
+/datum/uplink_item/jobspecific/service/kitchengun
+	name = "Kitchen Gun"
+	desc = "An otherwise ordinary glock that also has the power to completely clean the surface of anything it's fired on in three shots. Causes the holder to shout their speech loudly while held. Comes with night vision goggles for after dark cleaning."
+	item = /obj/item/weapon/storage/box/syndie_kit/kitchengun
+	cost = 14
+	discounted_cost = 10
+	jobs_with_discount = list("Chef","Janitor")
+
 /datum/uplink_item/jobspecific/service/cautionsign
 	name = "Proximity Mine Wet Floor Sign"
 	desc = "An anti-personnel proximity mine cleverly disguised as a wet floor caution sign that is triggered by running past it. Interact with it to start the 15 second timer and activate it again to disarm."
@@ -1331,6 +1355,15 @@ var/list/discounted_items_of_the_round = list()
 	discounted_cost = 6
 	jobs_exclusive = list("Trader","Vox","Skeletal Vox")
 	jobs_with_discount = list("Trader","Cargo Technician","Quartermaster")
+
+/datum/uplink_item/jobspecific/trader/hfboots
+	name = "High Frequency Vox Boots"
+	desc = "A modified pair of Vox boots, its magnetic grip technology replaced with high frequency talon blades that can kick doors open."
+	item = /obj/item/clothing/shoes/knifeboot/vox
+	cost = 7
+	discounted_cost = 5
+	jobs_exclusive = list("Trader","Vox","Skeletal Vox")
+	jobs_with_discount = list("Trader")
 
 /datum/uplink_item/jobspecific/cannedmatter
 	category = "Skrell Specials"

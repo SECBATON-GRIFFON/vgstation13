@@ -41,6 +41,7 @@
 	can_only_hold = list() // any
 	cant_hold = list("/obj/item/weapon/disk/nuclear", "/obj/item/weapon/pinpointer") //No janiborg, stop stealing the pinpointer with your bag.
 	slot_flags = SLOT_BELT | SLOT_OCLOTHING
+	clothing_flags = ONESIZEFITSALL
 	no_storage_slot = list(slot_wear_suit) //when worn on the suit slot it will function purely as a suit and will not store items
 
 /obj/item/weapon/storage/bag/trash/update_icon()
@@ -141,6 +142,11 @@
 	actions_types = list(/datum/action/item_action/toggle_auto_handling)
 	var/handling = FALSE
 
+/obj/item/weapon/storage/bag/ore/auto/attack_self(mob/user)
+	if(!contents.len)
+		toggle_hold(user)
+	. = ..()
+
 /datum/action/item_action/toggle_auto_handling
 	name = "Toggle Ore Loader"
 
@@ -155,19 +161,22 @@
 	if(!istype(T))
 		return
 
-	T.handling = !T.handling
-
-	to_chat(user, "You turn \the [T.name] [T.handling? "on":"off"].")
-
-	if(T.handling == TRUE)
-		user.register_event(/event/moved, T, /obj/item/weapon/storage/bag/ore/auto/proc/mob_moved)
-	else
-		user.unregister_event(/event/moved, T, /obj/item/weapon/storage/bag/ore/auto/proc/mob_moved)
+	T.toggle_hold(user)
 
 /obj/item/weapon/storage/bag/ore/auto/proc/auto_collect(var/turf/collect_loc)
 	for(var/obj/item/stack/ore/ore in collect_loc.contents)
 		preattack(collect_loc, src, TRUE)
 		break
+
+/obj/item/weapon/storage/bag/ore/auto/proc/toggle_hold(var/mob/user)
+	handling = !handling
+
+	to_chat(user, "You turn [src] [handling? "on":"off"].")
+
+	if(handling)
+		user.register_event(/event/moved, src, /obj/item/weapon/storage/bag/ore/auto/proc/mob_moved)
+	else
+		user.unregister_event(/event/moved, src, /obj/item/weapon/storage/bag/ore/auto/proc/mob_moved)
 
 /obj/item/weapon/storage/bag/ore/auto/proc/auto_fill(var/mob/holder)
 	var/obj/structure/ore_box/box = null
@@ -422,6 +431,7 @@ var/global/list/plantbag_colour_choices = list("plantbag", "green red stripe", "
 	name = "Sheet Snatcher"
 	desc = "A patented Nanotrasen storage system designed for any kind of mineral sheet."
 	w_class = W_CLASS_MEDIUM
+	fits_max_w_class = W_CLASS_MEDIUM
 	storage_slots = 50
 	max_combined_w_class = 18
 	can_only_hold = list("/obj/item/stack/sheet")
@@ -447,7 +457,7 @@ var/global/list/plantbag_colour_choices = list("plantbag", "green red stripe", "
 	storage_slots = 50;
 	max_combined_w_class = 200
 	w_class = W_CLASS_TINY
-	can_only_hold = list("/obj/item/weapon/stock_parts", "/obj/item/weapon/reagent_containers/glass/beaker", "/obj/item/weapon/cell", "/obj/item/weapon/circuitboard")
+	can_only_hold = list("/obj/item/weapon/stock_parts", "/obj/item/weapon/reagent_containers/glass/beaker", "/obj/item/weapon/cell", "/obj/item/weapon/circuitboard", "/obj/item/robot_parts/robot_component")
 	display_contents_with_number = TRUE
 
 /obj/item/weapon/storage/bag/gadgets/mass_remove(atom/A)
@@ -550,7 +560,7 @@ var/global/list/plantbag_colour_choices = list("plantbag", "green red stripe", "
 
 /obj/item/weapon/storage/bag/potion/dice_potion_bundle
 	name = "Lucky potion bundle"
-	desc = "A bundle of potions for a lucky individual"
+	desc = "A bundle of potions for a lucky individual."
 
 /obj/item/weapon/storage/bag/potion/dice_potion_bundle/New()
 	..()
