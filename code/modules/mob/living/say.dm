@@ -546,13 +546,18 @@ var/list/headset_modes = list(
 			speech.message = replacetext(speech.message,"went","go")
 			speech.message = replacetext(speech.message,"is ","")
 			speech.message = replacetext(speech.message,"are ","")
-			
+
 		var/datum/reagent/hyperzine/H = reagents.get_reagent_by_type(/datum/reagent/hyperzine)//also checks for hyperzine subtypes like cocaine etc
 		if (H && (H.data != "no motor mouth"))
 			speech.message = replacetext(speech.message," ","") // motor mouth
 			speech.message = replacetext(speech.message,",","") // motor mouth
 			speech.message = replacetext(speech.message,";","") // motor mouth
 			speech.message = replacetext(speech.message,"-","") // motor mouth
+
+		if(reagents.has_reagent(PAROXETINE,30))
+			speech.message = replacetext(speech.message,"?",".") // emotionless
+			speech.message = replacetext(speech.message,"!",".") // emotionless
+			speech.message = capitalize(lowertext(speech.message))
 
 	for(var/obj/item/weapon/implant/vocal/VI in src)
 		if(VI.imp_in == src)

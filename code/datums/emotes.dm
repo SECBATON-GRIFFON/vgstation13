@@ -155,6 +155,9 @@
 		return FALSE
 	if((isvox(user) || isskelevox(user)) && voxemote == FALSE)
 		return FALSE
+	if(user.reagents && user.reagents.has_reagent(PAROXETINE,30))
+		to_chat(src, "<span class='numb'>You're too medicated to feel any emotion.</span>")
+		return FALSE
 	if(!user.client && user.ckey == null) //Auto emote, like a monkey or corgi
 		var/someone_in_earshot=0
 		for(var/mob/M in get_hearers_in_view(world.view, user)) //See if anyone is in earshot
