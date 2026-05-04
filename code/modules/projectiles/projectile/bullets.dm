@@ -70,6 +70,14 @@
 			M.drowsyness += 10
 			A.volume += 5 //Because we can
 			M.dizziness += 10
+		if(ishuman(M) && M.paralysis > 0)
+			var/mob/living/carbon/human/H = M
+			var/datum/organ/internal/liver/L = H.internal_organs_by_name["liver"]
+			if(!L)
+				H.adjustToxLoss(5*M.paralysis)
+			else if(istype(L))
+				L.take_damage(0.05*M.paralysis, 0.5)
+			H.adjustToxLoss(0.5*M.paralysis)
 		return 1
 	return 0
 
@@ -1143,7 +1151,7 @@
 		reagents.trans_to(atarget, reagents.total_volume)
 	else
 		reagents.reaction(atarget)
-		
+
 /obj/item/projectile/bullet/superbeanbag
 	name = "super beanbag"
 	icon_state = "bbshell"
@@ -1154,7 +1162,7 @@
 	stutter = 5
 	embed = 0
 	penetration = 0
-	
+
 /obj/item/projectile/bullet/concussiveblast
 	name = "concussive blast"
 	icon_state = "bolter"
@@ -1167,10 +1175,10 @@
 	penetration_message = 0
 	var/max_range = 1
 	var/stepped_range = 0
-	
+
 /obj/item/projectile/bullet/concussiveblast/to_bump(var/atom/target)
 	bullet_die()
-	
+
 /obj/item/projectile/bullet/concussiveblast/process_step()
 	..()
 	if(stepped_range <= max_range)
@@ -1184,8 +1192,8 @@
 	anim(location = T, a_icon = 'icons/effects/effects.dmi', a_icon_state = "explosionpulse", sleeptime = 5)
 	flashbangprime(TRUE,FALSE,FALSE)
 	..()
-	
-/obj/item/projectile/bullet/buckshot/pepperblast 
+
+/obj/item/projectile/bullet/buckshot/pepperblast
 	name = "pepperblast shell"
 	damage = 1
 	penetration = 0
@@ -1194,19 +1202,19 @@
 	variance_angle = 33
 	total_amount_to_fire = 6
 	type_to_fire = /obj/item/projectile/bullet/pepperball
-	
+
 /obj/item/projectile/bullet/pepperball
 	name = "pepperball"
 	damage = 1
 	icon_state = "pbshell"
 	penetration = 0
 	embed = 0
-	
+
 /obj/item/projectile/bullet/pepperball/New()
 	..()
 	create_reagents(10)
 	reagents.add_reagent(CONDENSEDCAPSAICIN, 10)
-	
+
 /obj/item/projectile/bullet/pepperball/OnDeath()
 	..()
 
@@ -1223,7 +1231,7 @@
 	penetration = 0
 	embed = 0
 	icon_state = "duck"
-	
+
 /obj/item/projectile/bullet/bb
 	name = "bb"
 	damage = 2
@@ -1232,14 +1240,14 @@
 	icon_state = "tinybullet"
 	projectile_speed = 0.5
 
-/obj/item/projectile/bullet/buckshot/duckshot 
+/obj/item/projectile/bullet/buckshot/duckshot
 	name = "duckshot shell"
 	damage = 1
 	penetration = 0
 	embed = 0
 	icon_state = null
 	variance_angle = 33
-	
+
 /obj/item/projectile/bullet/buckshot/duckshot/OnFired()
 	for(var/I = 1; I <=9; I++)
 		var/proj
@@ -1250,5 +1258,4 @@
 		var/obj/item/projectile/P = new proj(src.loc)
 		P.firer = firer
 		P.launch_at(original, tar_zone = src.def_zone, from = src.shot_from, variance_angle = src.variance_angle)
-	bullet_die() 
-	
+	bullet_die()
