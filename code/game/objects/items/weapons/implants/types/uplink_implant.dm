@@ -1,6 +1,7 @@
 /obj/item/weapon/implant/uplink
 	name = "uplink"
 	desc = "Summon things."
+	syndicate = TRUE
 	var/activation_emote
 
 /obj/item/weapon/implant/uplink/New()

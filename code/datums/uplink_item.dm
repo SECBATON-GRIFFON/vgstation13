@@ -818,7 +818,7 @@ var/list/discounted_items_of_the_round = list()
 
 /datum/uplink_item/jobspecific/command_security/remoteexplosive
 	name = "Remote Explosive Implants"
-	desc = "A box containing 5 implants disguised as chemical implants usable after being injected into one's body. When activated with from a prisoner management console, it will cause a small yet breaching explosion from the implant that will gib the user and easily space a room."
+	desc = "A box containing 5 implants disguised as chemical implants usable after being injected into one's body. When activated with from a prisoner management console, it will cause a small yet breaching explosion from the implant that will gib the user and easily space a room. Also contains a special modchip allowing prisoner management consoles to remotely activate other types of syndicate implants."
 	item = /obj/item/weapon/storage/box/chemimp/remeximp
 	cost = 18
 	discounted_cost = 12

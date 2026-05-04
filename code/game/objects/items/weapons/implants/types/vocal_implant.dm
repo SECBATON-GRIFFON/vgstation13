@@ -1,6 +1,7 @@
 /obj/item/weapon/implant/vocal
 	name = "vocal implant"
 	icon_state = "implant_evil"
+	syndicate = TRUE
 	var/datum/speech_filter/filter
 	var/list/memory = list()	// stored memory
 	var/rawcode = ""	// the code to compile (raw text)

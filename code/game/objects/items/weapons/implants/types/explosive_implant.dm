@@ -77,9 +77,6 @@
 	spawn(20)
 		malfunction--
 
-/obj/item/weapon/implant/explosive/islegal()
-	return 0
-
 /obj/item/weapon/implant/explosive/handle_removal(mob/remover)
 	imp_in?.unregister_event(/event/emote, src, nameof(src::trigger()))
 	makeunusable(75)
@@ -110,6 +107,7 @@
 	name = "chem implant"
 	desc = "Injects \"chemicals\"."
 	icon_state = "implant"
+	syndicate = FALSE // already in that list
 
 /obj/item/weapon/implant/explosive/remote/New()
 	..()

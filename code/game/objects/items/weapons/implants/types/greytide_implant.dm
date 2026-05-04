@@ -2,6 +2,7 @@
 	name = "greytide implant"
 	desc = "Greytide station wide."
 	icon_state = "implant_evil"
+	syndicate = TRUE
 
 /obj/item/weapon/implant/traitor/get_data()
 	return {"

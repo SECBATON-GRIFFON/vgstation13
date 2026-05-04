@@ -373,6 +373,7 @@
 		/obj/item/weapon/implantcase/remote = 5,
 		/obj/item/weapon/implanter,
 		/obj/item/weapon/implantpad,
+		/obj/item/prisoner_comp_unlock,
 	)
 
 /obj/item/weapon/storage/box/bolas

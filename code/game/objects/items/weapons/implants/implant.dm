@@ -10,6 +10,17 @@
 	var/datum/organ/external/part
 	var/allow_reagents = FALSE
 	var/malfunction = NONE
+	var/syndicate = FALSE
+
+/obj/item/weapon/implant/New()
+	. = ..()
+	if(syndicate)
+		syndie_implants += src
+
+/obj/item/weapon/implant/Destroy()
+	if(src in syndie_implants)
+		syndie_implants -= src
+	. = ..()
 
 // return FALSE if the implant fails. In this case the implant is NOT consumed.
 // If you wish to consume the implant, delete it inside `implanted()` instead.
@@ -77,9 +88,6 @@
 
 /obj/item/weapon/implant/proc/get_data()
 	return "No information available"
-
-/obj/item/weapon/implant/proc/islegal()
-	return FALSE
 
 /obj/item/weapon/implant/proc/meltdown()	//breaks it down, making implant unrecongizible
 	to_chat(imp_in, "<span class='warning'>You feel something melting inside [part ? "your [part.display_name]" : "you"]!</span>")

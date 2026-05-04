@@ -2,6 +2,7 @@
 	name = "freedom"
 	desc = "Use this to escape from those evil Red Shirts."
 	_color = "r"
+	syndicate = TRUE
 	var/activation_emote = "chuckle"
 	var/uses = 5
 

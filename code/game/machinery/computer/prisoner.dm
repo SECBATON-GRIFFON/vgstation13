@@ -12,6 +12,7 @@
 	var/timeleft = 60
 	var/stop = 0.0
 	var/screen = 0 // 0 - No Access Denied, 1 - Access allowed
+	var/show_syndie = FALSE
 
 	light_color = LIGHT_COLOR_RED
 
@@ -47,7 +48,10 @@
 			if(!R.imp_in)
 				continue
 
-			dat += {"[R.imp_in.name] | <A href='?src=\ref[src];explode=\ref[R]'><font color=red>Activate explosion</font></A>"}
+			dat += {"[R.imp_in.name] | | Remaining Units: 50 | Inject:
+				<A href='?src=\ref[src];activate=\ref[R]'>(<font color=red>(1)</font>)</A>
+				<A href='?src=\ref[src];activate=\ref[R]'>(<font color=red>(5)</font>)</A>
+				<A href='?src=\ref[src];activate=\ref[R]'>(<font color=red>(10)</font>)</A><BR>"}
 		dat += "<HR>Tracking Implants<BR>"
 		for(var/obj/item/weapon/implant/tracking/T in tracking_implants)
 			Tr = get_turf(T)
@@ -68,6 +72,16 @@
 			dat += {"ID: [T.id] | Location: [loc_display]<BR>
 				<A href='?src=\ref[src];warn=\ref[T]'>(<font color=red><i>Message Holder</i></font>)</A> |<BR>
 				********************************<BR>"}
+		if(show_syndie)
+			dat += "<HR>Syndicate Implants<BR>"
+			for(var/obj/item/weapon/implant/S in syndie_implants)
+				Tr = get_turf(S)
+				if((Tr) && (Tr.z != src.z))
+					continue//Out of range
+				if(!S.imp_in)
+					continue
+
+				dat += {"[S.imp_in.name] | <A href='?src=\ref[src];activate=\ref[S]'>(<font color=red>Activate</font>)</A><BR>"}
 		dat += "<HR><A href='?src=\ref[src];lock=1'>Lock Console</A>"
 	dat = jointext(dat,"")
 	var/datum/browser/popup = new(user, "prisoner_implants", "Prisoner Implant Manager System", 400, 500, src)
@@ -119,11 +133,29 @@
 			var/mob/living/carbon/R = I.imp_in
 			to_chat(R, "<span class='good'>You hear a voice in your head saying: '[warning]'</span>")
 
-		else if(href_list["explode"])
-			var/obj/item/weapon/implant/explosive/remote/I = locate(href_list["explode"])
+		else if(href_list["activate"])
+			var/obj/item/weapon/implant/I = locate(href_list["activate"])
 			if(istype(I))
 				I.activate(usr)
 
 		src.add_fingerprint(usr)
 	src.updateUsrDialog()
 	return
+
+/obj/item/prisoner_comp_unlock
+	name = "illegal implant frequency chip"
+	desc = "A small modchip that adjusts radio band scanning frequencies on prisoner management consoles to find all types of implants in a surrounding area."
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/boxes_and_storage.dmi', "right_hand" = 'icons/mob/in-hand/right/boxes_and_storage.dmi')
+	icon = 'icons/obj/items_weird.dmi'
+	icon_state = "quantumrouter"
+	item_state = "box_of_doom"
+
+/obj/item/prisoner_comp_unlock/preattack(var/atom/A, var/mob/user, proximity_flag)
+	if(proximity_flag != 1)
+		return
+	if(istype(A,/obj/machinery/computer/prisoner))
+		var/obj/machinery/computer/prisoner/P = A
+		visible_message("<span class='good'>You add \the [src] to \the [A]. It sets to work scanning all frequencies for implants.</span>")
+		P.show_syndie = TRUE
+		playsound(src, 'sound/items/Deconstruct.ogg', 50, 1)
+		qdel(src)
