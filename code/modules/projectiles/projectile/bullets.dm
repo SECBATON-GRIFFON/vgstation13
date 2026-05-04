@@ -53,23 +53,21 @@
 /obj/item/projectile/bullet/weakbullet/booze/on_hit(var/atom/target, var/blocked = 0)
 	if(..(target, blocked))
 		var/mob/living/M = target
-		M.dizziness += 20
+		M.AdjustDizzy(20)
 		M:slurring += 20
 		M.confused += 20
 		M.eye_blurry += 20
 		M.drowsyness += 20
 		if(M.dizziness <= 150)
 			M.Dizzy(150)
-			M.dizziness = 150
 		for(var/datum/reagent/ethanol/A in M.reagents.reagent_list)
-			M.AdjustParalysis(2)
-			M.dizziness += 10
-			M:slurring += 10
-			M.confused += 10
-			M.eye_blurry += 10
-			M.drowsyness += 10
+			M.AdjustParalysis(0.2*A.tick)
+			M.AdjustDizzy(2*A.tick)
+			M:slurring += A.tick
+			M.confused += A.tick
+			M.eye_blurry += A.tick
+			M.drowsyness += A.tick
 			A.volume += 5 //Because we can
-			M.dizziness += 10
 		if(ishuman(M) && M.paralysis > 0)
 			var/mob/living/carbon/human/H = M
 			var/datum/organ/internal/liver/L = H.internal_organs_by_name["liver"]
