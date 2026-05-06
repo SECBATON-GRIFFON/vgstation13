@@ -9,6 +9,8 @@ var/list/nuclear_bombs = list()
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "nuclearbomb0"
 	density = 1
+	var/datum/wires/nuke/wires = null
+	var/wiresexposed = 0 // If it's been screwdrivered open.
 	var/deployable = 0
 	var/extended = 0
 	var/timeleft = 60 //This is a value in seconds, deciseconds will be deducted
@@ -31,11 +33,14 @@ var/list/nuclear_bombs = list()
 
 /obj/machinery/nuclearbomb/New()
 	..()
+	wires = new(src)
 	nuclear_bombs += src
 	r_code = "[rand(10000, 99999)]"//Creates a random code upon object spawn.
 	update_moody_light('icons/lighting/moody_lights.dmi', "overlay_nuclearbomb")
 
 /obj/machinery/nuclearbomb/Destroy()
+	if(wires)
+		QDEL_NULL(wires)
 	nuclear_bombs -= src
 	..()
 
@@ -55,6 +60,12 @@ var/list/nuclear_bombs = list()
 			usr.drop_item(O, src, force_drop = 1)
 			src.auth = O
 			src.add_fingerprint(user)
+			return
+
+		if(O.is_screwdriver(user))
+			wiresexposed = !wiresexposed
+			to_chat(user, "The wires have been [wiresexposed ? "exposed" : "unexposed"].")
+			O.playtoolsound(src, 50)
 			return
 
 	if (src.anchored)
@@ -131,6 +142,9 @@ var/list/nuclear_bombs = list()
 	return 0 //otherwise nothing
 
 /obj/machinery/nuclearbomb/attack_hand(mob/user as mob)
+	if(wiresexposed)
+		wires.Interact(user)
+		return
 	if (src.extended)
 		user.set_machine(src)
 		var/dat = text("<TT><B>Nuclear Fission Explosive</B><BR>\nAuth. Disk: <A href='?src=\ref[];auth=1'>[]</A><HR>", src, (src.auth ? "++++++++++" : "----------"))
