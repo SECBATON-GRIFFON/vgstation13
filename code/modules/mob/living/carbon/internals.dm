@@ -290,9 +290,6 @@
 			to_chat(src, "<span class='warning'>You feel a searing heat in your lungs!</span>")
 		fire_alert = max(fire_alert, 2)
 
-	if(!check_breath_block(TRUE))
-		breath_airborne_diseases()
-
 	//Temporary fixes to the alerts.
 
 	return 1
