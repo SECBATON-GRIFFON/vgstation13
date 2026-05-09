@@ -66,68 +66,6 @@
 	if(client)
 		handle_regular_hud_updates()
 
-
-/mob/living/carbon/alien/larva
-
-/mob/living/carbon/alien/larva/proc/breathe()
-
-
-	if(reagents.has_any_reagents(LEXORINS))
-		return
-	if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell))
-		return
-
-	var/datum/gas_mixture/environment = loc.return_air()
-	var/datum/gas_mixture/breath
-	// HACK NEED CHANGING LATER
-	if(health < 0)
-		losebreath++
-
-	if(losebreath>0) //Suffocating so do not take a breath
-		losebreath--
-		if (prob(75)) //High chance of gasping for air
-			spawn emote("gasp")
-		if(istype(loc, /obj/))
-			var/obj/location_as_object = loc
-			location_as_object.handle_internal_lifeform(src, 0)
-	else
-		//First, check for air from internal atmosphere (using an air tank and mask generally)
-		breath = get_breath_from_internal(BREATH_VOLUME)
-
-		//No breath from internal atmosphere so get breath from location
-		if(!breath)
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				breath = location_as_object.handle_internal_lifeform(src, BREATH_VOLUME)
-			else if(istype(loc, /turf/))
-				/*if(environment.return_pressure() > ONE_ATMOSPHERE)
-					// Loads of air around (pressure effect will be handled elsewhere), so lets just take a enough to fill our lungs at normal atmos pressure (using n = Pv/RT)
-					breath_moles = (ONE_ATMOSPHERE*BREATH_VOLUME/R_IDEAL_GAS_EQUATION*environment.temperature)
-				else
-					*/
-					// Not enough air around, take a percentage of what's there to model this properly
-				breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
-
-				// Handle chem smoke effect  -- Doohl
-				for(var/obj/effect/smoke/chem/smoke in view(1, src))
-					if(smoke.reagents.total_volume)
-						smoke.reagents.reaction(src, INGEST, amount_override = min(smoke.reagents.total_volume,10)/(smoke.reagents.reagent_list.len))
-						spawn(5)
-							if(smoke)
-								smoke.reagents.copy_to(src, 10) // I dunno, maybe the reagents enter the blood stream through the lungs?
-						break // If they breathe in the nasty stuff once, no need to continue checking
-
-
-		else //Still give containing object the chance to interact
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				location_as_object.handle_internal_lifeform(src, 0)
-
-	handle_breath(breath)
-
-	if(breath)
-		loc.assume_air(breath)
-
 /mob/living/carbon/alien/larva/proc/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return

@@ -186,63 +186,8 @@
 					emote("gasp")
 				updatehealth()
 
-/mob/living/carbon/monkey/proc/breathe()
-	if(flags & INVULNERABLE)
-		return
-
-	if(reagents && reagents.has_any_reagents(LEXORINS))
-		return
-
-	if(!loc)
-		return //probably ought to make a proper fix for this, but :effort: --NeoFite
-
-	var/datum/gas_mixture/environment = loc.return_air()
-	var/datum/gas_mixture/breath
-	if(health < 0)
-		losebreath++
-	if(losebreath>0) //Suffocating so do not take a breath
-		losebreath--
-		if (prob(75)) //High chance of gasping for air
-			spawn emote("gasp")
-		if(istype(loc, /obj/))
-			var/obj/location_as_object = loc
-			location_as_object.handle_internal_lifeform(src, 0)
-	else
-		//First, check for air from internal atmosphere (using an air tank and mask generally)
-		breath = get_breath_from_internal(BREATH_VOLUME)
-
-		//No breath from internal atmosphere so get breath from location
-		if(!breath)
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				breath = location_as_object.handle_internal_lifeform(src, BREATH_VOLUME)
-			else if(istype(loc, /turf/))
-				breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
-
-				// Handle chem smoke effect  -- Doohl
-				var/block = 0
-				if(wear_mask)
-					if(istype(wear_mask, /obj/item/clothing/mask/gas))
-						block = 1
-
-				if(!block)
-					for(var/obj/effect/smoke/chem/smoke in view(1, src))
-						if(smoke.reagents.total_volume)
-							smoke.reagents.reaction(src, INGEST, amount_override = min(smoke.reagents.total_volume,10)/(smoke.reagents.reagent_list.len))
-							spawn(5)
-								if(smoke)
-									smoke.reagents.copy_to(src, 10) // I dunno, maybe the reagents enter the blood stream through the lungs?
-							break // If they breathe in the nasty stuff once, no need to continue checking
-
-
-		else //Still give containing object the chance to interact
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				location_as_object.handle_internal_lifeform(src, 0)
-
-	handle_breath(breath)
-	if(breath)
-		loc.assume_air(breath)
+/mob/living/carbon/monkey/check_breath_block(var/smoke_only = FALSE)
+	return smoke_only ? istype(wear_mask, /obj/item/clothing/mask/gas) : FALSE
 
 /mob/living/carbon/monkey/proc/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))

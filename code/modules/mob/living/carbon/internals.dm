@@ -89,3 +89,114 @@
 				if(GAS_PLASMA)
 					breath_string = "plasma"
 		internals.icon_state = "internal-[breath_string]-[internal ? "1" : "0"]"
+
+/mob/living/carbon
+	var/lung_damages = FALSE
+
+/mob/living/carbon/proc/breathe()
+	if(!needs_to_breathe())
+		return
+	if(nobreath)
+		nobreath--
+		return
+
+	var/datum/organ/internal/lungs/L = get_lungs()
+	if(L)
+		L.process() //Ideally lungs would handle breathing, but right now we're just sanitizing
+
+	var/datum/gas_mixture/environment = loc.return_air()
+	var/datum/gas_mixture/breath
+	//HACK NEED CHANGING LATER
+	if(health < config.health_threshold_crit || !L)
+		losebreath++
+	if(losebreath > 0) //Suffocating so do not take a breath
+		losebreath--
+		if(prob(10)) //Gasp per 10 ticks? Sounds about right.
+			spawn()
+				emote("gasp")
+		if(istype(loc, /obj/))
+			var/obj/location_as_object = loc
+			location_as_object.handle_internal_lifeform(src, 0)
+	else
+		//First, check for air from internal atmosphere (using an air tank and mask generally)
+		breath = get_breath_from_internal(BREATH_VOLUME) // Super hacky -- TLE
+		//breath = get_breath_from_internal(0.5) // Manually setting to old BREATH_VOLUME amount -- TLE
+
+		//No breath from internal atmosphere so get breath from location
+		if(!breath)
+			if(check_breath_block())
+				// Breathing blocked
+			else if(isobj(loc))
+				var/obj/location_as_object = loc
+				breath = location_as_object.handle_internal_lifeform(src, BREATH_VOLUME)
+			else if(isturf(loc))
+				if(environment)
+					breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
+
+				if(lung_damages)
+					if(!breath || breath.total_moles < BREATH_MOLES / 5 || breath.total_moles > BREATH_MOLES * 5)
+						if(prob(20))
+							L.take_damage(1,1)
+						if(!is_lung_ruptured() && L.damage > 2)
+							var/chance_break = (L.damage / L.min_broken_damage)*100
+							if(prob(chance_break))
+								rupture_lung()
+
+				if(breath && !check_breath_block(TRUE))
+					for(var/obj/effect/smoke/chem/smoke in view(1, src))
+						if(smoke.reagents && smoke.reagents.total_volume)
+							smoke.reagents.reaction(src, INGEST, amount_override = min(smoke.reagents.total_volume,10)/(smoke.reagents.reagent_list.len))
+							spawn(5)
+								if(smoke && smoke.reagents)
+									smoke.reagents.copy_to(src, 10)
+							break
+
+					breath_airborne_diseases()
+
+		else
+			if(istype(loc, /obj/))
+				var/obj/location_as_object = loc
+				location_as_object.handle_internal_lifeform(src, 0)
+
+	if(breath && wear_mask && wear_mask.heat_conductivity < 1)
+		var/temp_difference = bodytemperature - breath.temperature
+		var/temp_change = (1 - wear_mask.heat_conductivity) * temp_difference
+		breath.temperature += temp_change
+
+	handle_breath(breath)
+
+	handle_species_environment(environment, src)
+
+	if(breath)
+		loc.assume_air(breath)
+/*
+		//Spread some viruses while we are at it
+		if(virus2 && virus2.len > 0)
+			//if(get_infection_chance(src))//checking our own infection protections, so we don't spread an airborne virus if we're wearing internals
+			//	for(var/mob/living/M in range(1,src))
+			//		if(can_be_infected(M))
+			//			spread_disease_to(src,M)
+*/
+
+/mob/living/carbon/proc/needs_to_breathe()
+	if(flags & INVULNERABLE)
+		return FALSE
+	if(reagents.has_any_reagents(LEXORINS))
+		return FALSE
+	if(M_NO_BREATH in mutations)
+		return FALSE //No breath mutation means no breathing.
+	if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell)) //This is an annoying hack given that cryo cells are supposed to be oxygenated, but fuck it
+		return FALSE
+	return TRUE
+
+/mob/living/carbon/proc/handle_species_environment(var/datum/gas_mixture/environment)
+	return
+
+/mob/living/carbon/proc/check_breath_block(var/smoke_only = FALSE)
+	return
+
+/mob/living/carbon/proc/get_lungs()
+	return
+
+/mob/living/carbon/proc/handle_breath(var/datum/gas_mixture/breath)
+	return

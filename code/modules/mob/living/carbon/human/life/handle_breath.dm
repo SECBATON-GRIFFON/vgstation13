@@ -1,112 +1,7 @@
 //Refer to life.dm for caller
+/mob/living/carbon/human
+	lung_damages = TRUE
 
-/mob/living/carbon/human/proc/breathe()
-	if(flags & INVULNERABLE)
-		return
-	if(reagents.has_any_reagents(LEXORINS))
-		return
-	if(undergoing_hypothermia() == PROFOUND_HYPOTHERMIA) // we're not breathing. see handle_hypothermia.dm for details.
-		return
-	if(M_NO_BREATH in mutations)
-		return //No breath mutation means no breathing.
-	if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell)) //This is an annoying hack given that cryo cells are supposed to be oxygenated, but fuck it
-		return
-	if(species && species.flags & NO_BREATHE)
-		return
-	if(nobreath)
-		nobreath--
-		return
-
-	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
-	if(L)
-		L.process() //Ideally lungs would handle breathing, but right now we're just sanitizing
-
-	var/datum/gas_mixture/environment = loc.return_air()
-	var/datum/gas_mixture/breath
-	//HACK NEED CHANGING LATER
-	if(health < config.health_threshold_crit || !L)
-		losebreath++
-	if(losebreath > 0) //Suffocating so do not take a breath
-		losebreath--
-		if(prob(10)) //Gasp per 10 ticks? Sounds about right.
-			spawn()
-				emote("gasp")
-		if(istype(loc, /obj/))
-			var/obj/location_as_object = loc
-			location_as_object.handle_internal_lifeform(src, 0)
-	else
-		//First, check for air from internal atmosphere (using an air tank and mask generally)
-		breath = get_breath_from_internal(BREATH_VOLUME) // Super hacky -- TLE
-		//breath = get_breath_from_internal(0.5) // Manually setting to old BREATH_VOLUME amount -- TLE
-
-		//No breath from internal atmosphere so get breath from location
-		if(!breath)
-			if(head && (head.clothing_flags & BLOCK_BREATHING))
-				// Breathing blocked by head item
-			else if(wear_mask && (wear_mask.clothing_flags & BLOCK_BREATHING))
-				// Breathing blocked by mask
-			else if(isobj(loc))
-				var/obj/location_as_object = loc
-				breath = location_as_object.handle_internal_lifeform(src, BREATH_VOLUME)
-			else if(isturf(loc))
-				if(environment)
-					breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
-
-				if(!breath || breath.total_moles < BREATH_MOLES / 5 || breath.total_moles > BREATH_MOLES * 5)
-					if(prob(20))
-						L.take_damage(1,1)
-					if(!is_lung_ruptured() && L.damage > 2)
-						var/chance_break = (L.damage / L.min_broken_damage)*100
-						if(prob(chance_break))
-							rupture_lung()
-
-				if(breath)
-					var/block = 0
-					var/list/blockers = list(wear_mask,glasses,head)
-					for (var/item in blockers)
-						var/obj/item/I = item
-						if (!istype(I))
-							continue
-						if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
-							block = 1
-							break
-
-					if(!block)
-						for(var/obj/effect/smoke/chem/smoke in view(1, src))
-							if(smoke.reagents && smoke.reagents.total_volume)
-								smoke.reagents.reaction(src, INGEST, amount_override = min(smoke.reagents.total_volume,10)/(smoke.reagents.reagent_list.len))
-								spawn(5)
-									if(smoke && smoke.reagents)
-										smoke.reagents.copy_to(src, 10)
-								break
-
-						breath_airborne_diseases()
-
-		else
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				location_as_object.handle_internal_lifeform(src, 0)
-
-	if(breath && wear_mask && wear_mask.heat_conductivity < 1)
-		var/temp_difference = bodytemperature - breath.temperature
-		var/temp_change = (1 - wear_mask.heat_conductivity) * temp_difference
-		breath.temperature += temp_change
-
-	handle_breath(breath)
-
-	if(species)
-		species.handle_environment(environment, src)
-
-	if(breath)
-		loc.assume_air(breath)
-/*
-		//Spread some viruses while we are at it
-		if(virus2 && virus2.len > 0)
-			//if(get_infection_chance(src))//checking our own infection protections, so we don't spread an airborne virus if we're wearing internals
-			//	for(var/mob/living/M in range(1,src))
-			//		if(can_be_infected(M))
-			//			spread_disease_to(src,M)
-*/
 /mob/living/carbon/human/get_breath_from_internal(volume_needed)
 	if(internal)
 		if(!contents.Find(internal))
@@ -123,7 +18,7 @@
 			return internal.remove_air_volume(volume_needed)
 	return null
 
-/mob/living/carbon/human/proc/handle_breath(var/datum/gas_mixture/breath)
+/mob/living/carbon/human/handle_breath(var/datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return 0
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
@@ -151,3 +46,31 @@
 		L.handle_breath(breath,src)
 
 	return 1
+
+/mob/living/carbon/human/get_lungs()
+	return internal_organs_by_name["lungs"]
+
+/mob/living/carbon/human/needs_to_breathe()
+	if(undergoing_hypothermia() == PROFOUND_HYPOTHERMIA) // we're not breathing. see handle_hypothermia.dm for details.
+		return FALSE
+	if (species && (species.flags & NO_BREATHE))
+		return FALSE
+	return ..()
+
+/mob/living/carbon/human/handle_species_environment(var/datum/gas_mixture/environment)
+	if(species)
+		species.handle_environment(environment, src)
+
+/mob/living/carbon/human/check_breath_block(var/smoke_only = FALSE)
+	var/list/blockers = list(wear_mask,glasses,head)
+	for (var/item in blockers)
+		var/obj/item/I = item
+		if (!istype(I))
+			continue
+		if(smoke_only)
+			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
+				return TRUE
+		else
+			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
+				return TRUE
+	return FALSE

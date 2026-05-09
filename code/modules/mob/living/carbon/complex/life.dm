@@ -49,52 +49,10 @@
 
 // ATMOSPHERE, BREATHING, ALL THINGS INVOLVING AIR//
 
-/mob/living/carbon/complex/proc/breathe() //This proc's used so many different times, you would think it would be under /carbon by now
-	if(flags & INVULNERABLE)
-		return
-
-	if(reagents &&reagents.has_any_reagents(LEXORINS))
-		return
-
-	if(!loc)
-		return //probably ought to make a proper fix for this, but :effort: --NeoFite
-
-	var/datum/gas_mixture/environment = loc.return_air()
-	var/datum/gas_mixture/breath
-	if(health < 0)
-		losebreath++
-	if(losebreath>0) //Suffocating so do not take a breath
-		losebreath--
-		if (prob(75)) //High chance of gasping for air
-			spawn emote("gasp")
-		if(istype(loc, /obj/))
-			var/obj/location_as_object = loc
-			location_as_object.handle_internal_lifeform(src, 0)
-	else
-		//First, check for air from internal atmosphere
-		breath = get_breath_from_internal(BREATH_VOLUME)
-
-		//No breath from internal atmosphere so get breath from location
-		if(!breath)
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				breath = location_as_object.handle_internal_lifeform(src, BREATH_VOLUME)
-			else if(istype(loc, /turf/))
-				breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
-
-		else //Still give containing object the chance to interact
-			if(istype(loc, /obj/))
-				var/obj/location_as_object = loc
-				location_as_object.handle_internal_lifeform(src, 0)
-
-	handle_breath(breath)
-	if(breath)
-		loc.assume_air(breath)
-
 /mob/living/carbon/complex/get_breath_from_internal(volume_needed)
 	return null
 
-/mob/living/carbon/complex/proc/handle_breath(datum/gas_mixture/breath)
+/mob/living/carbon/complex/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return
 

@@ -950,11 +950,17 @@
 
 	..()
 
-/mob/living/carbon/human/proc/is_lung_ruptured()
+/mob/living/carbon/proc/is_lung_ruptured()
+	return
+
+/mob/living/carbon/human/is_lung_ruptured()
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
 	return L && L.is_bruised()
 
-/mob/living/carbon/human/proc/rupture_lung()
+/mob/living/carbon/proc/rupture_lung()
+	return
+
+/mob/living/carbon/human/rupture_lung()
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
 
 	if(L && !L.is_bruised())
