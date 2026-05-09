@@ -86,7 +86,7 @@
 		if(prob(10))
 			stuttering = max(10, stuttering)
 
-/mob/living/carbon/alien/humanoid/proc/handle_breath(datum/gas_mixture/breath)
+/mob/living/carbon/alien/humanoid/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return
 

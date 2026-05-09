@@ -188,7 +188,7 @@
 /mob/living/carbon/monkey/check_breath_block(var/smoke_only = FALSE)
 	return smoke_only ? istype(wear_mask, /obj/item/clothing/mask/gas) : FALSE
 
-/mob/living/carbon/monkey/proc/handle_breath(datum/gas_mixture/breath)
+/mob/living/carbon/monkey/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return
 
