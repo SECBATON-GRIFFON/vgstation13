@@ -1,7 +1,6 @@
 
 
 /mob/living/carbon/monkey
-	var/oxygen_alert = 0
 	var/toxins_alert = 0
 	var/fire_alert = 0
 	var/pressure_alert = 0
