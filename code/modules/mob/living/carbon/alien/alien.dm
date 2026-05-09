@@ -28,7 +28,6 @@
 	var/heal_rate = 2.5
 	var/plasma_rate = 5
 
-	var/oxygen_alert = 0
 	var/toxins_alert = 0
 	var/fire_alert = 0
 

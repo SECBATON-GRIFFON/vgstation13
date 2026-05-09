@@ -3,7 +3,6 @@
 	var/icon_state_lying
 	var/icon_state_dead
 	var/flag = 0
-	var/oxygen_alert = 0
 	var/toxins_alert = 0
 	var/fire_alert = 0
 	var/pressure_alert = 0

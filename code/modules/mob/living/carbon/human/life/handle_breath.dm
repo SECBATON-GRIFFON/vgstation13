@@ -18,35 +18,6 @@
 			return internal.remove_air_volume(volume_needed)
 	return null
 
-/mob/living/carbon/human/handle_breath(var/datum/gas_mixture/breath)
-	if((status_flags & GODMODE) || (flags & INVULNERABLE))
-		return 0
-	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
-	if(!breath || (breath.total_moles() == 0) || (mind && mind.suiciding) || !L)
-		if(reagents.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
-			return 0
-		if(mind && mind.suiciding)
-			adjustOxyLoss(2) //If you are suiciding, you should die a little bit faster
-			failed_last_breath = 1
-			oxygen_alert = 1
-			return 0
-		if(health > config.health_threshold_crit)
-			adjustOxyLoss(HUMAN_MAX_OXYLOSS)
-			failed_last_breath = 1
-		else
-			adjustOxyLoss(HUMAN_CRIT_MAX_OXYLOSS)
-			failed_last_breath = 1
-
-		oxygen_alert = 1
-
-		return 0
-
-	// Lungs now handle processing atmos shit.
-	if(L)
-		L.handle_breath(breath,src)
-
-	return 1
-
 /mob/living/carbon/human/get_lungs()
 	return internal_organs_by_name["lungs"]
 

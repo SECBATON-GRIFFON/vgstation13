@@ -92,6 +92,8 @@
 
 /mob/living/carbon
 	var/lung_damages = FALSE
+	var/oxygen_alert = FALSE
+	var/failed_last_breath = FALSE //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
 
 /mob/living/carbon/proc/breathe()
 	if(!needs_to_breathe())
@@ -199,4 +201,30 @@
 	return
 
 /mob/living/carbon/proc/handle_breath(var/datum/gas_mixture/breath)
-	return
+	if((status_flags & GODMODE) || (flags & INVULNERABLE))
+		return FALSE
+	var/datum/organ/internal/lungs/L = get_lungs()
+	if(!breath || (breath.total_moles() == 0) || (mind && mind.suiciding) || !L)
+		if(reagents?.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
+			return FALSE
+		if(mind?.suiciding)
+			adjustOxyLoss(2) //If you are suiciding, you should die a little bit faster
+			failed_last_breath = 1
+			oxygen_alert = 1
+			return FALSE
+		if(health > config.health_threshold_crit)
+			adjustOxyLoss(HUMAN_MAX_OXYLOSS)
+			failed_last_breath = 1
+		else
+			adjustOxyLoss(HUMAN_CRIT_MAX_OXYLOSS)
+			failed_last_breath = 1
+
+		oxygen_alert = 1
+
+		return FALSE
+
+	// Lungs now handle processing atmos shit.
+	if(L)
+		L.handle_breath(breath,src)
+
+	return TRUE
