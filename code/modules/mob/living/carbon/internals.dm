@@ -91,7 +91,6 @@
 		internals.icon_state = "internal-[breath_string]-[internal ? "1" : "0"]"
 
 /mob/living/carbon
-	var/lung_damages = FALSE
 	var/oxygen_alert = FALSE
 	var/failed_last_breath = FALSE //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
 
@@ -134,15 +133,6 @@
 			else if(isturf(loc))
 				if(environment)
 					breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
-
-				if(lung_damages)
-					if(!breath || breath.total_moles < BREATH_MOLES / 5 || breath.total_moles > BREATH_MOLES * 5)
-						if(prob(20))
-							L.take_damage(1,1)
-						if(!is_lung_ruptured() && L.damage > 2)
-							var/chance_break = (L.damage / L.min_broken_damage)*100
-							if(prob(chance_break))
-								rupture_lung()
 
 				if(breath && !check_breath_block(TRUE))
 					for(var/obj/effect/smoke/chem/smoke in view(1, src))

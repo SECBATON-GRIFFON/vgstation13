@@ -1,7 +1,4 @@
 //Refer to life.dm for caller
-/mob/living/carbon/human
-	lung_damages = TRUE
-
 /mob/living/carbon/human/get_breath_from_internal(volume_needed)
 	if(internal)
 		if(!contents.Find(internal))

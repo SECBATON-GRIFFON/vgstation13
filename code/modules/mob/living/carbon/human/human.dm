@@ -955,17 +955,15 @@
 
 /mob/living/carbon/human/is_lung_ruptured()
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
-	return L && L.is_bruised()
+	return L && L.is_ruptured()
 
 /mob/living/carbon/proc/rupture_lung()
 	return
 
 /mob/living/carbon/human/rupture_lung()
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
-
-	if(L && !L.is_bruised())
-		src.custom_pain("You feel a stabbing pain in your chest!", 1)
-		L.damage = L.min_bruised_damage
+	if(L)
+		L.rupture()
 
 /*
 /mob/living/carbon/human/verb/simulate()

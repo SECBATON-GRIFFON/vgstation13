@@ -20,7 +20,7 @@
 		new /datum/lung_gas/waste(GAS_CARBON,            max_pp=10),
 		new /datum/lung_gas/toxic(GAS_PLASMA,                    max_pp=0.5, max_pp_mask=5, reagent_id=PLASMA, reagent_mult=0.1),
 		new /datum/lung_gas/radioactive(GAS_RADON,      max_pp=0.1, max_pp_mask=5, radspermole=3),
-		
+
 		new /datum/lung_gas/sleep_agent(GAS_SLEEPING, min_giggle_pp=0.15, min_para_pp=1, min_sleep_pp=5),
 	)
 
@@ -35,10 +35,27 @@
 /datum/organ/internal/lungs/proc/gasp()
 	owner.emote("gasp", null, null, TRUE)
 
+/datum/organ/internal/lungs/proc/is_ruptured()
+	return is_bruised()
+
+/datum/organ/internal/lungs/proc/rupture(var/mob/living/carbon/human/H)
+	if(!is_bruised())
+		H.custom_pain("You feel a stabbing pain in your chest!", 1)
+		damage = min_bruised_damage
+
 /datum/organ/internal/lungs/proc/handle_breath(var/datum/gas_mixture/breath, var/mob/living/carbon/human/H)
 
 	// NOW WITH MODULAR GAS HANDLING RATHER THAN A CLUSTERFUCK OF IF-TREES FOR EVERY SNOWFLAKE RACE
 	//testing("Ticking lungs...")
+
+
+	if(!breath || breath.total_moles < BREATH_MOLES / 5 || breath.total_moles > BREATH_MOLES * 5)
+		if(prob(20))
+			take_damage(1,1)
+		if(!H.is_lung_ruptured() && damage > 2)
+			var/chance_break = (damage / min_broken_damage)*100
+			if(prob(chance_break))
+				rupture()
 
 	//Do this to make sure the pressure is correct.
 	breath.volume = inhale_volume
