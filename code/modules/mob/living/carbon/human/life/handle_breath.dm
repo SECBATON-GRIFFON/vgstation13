@@ -36,7 +36,7 @@
 			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
 				return TRUE
 		else
-			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
+			if (I.clothing_flags & BLOCK_BREATHING)
 				return TRUE
 	return FALSE
 
