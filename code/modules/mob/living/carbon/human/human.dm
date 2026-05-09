@@ -291,8 +291,6 @@
 		return TRUE
 	return FALSE
 
-/mob/living/carbon/human/var/co2overloadtime = null
-
 // called when something steps onto a human
 // this could be made more general, but for now just handle mulebot
 /mob/living/carbon/human/Crossed(var/atom/movable/AM)

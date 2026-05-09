@@ -1,10 +1,3 @@
-/mob/living/carbon/alien/humanoid
-	oxygen_alert = 0
-	toxins_alert = 0
-	fire_alert = 0
-
-	var/temperature_alert = TEMP_ALARM_SAFE
-
 /mob/living/carbon/alien/humanoid/Life()
 	//set background = 1
 
@@ -85,47 +78,6 @@
 	if(disabilities & NERVOUS)
 		if(prob(10))
 			stuttering = max(10, stuttering)
-
-/mob/living/carbon/alien/humanoid/handle_breath(datum/gas_mixture/breath)
-	if((status_flags & GODMODE) || (flags & INVULNERABLE))
-		return
-
-	if(!breath || (breath.total_moles == 0))
-		//Aliens breathe in vaccuum
-		return 0
-
-	var/toxins_used = 0
-	breath.volume = BREATH_VOLUME
-	breath.update_values()
-
-	//Partial pressure of the toxins in our breath
-	var/Toxins_pp = breath.partial_pressure(GAS_PLASMA)
-
-	if(Toxins_pp) // Detect toxins in air
-
-		AdjustPlasma(breath[GAS_PLASMA] * 250)
-		toxins_alert = max(toxins_alert, 1)
-
-		toxins_used = breath[GAS_PLASMA]
-
-	else
-		toxins_alert = 0
-
-	//Breathe in toxins and out oxygen
-	breath.adjust_multi(
-		GAS_PLASMA, -toxins_used,
-		GAS_OXYGEN, toxins_used)
-
-	if(breath.temperature > (T0C+66) && !(M_RESIST_HEAT in mutations)) // Hot air hurts :(
-		if(prob(20))
-			to_chat(src, "<span class='warning'>You feel a searing heat in your lungs!</span>")
-		fire_alert = max(fire_alert, 1)
-	else
-		fire_alert = 0
-
-	//Temporary fixes to the alerts.
-
-	return 1
 
 /mob/living/carbon/alien/humanoid/proc/adjust_body_temperature(current, loc_temp, boost)
 	var/temperature = current

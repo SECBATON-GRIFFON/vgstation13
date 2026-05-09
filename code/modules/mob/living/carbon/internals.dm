@@ -1,3 +1,20 @@
+/mob/living/carbon
+	var/oxygen_alert = FALSE
+	var/toxins_alert = FALSE
+	var/fire_alert = FALSE
+	var/pressure_alert = FALSE
+	var/temperature_alert = TEMP_ALARM_SAFE
+	var/failed_last_breath = FALSE //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
+	var/safe_oxygen_min = 16 // Minimum safe partial pressure of O2, in kPa
+	var/co2overloadtime = null
+	//var/safe_oxygen_max = 140 // Maximum safe partial pressure of O2, in kPa (Not used for now)
+	var/safe_co2_max = 10 // Yes it's an arbitrary value who cares?
+	var/safe_toxins_max = 0.5
+	var/safe_toxins_mask = 5
+	var/SA_para_min = 0.5
+	var/SA_sleep_min = 5
+	var/oxygen_used = 0
+
 /mob/living/carbon/proc/has_breathing_mask()
 	return is_wearing_item(/obj/item/clothing/mask, slot_wear_mask)
 
@@ -89,10 +106,6 @@
 				if(GAS_PLASMA)
 					breath_string = "plasma"
 		internals.icon_state = "internal-[breath_string]-[internal ? "1" : "0"]"
-
-/mob/living/carbon
-	var/oxygen_alert = FALSE
-	var/failed_last_breath = FALSE //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
 
 /mob/living/carbon/proc/breathe()
 	if(!needs_to_breathe())
@@ -190,31 +203,96 @@
 /mob/living/carbon/proc/get_lungs()
 	return
 
-/mob/living/carbon/proc/handle_breath(var/datum/gas_mixture/breath)
+/mob/living/carbon/proc/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
-		return FALSE
-	var/datum/organ/internal/lungs/L = get_lungs()
-	if(!breath || (breath.total_moles() == 0) || (mind && mind.suiciding) || !L)
-		if(reagents?.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
-			return FALSE
-		if(mind?.suiciding)
-			adjustOxyLoss(2) //If you are suiciding, you should die a little bit faster
-			failed_last_breath = 1
-			oxygen_alert = 1
-			return FALSE
-		if(health > config.health_threshold_crit)
-			adjustOxyLoss(HUMAN_MAX_OXYLOSS)
-			failed_last_breath = 1
-		else
-			adjustOxyLoss(HUMAN_CRIT_MAX_OXYLOSS)
-			failed_last_breath = 1
+		return
 
-		oxygen_alert = 1
+	if(!breath || (breath.total_moles == 0))
+		adjustOxyLoss(7)
 
-		return FALSE
+		oxygen_alert = max(oxygen_alert, 1)
 
-	// Lungs now handle processing atmos shit.
-	if(L)
-		L.handle_breath(breath,src)
+		return 0
 
-	return TRUE
+	//Partial pressure of the O2 in our breath
+	var/O2_pp = breath.partial_pressure(GAS_OXYGEN)
+	// Same, but for the toxins
+	var/Toxins_pp = breath.partial_pressure(GAS_PLASMA)
+	// And CO2, lets say a PP of more than 10 will be bad (It's a little less really, but eh, being passed out all round aint no fun)
+	var/CO2_pp = breath.partial_pressure(GAS_CARBON)
+
+	if(O2_pp < safe_oxygen_min) 			// Too little oxygen
+		if(prob(20))
+			spawn(0) emote("gasp")
+		if (O2_pp == 0)
+			O2_pp = 0.01
+		var/ratio = safe_oxygen_min/O2_pp
+		adjustOxyLoss(min(5*ratio, 7)) // Don't fuck them up too fast (space only does 7 after all!)
+		oxygen_used = breath[GAS_OXYGEN]*ratio/6
+		oxygen_alert = max(oxygen_alert, 1)
+	/*else if (O2_pp > safe_oxygen_max) 		// Too much oxygen (commented this out for now, I'll deal with pressure damage elsewhere I suppose)
+		spawn(0) emote("cough")
+		var/ratio = O2_pp/safe_oxygen_max
+		oxyloss += 5*ratio
+		oxygen_used = breath[GAS_OXYGEN]*ratio/6
+		oxygen_alert = max(oxygen_alert, 1)*/
+	else 									// We're in safe limits
+		adjustOxyLoss(-5)
+		oxygen_used = breath[GAS_OXYGEN]/6
+		oxygen_alert = 0
+
+	breath.adjust_multi(
+		GAS_OXYGEN, -oxygen_used,
+		GAS_CARBON, oxygen_used)
+
+	if(CO2_pp > safe_co2_max)
+		if(!co2overloadtime) // If it's the first breath with too much CO2 in it, lets start a counter, then have them pass out after 12s or so.
+			co2overloadtime = world.time
+		else if(world.time - co2overloadtime > 120)
+			Paralyse(3)
+			adjustOxyLoss(3) // Lets hurt em a little, let them know we mean business
+			if(world.time - co2overloadtime > 300) // They've been in here 30s now, lets start to kill them for their own good!
+				adjustOxyLoss(8)
+		if(prob(20)) // Lets give them some chance to know somethings not right though I guess.
+			emote("cough")
+
+	else
+		co2overloadtime = 0
+
+	if(Toxins_pp > safe_toxins_max) // Too much toxins
+		var/ratio = (breath[GAS_PLASMA]/safe_toxins_max) * 10
+		//adjustToxLoss(clamp(ratio, MIN_PLASMA_DAMAGE, MAX_PLASMA_DAMAGE))	//Limit amount of damage toxin exposure can do per second
+		if(wear_mask)
+			if(wear_mask.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
+				if(breath[GAS_PLASMA] > safe_toxins_mask)
+					ratio = (breath[GAS_PLASMA]/safe_toxins_mask) * 10
+				else
+					ratio = 0
+		if(ratio)
+			if(reagents)
+				reagents.add_reagent(PLASMA, clamp(ratio, MIN_PLASMA_DAMAGE, MAX_PLASMA_DAMAGE))
+			toxins_alert = max(toxins_alert, 1)
+	else
+		toxins_alert = 0
+
+	var/SA_pp = breath.partial_pressure(GAS_SLEEPING)
+	if(SA_pp > SA_para_min) // Enough to make us paralysed for a bit
+		Paralyse(3) // 3 gives them one second to wake up and run away a bit!
+		if(SA_pp > SA_sleep_min) // Enough to make us sleep as well
+			sleeping = max(sleeping+2, 10)
+	else if(SA_pp > 0.01)	// There is sleeping gas in their lungs, but only a little, so give them a bit of a warning
+		if(prob(20))
+			spawn(0) emote(pick("giggle", "laugh"))
+
+
+	if(breath.temperature > (T0C+66)) // Hot air hurts :(
+		if(prob(20))
+			to_chat(src, "<span class='warning'>You feel a searing heat in your lungs!</span>")
+		fire_alert = max(fire_alert, 2)
+
+	if(!check_breath_block(TRUE))
+		breath_airborne_diseases()
+
+	//Temporary fixes to the alerts.
+
+	return 1

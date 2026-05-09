@@ -15,9 +15,6 @@
 			return internal.remove_air_volume(volume_needed)
 	return null
 
-/mob/living/carbon/human/get_lungs()
-	return internal_organs_by_name["lungs"]
-
 /mob/living/carbon/human/needs_to_breathe()
 	if(undergoing_hypothermia() == PROFOUND_HYPOTHERMIA) // we're not breathing. see handle_hypothermia.dm for details.
 		return FALSE
@@ -42,3 +39,32 @@
 			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
 				return TRUE
 	return FALSE
+
+/mob/living/carbon/human/handle_breath(var/datum/gas_mixture/breath)
+	if((status_flags & GODMODE) || (flags & INVULNERABLE))
+		return FALSE
+	var/datum/organ/internal/lungs/L = get_lungs()
+	if(!breath || (breath.total_moles() == 0) || (mind && mind.suiciding) || !L)
+		if(reagents?.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
+			return FALSE
+		if(mind?.suiciding)
+			adjustOxyLoss(2) //If you are suiciding, you should die a little bit faster
+			failed_last_breath = 1
+			oxygen_alert = 1
+			return FALSE
+		if(health > config.health_threshold_crit)
+			adjustOxyLoss(HUMAN_MAX_OXYLOSS)
+			failed_last_breath = 1
+		else
+			adjustOxyLoss(HUMAN_CRIT_MAX_OXYLOSS)
+			failed_last_breath = 1
+
+		oxygen_alert = 1
+
+		return FALSE
+
+	// Lungs now handle processing atmos shit.
+	if(L)
+		L.handle_breath(breath,src)
+
+	return TRUE

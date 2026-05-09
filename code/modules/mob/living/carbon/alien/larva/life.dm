@@ -3,11 +3,6 @@
 //How to copypaste human life code and pretend it won't fuck up everything for ALIEN LARVAE : The Novel : The Story : The Legend : The Epic : The Game
 //But seriously, someone's gonna have to look more in depth into this to get rid of useless shit
 
-/mob/living/carbon/alien/larva
-
-	var/temperature_alert = TEMP_ALARM_SAFE
-
-
 /mob/living/carbon/alien/larva/Life()
 	//set background = 1
 	if (!loc)
@@ -66,7 +61,7 @@
 	if(client)
 		handle_regular_hud_updates()
 
-/mob/living/carbon/alien/larva/proc/handle_breath(datum/gas_mixture/breath)
+/mob/living/carbon/alien/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return
 

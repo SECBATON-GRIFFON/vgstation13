@@ -1,14 +1,7 @@
 
 
 /mob/living/carbon/monkey
-	var/toxins_alert = 0
-	var/fire_alert = 0
-	var/pressure_alert = 0
 	base_insulation = 0.5
-	var/temperature_alert = TEMP_ALARM_SAFE
-	var/safe_oxygen_min = 16 // Minimum safe partial pressure of O2, in kPa
-
-
 /mob/living/carbon/monkey/Life()
 	//set background = 1
 	if(timestopped)
@@ -187,120 +180,6 @@
 
 /mob/living/carbon/monkey/check_breath_block(var/smoke_only = FALSE)
 	return smoke_only ? istype(wear_mask, /obj/item/clothing/mask/gas) : FALSE
-
-/mob/living/carbon/monkey/handle_breath(datum/gas_mixture/breath)
-	if((status_flags & GODMODE) || (flags & INVULNERABLE))
-		return
-
-	if(!breath || (breath.total_moles == 0))
-		adjustOxyLoss(7)
-
-		oxygen_alert = max(oxygen_alert, 1)
-
-		return 0
-
-
-	//var/safe_oxygen_max = 140 // Maximum safe partial pressure of O2, in kPa (Not used for now)
-	var/safe_co2_max = 10 // Yes it's an arbitrary value who cares?
-	var/safe_toxins_max = 0.5
-	var/safe_toxins_mask = 5
-	var/SA_para_min = 0.5
-	var/SA_sleep_min = 5
-	var/oxygen_used = 0
-
-	//Partial pressure of the O2 in our breath
-	var/O2_pp = breath.partial_pressure(GAS_OXYGEN)
-	// Same, but for the toxins
-	var/Toxins_pp = breath.partial_pressure(GAS_PLASMA)
-	// And CO2, lets say a PP of more than 10 will be bad (It's a little less really, but eh, being passed out all round aint no fun)
-	var/CO2_pp = breath.partial_pressure(GAS_CARBON)
-
-	if(O2_pp < safe_oxygen_min) 			// Too little oxygen
-		if(prob(20))
-			spawn(0) emote("gasp")
-		if (O2_pp == 0)
-			O2_pp = 0.01
-		var/ratio = safe_oxygen_min/O2_pp
-		adjustOxyLoss(min(5*ratio, 7)) // Don't fuck them up too fast (space only does 7 after all!)
-		oxygen_used = breath[GAS_OXYGEN]*ratio/6
-		oxygen_alert = max(oxygen_alert, 1)
-	/*else if (O2_pp > safe_oxygen_max) 		// Too much oxygen (commented this out for now, I'll deal with pressure damage elsewhere I suppose)
-		spawn(0) emote("cough")
-		var/ratio = O2_pp/safe_oxygen_max
-		oxyloss += 5*ratio
-		oxygen_used = breath[GAS_OXYGEN]*ratio/6
-		oxygen_alert = max(oxygen_alert, 1)*/
-	else 									// We're in safe limits
-		adjustOxyLoss(-5)
-		oxygen_used = breath[GAS_OXYGEN]/6
-		oxygen_alert = 0
-
-	breath.adjust_multi(
-		GAS_OXYGEN, -oxygen_used,
-		GAS_CARBON, oxygen_used)
-
-	if(CO2_pp > safe_co2_max)
-		if(!co2overloadtime) // If it's the first breath with too much CO2 in it, lets start a counter, then have them pass out after 12s or so.
-			co2overloadtime = world.time
-		else if(world.time - co2overloadtime > 120)
-			Paralyse(3)
-			adjustOxyLoss(3) // Lets hurt em a little, let them know we mean business
-			if(world.time - co2overloadtime > 300) // They've been in here 30s now, lets start to kill them for their own good!
-				adjustOxyLoss(8)
-		if(prob(20)) // Lets give them some chance to know somethings not right though I guess.
-			emote("cough")
-
-	else
-		co2overloadtime = 0
-
-	if(Toxins_pp > safe_toxins_max) // Too much toxins
-		var/ratio = (breath[GAS_PLASMA]/safe_toxins_max) * 10
-		//adjustToxLoss(clamp(ratio, MIN_PLASMA_DAMAGE, MAX_PLASMA_DAMAGE))	//Limit amount of damage toxin exposure can do per second
-		if(wear_mask)
-			if(wear_mask.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
-				if(breath[GAS_PLASMA] > safe_toxins_mask)
-					ratio = (breath[GAS_PLASMA]/safe_toxins_mask) * 10
-				else
-					ratio = 0
-		if(ratio)
-			if(reagents)
-				reagents.add_reagent(PLASMA, clamp(ratio, MIN_PLASMA_DAMAGE, MAX_PLASMA_DAMAGE))
-			toxins_alert = max(toxins_alert, 1)
-	else
-		toxins_alert = 0
-
-	var/SA_pp = breath.partial_pressure(GAS_SLEEPING)
-	if(SA_pp > SA_para_min) // Enough to make us paralysed for a bit
-		Paralyse(3) // 3 gives them one second to wake up and run away a bit!
-		if(SA_pp > SA_sleep_min) // Enough to make us sleep as well
-			sleeping = max(sleeping+2, 10)
-	else if(SA_pp > 0.01)	// There is sleeping gas in their lungs, but only a little, so give them a bit of a warning
-		if(prob(20))
-			spawn(0) emote(pick("giggle", "laugh"))
-
-
-	if(breath.temperature > (T0C+66)) // Hot air hurts :(
-		if(prob(20))
-			to_chat(src, "<span class='warning'>You feel a searing heat in your lungs!</span>")
-		fire_alert = max(fire_alert, 2)
-
-	//breathing diseases
-	var/block = 0
-	var/list/blockers = list(wear_mask,glasses,hat)
-	for (var/item in blockers)
-		var/obj/item/I = item
-		if (!istype(I))
-			continue
-		if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
-			block = 1
-			break
-
-	if(!block)
-		breath_airborne_diseases()
-
-	//Temporary fixes to the alerts.
-
-	return 1
 
 /mob/living/carbon/monkey/get_thermal_protection_flags()
 	var/thermal_protection_flags = 0
