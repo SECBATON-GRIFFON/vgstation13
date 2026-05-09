@@ -61,48 +61,6 @@
 	if(client)
 		handle_regular_hud_updates()
 
-/mob/living/carbon/alien/handle_breath(datum/gas_mixture/breath)
-	if((status_flags & GODMODE) || (flags & INVULNERABLE))
-		return
-
-	if(!breath || (breath.total_moles == 0))
-		//Aliens breathe in vaccuum
-		return 0
-
-	var/toxins_used = 0
-	breath.volume = BREATH_VOLUME
-	breath.update_values()
-
-	//Partial pressure of the toxins in our breath
-	var/Toxins_pp = breath.partial_pressure(GAS_PLASMA)
-
-	if(Toxins_pp) // Detect toxins in air
-
-		AdjustPlasma(breath[GAS_PLASMA] * 250)
-		toxins_alert = max(toxins_alert, 1)
-
-		toxins_used = breath[GAS_PLASMA]
-
-	else
-		toxins_alert = 0
-
-	//Breathe in toxins and out oxygen
-	breath.adjust_multi(
-		GAS_PLASMA, -toxins_used,
-		GAS_OXYGEN, toxins_used)
-
-	if(breath.temperature > (T0C+66) && !(M_RESIST_HEAT in mutations)) // Hot air hurts :(
-		if(prob(20))
-			to_chat(src, "<span class='danger'>You feel a searing heat in your lungs !</span>")
-		fire_alert = max(fire_alert, 1)
-	else
-		fire_alert = 0
-
-	//Temporary fixes to the alerts.
-
-	return 1
-
-
 /mob/living/carbon/alien/larva/proc/handle_chemicals_in_body()
 	if(reagents)
 		reagents.metabolize(src)
