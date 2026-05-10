@@ -70,32 +70,31 @@
 			//testing("  Receiving too little [id], gasping.")
 			lungs.gasp()
 
-	var/mob/living/carbon/human/H = lungs.owner
-	var/used = receive_gas(id, clamp(pp/min_pp,0,1), moles, H)
+	var/used = receive_gas(id, clamp(pp/min_pp,0,1), moles)
 
 	if(used)
 		//testing("  Used [moles] moles.")
 		add_moles(-used)
 		add_exhaled(used)
 
-/datum/lung_gas/proc/receive_gas(var/gas_id, var/ratio, var/moles, var/mob/living/carbon/human/H)
+/datum/lung_gas/proc/receive_gas(var/gas_id, var/ratio, var/moles)
 	//testing("receive_gas: [gas_id] ? [breath_type] - ratio=[ratio], moles=[moles]")
-	if(ratio <= 0 || (H.species && H.species.breath_type != gas_id))
+	if(ratio <= 0 || (lungs.owner.species && lungs.owner.species.breath_type != gas_id))
 		//testing("  ratio is 0 or gas_id doesn't match up, adding oxyLoss.")
-		H.adjustOxyLoss(HUMAN_MAX_OXYLOSS)
-		H.failed_last_breath = 1
+		lungs.owner.adjustOxyLoss(HUMAN_MAX_OXYLOSS)
+		lungs.owner.failed_last_breath = 1
 		return 0
 	else if(ratio >= 1)
 		//testing("  we cool")
-		H.failed_last_breath = 0
-		H.adjustOxyLoss(-5)
-		H.oxygen_alert = 0
+		lungs.owner.failed_last_breath = 0
+		lungs.owner.adjustOxyLoss(-5)
+		lungs.owner.oxygen_alert = 0
 		return moles/GAS_CONSUME_TO_WASTE_DENOMINATOR
 	else
 		//testing("  ratio < 1, adding oxyLoss.")
-		H.adjustOxyLoss(HUMAN_MAX_OXYLOSS * (1 - ratio)) //Damage proportional to how much gas you didn't get
-		H.failed_last_breath = 1
-		H.oxygen_alert = 1
+		lungs.owner.adjustOxyLoss(HUMAN_MAX_OXYLOSS * (1 - ratio)) //Damage proportional to how much gas you didn't get
+		lungs.owner.failed_last_breath = 1
+		lungs.owner.oxygen_alert = 1
 		return moles*ratio/GAS_CONSUME_TO_WASTE_DENOMINATOR
 
 ////////////////////////
