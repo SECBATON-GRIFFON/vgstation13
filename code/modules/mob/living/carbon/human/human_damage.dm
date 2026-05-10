@@ -16,7 +16,9 @@
 	if((maxHealth - total_burn) < config.health_threshold_dead)
 		death(FALSE)
 		ChangeToHusk()
-	return
+	if(health != prevhealth && istype(get_active_hand(),/obj/item/pocketwatch/dead_ringer))
+		var/obj/item/pocketwatch/dead_ringer/DR = get_active_hand()
+		DR.fake_death(src)
 
 /mob/living/carbon/human/getBrainLoss(var/type)
 	var/res = brainloss

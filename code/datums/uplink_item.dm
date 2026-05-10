@@ -433,7 +433,7 @@ var/list/discounted_items_of_the_round = list()
 
 /datum/uplink_item/stealthy_tools/dead_ringer
 	name = "Dead Ringer"
-	desc = "When activated, an exact clone of the user will spawn in its place, with the original user turning invisible for ten seconds. This clone will then proceed to commit suicide in a stunningly realistic manner, giving the user a chance to fake their own death."
+	desc = "When held and either attacked or attempting suicide, an exact clone of the user will spawn in its place, with the original user turning invisible for ten seconds, giving the user a chance to fake their own death."
 	item = /obj/item/pocketwatch/dead_ringer
 	cost = 10
 

@@ -223,23 +223,33 @@
 
 /obj/item/pocketwatch/dead_ringer
 	var/use_lock = 0
+	var/use_delay = 60 SECONDS
 
-/obj/item/pocketwatch/dead_ringer/attack_self(var/mob/user)
-	..()
-	if(world.time - (60 SECONDS) < use_lock)
+/obj/item/pocketwatch/dead_ringer/proc/fake_death(var/mob/user,var/suicide = FALSE)
+	if(world.time - use_delay < use_lock)
 		to_chat(user,"<span class='danger'>The dead ringer is still recharging! [round(((use_lock - world.time) + (60 SECONDS))/10,1)] seconds remain.</span>")
-		return
+		return FALSE
 	if(ishuman(user))
 		use_lock = world.time
 		var/mob/living/carbon/human/clone
 		for(var/datum/body_archive/BA in body_archives)
 			if(BA && BA.key == user.key)
 				user.archive_body(BA)
-				clone = user.actually_reset_body(BA,TRUE,old_mob = user)
+				clone = user.actually_reset_body(BA)
 				clone.forceMove(user.loc)
+				for(var/obj/item/I in user.contents)
+					if(I != src)
+						var/obj/item/I2 = new I.type(clone.loc)
+						clone.equip_to_appropriate_slot(I2,TRUE)
+				clone.fully_replace_character_name(clone.real_name,clone.real_name,FALSE)
 				break
 		user.make_invisible(DEADRINGER, 10 SECONDS, TRUE, 1, INVISIBILITY_LEVEL_TWO)
-		clone.attempt_suicide(TRUE)
+		if(suicide)
+			clone.attempt_suicide(TRUE)
 		clone.death()
 		spawn(10 SECONDS)
 			playsound(get_turf(user),'sound/effects/eleczap.ogg',100)
+		return TRUE
+
+/obj/item/pocketwatch/dead_ringer/fast
+	use_delay = 10 SECONDS
