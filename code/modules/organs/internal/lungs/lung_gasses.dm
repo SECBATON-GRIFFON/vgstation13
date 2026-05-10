@@ -70,6 +70,7 @@
 			//testing("  Receiving too little [id], gasping.")
 			lungs.gasp()
 
+	var/mob/living/carbon/human/H = lungs.owner
 	var/used = receive_gas(id, clamp(pp/min_pp,0,1), moles, H)
 
 	if(used)
