@@ -7,7 +7,7 @@
 		tagname = forced_bundle
 
 	switch (tagname)
-		if("Bloody Spy")//2+5+2+2+4+4+4=23
+		if("Bloody Spy")//2+5+2+2+4+4+4+10=33
 			new /obj/item/clothing/under/chameleon(src)
 			new /obj/item/clothing/mask/gas/voice(src)
 			new /obj/item/weapon/card/id/syndicate(src)
@@ -15,6 +15,7 @@
 			new /obj/item/weapon/dnascrambler(src)
 			new /obj/item/weapon/dnascrambler(src)
 			new /obj/item/weapon/dnascrambler(src)
+			new /obj/item/pocketwatch/dead_ringer(src)
 
 		if("Stealth")//12+8+6+1=27
 			new /obj/item/weapon/gun/energy/crossbow(src)
