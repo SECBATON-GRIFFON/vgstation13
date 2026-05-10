@@ -203,7 +203,7 @@
 	..()
 
 /obj/item/pocketwatch/luna_dial/attack_self(var/mob/user)
-	check_watch()
+	..()
 	if (!arming_timestop)
 		arming_timestop = TRUE
 		var/turf/T = get_turf(src)
@@ -220,3 +220,26 @@
 	caster.forceMove(get_turf(src))
 	fall.perform(caster, skipcharge = 1)
 	caster.forceMove(null)
+
+/obj/item/pocketwatch/dead_ringer
+	var/use_lock = 0
+
+/obj/item/pocketwatch/dead_ringer/attack_self(var/mob/user)
+	..()
+	if(world.time - (60 SECONDS) < use_lock)
+		to_chat(user,"<span class='danger'>The dead ringer is still recharging! [round(((use_lock - world.time) + (60 SECONDS))/10,1)] seconds remain.</span>")
+		return
+	if(ishuman(user))
+		use_lock = world.time
+		var/mob/living/carbon/human/clone
+		for(var/datum/body_archive/BA in body_archives)
+			if(BA && BA.key == user.key)
+				user.archive_body(BA)
+				clone = user.actually_reset_body(BA,TRUE,old_mob = user)
+				clone.forceMove(user.loc)
+				break
+		user.make_invisible(DEADRINGER, 10 SECONDS, TRUE, 1, INVISIBILITY_LEVEL_TWO)
+		clone.attempt_suicide(TRUE)
+		clone.death()
+		spawn(10 SECONDS)
+			playsound(get_turf(user),'sound/effects/eleczap.ogg',100)

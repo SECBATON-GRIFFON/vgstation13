@@ -431,6 +431,12 @@ var/list/discounted_items_of_the_round = list()
 	item = /obj/item/device/chameleon
 	cost = 6
 
+/datum/uplink_item/stealthy_tools/dead_ringer
+	name = "Dead Ringer"
+	desc = "When activated, an exact clone of the user will spawn in its place, with the original user turning invisible for ten seconds. This clone will then proceed to commit suicide in a stunningly realistic manner, giving the user a chance to fake their own death."
+	item = /obj/item/pocketwatch/dead_ringer
+	cost = 10
+
 /datum/uplink_item/stealthy_tools/dnascrambler
 	name = "DNA Scrambler"
 	desc = "A single-use syringe that will instantly and permanently randomize the appearance and name of the person injected including an unique genetic UI+UE, fingerprints and DNA sequence. While the new identity is perfect, it will not be registered to the crew manifest and the ID card will not update."

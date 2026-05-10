@@ -75,7 +75,7 @@
  * This will update a mob's name, real_name, mind.name, data_core records, pda and id.
  * Calling this proc without an oldname will only update the mob and skip updating the pda, id and records. ~Carn
  */
-/mob/proc/fully_replace_character_name(oldname, newname)
+/mob/proc/fully_replace_character_name(oldname, newname, records=TRUE)
 	if (!newname)
 		return 0
 
@@ -92,13 +92,14 @@
 		dna.real_name = real_name
 
 	if (oldname)
-		//Update the datacore records and centcomm database
-		for (var/list/L in list(data_core.general, data_core.medical, data_core.security,data_core.locked))
-			if (L)
-				var/datum/data/record/R = find_record("name", oldname, L)
+		if(records)
+			//Update the datacore records and centcomm database
+			for (var/list/L in list(data_core.general, data_core.medical, data_core.security,data_core.locked))
+				if (L)
+					var/datum/data/record/R = find_record("name", oldname, L)
 
-				if (R)
-					R.fields["name"] = newname
+					if (R)
+						R.fields["name"] = newname
 
 		// update our pda and id if we have them on our person
 		var/search_id = TRUE
