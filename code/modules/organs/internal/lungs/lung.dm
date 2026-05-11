@@ -38,12 +38,12 @@
 /datum/organ/internal/lungs/proc/is_ruptured()
 	return is_bruised()
 
-/datum/organ/internal/lungs/proc/rupture(var/mob/living/carbon/human/H)
+/datum/organ/internal/lungs/proc/rupture()
 	if(!is_bruised())
-		H.custom_pain("You feel a stabbing pain in your chest!", 1)
+		owner.custom_pain("You feel a stabbing pain in your chest!", 1)
 		damage = min_bruised_damage
 
-/datum/organ/internal/lungs/proc/handle_breath(var/datum/gas_mixture/breath, var/mob/living/carbon/human/H)
+/datum/organ/internal/lungs/proc/handle_breath(var/datum/gas_mixture/breath)
 
 	// NOW WITH MODULAR GAS HANDLING RATHER THAN A CLUSTERFUCK OF IF-TREES FOR EVERY SNOWFLAKE RACE
 	//testing("Ticking lungs...")
@@ -52,7 +52,7 @@
 	if(!breath || breath.total_moles < BREATH_MOLES / 5 || breath.total_moles > BREATH_MOLES * 5)
 		if(prob(20))
 			take_damage(1,1)
-		if(!H.is_lung_ruptured() && damage > 2)
+		if(!owner.is_lung_ruptured() && damage > 2)
 			var/chance_break = (damage / min_broken_damage)*100
 			if(prob(chance_break))
 				rupture()
@@ -66,62 +66,65 @@
 
 	// First, we consume air.
 	for(var/datum/lung_gas/G in gasses)
-		G.set_context(src,breath,H)
+		G.set_context(src,breath,owner)
 		toxic_gas_detected |= G.handle_inhale()
 
 	// Next, we exhale. At the moment, only /datum/lung_gas/waste uses this.
 	for(var/datum/lung_gas/G in gasses)
-		G.set_context(src,breath,H)
+		G.set_context(src,breath,owner)
 		G.handle_exhale()
 
 	// If no toxic gas detected, ensure toxins_alert is disabled
 	if(!toxic_gas_detected)
-		H.toxins_alert = 0
+		owner.toxins_alert = 0
 
-	if( (abs(310.15 - breath.temperature) > 50) && !(M_RESIST_HEAT in H.mutations)) // Hot air hurts :(
-		if(H.status_flags & GODMODE)
+	if( (abs(310.15 - breath.temperature) > 50) && !(M_RESIST_HEAT in owner.mutations)) // Hot air hurts :(
+		if(owner.status_flags & GODMODE)
 			return 1	//godmode
-		if(breath.temperature < H.species.cold_level_1)
+		if(breath.temperature < owner.species.cold_level_1)
 			if(prob(20))
 				to_chat(H, "<span class='warning'>You feel your face freezing and an icicle forming in your lungs!</span>")
-		else if(breath.temperature > H.species.heat_level_1)
+		else if(breath.temperature > owner.species.heat_level_1)
 			if(prob(20))
-				if(isslimeperson(H))
+				if(isslimeperson(owner))
 					to_chat(H, "<span class='warning'>You feel supercharged by the extreme heat!</span>")
 				else
 					to_chat(H, "<span class='warning'>You feel your face burning and a searing heat in your lungs!</span>")
 
-		if(isslimeperson(H))
-			if(breath.temperature < H.species.cold_level_1)
-				H.adjustToxLoss(round(H.species.cold_level_1 - breath.temperature))
-				H.fire_alert = max(H.fire_alert, 1)
+		if(isslimeperson(owner))
+			if(breath.temperature < owner.species.cold_level_1)
+				owner.adjustToxLoss(round(owner.species.cold_level_1 - breath.temperature))
+				owner.fire_alert = max(owner.fire_alert, 1)
 		else
-			if(breath.temperature in H.species.cold_level_1 to H.species.heat_level_1)
+			var/applied_damage = null
+			var/used_damage_type = ""
+			var/fire_alert_level = 0
+
+			if(breath.temperature in owner.species.cold_level_1 to owner.species.heat_level_1)
 				return
 
-			else if(breath.temperature <= H.species.cold_level_3)
-				H.apply_damage(COLD_GAS_DAMAGE_LEVEL_3, BURN, LIMB_HEAD, used_weapon = "Excessive Cold")
-				H.fire_alert = max(H.fire_alert, 1)
+			if(breath.temperature <= owner.species.cold_level_3)
+				applied_damage = COLD_GAS_DAMAGE_LEVEL_3
+			else if(breath.temperature <= owner.species.cold_level_2)
+				applied_damage = COLD_GAS_DAMAGE_LEVEL_2
+			else if(breath.temperature <= owner.species.cold_level_1)
+				applied_damage = COLD_GAS_DAMAGE_LEVEL_1
+			else if(breath.temperature >= owner.species.heat_level_1)
+				applied_damage = HEAT_GAS_DAMAGE_LEVEL_1
+			else if(breath.temperature >= owner.species.heat_level_2)
+				applied_damage = HEAT_GAS_DAMAGE_LEVEL_2
+			else if(breath.temperature >= owner.species.heat_level_3)
+				applied_damage = HEAT_GAS_DAMAGE_LEVEL_3
 
-			else if(breath.temperature <= H.species.cold_level_2)
-				H.apply_damage(COLD_GAS_DAMAGE_LEVEL_2, BURN, LIMB_HEAD, used_weapon = "Excessive Cold")
-				H.fire_alert = max(H.fire_alert, 1)
+			if(breath.temperature <= owner.species.cold_level_1)
+				used_damage_type = "Cold"
+				fire_alert_level = 1
+			else if(breath.temperature >= owner.species.heat_level_1)
+				used_damage_type = "Heat"
+				fire_alert_level = 2
 
-			else if(breath.temperature <= H.species.cold_level_1)
-				H.apply_damage(COLD_GAS_DAMAGE_LEVEL_1, BURN, LIMB_HEAD, used_weapon = "Excessive Cold")
-				H.fire_alert = max(H.fire_alert, 1)
-
-			else if(breath.temperature >= H.species.heat_level_3)
-				H.apply_damage(HEAT_GAS_DAMAGE_LEVEL_3, BURN, LIMB_HEAD, used_weapon = "Excessive Heat")
-				H.fire_alert = max(H.fire_alert, 2)
-
-			else if(breath.temperature >= H.species.heat_level_2)
-				H.apply_damage(HEAT_GAS_DAMAGE_LEVEL_2, BURN, LIMB_HEAD, used_weapon = "Excessive Heat")
-				H.fire_alert = max(H.fire_alert, 2)
-
-			else if(breath.temperature >= H.species.heat_level_1)
-				H.apply_damage(HEAT_GAS_DAMAGE_LEVEL_1, BURN, LIMB_HEAD, used_weapon = "Excessive Heat")
-				H.fire_alert = max(H.fire_alert, 2)
+			owner.apply_damage(applied_damage, BURN, LIMB_HEAD, used_weapon = "Excessive [used_damage_type]")
+			owner.fire_alert = max(owner.fire_alert, fire_alert_level)
 
 /datum/organ/internal/lungs/process()
 	..()

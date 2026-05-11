@@ -65,6 +65,6 @@
 
 	// Lungs now handle processing atmos shit.
 	if(L)
-		L.handle_breath(breath,src)
+		L.handle_breath(breath)
 
 	return TRUE
