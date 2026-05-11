@@ -114,14 +114,12 @@
 		nobreath--
 		return
 
-	var/datum/organ/internal/lungs/L = get_lungs()
-	if(L)
-		L.process() //Ideally lungs would handle breathing, but right now we're just sanitizing
+	var/breathes_lungs = breathe_lungs()
 
 	var/datum/gas_mixture/environment = loc.return_air()
 	var/datum/gas_mixture/breath
 	//HACK NEED CHANGING LATER
-	if(health < config.health_threshold_crit || !L)
+	if(health < config.health_threshold_crit || !breathes_lungs)
 		losebreath++
 	if(losebreath > 0) //Suffocating so do not take a breath
 		losebreath--
@@ -192,6 +190,9 @@
 		return FALSE //No breath mutation means no breathing.
 	if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell)) //This is an annoying hack given that cryo cells are supposed to be oxygenated, but fuck it
 		return FALSE
+	return TRUE
+
+/mob/living/carbon/proc/breathe_lungs()
 	return TRUE
 
 /mob/living/carbon/proc/handle_species_environment(var/datum/gas_mixture/environment)

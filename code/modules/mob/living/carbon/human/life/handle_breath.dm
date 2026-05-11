@@ -40,6 +40,13 @@
 				return TRUE
 	return FALSE
 
+/mob/living/carbon/human/breathe_lungs()
+	var/datum/organ/internal/lungs/L = get_lungs()
+	if(L)
+		L.process() //Ideally lungs would handle breathing, but right now we're just sanitizing
+		return TRUE
+	return FALSE
+
 /mob/living/carbon/human/handle_breath(var/datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return FALSE
