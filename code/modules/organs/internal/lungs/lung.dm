@@ -96,12 +96,12 @@
 				owner.adjustToxLoss(round(owner.species.cold_level_1 - breath.temperature))
 				owner.fire_alert = max(owner.fire_alert, 1)
 		else
+			if(breath.temperature in owner.species.cold_level_1 to owner.species.heat_level_1)
+				return
+
 			var/applied_damage = null
 			var/used_damage_type = ""
 			var/fire_alert_level = 0
-
-			if(breath.temperature in owner.species.cold_level_1 to owner.species.heat_level_1)
-				return
 
 			if(breath.temperature <= owner.species.cold_level_3)
 				applied_damage = COLD_GAS_DAMAGE_LEVEL_3
