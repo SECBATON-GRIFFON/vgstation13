@@ -178,8 +178,8 @@
 					emote("gasp")
 				updatehealth()
 
-/mob/living/carbon/monkey/check_breath_block(var/smoke_only = FALSE)
-	return smoke_only ? istype(wear_mask, /obj/item/clothing/mask/gas) : FALSE
+/mob/living/carbon/monkey/check_breath_block(var/flag_check = BLOCK_BREATHING)
+	return (flag_check & BLOCK_GAS_SMOKE_EFFECT) ? istype(wear_mask, /obj/item/clothing/mask/gas) : FALSE
 
 /mob/living/carbon/monkey/get_thermal_protection_flags()
 	var/thermal_protection_flags = 0

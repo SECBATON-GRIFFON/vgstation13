@@ -26,18 +26,14 @@
 	if(species)
 		species.handle_environment(environment, src)
 
-/mob/living/carbon/human/check_breath_block(var/smoke_only = FALSE)
+/mob/living/carbon/human/check_breath_block(var/flag_check = BLOCK_BREATHING)
 	var/list/blockers = list(wear_mask,glasses,head)
 	for (var/item in blockers)
 		var/obj/item/I = item
 		if (!istype(I))
 			continue
-		if(smoke_only)
-			if (I.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
-				return TRUE
-		else
-			if (I.clothing_flags & BLOCK_BREATHING)
-				return TRUE
+		if (I.clothing_flags & flag_check)
+			return TRUE
 	return FALSE
 
 /mob/living/carbon/human/breathe_lungs()

@@ -8,8 +8,8 @@
 			return internals.remove_air_volume(volume_needed)
 	return null
 
-/mob/living/carbon/complex/martian/check_breath_block(var/smoke_only = FALSE)
-	return smoke_only ? istype(head, /obj/item/clothing/head/helmet/space/martian) : FALSE
+/mob/living/carbon/complex/martian/check_breath_block(var/flag_check = BLOCK_BREATHING)
+	return (flag_check & BLOCK_GAS_SMOKE_EFFECT) ? istype(head, /obj/item/clothing/head/helmet/space/martian) : FALSE
 
 /mob/living/carbon/complex/martian/is_spaceproof()
 	if(head && istype(head, /obj/item/clothing/head/helmet/space/martian))

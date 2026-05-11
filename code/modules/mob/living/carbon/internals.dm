@@ -145,7 +145,7 @@
 				if(environment)
 					breath = environment.remove_volume(CELL_VOLUME * BREATH_PERCENTAGE)
 
-				if(breath && !check_breath_block(TRUE))
+				if(breath && !check_breath_block(BLOCK_GAS_SMOKE_EFFECT))
 					for(var/obj/effect/smoke/chem/smoke in view(1, src))
 						if(smoke.reagents && smoke.reagents.total_volume)
 							smoke.reagents.reaction(src, INGEST, amount_override = min(smoke.reagents.total_volume,10)/(smoke.reagents.reagent_list.len))
@@ -198,7 +198,7 @@
 /mob/living/carbon/proc/handle_species_environment(var/datum/gas_mixture/environment)
 	return
 
-/mob/living/carbon/proc/check_breath_block(var/smoke_only = FALSE)
+/mob/living/carbon/proc/check_breath_block(var/flag_check = BLOCK_BREATHING)
 	return
 
 /mob/living/carbon/proc/handle_breath(datum/gas_mixture/breath)
