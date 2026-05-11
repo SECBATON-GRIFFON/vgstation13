@@ -200,9 +200,6 @@
 /mob/living/carbon/proc/check_breath_block(var/smoke_only = FALSE)
 	return
 
-/mob/living/carbon/proc/get_lungs()
-	return
-
 /mob/living/carbon/proc/handle_breath(datum/gas_mixture/breath)
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return
