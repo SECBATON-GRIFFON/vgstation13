@@ -165,6 +165,20 @@
 		stat(null, text("Drain rate: [charge_absorb_amount]"))
 		stat(null, text("APC takeover time: [takeover_time] seconds"))
 
+/mob/living/simple_animal/hostile/pulse_demon/t_scanner_expose(ray_range)
+	if(plane != ABOVE_PLATING_PLANE || layer != PULSEDEMON_LAYER || alpha < OPAQUE || (invisibility > 0 && invisibility < INVISIBILITY_OBSERVER))
+		var/old_alpha = alpha
+		alpha = OPAQUE
+		invisibility = 0
+		plane = MOB_PLANE
+		layer = MOB_LAYER
+		spawn(1 SECONDS)
+			if(src)
+				alpha = old_alpha
+				invisibility = 101
+				plane = ABOVE_PLATING_PLANE
+				layer = PULSEDEMON_LAYER
+
 /mob/living/simple_animal/hostile/pulse_demon/proc/update_glow()
 	if((charge < 10000) && is_under_tile())
 		set_light(0)
