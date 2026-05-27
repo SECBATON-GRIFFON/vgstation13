@@ -74,12 +74,13 @@
 				var/turf/T = loc
 				var/obj/item/clothing/glasses/G = get_item_by_slot(slot_glasses)
 				if(!G || !(G.vision_flags & BLIND))
-					extra_sleep = clamp(T.get_lumcount(),0,1)/2
+					extra_sleep = T.get_lumcount()/2
 				if(extra_sleep && G)
 					if(G.eyeprot > 0)
 						extra_sleep /= 1+G.eyeprot
 					else if(G.eyeprot < 0)
 						extra_sleep *= 1-G.eyeprot
+				extra_sleep = clamp(extra_sleep,0,0.5)
 			sleeping = max(sleeping - 0.5 - extra_sleep, 0)
 			blinded = 1
 			stat = status_flags & BUDDHAMODE ? CONSCIOUS : UNCONSCIOUS
