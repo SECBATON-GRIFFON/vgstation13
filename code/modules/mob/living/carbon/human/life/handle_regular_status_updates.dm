@@ -69,7 +69,11 @@
 		else if(sleeping)
 			handle_dreams()
 			adjustHalLoss(-3)
-			sleeping = max(sleeping-1, 0)
+			var/extra_sleep = 0
+			if(isturf(loc))
+				var/turf/T = loc
+				extra_sleep = clamp(T.get_lumcount(),0,1)/2
+			sleeping = max(sleeping - 0.5 - extra_sleep, 0)
 			blinded = 1
 			stat = status_flags & BUDDHAMODE ? CONSCIOUS : UNCONSCIOUS
 			if(prob(2) && health && !hal_crit)

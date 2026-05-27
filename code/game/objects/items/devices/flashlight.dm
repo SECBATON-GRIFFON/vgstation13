@@ -21,6 +21,7 @@
 	var/sound_on = 'sound/items/flashlight_on.ogg'
 	var/sound_off = 'sound/items/flashlight_off.ogg'
 	var/flickering = FALSE
+	var/waking = FALSE //lock for spam prevention
 
 	health = 30
 	breakable_flags = BREAKABLE_ALL
@@ -71,7 +72,7 @@
 
 /obj/item/device/flashlight/attack(mob/living/M as mob, mob/living/user as mob)
 	add_fingerprint(user)
-	if(on && user.zone_sel.selecting == "eyes")
+	if(on && user.zone_sel.selecting == TARGET_EYES)
 
 		if((clumsy_check(user) || user.getBrainLoss(INTELLIGENCE_L) >= 60) && prob(50))	//too dumb to use flashlight properly
 			return ..()	//just hit them in the head
@@ -112,6 +113,12 @@
 					to_chat(user, "<span class='notice'>[M]'s pupils narrow.</span>")
 			if(M.times_cloned)
 				to_chat(user, "<span class='notice'>[src] highlights [M.times_cloned] dot[M.times_cloned != 1 ? "s" : ""] on [M]'s sclerae!</span>")
+			if(!waking && M.stat != DEAD && M.sleeping)
+				to_chat(user, "<span class='notice'>You hold \the [src] up to [M] to wake \him up.</span>")
+				waking = TRUE
+				while(user && src && do_after(user,src,20)) //Have to keep checking if the thing is held...
+					M.sleeping = max(M.sleeping - (5 * range_on), 0)
+				waking = FALSE
 	else
 		return ..()
 
