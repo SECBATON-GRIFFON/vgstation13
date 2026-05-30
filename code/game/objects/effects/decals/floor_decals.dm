@@ -69,7 +69,11 @@
 
 //bigguns
 /obj/effect/decal/ss13
-	icon = 'icons/effects/ss13.png'
+	icon = 'icons/effects/ss13_floor.dmi'
+	icon_state = "ss13"
+	pixel_x = 16
+	pixel_y = 16
 
 /obj/effect/decal/ss13_russki
-	icon = 'icons/effects/ss13r.png'
+	icon = 'icons/effects/ss13_floor_rus.dmi'
+	icon_state = "ss13_russki"
