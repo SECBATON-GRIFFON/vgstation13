@@ -66,3 +66,10 @@
 
 /obj/effect/decal/warning_stripes/siding/gold/full
 	icon_state = "wood_siding_full"
+
+//bigguns
+/obj/effect/decal/ss13
+	icon = 'icons/effects/ss13.png'
+
+/obj/effect/decal/ss13_russki
+	icon = 'icons/effects/ss13r.png'

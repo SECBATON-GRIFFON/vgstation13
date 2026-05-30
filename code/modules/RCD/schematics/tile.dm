@@ -116,7 +116,8 @@
 	to_chat(user, "Painting floor...")
 	//playsound(master, 'sound/AI/animes.ogg', 50, 1)
 	playsound(master, 'sound/effects/spray3.ogg', 15, 1)
-	selection.apply(A, nname, ndesc, thisdir)
+	if((selection.size_x > 1 || selection.size_y > 1) && master.delay(user,A,selection.size_x * selection.size_y SECONDS))
+		selection.apply(A, nname, ndesc, thisdir)
 
 //Gets the list of paint info datums.
 /datum/rcd_schematic/tile/proc/get_our_list()
@@ -130,8 +131,10 @@
 	var/file_name  = "tile_painter_"	//The file data gets added after this, used to seperate the decals and floor types.
 	var/flags      = 0
 	var/name
+	var/size_x = 1
+	var/size_y = 1
 
-/datum/paint_info/New(var/padir, var/picon, var/ptype, var/nflags = 0, var/nname)
+/datum/paint_info/New(var/padir, var/picon, var/ptype, var/nflags = 0, var/nname, var/picon_override, var/xsize = 1, var/ysize = 1)
 	if (ptype)
 		ftype      = ptype
 
@@ -140,6 +143,12 @@
 
 	if (picon)
 		icon_state = picon
+
+	if (picon_override)
+		icon = picon_override
+
+	size_x = xsize
+	size_y = ysize
 
 	flags = nflags
 
@@ -155,7 +164,7 @@
 				name = "plating"
 
 //This is used to give the user a hint that he's a massive retard for using a floor painter on the carpet
-/datum/paint_info/proc/validate(atom/test)
+/datum/paint_info/proc/validate(atom/test,sizecheck=TRUE)
 	switch (ftype)
 		if (PAINT_FLOOR)
 			var/turf/simulated/floor/maybe_turf = test
@@ -164,6 +173,10 @@
 					return "Maybe this is the wrong kind of floor?"
 				if (!istype(maybe_turf, /turf/simulated/floor/engine) && !maybe_turf.floor_tile)
 					return "Maybe this is the wrong kind of floor?"
+				if(sizecheck && (size_x > 1 || size_y > 1))
+					for(var/turf/other in block(maybe_turf,locate(maybe_turf.x+size_x,maybe_turf.y+size_y,maybe_turf.z)))
+						if(validate(other,FALSE)) // do not sizecheck recursively
+							return  "Maybe you should make more space for this decal?"
 			else
 				return "Maybe you should try on a floor?"
 		if (PAINT_PLATING)
@@ -421,6 +434,8 @@ var/global/list/paint_variants = list(
 		new /datum/paint_info/decal(DIR_ONE,	"wood_siding_full"),
 		new /datum/paint_info/decal(DIR_ONE,	"radiation"),
 		new /datum/paint_info/decal(DIR_ONE,	"radiation_huge"),
+		new /datum/paint_info/decal(DIR_ONE,    "ss13",picon_override='icons/effects/ss13.png',size_x=7),
+		new /datum/paint_info/decal(DIR_ONE,    "ss13r",picon_override='icons/effects/ss13r.png',size_x=2,size_y=8),
 	),
 
 	"Wall Signs" = list(
