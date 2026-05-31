@@ -434,8 +434,8 @@ var/global/list/paint_variants = list(
 		new /datum/paint_info/decal(DIR_ONE,	"wood_siding_full"),
 		new /datum/paint_info/decal(DIR_ONE,	"radiation"),
 		new /datum/paint_info/decal(DIR_ONE,	"radiation_huge"),
-		new /datum/paint_info/decal(DIR_ONE,    "ss13",picon_override='icons/effects/ss13_floor.dmi',size_x=7),
-		new /datum/paint_info/decal(DIR_ONE,    "ss13_russki",picon_override='icons/effects/ss13_floor_rus.dmi',size_x=2,size_y=8),
+		new /datum/paint_info/decal(DIR_ONE,    "ss13",picon_override='icons/effects/ss13_floor.dmi',xsize=7),
+		new /datum/paint_info/decal(DIR_ONE,    "ss13_russki",picon_override='icons/effects/ss13_floor_rus.dmi',xsize=2,ysize=8),
 	),
 
 	"Wall Signs" = list(
