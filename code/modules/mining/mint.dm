@@ -91,9 +91,7 @@
 		<p><b><A href="?src=\ref[src];makeCoins=[1]">Make Coins</A></b></p>"}
 	dat += "<table><tr><td align='right'><b>Input:</b></td><td><a href='?src=\ref[src];changedir=1'>[capitalize(dir2text(in_dir))]</a></td></tr><tr><td><b>Output:</b></td><td><a href='?src=\ref[src];changedir=2'>[capitalize(dir2text(out_dir))]</a></td></tr></table>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "mint", "Coin Press", 420, 410, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "mint", "Coin Press", 420, 410, src, dat)
 
 /obj/machinery/mineral/mint/proc/Change_Dir(var/dir)
 	var/changingdir = dir //See ore processing_unit for original comments

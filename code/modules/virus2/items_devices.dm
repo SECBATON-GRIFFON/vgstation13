@@ -121,9 +121,7 @@
 			else
 				info += "<br><i>Unknown [D.form] detected. Strength: [D.strength]</i>"
 
-	var/datum/browser/popup = new(user, "\ref[src]", name, 600, 600, src)
-	popup.set_content(info)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", name, 600, 600, src, info)
 
 /obj/item/device/antibody_scanner/preattack(var/atom/A, var/mob/user, proximity_flag)
 	if(proximity_flag != 1)
@@ -417,9 +415,7 @@ var/list/virusdishes = list()
 		if(..())
 			return TRUE
 	if(href_list["examine"])
-		var/datum/browser/popup = new(usr, "\ref[src]", name, 600, 300, src)
-		popup.set_content(info)
-		popup.open()
+		new /datum/browser(usr, "\ref[src]", name, 600, 300, src, info)
 
 /obj/item/weapon/virusdish/infection_attempt(var/mob/living/perp,var/datum/disease2/disease/D)
 	if (open)//If the dish is open, we may get infected by the disease inside on top of those that might be stuck on it.

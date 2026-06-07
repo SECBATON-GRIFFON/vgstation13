@@ -52,9 +52,7 @@
 		html += U.toTableRow(src,user)
 	html += end_table()
 
-	popup = new /datum/browser/clean(user, "\ref[src]_research", "Research Tree", 300, 300)
-	popup.set_content(html)
-	popup.open()
+	popup = new /datum/browser/clean(user, "\ref[src]_research", "Research Tree", 300, 300, ncontent = html)
 
 /datum/research_tree/proc/close(var/mob/user)
 	user << browse(null,"window=\ref[src]_research")

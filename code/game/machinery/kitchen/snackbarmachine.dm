@@ -70,8 +70,6 @@
 		else
 			dat += "Buffer is empty.<BR>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(usr, "[windowtype]", "[name]", 575, 400, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(usr, "[windowtype]", "[name]", 575, 400, src, dat)
 	onclose(user, "[windowtype]")
 	return

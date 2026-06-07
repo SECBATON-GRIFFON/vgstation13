@@ -139,9 +139,7 @@
 	</table></div></div>"}
 
 
-	var/datum/browser/popup = new(user, "console_processing_unit", name, 460, 620, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "console_processing_unit", name, 460, 620, src, dat)
 
 /obj/machinery/computer/smelting/Topic(href, href_list)
 	. = ..()

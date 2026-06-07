@@ -116,9 +116,7 @@
 		to_chat(usr, "That's not a valid mob!")
 		return
 
-	var/datum/browser/clean/popup = new (usr, "\ref[M]_admin_log_viewer", "Attack logs of [M]", 300, 300)
-	popup.set_content(jointext(M.attack_log, "<br/>"))
-	popup.open()
+	new /datum/browser/clean(usr, "\ref[M]_admin_log_viewer", "Attack logs of [M]", 300, 300, ncontent = jointext(M.attack_log, "<br/>"))
 	feedback_add_details("admin_verb","VMAL")
 
 //Used by the other procs to actually send the selected logs to the user

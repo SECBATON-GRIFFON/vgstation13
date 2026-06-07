@@ -76,9 +76,7 @@
 		dat += "1 Hour - $500 - "
 		dat += "<A href='?src=\ref[src];pay1h=1'>Pay</a><BR>"
 
-		var/datum/browser/popup = new(user, "\ref[src]", "[my_artifact.artifact_id]", 575, 400, src)
-		popup.set_content(dat)
-		popup.open()
+		new /datum/browser(user, "\ref[src]", "[my_artifact.artifact_id]", 575, 400, src, dat)
 
 /datum/artifact_trigger/pay2use/proc/owner_attackby(mob/living/attacker, obj/item/item)
 	if(iscoin(item))

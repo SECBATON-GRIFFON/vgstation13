@@ -86,9 +86,7 @@
 	dat += "<p>Stored value 1 (number): [stored_num] (<a href='?src=\ref[src];set_num_value=1'>change</a>)</p>"
 	dat += "<p>Stored value 2 (text): [stored_txt] (<a href='?src=\ref[src];set_txt_value=1'>change</a>)</p>"
 
-	var/datum/browser/popup = new(user, "circuit4", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "circuit4", "[src]", 500, 300, src, dat)
 
 	onclose(user, "circuit4")
 

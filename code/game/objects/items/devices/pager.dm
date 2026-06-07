@@ -70,9 +70,7 @@ var/list/pager_list = list()
 	dat += "Pager status: [muted ? "<A href='byond://?src=\ref[src];toggle_mute'>Muted</A>" : "<A href='byond://?src=\ref[src];toggle_mute'>Active</A>"]<BR>"
 
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "\ref[src]", name, 400, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", name, 400, 500, ncontent = dat)
 
 /obj/item/device/pager/Topic(href, href_list)
 	if(!in_range(src,usr) && !isAdminGhost(usr) && !issilicon(usr))

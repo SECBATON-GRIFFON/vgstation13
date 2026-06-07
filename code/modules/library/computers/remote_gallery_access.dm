@@ -111,9 +111,7 @@
 		dat += "</table><br />[pagelist]"
 		dat += "<hr><br/> <a href='?src=\ref[src];upload=1'>Upload new painting</a>"
 
-	var/datum/browser/B = new /datum/browser/clean(user, "remote_gallery", "Remote Gallery Viewer")
-	B.set_content(dat)
-	B.open()
+	new /datum/browser/clean(user, "remote_gallery", "Remote Gallery Viewer", ncontent = dat)
 
 /obj/machinery/computer/library/checkout/remote_gallery/get_scanner_title(var/obj/machinery/libraryscanner/LS)
 	return LS.cached_painting.painting_data.title || "Untitled painting"

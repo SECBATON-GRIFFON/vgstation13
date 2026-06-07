@@ -627,9 +627,7 @@
 	<BR><A href='?src=\ref[user];mach_close=mob\ref[src]'>Close</A>
 	"}
 
-	var/datum/browser/popup = new(user, "mannequin\ref[src]", "[src]", 340, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "mannequin\ref[src]", "[src]", 340, 500, ncontent = dat)
 
 
 /obj/structure/mannequin/proc/canEquip(var/mob/user, var/item_slot, var/obj/item/itemToCheck)

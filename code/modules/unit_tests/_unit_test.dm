@@ -81,6 +81,4 @@ var/unit_test_report = "Unit tests haven't been run yet."
 	set name = "Unit test report"
 	set desc = "Shows the log of unit tests."
 
-	var/datum/browser/popup = new(usr, "\ref[global.unit_test_report]", "Unit test report", 800, 800)
-	popup.set_content(global.unit_test_report)
-	popup.open()
+	new /datum/browser(usr, "\ref[global.unit_test_report]", "Unit test report", 800, 800, ncontent = global.unit_test_report)

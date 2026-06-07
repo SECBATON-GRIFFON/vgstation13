@@ -1449,7 +1449,5 @@ fieldset {width:140px;}
 	var/dat = ""
 	for(var/zrender in 1 to world.maxz)
 		dat += string_heatmap(zrender)
-	var/datum/browser/B = new /datum/browser/clean(usr, "heatmap", "Station heatmaps")
-	B.set_content(dat)
-	B.open()
+	new /datum/browser/clean(usr, "heatmap", "Station heatmaps", ncontent = dat)
 	feedback_add_details("admin_verb","HMP")

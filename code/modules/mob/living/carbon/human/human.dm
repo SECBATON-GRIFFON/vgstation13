@@ -513,9 +513,7 @@
 	<BR><A href='?src=\ref[user];mach_close=mob\ref[src]'>Close</A>
 	"}
 
-	var/datum/browser/popup = new(user, "mob\ref[src]", "[src]", 340, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "mob\ref[src]", "[src]", 340, 500, ncontent = dat)
 
 /mob/living/carbon/human/Topic(href, href_list)
 	..() //Slot stripping, hand stripping, and internals setting in /mob/living/carbon/Topic()
@@ -685,9 +683,7 @@
 						to_chat(usr, "<span class='info'>[bicon(J)] \A [J].</span>")
 	else if (href_list["show_flavor_text"])
 		if(can_show_flavor_text())
-			var/datum/browser/popup = new(usr, "\ref[src]", name, 500, 200)
-			popup.set_content(strip_html(flavor_text))
-			popup.open()
+			new /datum/browser(usr, "\ref[src]", name, 500, 200, ncontent = strip_html(flavor_text))
 	/*else if (href_list["lookmob"])
 		var/mob/M = locate(href_list["lookmob"])
 		usr.examination(M)*/

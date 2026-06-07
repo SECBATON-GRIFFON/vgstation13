@@ -41,10 +41,7 @@
 
 /obj/machinery/computer/fluff/attack_hand(mob/user)
 	if(window_data)
-		var/datum/browser/popup = new(user, "customcomp", "[src]", window_width, window_height, src)
-		popup.remove_stylesheets()
-		popup.set_content(window_data)
-		popup.open()
+		new /datum/browser/clean(user, "customcomp", "[src]", window_width, window_height, src, window_data)
 		return
 
 	switch(deny_type)

@@ -46,9 +46,7 @@
 	dat += "Counter: [sub_counter_href(10)]--</a> | [sub_counter_href(1)]-</a>  | <b>[pulse_counter]</b> | [add_counter_href(1)]+</a> | [add_counter_href(10)]++</a><BR>"
 	dat += "Limit: [sub_limit_href(10)]--</a> | [sub_limit_href(1)]-</a>  | <b>[limit]</b> | [add_limit_href(1)]+</a> | [add_limit_href(10)]++</a><BR>"
 
-	var/datum/browser/popup = new(user, "circuit1", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "circuit1", "[src]", 500, 300, src, dat)
 
 	onclose(user, "circuit1")
 

@@ -311,9 +311,7 @@
 			dat += "</td><tr>"
 		dat += "</tbody></table>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "seed_ext", name, 1000, 400)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "seed_ext", name, 1000, 400, ncontent = dat)
 	return
 
 /obj/machinery/seed_extractor/Topic(var/href, var/list/href_list)

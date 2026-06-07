@@ -579,9 +579,7 @@ Pressure: [env.pressure]"}
 	for(var/areatype in areas_without_camera)
 		error_str += "* [areatype]<br>"
 
-	var/datum/browser/popup = new(usr, "Area issues", usr.name, 300, 400)
-	popup.set_content(error_str)
-	popup.open()
+	new /datum/browser(usr, "Area issues", usr.name, 300, 400, ncontent = error_str)
 
 /client/proc/startSinglo()
 	set category = "Debug"

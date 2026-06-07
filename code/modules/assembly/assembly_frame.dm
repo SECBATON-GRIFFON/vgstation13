@@ -81,9 +81,7 @@
 			//Clicking on (connect) or "add more" allows you to select an assembly to connect to
 			//Clicking on any assembly after "sending signals to" will remove the connection
 
-	var/datum/browser/popup = new(user, "\ref[src]", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", "[src]", 500, 300, src, dat)
 
 	onclose(user, "\ref[src]")
 

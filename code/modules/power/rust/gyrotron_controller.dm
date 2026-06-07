@@ -85,9 +85,7 @@
 		dat += "</tr>"
 	dat += "</table>"
 
-	var/datum/browser/popup = new(user, "gyrotron_controller", "Gyrotron Remote Control Console", 500, 400, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "gyrotron_controller", "Gyrotron Remote Control Console", 500, 400, src, dat)
 	user.set_machine(src)
 
 /obj/machinery/computer/rust_gyrotron_controller/Topic(var/href, var/list/href_list)

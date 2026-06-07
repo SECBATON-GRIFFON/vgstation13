@@ -185,9 +185,7 @@ var/list/barsigns = list()
 				</div>
 				"}
 
-	var/datum/browser/popup = new(user, "barsignmenu", "Custom Barsign Menu",500,500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "barsignmenu", "Custom Barsign Menu",500,500,ncontent = dat)
 
 /obj/structure/sign/double/barsign/Topic(href, href_list)
 	if(..())

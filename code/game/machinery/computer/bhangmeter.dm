@@ -92,9 +92,7 @@ var/list/list/sensed_explosions = list()
 
 	if( (holoMiniMaps.len < user.loc.z) || (holoMiniMaps[user.loc.z] == null ))
 		to_chat(user, "<span class='notice'>The holomap doesn't seem to be working.</span>")
-		var/datum/browser/popup = new(user, "\ref[src]", name, 650, 300, src)
-		popup.set_content(bhangmeterPanel())
-		popup.open()
+		new /datum/browser(user, "\ref[src]", name, 650, 300, src, bhangmeterPanel())
 		return
 
 	if(user in watching_mobs)
@@ -130,9 +128,7 @@ var/list/list/sensed_explosions = list()
 
 /obj/machinery/computer/bhangmeter/interface_act(var/mob/i_user,var/action)
 	if(action == "Database")
-		var/datum/browser/popup = new(i_user, "\ref[src]", name, 650, 300, src)
-		popup.set_content(bhangmeterPanel())
-		popup.open()
+		new /datum/browser(i_user, "\ref[src]", name, 650, 300, src, bhangmeterPanel())
 
 /obj/machinery/computer/bhangmeter/proc/bhangmeterPanel()
 	if (!original_vLevel)

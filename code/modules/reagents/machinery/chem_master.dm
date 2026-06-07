@@ -238,9 +238,7 @@ var/global/list/pillIcon2Name = list("oblong purple-pink", "oblong green-white",
 				dat += "<A href='?src=\ref[src];main=1'>(Back)</A>"
 
 			dat = jointext(dat,"")
-			var/datum/browser/popup = new(usr, "[windowtype]", "[name]", 585, 400, src)
-			popup.set_content(dat)
-			popup.open()
+			new /datum/browser(usr, "[windowtype]", "[name]", 585, 400, src, dat)
 			return 1
 
 		else if(href_list["electrolyze"])

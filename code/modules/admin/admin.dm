@@ -1082,9 +1082,7 @@ var/global/floorIsLava = 0
 	else
 		dat += "<p><A href='?_src_=holder;procgen_toggle_exploration=1' style='color:red;'>Disable Planet Generation (Recalls Exploration Shuttle)</A></p>"
 
-	var/datum/browser/popup = new(usr, "procgen_panel", "Procedural Generation Panel", 1000, 600)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(usr, "procgen_panel", "Procedural Generation Panel", 1000, 600, ncontent = dat)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////admins2.dm merge
 //i.e. buttons/verbs

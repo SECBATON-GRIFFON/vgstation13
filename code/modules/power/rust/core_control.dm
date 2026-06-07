@@ -106,9 +106,7 @@
 		else
 			dat += "<span style='color: red'>No R-UST Mk. 7 Tokamak pattern Electromagnetic Field Generators connected.</span>"
 
-	var/datum/browser/popup = new(user, "rust_control", name, 500, 400, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "rust_control", name, 500, 400, src, dat)
 	user.set_machine(src)
 
 /obj/machinery/computer/rust_core_control/Topic(href, href_list)

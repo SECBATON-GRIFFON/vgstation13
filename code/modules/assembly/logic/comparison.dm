@@ -122,9 +122,7 @@ var/global/list/comparison_circuit_operations = list("EQUAL TO", "LESS THAN", "M
 			if(i != device_pool.len)
 				dat += ", " //If not last item in the list, add a comma
 
-	var/datum/browser/popup = new(user, "circuit2", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "circuit2", "[src]", 500, 300, src, dat)
 
 	onclose(user, "circuit2")
 

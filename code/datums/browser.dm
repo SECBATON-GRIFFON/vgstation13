@@ -15,7 +15,7 @@
 	var/content = ""
 
 
-/datum/browser/New(nuser, nwindow_id, ntitle = 0, nwidth = 0, nheight = 0, var/atom/nref = null)
+/datum/browser/New(nuser, nwindow_id, ntitle = 0, nwidth = 0, nheight = 0, var/atom/nref = null, ncontent)
 
 	user = nuser
 	window_id = nwindow_id
@@ -28,6 +28,9 @@
 	if (nref)
 		ref = nref
 	add_stylesheet("common", 'html/browser/common.css') // this CSS sheet is common to all UIs
+	if(ncontent)
+		set_content(ncontent)
+		open()
 
 /datum/browser/proc/add_head_content(nhead_content)
 	head_content = nhead_content

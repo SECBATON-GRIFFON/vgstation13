@@ -99,9 +99,7 @@
 
 		t1 += "</div>"
 
-	var/datum/browser/popup = new(user, "airlock_electronics", "Access Control", 640, 480)
-	popup.set_content(t1)
-	popup.open()
+	new /datum/browser(user, "airlock_electronics", "Access Control", 640, 480, ncontent = t1)
 
 /obj/item/weapon/circuitboard/airlock/Topic(href, href_list)
 	if(..())

@@ -148,12 +148,8 @@ Admin:
 	set hidden = 1
 
 	if (round_end_info)
-		var/datum/browser/popup = new(src, "roundstats", "Round End Summary", 1000, 600)
-		popup.set_content(round_end_info)
-		popup.open()
+		new /datum/browser(src, "roundstats", "Round End Summary", 1000, 600, ncontent = round_end_info)
 	else if (last_round_end_info)
-		var/datum/browser/popup = new(src, "roundstats", "Last Round Summary", 1000, 600)
-		popup.set_content(last_round_end_info)
-		popup.open()
+		new /datum/browser(src, "roundstats", "Round End Summary", 1000, 600, ncontent = last_round_end_info)
 	else
 		to_chat(usr, "<span class='warning'>no Round End Summary found.</span>")

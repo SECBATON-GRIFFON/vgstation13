@@ -905,9 +905,7 @@ Use this proc preferably at the end of an equipment loadout
 	dat += {"
 	<BR><A href='?src=\ref[user];mach_close=mob\ref[src]'>Close</A>
 	<BR>"}
-	var/datum/browser/popup = new(user, "mob\ref[src]", "[src]", 325, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "mob\ref[src]", "[src]", 325, 500, ncontent = dat)
 	return
 
 /mob/proc/ret_grab(obj/effect/list_container/mobl/L as obj, flag)

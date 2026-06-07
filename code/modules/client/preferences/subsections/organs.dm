@@ -40,9 +40,7 @@
 		dat += "<br>"
 	dat = jointext(dat, null)
 
-	var/datum/browser/popup = new(user, "\ref[src]-organs", "Organs", 330, 200, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]-organs", "Organs", 330, 200, src, dat)
 	return TRUE
 
 /datum/preferences_subsection/organs/proc/handle_input(var/mob/user, var/list/href_list)

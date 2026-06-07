@@ -427,9 +427,7 @@ var/global/movement_disabled_exception //This is the client that calls the proc,
 		if(!T2.get_cable_node())
 			error_str += "<span class = 'warning'>Disconnected terminal at [formatJumpTo(T2)]</span><br>"
 
-	var/datum/browser/popup = new(usr, "Wire connections", usr.name, 300, 400)
-	popup.set_content(error_str)
-	popup.open()
+	new /datum/browser(usr, "Wire connections", usr.name, 300, 400, ncontent = error_str)
 
 /client/proc/check_pipes()
 	set category = "Mapping"

@@ -337,9 +337,7 @@
 	else
 		dat += {"<b>OUT OF SERVICE</b><br>"}
 
-	var/datum/browser/popup = new(user, "slotmachine", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "slotmachine", "[src]", 500, 300, src, dat)
 
 	onclose(user, "slotmachine")
 

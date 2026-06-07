@@ -34,9 +34,7 @@
 	Interval: <a href='?src=\ref[src];interval=1'>[pull_interval] deciseconds</a><br>
 	[power_src ? "[power_src] charge: [round(power_src.percent())]%" : "No power cell inserted"]"}
 
-	var/datum/browser/popup = new(user, "\ref[src]", name, 400, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", name, 400, 500, ncontent = dat)
 
 /obj/item/device/handheld_magnet/Topic(href, href_list)
 	if(..())
@@ -163,7 +161,7 @@
 		updateUsrDialog()
 
 /obj/item/device/handheld_magnet/proc/can_pull(obj/O) // the iron stuff is basically hotfixed onto this because is_conductor() is WAY too broad for this lil thing
-	. = O && !O.anchored 
+	. = O && !O.anchored
 	if(.)
 		for(var/atom/A in O.contents)
 			if(can_pull(A))

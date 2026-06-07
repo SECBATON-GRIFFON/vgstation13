@@ -1150,9 +1150,7 @@ won't update every console in existence) but it's more of a hassle to do. Also, 
 				dat += "<A href='?src=\ref[src];setImprinterStopped=1' class='redBackground'>Stop Production</A>"
 
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "\ref[src]", name, 575, 400)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", name, 575, 400, ncontent = dat)
 
 /obj/machinery/computer/rdconsole/proc/isLocked() //magic numbers ahoy!
 	return screen == CONSOLE_LOCKED

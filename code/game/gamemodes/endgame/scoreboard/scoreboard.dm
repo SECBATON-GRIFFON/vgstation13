@@ -382,9 +382,7 @@ var/global/heatmap_snapshot = ""
 	if (!client)
 		return
 
-	var/datum/browser/popup = new(src, "roundstats", "Round End Summary", 1000, 600)
-	popup.set_content(round_end_info)
-	popup.open()
+	new /datum/browser(src, "roundstats", "Round End Summary", 1000, 600, ncontent = round_end_info)
 
 	winset(client, "rpane.round_end", "is-visible=true")
 	winset(client, "rpane.last_round_end", "is-visible=false")

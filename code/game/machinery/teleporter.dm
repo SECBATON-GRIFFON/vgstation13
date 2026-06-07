@@ -118,9 +118,7 @@
 
 	. += "</lu>"
 
-	var/datum/browser/popup = new(user, "teleporter_console", name, 250, 500, src)
-	popup.set_content(.)
-	popup.open()
+	new /datum/browser(user, "teleporter_console", name, 250, 500, src, .)
 	user.set_machine(src)
 
 /obj/machinery/computer/teleporter/Topic(var/href, var/list/href_list)

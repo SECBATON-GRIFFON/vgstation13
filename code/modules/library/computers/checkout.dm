@@ -245,9 +245,7 @@
 				dat+="[B.name] <A href='?src=\ref[src];delqueue=[printing_queue.Find(B)]'>(Delete)</A><BR>"
 			dat+= "<A href='?src=\ref[src];switchscreen=[MAIN_MENU]'>(Return to main menu)</A>"
 
-	var/datum/browser/B = new /datum/browser/clean(user, "library", "Book Inventory Management")
-	B.set_content(dat)
-	B.open()
+	new /datum/browser/clean(user, "library", "Book Inventory Management", ncontent = dat)
 
 /obj/machinery/computer/library/checkout/emag_act(mob/user)
 	if(!emagged)

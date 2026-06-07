@@ -285,9 +285,7 @@
 		for(var/i = 1 to max_linked_assembly_amount)
 			dat += "<p>[i]) <a href=\"?src=\ref[src];connect_assembly=[i]\">[isnull(linked_assemblies[i]) ? "-click to insert-" : linked_assemblies[i]]</a></p>"
 
-		var/datum/browser/popup = new(usr, "AAC_assemblies", "[src]", 500, 300, src)
-		popup.set_content(dat)
-		popup.open()
+		new /datum/browser(usr, "AAC_assemblies", "[src]", 500, 300, src, dat)
 
 		onclose(usr, "AAC_assemblies")
 

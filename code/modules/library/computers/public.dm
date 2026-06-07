@@ -77,9 +77,7 @@
 
 				dat += "</table><br />[pagelist]"
 			dat += "<A href='?src=\ref[src];back=1'>\[Go Back\]</A><br />"
-	var/datum/browser/B = new /datum/browser/clean(user, "library", "Library Visitor")
-	B.set_content(dat)
-	B.open()
+	new /datum/browser/clean(user, "library", "Library Visitor", ncontent = dat)
 
 /obj/machinery/computer/library/public/Topic(href, href_list)
 	if(..())

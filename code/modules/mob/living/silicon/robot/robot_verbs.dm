@@ -69,10 +69,7 @@
 		to_chat(src, "<span class='warning'>Your self-diagnosis component isn't functioning.</span>")
 		return
 
-	var/dat = self_diagnosis()
-	var/datum/browser/popup = new(src, "\ref[src]-robotdiagnosis", "Self diagnosis", 730, 270)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(src, "\ref[src]-robotdiagnosis", "Self diagnosis", 730, 270, ncontent = self_diagnosis())
 
 /mob/living/silicon/robot/verb/toggle_component()
 	set category = "Robot Commands"

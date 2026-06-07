@@ -166,9 +166,7 @@
 
 		dish.name = "growth dish ([last_scan_name])"
 		last_scan_info = dish.info
-		var/datum/browser/popup = new(user, "\ref[dish]", dish.name, 600, 500, src)
-		popup.set_content(dish.info)
-		popup.open()
+		new /datum/browser(user, "\ref[dish]", dish.name, 600, 500, src, dish.info)
 		dish.analysed = TRUE
 		dish.update_icon()
 		dish.forceMove(loc)

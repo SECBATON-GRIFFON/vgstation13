@@ -70,9 +70,7 @@
 				********************************<BR>"}
 		dat += "<HR><A href='?src=\ref[src];lock=1'>Lock Console</A>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "prisoner_implants", "Prisoner Implant Manager System", 400, 500, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "prisoner_implants", "Prisoner Implant Manager System", 400, 500, src, dat)
 	onclose(user, "prisoner_implants")
 
 /obj/machinery/computer/prisoner/process()

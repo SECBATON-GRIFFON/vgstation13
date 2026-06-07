@@ -131,9 +131,7 @@
 				<tt>[scan_data]</tt>"}
 			if(scan_data && !scan_process)
 				dat += "<br><a href='?src=\ref[src];operation=erase'>Erase Data</a>"
-	var/datum/browser/popup = new(user, "scanner", "Forensic Scanning Computer", 375, 500, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "scanner", "Forensic Scanning Computer", 375, 500, src, dat)
 	onclose(user, "scanner")
 
 /obj/machinery/computer/forensic_scanning/attackby(obj/item/I, mob/user)

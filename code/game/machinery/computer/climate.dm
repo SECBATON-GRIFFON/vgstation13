@@ -51,9 +51,7 @@ var/list/climatecomps = list()
 	else
 		dat += "<b>Panic:</b> <div class='line'>No climate detected!</div></div></div></center>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "climate", "Climate Monitoring Console", 325, 375, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "climate", "Climate Monitoring Console", 325, 375, src, ncontent = dat)
 	onclose(user, "climate")
 
 /obj/machinery/computer/climate/long_range

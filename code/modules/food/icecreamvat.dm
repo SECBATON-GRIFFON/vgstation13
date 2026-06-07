@@ -107,9 +107,7 @@
 		dat += showReagents(3)
 		dat += showToppings()
 		dat += "<A href='?src=\ref[src];close=1'>Close</A>"
-	var/datum/browser/popup = new(user,"cream_master","Cream-Master Deluxe",700,400,src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user,"cream_master","Cream-Master Deluxe",700,400,src,dat)
 
 // HTML Menu ///////////////////////////////////////////////////
 

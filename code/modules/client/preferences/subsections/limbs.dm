@@ -96,9 +96,7 @@
 		dat += "<br>"
 	dat = jointext(dat, null)
 
-	var/datum/browser/popup = new(user, "\ref[src]-limbs", "Limbs", 500, 220, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]-limbs", "Limbs", 500, 220, src, dat)
 	return TRUE
 
 /datum/preferences_subsection/limbs/proc/handle_input(var/mob/user, var/list/href_list)

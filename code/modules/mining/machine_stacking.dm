@@ -44,9 +44,7 @@
 
 	dat += text("<br>Stacking: []", stacker_data["stack_amt"])
 
-	var/datum/browser/popup = new(user, "stacking_machine_console", name, 200, 200, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "stacking_machine_console", name, 200, 200, src, dat)
 
 /obj/machinery/computer/stacking_unit/Topic(href, href_list)
 	if(href_list["close"])

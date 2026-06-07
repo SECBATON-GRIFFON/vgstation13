@@ -151,9 +151,7 @@
 			if(show_desc)
 				dat += "<I>[PDS.desc]</I><BR>"
 		dat += "<HR>"
-	var/datum/browser/popup = new(src, "abilitypicker", "Pulse Demon Ability Menu", 640, 480)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(src, "abilitypicker", "Pulse Demon Ability Menu", 640, 480, ncontent = dat)
 
 /mob/living/simple_animal/hostile/pulse_demon/Topic(href, href_list)
 	..()

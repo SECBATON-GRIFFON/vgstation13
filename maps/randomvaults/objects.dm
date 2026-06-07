@@ -1144,9 +1144,7 @@
 	var/dat = ""
 	for (var/datum/map_element/vault/V in map_elements)
 		dat += "[V.name ? V.name : V.file_path], located in area [V.location ? "[V.location.z]" : "UNKNOWN"]<BR>"
-	var/datum/browser/popup = new(user, "allvaults", "List of found mysterious structures", 300, 400)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "allvaults", "List of found mysterious structures", 300, 400, ncontent = dat)
 
 /obj/item/weapon/reagent_containers/food/snacks/monkeycube/barbot
 	name = "barbot cube"

@@ -127,9 +127,7 @@
 	<BR><A href='?src=\ref[user];mach_close=mob\ref[src]'>Close</A>
 	"}
 
-	var/datum/browser/popup = new(user, "mob\ref[src]", "[src]", 340, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "mob\ref[src]", "[src]", 340, 500, ncontent = dat)
 
 
 // Return the item currently in the slot ID

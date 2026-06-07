@@ -107,9 +107,7 @@ var/global/list/math_circuit_operations_list = list("ADD", "SUBTRACT", "MULTIPLY
 	dat += "<p><a href='?src=\ref[src];output_value=1'>Output value</a></p><BR>"
 	dat += "All operations are done left-to-right. All trigonometric functions use degrees."
 
-	var/datum/browser/popup = new(user, "circuit3", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "circuit3", "[src]", 500, 300, src, dat)
 
 	onclose(user, "circuit3")
 

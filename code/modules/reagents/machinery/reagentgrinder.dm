@@ -343,9 +343,7 @@ var/global/list/juice_items = list (
 	else
 		dat += "Please wait..."
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "reagentgrinder", "All-In-One Grinder", src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "reagentgrinder", "All-In-One Grinder", src, dat)
 	onclose(user, "reagentgrinder")
 	return
 

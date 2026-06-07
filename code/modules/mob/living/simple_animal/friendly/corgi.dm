@@ -190,9 +190,7 @@
 	<BR><A href='?src=\ref[user];mach_close=mob\ref[src]'>Close</A>
 	"}
 
-	var/datum/browser/popup = new(user, "corgi\ref[src]", "[src]", 340, 500)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "corgi\ref[src]", "[src]", 340, 500, ncontent = dat)
 
 /mob/living/simple_animal/corgi/attackby(var/obj/item/O as obj, var/mob/user as mob)
 	if(istype(O, /obj/item/weapon/newspaper))

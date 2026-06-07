@@ -84,9 +84,7 @@
 	<p><a href='?src=\ref[src];apply=1'>Activate</a></p>
 	"}
 
-	var/datum/browser/popup = new(user, "\ref[src]", "[src]", 500, 300, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "\ref[src]", "[src]", 500, 300, src, dat)
 
 	onclose(user, "\ref[src]")
 

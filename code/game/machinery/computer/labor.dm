@@ -100,9 +100,7 @@ var/list/labor_console_categories = list(
 
 	dat += "</center>"
 	dat = jointext(dat,"")
-	var/datum/browser/popup = new(user, "labor_admin", "Labor Administration Console", 375, 500, src)
-	popup.set_content(dat)
-	popup.open()
+	new /datum/browser(user, "labor_admin", "Labor Administration Console", 375, 500, src, dat)
 	onclose(user, "labor_admin")
 
 /obj/machinery/computer/labor/proc/verified(mob/user, var/delay = TRUE)
