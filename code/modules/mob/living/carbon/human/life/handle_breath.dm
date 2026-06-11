@@ -47,7 +47,7 @@
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return FALSE
 	var/datum/organ/internal/lungs/L = get_lungs()
-	if(!breath || (breath.total_moles() == 0) || (mind && mind.suiciding) || !L)
+	if(!L)
 		if(reagents?.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
 			return FALSE
 		if(mind?.suiciding)
@@ -57,11 +57,9 @@
 			return FALSE
 		if(health > config.health_threshold_crit)
 			adjustOxyLoss(HUMAN_MAX_OXYLOSS)
-			failed_last_breath = 1
 		else
 			adjustOxyLoss(HUMAN_CRIT_MAX_OXYLOSS)
-			failed_last_breath = 1
-
+		failed_last_breath = 1
 		oxygen_alert = 1
 
 		return FALSE
