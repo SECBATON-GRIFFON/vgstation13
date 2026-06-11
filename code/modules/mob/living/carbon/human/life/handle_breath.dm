@@ -63,9 +63,8 @@
 		oxygen_alert = 1
 
 		return FALSE
-
 	// Lungs now handle processing atmos shit.
-	if(L)
+	else
 		L.handle_breath(breath)
 
 	return TRUE
