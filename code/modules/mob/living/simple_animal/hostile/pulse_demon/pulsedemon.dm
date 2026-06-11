@@ -169,13 +169,11 @@
 	if(plane != ABOVE_PLATING_PLANE || layer != PULSEDEMON_LAYER || alpha < OPAQUE || (invisibility > 0 && invisibility < INVISIBILITY_OBSERVER))
 		var/old_alpha = alpha
 		alpha = OPAQUE
-		invisibility = 0
 		plane = MOB_PLANE
 		layer = MOB_LAYER
 		spawn(1 SECONDS)
 			if(src)
 				alpha = old_alpha
-				invisibility = 101
 				plane = ABOVE_PLATING_PLANE
 				layer = PULSEDEMON_LAYER
 
