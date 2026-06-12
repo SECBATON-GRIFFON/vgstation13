@@ -13,9 +13,10 @@
 	var/body_elements
 	var/head_content = ""
 	var/content = ""
+	var/initial_stylesheet = 'html/browser/common.css' // this CSS sheet is common to all UIs
 
 
-/datum/browser/New(nuser, nwindow_id, ntitle = 0, nwidth = 0, nheight = 0, var/atom/nref = null, ncontent)
+/datum/browser/New(nuser, nwindow_id, ntitle = 0, nwidth = 0, nheight = 0, atom/nref = null, ncontent)
 
 	user = nuser
 	window_id = nwindow_id
@@ -27,7 +28,7 @@
 		height = nheight
 	if (nref)
 		ref = nref
-	add_stylesheet("common", 'html/browser/common.css') // this CSS sheet is common to all UIs
+	add_stylesheet("common", initial_stylesheet) // this CSS sheet is common to all UIs
 	if(ncontent)
 		set_content(ncontent)
 		open()
@@ -176,9 +177,8 @@
 // CLEAN UI STYLE.
 ///////////////////////
 
-/datum/browser/clean/New(nuser, nwindow_id, ntitle = 0, nwidth = 0, nheight = 0, var/atom/nref = null)
-	..(nuser,nwindow_id,ntitle,nwidth,nheight,nref)
-	add_stylesheet("common",'html/browser/clean.css') // Clean style.
+/datum/browser/clean
+	initial_stylesheet = 'html/browser/clean.css' // Clean style.
 
 // Re-implemented without the extra divs.
 /datum/browser/clean/get_header()
