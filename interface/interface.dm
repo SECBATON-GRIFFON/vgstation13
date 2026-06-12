@@ -41,7 +41,7 @@
 	set name = "Rules"
 	set desc = "Show Server Rules."
 	set hidden = 1
-	src << browse(file(RULES_FILE), "window=rules;size=480x320")
+	new /datum/browser/clean/est(user, "rules", "[src]", 480, 320, ncontent = file(RULES_FILE))
 #undef RULES_FILE
 
 /client/verb/hotkeys_help()
