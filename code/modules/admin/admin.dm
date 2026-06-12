@@ -949,7 +949,7 @@ var/global/floorIsLava = 0
 		"}
 
 
-	usr << browse(HTML_SKELETON(dat), "window=secrets")
+	new /datum/browser/clean/est(usr, "secrets", "[src]", ncontent = dat)
 	return
 
 /datum/admins/var/datum/shuttle/selected_shuttle

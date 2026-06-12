@@ -28,7 +28,8 @@
 		height = nheight
 	if (nref)
 		ref = nref
-	add_stylesheet("common", initial_stylesheet) // this CSS sheet is common to all UIs
+	if(initial_stylesheet)
+		add_stylesheet("common", initial_stylesheet)
 	if(ncontent)
 		set_content(ncontent)
 		open()
@@ -207,3 +208,6 @@
 	return {"
 	</body>
 </html>"}
+
+/datum/browser/clean/est
+	initial_stylesheet = null // Cleanest style.

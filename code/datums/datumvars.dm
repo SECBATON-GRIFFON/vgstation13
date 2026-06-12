@@ -349,7 +349,7 @@ function loadPage(list) {
 
 	html += "</html>"
 
-	new /datum/browser/clean(mob, "variables", "[src]", 475, 650, ncontent = html)
+	new /datum/browser/clean/est(usr, "variables", "[src]", 475, 650, ncontent = html)
 
 /client/proc/debug_variable(name, value, list/searched, var/datum/DA = null)
 	var/html = ""
