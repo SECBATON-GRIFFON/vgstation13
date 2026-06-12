@@ -248,7 +248,7 @@
 			clone.attempt_suicide(TRUE)
 		clone.death()
 		spawn(10 SECONDS)
-			playsound(get_turf(user),'sound/effects/eleczap.ogg',100)
+			playsound(get_turf(user),'sound/items/uncloak_feigndeath.ogg',100)
 		return TRUE
 
 /obj/item/pocketwatch/dead_ringer/fast
