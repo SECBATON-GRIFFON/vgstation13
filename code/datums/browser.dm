@@ -2,8 +2,8 @@
 	var/mob/user
 	var/title
 	var/window_id // window_id is used as the window name for browse and onclose
-	var/width = 0
-	var/height = 0
+	var/width = 300 // defaults in browse(), needed for DPI
+	var/height = 300
 	var/atom/ref = null
 	var/window_options = "focus=0;can_close=1;can_minimize=1;can_maximize=0;can_resize=1;titlebar=1;" // window option is set using window_id
 	var/stylesheets[0]
