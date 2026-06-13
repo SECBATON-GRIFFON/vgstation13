@@ -235,7 +235,8 @@ List of hard deletions:"}
 	if(L.len == 3)
 		to_chat(usr, "No garbage collector deletions this round")
 		return
-	usr << browse(HTML_SKELETON(jointext(L, "")),"window=harddellogs")
+
+	VG_BROWSE(usr, "harddellogs", "[src]", jointext(L, ""))
 
 /*
  * NEVER USE THIS FOR /atom OTHER THAN /atom/movable

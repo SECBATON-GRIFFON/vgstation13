@@ -135,7 +135,7 @@
 		dat += "<B><font color=red>Unable to locate analysis pad.</font><BR></b>"
 	//
 	dat += "<HR>"
-	VG_BROWSE_NO_REF(user, "artharvester", "[src]", 450, 500, dat)
+	VG_BROWSE_DIM(user, "artharvester", "[src]", 450, 500, dat)
 
 /obj/machinery/artifact_harvester/process()
 	if(stat & (NOPOWER|BROKEN|FORCEDISABLE))

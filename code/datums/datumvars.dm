@@ -349,7 +349,7 @@ function loadPage(list) {
 
 	html += "</html>"
 
-	VG_BROWSE_NO_REF(usr, "variables", "[src]", 475, 650, html)
+	VG_BROWSE_DIM(usr, "variables", "[src]", 475, 650, html)
 
 /client/proc/debug_variable(name, value, list/searched, var/datum/DA = null)
 	var/html = ""
@@ -473,7 +473,7 @@ function loadPage(list) {
 		html += "<hr>"
 		html += debug_variable(null, L)
 
-	usr << browse(HTML_SKELETON(html), "window=listedit\ref[L];size=475x650")
+	VG_BROWSE_DIM(usr, "listedit\ref[L]", "[src]", 475, 650, html)
 
 /client/proc/view_var_Topic(href, href_list, hsrc)
 	//This should all be moved over to datum/admins/Topic() or something ~Carn

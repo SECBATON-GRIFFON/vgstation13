@@ -111,7 +111,7 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 			dat += "<p>Given reason for ERT request: '[ert_reason]'"
 
 		dat += "<p><A href='?src=\ref[src];reset=1'>Back</A>"
-	VG_BROWSE_NO_REF(user, "keycard_auth", "[src]", 500, 300, dat)
+	VG_BROWSE_DIM(user, "keycard_auth", "[src]", 500, 300, dat)
 
 /obj/machinery/keycard_auth/Topic(href, href_list)
 	if(..())

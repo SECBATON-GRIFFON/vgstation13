@@ -176,7 +176,7 @@
 	for(var/index=1, index<=construction.len, index++)
 		dat += "<A href='?src=\ref[src];activate=[index]'>\[[construction[index]]\]</a><br>"
 
-	VG_BROWSE_NO_REF_DIM(user, "alien_replicator", "[src]", dat)
+	VG_BROWSE(user, "alien_replicator", "[src]", dat)
 
 /obj/machinery/replicator/Topic(href, href_list)
 	if(spawning_types.len > 0)

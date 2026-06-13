@@ -63,7 +63,7 @@
 	else
 		dat = "Please insert a container."
 
-	VG_BROWSE_NO_REF(user, "computer", "[src]", 400, 500, dat)
+	VG_BROWSE_DIM(user, "computer", "[src]", 400, 500, dat)
 
 /obj/machinery/computer/curer/process()
 	..()

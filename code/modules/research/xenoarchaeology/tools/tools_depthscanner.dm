@@ -121,7 +121,7 @@
 		dat += "No entries recorded."
 	dat += "<hr>"
 	dat += "<A href='?src=\ref[src];refresh=1'>Refresh</a><br>"
-	VG_BROWSE_NO_REF(user, "depth_scanner", "[src]", 300, 500, dat)
+	VG_BROWSE_DIM(user, "depth_scanner", "[src]", 300, 500, dat)
 
 /obj/item/device/depth_scanner/Topic(href, href_list)
 	..()

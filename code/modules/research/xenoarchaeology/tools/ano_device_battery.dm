@@ -111,7 +111,7 @@ var/list/anomaly_power_utilizers = list()
 
 	dat += "<hr>"
 
-	VG_BROWSE_NO_REF(user, "anodevice", "[src]", 400, 500, dat)
+	VG_BROWSE_DIM(user, "anodevice", "[src]", 400, 500, dat)
 
 /obj/item/weapon/anodevice/process()
 	if(cooldown > 0)

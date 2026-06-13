@@ -73,7 +73,7 @@
 				<A href='byond://?src=\ref[src];freq=10'>+</A><BR>
 				"}
 
-	VG_BROWSE_NO_REF(user, "locator", "[src]", 300, 150, dat)
+	VG_BROWSE_DIM(user, "locator", "[src]", 300, 150, dat)
 
 /obj/item/device/beacon_locator/Topic(href, href_list)
 	..()

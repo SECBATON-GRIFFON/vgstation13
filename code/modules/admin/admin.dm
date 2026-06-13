@@ -949,7 +949,7 @@ var/global/floorIsLava = 0
 		"}
 
 
-	VG_BROWSE_NO_REF_DIM(usr, "secrets", "[src]", dat)
+	VG_BROWSE(usr, "secrets", "[src]", dat)
 
 /datum/admins/var/datum/shuttle/selected_shuttle
 /datum/admins/proc/shuttle_magic()
