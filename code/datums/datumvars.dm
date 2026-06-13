@@ -349,7 +349,7 @@ function loadPage(list) {
 
 	html += "</html>"
 
-	new /datum/browser/clean/est(usr, "variables", "[src]", 475, 650, ncontent = html)
+	VG_BROWSE_NO_REF(usr, "variables", "[src]", 475, 650, html)
 
 /client/proc/debug_variable(name, value, list/searched, var/datum/DA = null)
 	var/html = ""

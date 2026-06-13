@@ -63,9 +63,7 @@
 	else
 		dat = "Please insert a container."
 
-	user << browse(HTML_SKELETON(dat), "window=computer;size=400x500")
-	onclose(user, "computer")
-	return
+	VG_BROWSE(user, "computer", "[src]", 400, 500, src, dat)
 
 /obj/machinery/computer/curer/process()
 	..()

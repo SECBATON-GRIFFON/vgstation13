@@ -331,9 +331,7 @@
 	dat += "<HR><A href='?src=\ref[src];print=1'>Print</A><BR>"
 
 	dat += text("<BR><A href='?src=\ref[];mach_close=scanconsole'>Close</A>", user)
-	new /datum/browser/clean/est(user, "scanconsole", "[src]", 430, 600, src, dat)
-	return
-
+	VG_BROWSE(user, "scanconsole", "[src]", 430, 600, src, dat)
 
 /obj/machinery/bodyscanner/Topic(href, href_list)
 	if(..())

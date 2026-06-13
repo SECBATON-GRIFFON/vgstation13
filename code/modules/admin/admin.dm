@@ -949,8 +949,7 @@ var/global/floorIsLava = 0
 		"}
 
 
-	new /datum/browser/clean/est(usr, "secrets", "[src]", ncontent = dat)
-	return
+	VG_BROWSE_NO_REF_DIM(usr, "secrets", "[src]", dat)
 
 /datum/admins/var/datum/shuttle/selected_shuttle
 /datum/admins/proc/shuttle_magic()

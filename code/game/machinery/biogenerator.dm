@@ -614,9 +614,7 @@
 
 				dat += {"<FONT COLOR=red>Error: No growns inside.</FONT><BR>Please, put growns into reactor.<BR>
 					<A href='?src=\ref[src];action=menu'>Return to menu</A>"}
-	new /datum/browser/clean/est(user, "biogenerator", "[src]", nref = src, ncontent = dat)
-	onclose(user, "biogenerator")
-	return
+	VG_BROWSE_NO_DIM(user, "biogenerator", "[src]", src, dat)
 
 /obj/machinery/biogenerator/attack_hand(mob/user as mob)
 	interact(user)

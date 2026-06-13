@@ -655,7 +655,7 @@
 		return
 
 	var/dat = text("<B>Engine Ejection Module</B><HR>\nStatus: Ejected<BR>\n<BR>\nCountdown: N/60 \[Reset\]<BR>\n<BR>\nEngine Ejected!<BR>\n<BR>\n<A href='?src=\ref[];mach_close=computer'>Close</A>", user)
-	new /datum/browser/clean/est(user, "computer", "[src]", 400, 500, src, dat)
+	VG_BROWSE(user, "computer", "[src]", 400, 500, src, dat)
 
 /obj/machinery/computer/ejectedengine/shield
 	name = "Shield Control Console"
@@ -668,7 +668,7 @@
 		return
 
 	var/dat = text("<B>Shield Generator Control</B><HR>\n<font color=red>Error:</font> Cannot locate projector array<BR>\n<font color=red>Error:</font> Cannot locate shield capacitors<BR>\n<font color=red>Error:</font> Cannot locate command signal<BR>\n<BR>\n<A href='?src=\ref[];mach_close=computer'>Close</A>", user)
-	new /datum/browser/clean/est(user, "computer", "[src]", 400, 500, src, dat)
+	VG_BROWSE(user, "computer", "[src]", 400, 500, src, dat)
 
 /obj/machinery/door/firedoor/red
 	name = "\improper Firelock"
