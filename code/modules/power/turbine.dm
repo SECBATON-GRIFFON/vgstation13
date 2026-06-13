@@ -145,7 +145,7 @@
 
 	if ( (get_dist(src, user) > 1 ) || (stat & (FORCEDISABLE|NOPOWER|BROKEN)) && (!istype(user, /mob/living/silicon/ai)) )
 		user.machine = null
-		user << browse(null, "window=turbine")
+		CLOSE_WINDOW("turbine")
 		return
 
 	user.machine = src

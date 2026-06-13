@@ -454,7 +454,7 @@
 			if(locked)
 				if (user.machine == src)
 					user.unset_machine()
-					user << browse(null, "window=turretid")
+					CLOSE_WINDOW("turretid")
 			else
 				if(user.machine == src)
 					src.attack_hand(user)
@@ -473,7 +473,7 @@
 		if(!issilicon(user) && !isAdminGhost(user))
 			to_chat(user, "<span class='notice'>You are too far away.</span>")
 			user.unset_machine()
-			user << browse(null, "window=turretid")
+			CLOSE_WINDOW("turretid")
 			return
 
 	user.set_machine(src)

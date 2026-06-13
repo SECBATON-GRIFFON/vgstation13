@@ -475,7 +475,7 @@
 
 	HTML += {"<center><a href='?_src_=prefs;preference=jobs;task=reset'>Reset</a></center>
 		</tt>"}
-	user << browse(null, "window=preferences")
+	CLOSE_WINDOW("preferences")
 	//user << browse(HTML, "window=mob_occupation;size=[width]x[height]")
 	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Occupation Preferences</div>", width, height)
 	popup.set_content(HTML)
@@ -579,7 +579,7 @@
 		<a href=\"?_src_=prefs;task=close;preference=disabilities\">\[Done\]</a>
 		<a href=\"?_src_=prefs;task=reset;preference=disabilities\">\[Reset\]</a>
 		</center></tt>"}
-	user << browse(null, "window=preferences")
+	CLOSE_WINDOW("preferences")
 	user << browse(HTML_SKELETON(HTML), "window=disabil;size=350x300")
 	return
 
@@ -615,7 +615,7 @@
 	HTML += {"<br>
 		<a href=\"byond://?src=\ref[user];preference=records;records=-1\">\[Done\]</a>
 		</center></tt>"}
-	user << browse(null, "window=preferences")
+	CLOSE_WINDOW("preferences")
 	user << browse(HTML_SKELETON(HTML), "window=records;size=350x300")
 	return
 
@@ -650,7 +650,7 @@
 	browser.open(use_onclose=FALSE)
 
 /datum/preferences/proc/close_load_dialog(mob/user)
-	user << browse(null, "window=saves")
+	CLOSE_WINDOW("saves")
 
 /datum/preferences/proc/configure_special_roles(var/dat, var/mob/user)
 	dat+={"

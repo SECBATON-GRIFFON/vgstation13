@@ -278,7 +278,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 	. = ..()
 
 	if (user.lying)
-		user << browse(null, "window=newscaster_main;size=400x600")
+		CLOSE_WINDOW("newscaster_main;size=400x600")
 
 	if (.)
 		return

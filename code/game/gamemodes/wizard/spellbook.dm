@@ -88,7 +88,6 @@
 //Menu
 #define buy_href_link(obj, price, txt) ((price > uses) ? "Price: [price] point\s" : "<a href='?src=\ref[src];spell=[obj];buy=1'>[txt]</a>")
 #define book_background_color "#F1F1D4"
-#define book_window_size "550x600"
 
 /obj/item/weapon/spellbook/attack_self(var/mob/user)
 	if(!user)
@@ -213,8 +212,7 @@
 
 	dat += "</body>"
 
-	user << browse(HTML_SKELETON(dat), "window=spellbook;size=[book_window_size]")
-	onclose(user, "spellbook")
+	NEW_BROWSER_DIM(user, "spellbook", "[src]", 550, 600, dat)
 
 /obj/item/weapon/spellbook/proc/build_description(var/mob/user, var/spell_path) //Building sounds more coderlike doesn't it
 	var/dat
@@ -415,4 +413,3 @@
 
 #undef buy_href_link
 #undef book_background_color
-#undef book_window_size

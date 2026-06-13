@@ -40,7 +40,7 @@
 			if (locked)
 				if (user.machine == src)
 					user.unset_machine()
-					user << browse(null, "window=ai_slipper")
+					CLOSE_WINDOW("ai_slipper")
 			else
 				if (user.machine == src)
 					src.attack_hand(usr)
@@ -65,9 +65,7 @@
 		t += text("Dispenser [src.disabled ? "unactive":"active"] - <A href='?src=\ref[src];toggleOn=1'>[src.disabled?"Enable":"Disable"]?</a><br>\n")
 		t += text("Uses Left: [uses]. <A href='?src=\ref[src];toggleUse=1'>Activate the dispenser?</A><br>\n")
 
-	user << browse(HTML_SKELETON(t), "window=computer;size=575x450")
-	onclose(user, "computer")
-	return
+	NEW_BROWSER_DIM(user, "computer", "[src]", 575, 450, t)
 
 /obj/machinery/ai_slipper/AICtrlClick(mob/user as mob)
 	src.add_hiddenprint(user)

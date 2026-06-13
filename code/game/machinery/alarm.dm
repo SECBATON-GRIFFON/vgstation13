@@ -1485,8 +1485,7 @@ FIRE ALARM
 		dat += "An emergency shelter is mounted within. <A href='?src=\ref[src];shelter=1'>Retrieve</A>"
 	else
 		dat += "The shelter has been removed. <A href='?src=\ref[src];shelter=1'>Insert</A>"
-	user << browse(HTML_SKELETON(dat), "window=firealarm")
-	onclose(user, "firealarm")
+	NEW_BROWSER(user, "firealarm", "[src]", dat)
 
 /obj/machinery/firealarm/Topic(href, href_list)
 	if(..())
@@ -1629,6 +1628,7 @@ var/global/list/firealarms = list() //shrug
 	var/d1
 	var/d2
 	var/area/this_area = get_area(src)
+	var/dat = ""
 	if (istype(user, /mob/living/carbon/human) || istype(user, /mob/living/silicon/ai))
 		if (this_area.party)
 			d1 = text("<A href='?src=\ref[];reset=1'>No Party :(</A>", src)
@@ -1640,9 +1640,7 @@ var/global/list/firealarms = list() //shrug
 			d2 = text("<A href='?src=\ref[];time=1'>Initiate Time Lock</A>", src)
 		var/second = time % 60
 		var/minute = (time - second) / 60
-		var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>Party Button</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-		user << browse(HTML_SKELETON(dat), "window=partyalarm")
-		onclose(user, "partyalarm")
+		dat = text("<HTML><HEAD></HEAD><BODY><TT><B>Party Button</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
 	else
 		if (this_area.fire)
 			d1 = text("<A href='?src=\ref[];reset=1'>[]</A>", src, stars("No Party :("))
@@ -1654,10 +1652,8 @@ var/global/list/firealarms = list() //shrug
 			d2 = text("<A href='?src=\ref[];time=1'>[]</A>", src, stars("Initiate Time Lock"))
 		var/second = time % 60
 		var/minute = (time - second) / 60
-		var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>[]</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", stars("Party Button"), d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-		user << browse(HTML_SKELETON(dat), "window=partyalarm")
-		onclose(user, "partyalarm")
-	return
+		dat = text("<HTML><HEAD></HEAD><BODY><TT><B>[]</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", stars("Party Button"), d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
+	NEW_BROWSER(user, "partyalarm", "[src]", dat)
 
 /obj/machinery/partyalarm/proc/reset()
 	if (!( working ))

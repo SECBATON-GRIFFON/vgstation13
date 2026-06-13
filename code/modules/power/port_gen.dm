@@ -244,7 +244,7 @@
 	if (get_dist(src, user) > 1 )
 		if (!istype(user, /mob/living/silicon/ai))
 			user.unset_machine()
-			user << browse(null, "window=port_gen")
+			CLOSE_WINDOW("port_gen")
 			return
 
 	user.set_machine(src)

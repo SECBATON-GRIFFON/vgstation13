@@ -180,7 +180,7 @@
 	else
 		src.stat |= MAINT
 		if (user.machine==src)
-			user << browse(null, "window=pipedispenser")
+			CLOSE_WINDOW("pipedispenser")
 
 
 /obj/machinery/pipedispenser/disposal

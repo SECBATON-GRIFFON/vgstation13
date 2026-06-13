@@ -342,7 +342,7 @@
 	if((get_dist(src, user) > 1) || (stat & (FORCEDISABLE|BROKEN|NOPOWER)))
 		if(!istype(user, /mob/living/silicon/ai))
 			user.unset_machine()
-			user << browse(null, "window=AMcontrol")
+			CLOSE_WINDOW("AMcontrol")
 			return
 	return ui_interact(user)
 

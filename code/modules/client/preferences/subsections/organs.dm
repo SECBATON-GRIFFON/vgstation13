@@ -67,7 +67,7 @@
 	var/task = href_list["task"]
 	switch(task)
 		if("menu")
-			user << browse(null, "window=preferences")
+			CLOSE_WINDOW("preferences")
 			return show_menu(arglist(args))
 		if("input")
 			. = handle_input(arglist(args))

@@ -255,7 +255,7 @@
 	..()
 	update_icon()
 	if(!panel_open && user.machine == src)
-		user << browse(null, "window=spaceheater")
+		CLOSE_WINDOW("spaceheater")
 		user.unset_machine()
 
 /obj/machinery/space_heater/attack_hand(mob/user as mob)

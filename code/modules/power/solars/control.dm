@@ -127,7 +127,7 @@
 	if (!src.Adjacent(user))
 		if (!issilicon(user)&&!isobserver(user))
 			user.unset_machine()
-			user << browse(null, "window=solcon")
+			CLOSE_WINDOW("solcon")
 			return
 
 	user.set_machine(src)

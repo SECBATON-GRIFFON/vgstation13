@@ -235,7 +235,7 @@
 					pause(user)
 			else
 				user.unset_machine()
-				user << browse(null, "window=pda")
+				CLOSE_WINDOW("pda")
 				pause(user)
 		else
 			pause(user)

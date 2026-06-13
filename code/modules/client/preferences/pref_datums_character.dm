@@ -760,7 +760,7 @@
 	var/datum/preference_setting/alternate_option = parent.get_pref_datum(/datum/preference_setting/enum/alternate_option)
 	switch(task)
 		if("close")
-			user << browse(null, "window=mob_occupation")
+			CLOSE_WINDOW("mob_occupation")
 			parent.ShowChoices(user)
 		if("reset")
 			parent.ResetJobs()
@@ -845,7 +845,7 @@
 /datum/preference_setting/binary_flag/disabilities/process_link(var/task, var/mob/user, var/list/href_list)
 	switch(task)
 		if("close")
-			user << browse(null, "window=disabil")
+			CLOSE_WINDOW("disabil")
 			parent.ShowChoices(user)
 		if("reset")
 			setting=0

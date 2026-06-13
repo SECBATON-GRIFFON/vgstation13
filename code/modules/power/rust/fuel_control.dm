@@ -51,12 +51,12 @@
 /obj/machinery/computer/rust_fuel_control/interact(mob/user)
 	if(stat & (FORCEDISABLE|BROKEN|NOPOWER))
 		user.unset_machine()
-		user << browse(null, "window=fuel_control")
+		CLOSE_WINDOW("fuel_control")
 		return
 
 	if (!istype(user, /mob/living/silicon) && get_dist(src, user) > 1)
 		user.unset_machine()
-		user << browse(null, "window=fuel_control")
+		CLOSE_WINDOW("fuel_control")
 		return
 
 	var/dat = "<B>Reactor Core Fuel Control</B><BR>"

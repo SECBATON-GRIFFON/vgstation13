@@ -259,7 +259,7 @@
 		if(!istype(user, /mob/living/silicon) && !isAdminGhost(user))
 			if(!user.mutations || user.mutations.len || !(M_TK in user.mutations))
 				user.unset_machine()
-				user << browse(null, "window=pacontrol")
+				CLOSE_WINDOW("pacontrol")
 				return
 	user.set_machine(src)
 
