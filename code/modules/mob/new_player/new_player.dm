@@ -675,10 +675,8 @@
 			dat += "<tr[color ? " class='alt'" : ""]><td><a href='byond://?src=\ref[src];SelectedJob=[job.title]'>[job.title]</a></td><td>[job.current_positions]</td><td>[misc[job]]</td></tr>"
 			color = !color
 
-	dat += "</table>"
-	dat += "</center>"
-	src << browse(HTML_SKELETON(dat), "window=latechoices;size=360x640;can_close=1")
-
+	dat += "</table></center>"
+	VG_BROWSE_DIM(src, "latechoices", "[src]", 360, 640, dat)
 
 /mob/new_player/proc/create_human(var/datum/preferences/prefs)
 	spawning = TRUE
@@ -868,14 +866,14 @@
 	<h4>High Job Preferences</h4>"}
 	dat += job_master.display_prediction()
 
-	src << browse(HTML_SKELETON(dat), "window=manifest;size=370x420;can_close=1")
+	VG_BROWSE_DIM(src, "manifest", "[src]", 370, 420, dat)
 
 /mob/new_player/proc/ViewManifest()
 	var/dat = {"<html><body>
 <h4>Crew Manifest</h4>"}
 	dat += data_core.get_manifest(OOC = 1)
 
-	src << browse(HTML_SKELETON(dat), "window=manifest;size=370x420;can_close=1")
+	VG_BROWSE_DIM(src, "manifest", "[src]", 370, 420, dat)
 
 /mob/new_player/Move(NewLoc, Dir = 0, step_x = 0, step_y = 0, glide_size_override = 0)
 	return 0
