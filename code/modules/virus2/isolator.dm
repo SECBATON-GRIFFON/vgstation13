@@ -92,7 +92,7 @@
 						dat += "<li>[G.name]: <A href='?src=\ref[src];isolate=[V.uniqueID]'>Isolate pathogen #[V.uniqueID]</a></li>"
 				else
 					dat += "<li><em>No pathogen</em></li>"
-	VG_BROWSE(user, "isolator", "Pathogenic Isolator", 575, 400, src, "Isolator menu:<BR><BR>[dat]</ul>")
+	VG_BROWSE_NO_REF(user, "isolator", "Pathogenic Isolator", 575, 400, "Isolator menu:<BR><BR>[dat]</ul>")
 
 /obj/machinery/disease2/isolator/process()
 	if(isolating > 0)

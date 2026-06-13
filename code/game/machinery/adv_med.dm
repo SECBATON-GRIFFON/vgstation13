@@ -331,7 +331,7 @@
 	dat += "<HR><A href='?src=\ref[src];print=1'>Print</A><BR>"
 
 	dat += text("<BR><A href='?src=\ref[];mach_close=scanconsole'>Close</A>", user)
-	VG_BROWSE(user, "scanconsole", "[src]", 430, 600, src, dat)
+	VG_BROWSE_NO_REF(user, "scanconsole", "[src]", 430, 600, dat)
 
 /obj/machinery/bodyscanner/Topic(href, href_list)
 	if(..())
