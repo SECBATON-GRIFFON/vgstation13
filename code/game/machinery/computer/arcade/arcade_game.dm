@@ -219,7 +219,7 @@
 
 	if (href_list["close"])
 		usr.unset_machine()
-		usr << browse(null, "window=arcade")
+		CLOSE_WINDOW(usr,"arcade")
 
 	else if (href_list["newgame"]) //Reset everything
 		if(is_cheater(usr))

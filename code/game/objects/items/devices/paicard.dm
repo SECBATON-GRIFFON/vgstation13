@@ -88,7 +88,7 @@
 			to_chat(pai, "<font color = red><h3>You have been bound to a new master: [pai.master].</h3></font>")
 		attack_self(usr)
 	if(href_list["request"])
-		usr << browse(null, "window=paicard")
+		CLOSE_WINDOW(usr,"paicard")
 		looking_for_personality = TRUE
 		paiController.findPAI(src, usr)
 	if(href_list["wipe"])

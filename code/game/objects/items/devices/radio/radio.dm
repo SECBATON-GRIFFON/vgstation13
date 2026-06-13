@@ -159,7 +159,7 @@
 		return 1
 
 	if(!in_range(src,usr) && !isAdminGhost(usr) && !issilicon(usr)) //Not adjacent/have telekinesis/a silicon/an aghost? Close it.
-		usr << browse(null, "window=radio")
+		CLOSE_WINDOW(usr,"radio")
 		return 1
 	usr.set_machine(src)
 	if (href_list["open"])

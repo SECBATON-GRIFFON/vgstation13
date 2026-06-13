@@ -34,7 +34,7 @@
 
 /obj/item/stack/Destroy()
 	if (usr && usr.machine==src)
-		usr << browse(null, "window=stack")
+		CLOSE_WINDOW(usr,"stack")
 	..()
 
 /obj/item/stack/examine(mob/user)
@@ -56,7 +56,7 @@
 	if(!recipes)
 		return
 	if(!src || amount <= 0)
-		CLOSE_WINDOW("stack")
+		CLOSE_WINDOW(user,"stack")
 	user.set_machine(src) //for correct work of onclose
 	var/list/recipe_list = recipes
 	if(recipes_sublist && recipe_list[recipes_sublist] && istype(recipe_list[recipes_sublist], /datum/stack_recipe_list))

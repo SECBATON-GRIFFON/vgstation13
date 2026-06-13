@@ -61,7 +61,7 @@
 	if(!anchored)
 		return 1
 	if(..())
-		usr << browse(null, "window=disposal")
+		CLOSE_WINDOW(usr,"disposal")
 		usr.unset_machine()
 		return 1
 	else

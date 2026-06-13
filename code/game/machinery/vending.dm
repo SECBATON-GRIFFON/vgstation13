@@ -918,7 +918,7 @@ var/global/num_vending_terminals = 1
 
 /obj/machinery/vending/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=vending")
+		CLOSE_WINDOW(usr,"vending")
 		return 1
 
 	//testing("..(): [href]")

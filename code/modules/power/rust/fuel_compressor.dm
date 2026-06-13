@@ -51,7 +51,7 @@ var/const/max_fuel_amount = 24
 	if ( (get_dist(src, user) > 1 ) || (stat & (FORCEDISABLE|BROKEN|NOPOWER)) )
 		if (!istype(user, /mob/living/silicon))
 			user.unset_machine()
-			CLOSE_WINDOW("fuelcomp")
+			CLOSE_WINDOW(user,"fuelcomp")
 			return
 
 
@@ -80,7 +80,7 @@ var/const/max_fuel_amount = 24
 	if(..())
 		return 1
 	if( href_list["close"] )
-		usr << browse(null, "window=fuelcomp")
+		CLOSE_WINDOW(usr,"fuelcomp")
 		usr.machine = null
 
 	if( href_list["eject_matter"] )

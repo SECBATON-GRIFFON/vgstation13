@@ -51,12 +51,12 @@
 /obj/machinery/computer/rust_fuel_control/interact(mob/user)
 	if(stat & (FORCEDISABLE|BROKEN|NOPOWER))
 		user.unset_machine()
-		CLOSE_WINDOW("fuel_control")
+		CLOSE_WINDOW(user,"fuel_control")
 		return
 
 	if (!istype(user, /mob/living/silicon) && get_dist(src, user) > 1)
 		user.unset_machine()
-		CLOSE_WINDOW("fuel_control")
+		CLOSE_WINDOW(user,"fuel_control")
 		return
 
 	var/dat = "<B>Reactor Core Fuel Control</B><BR>"
@@ -174,7 +174,7 @@
 		announce_stageprogression = text2num(href_list["announce_stageprogression"])
 
 	if( href_list["close"] )
-		usr << browse(null, "window=fuel_control")
+		CLOSE_WINDOW(usr,"fuel_control")
 		usr.unset_machine()
 
 	if( href_list["set_next_stage"] )

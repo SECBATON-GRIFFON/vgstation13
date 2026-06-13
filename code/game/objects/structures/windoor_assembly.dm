@@ -215,7 +215,7 @@
 		if(!electronics)
 			to_chat(usr, "<span class='rose'>\The [name] is missing electronics.</span>")
 			return
-		usr << browse(null, "window=windoor_access")
+		CLOSE_WINDOW(usr,"windoor_access")
 		W.playtoolsound(src, 100)
 		user.visible_message("[user] is prying [src] into the frame.", "You start prying [src] into the frame.")
 

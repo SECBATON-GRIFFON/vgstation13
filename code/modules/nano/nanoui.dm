@@ -494,7 +494,7 @@ nanoui is used to open and update nano browser uis
 /datum/nanoui/proc/close()
 	is_auto_updating = 0
 	nanomanager.ui_closed(src)
-	CLOSE_WINDOW("[window_id]")
+	CLOSE_WINDOW(user,"[window_id]")
 
  /**
   * Set the UI window to call the nanoclose verb when the window is closed

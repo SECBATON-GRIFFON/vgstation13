@@ -454,7 +454,7 @@
 			if(locked)
 				if (user.machine == src)
 					user.unset_machine()
-					CLOSE_WINDOW("turretid")
+					CLOSE_WINDOW(user,"turretid")
 			else
 				if(user.machine == src)
 					src.attack_hand(user)
@@ -473,7 +473,7 @@
 		if(!issilicon(user) && !isAdminGhost(user))
 			to_chat(user, "<span class='notice'>You are too far away.</span>")
 			user.unset_machine()
-			CLOSE_WINDOW("turretid")
+			CLOSE_WINDOW(user,"turretid")
 			return
 
 	user.set_machine(src)
@@ -493,8 +493,7 @@
 		t += "Turrets [enabled ? "activated":"deactivated"] - <A href='?src=\ref[src];toggleOn=1'>[enabled ? "Disable":"Enable"]?</a><br>\n"
 		t += "Currently set to [lethal ? "lethal":"stun"] - <A href='?src=\ref[src];toggleLethal=1'>Change to [lethal ? "Stun":"Lethal"]?</a><br>\n"
 
-	user << browse(HTML_SKELETON(t), "window=turretid")
-	onclose(user, "turretid")
+	NEW_BROWSER(M, "turretid", "[src]", t)
 
 /obj/machinery/turretid/npc_tamper_act(mob/living/L)
 	enabled = rand(0, 1)
@@ -671,9 +670,7 @@
 
 				</body>
 				</html>"}
-	user << browse(HTML_SKELETON(dat), "window=turret")
-	onclose(user, "turret")
-	return
+	NEW_BROWSER(user, "turret", "[src]", dat)
 
 /obj/structure/turret/gun_turret/attack_ai(mob/user as mob)
 	src.add_hiddenprint(user)

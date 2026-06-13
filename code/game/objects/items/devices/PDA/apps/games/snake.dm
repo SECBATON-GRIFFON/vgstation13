@@ -235,7 +235,7 @@
 					pause(user)
 			else
 				user.unset_machine()
-				CLOSE_WINDOW("pda")
+				CLOSE_WINDOW(user,"pda")
 				pause(user)
 		else
 			pause(user)

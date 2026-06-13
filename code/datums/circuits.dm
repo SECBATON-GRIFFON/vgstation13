@@ -119,5 +119,5 @@
 			Interact(usr) //Update
 
 	if(href_list["close"])
-		usr << browse(null, "window=wires")
+		CLOSE_WINDOW(usr,"wires")
 		usr.unset_machine(holder)

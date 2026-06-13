@@ -2066,7 +2066,7 @@
 			return
 		add_req_access = 0
 		var/mob/user = topic_filter.getMob("user")
-		user << browse(null,"window=exosuit_add_access")
+		CLOSE_WINDOW(user,"exosuit_add_access")
 		return
 	if(href_list["dna_lock"])
 		if(usr != src.occupant)

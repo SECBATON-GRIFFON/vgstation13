@@ -87,4 +87,4 @@
 
 		add_fingerprint(usr)
 	else
-		usr << browse(null, "window=implantpad")
+		CLOSE_WINDOW(usr,"implantpad")

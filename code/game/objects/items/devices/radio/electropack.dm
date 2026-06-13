@@ -111,7 +111,7 @@
 					if(M.client)
 						attack_self(M)
 	else
-		usr << browse(null, "window=radio")
+		CLOSE_WINDOW(usr,"radio")
 		return
 	return
 

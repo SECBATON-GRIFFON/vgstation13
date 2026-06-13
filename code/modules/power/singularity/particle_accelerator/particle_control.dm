@@ -108,7 +108,7 @@
 		return
 
 	if( href_list["close"] )
-		usr << browse(null, "window=pacontrol")
+		CLOSE_WINDOW(usr,"pacontrol")
 		usr.unset_machine()
 		return
 	if(href_list["togglep"])
@@ -259,7 +259,7 @@
 		if(!istype(user, /mob/living/silicon) && !isAdminGhost(user))
 			if(!user.mutations || user.mutations.len || !(M_TK in user.mutations))
 				user.unset_machine()
-				CLOSE_WINDOW("pacontrol")
+				CLOSE_WINDOW(user,"pacontrol")
 				return
 	user.set_machine(src)
 

@@ -74,7 +74,7 @@ var/list/pager_list = list()
 
 /obj/item/device/pager/Topic(href, href_list)
 	if(!in_range(src,usr) && !isAdminGhost(usr) && !issilicon(usr))
-		usr << browse(null, "window=pager")
+		CLOSE_WINDOW(usr,"pager")
 		return 1
 	usr.set_machine(src)
 	if("toggle_mute" in href_list)

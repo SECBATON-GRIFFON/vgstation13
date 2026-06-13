@@ -145,7 +145,7 @@
 
 	if ( (get_dist(src, user) > 1 ) || (stat & (FORCEDISABLE|NOPOWER|BROKEN)) && (!istype(user, /mob/living/silicon/ai)) )
 		user.machine = null
-		CLOSE_WINDOW("turbine")
+		CLOSE_WINDOW(user,"turbine")
 		return
 
 	user.machine = src
@@ -179,7 +179,7 @@
 
 
 		if( href_list["close"] )
-			usr << browse(null, "window=turbine")
+			CLOSE_WINDOW(usr,"turbine")
 			usr.machine = null
 			return
 
@@ -192,7 +192,7 @@
 					src.interact(M)
 
 	else
-		usr << browse(null, "window=turbine")
+		CLOSE_WINDOW(usr,"turbine")
 		usr.machine = null
 
 	return
@@ -300,7 +300,7 @@
 						D.close()
 						door_status = 0
 		else if( href_list["close"] )
-			usr << browse(null, "window=computer")
+			CLOSE_WINDOW(usr,"computer")
 			usr.machine = null
 			return
 

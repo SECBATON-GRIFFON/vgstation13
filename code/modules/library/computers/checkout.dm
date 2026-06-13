@@ -267,7 +267,7 @@
 
 /obj/machinery/computer/library/checkout/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=library")
+		CLOSE_WINDOW(usr,"library")
 		onclose(usr, "library")
 		return 1
 

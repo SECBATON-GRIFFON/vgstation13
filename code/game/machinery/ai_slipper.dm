@@ -40,7 +40,7 @@
 			if (locked)
 				if (user.machine == src)
 					user.unset_machine()
-					CLOSE_WINDOW("ai_slipper")
+					CLOSE_WINDOW(user,"ai_slipper")
 			else
 				if (user.machine == src)
 					src.attack_hand(usr)

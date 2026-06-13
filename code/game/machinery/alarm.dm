@@ -1527,7 +1527,7 @@ FIRE ALARM
 
 		src.add_fingerprint(usr)
 	else
-		usr << browse(null, "window=firealarm")
+		CLOSE_WINDOW(usr,"firealarm")
 		return
 	return
 

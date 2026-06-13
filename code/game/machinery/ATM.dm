@@ -285,7 +285,7 @@ log transactions
 
 		NEW_BROWSER_DIM(user, "atm", "[src]", 550, 650, dat)
 	else
-		user << browse(null,"window=atm")
+		CLOSE_WINDOW(user,"atm")
 
 /obj/machinery/atm/Topic(var/href, var/href_list)
 	if(..())

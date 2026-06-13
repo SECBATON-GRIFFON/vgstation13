@@ -820,7 +820,7 @@ About the new airlock wires panel:
 		return
 
 	if(href_list["close"])
-		usr << browse(null, "window=airlock")
+		CLOSE_WINDOW(usr,"airlock")
 		if(usr.machine==src)
 			usr.unset_machine()
 			return
@@ -1167,7 +1167,7 @@ About the new airlock wires panel:
 
 	if(operating)
 		return
-	
+
 	var/dooropendelay=0
 	var/level_of_door_opening = 0
 	if(istype(M,/mob/living/simple_animal))
@@ -1176,9 +1176,9 @@ About the new airlock wires panel:
 		if(SA.environment_smash_flags & OPEN_DOOR_STRONG)
 			level_of_door_opening = 2
 		dooropendelay=SA.force_airlock_time
-	
-	
-	
+
+
+
 	if(!level_of_door_opening)
 		return
 	if((locked || welded || jammed) && level_of_door_opening < 2)

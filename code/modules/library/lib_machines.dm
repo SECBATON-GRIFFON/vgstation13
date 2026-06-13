@@ -198,7 +198,7 @@ var/global/datum/library_catalog/library_catalog = new()
 
 /obj/machinery/libraryscanner/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=scanner")
+		CLOSE_WINDOW(usr,"scanner")
 		onclose(usr, "scanner")
 		return
 

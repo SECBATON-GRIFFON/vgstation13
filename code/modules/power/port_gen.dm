@@ -244,7 +244,7 @@
 	if (get_dist(src, user) > 1 )
 		if (!istype(user, /mob/living/silicon/ai))
 			user.unset_machine()
-			CLOSE_WINDOW("port_gen")
+			CLOSE_WINDOW(user,"port_gen")
 			return
 
 	user.set_machine(src)
@@ -293,7 +293,7 @@
 				power_output++
 				src.updateUsrDialog()
 		if (href_list["action"] == "close")
-			usr << browse(null, "window=port_gen")
+			CLOSE_WINDOW(usr,"port_gen")
 			usr.unset_machine()
 
 /obj/machinery/power/port_gen/npc_tamper_act(mob/living/L)

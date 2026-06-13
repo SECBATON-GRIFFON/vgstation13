@@ -241,7 +241,7 @@
 		print_report(usr)
 	if(href_list["clear"])
 		last_data = ""
-		usr << browse(null, "window=plant_analyzer")
+		CLOSE_WINDOW(usr,"plant_analyzer")
 
 /obj/item/device/analyzer/plant_analyzer/proc/print_report(var/mob/living/user) //full credits to Zuhayr
 	if(!last_data)

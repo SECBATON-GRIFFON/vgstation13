@@ -150,7 +150,7 @@
 
 
 	else
-		usr << browse(null, "window=pandemic")
+		CLOSE_WINDOW(usr,"pandemic")
 		src.updateUsrDialog()
 		return
 

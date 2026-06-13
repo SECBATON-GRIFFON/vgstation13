@@ -265,7 +265,7 @@ var/const/MAX_SAVE_SLOTS = 16
 	var/datum/job/job = job_master.GetJob(role)
 	var/species = get_pref(/datum/preference_setting/string/species)
 	if(!job)
-		CLOSE_WINDOW("mob_occupation")
+		CLOSE_WINDOW(user,"mob_occupation")
 		ShowChoices(user)
 		return
 
@@ -353,7 +353,7 @@ var/const/MAX_SAVE_SLOTS = 16
 		if(text2num(href_list["record"]) >= 1)
 			SetRecords(user)
 		else
-			CLOSE_WINDOW("records")
+			CLOSE_WINDOW(user,"records")
 			ShowChoices(user)
 
 		if(href_list["task"] == "med_record")

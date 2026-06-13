@@ -179,7 +179,7 @@
 					pda_device.attack_self(C)
 			else
 				user.unset_machine()
-				CLOSE_WINDOW("pda")
+				CLOSE_WINDOW(user,"pda")
 
 /datum/pda_app/minesweeper/proc/save_score()
 	if(minesweeper_game.current_difficulty == "custom")

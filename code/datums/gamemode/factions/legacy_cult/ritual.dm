@@ -297,7 +297,7 @@ var/runedec = 0 // Rune cap ?
 		usr << browse(HTML_SKELETON(notedat), "window=notes")
 //		call(/obj/item/weapon/tome_legacy/proc/edit_notes)()
 	else
-		usr << browse(null, "window=notes")
+		CLOSE_WINDOW(usr,"notes")
 		return
 
 /*
@@ -317,7 +317,7 @@ var/runedec = 0 // Rune cap ?
 		[words[10]] is <a href='byond://?src=\ref[src];number=10;action=change'>[words[words[10]]]</A> <A href='byond://?src=\ref[src];number=10;action=clear'>Clear</A><BR>
 				"}
 	to_chat(usr, "whatev")
-	usr << browse(null, "window=tank")
+	CLOSE_WINDOW(usr,"tank")
 */
 
 /obj/item/weapon/tome_legacy/attack(mob/living/M as mob, mob/living/user as mob)

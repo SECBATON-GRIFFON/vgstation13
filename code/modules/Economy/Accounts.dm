@@ -332,7 +332,7 @@ var/init_station_funds = 0
 					dat += "</table>"
 		user << browse(HTML_SKELETON(dat),"window=account_db;size=700x650")
 	else
-		user << browse(null,"window=account_db")
+		CLOSE_WINDOW(user,"account_db")
 
 /obj/machinery/account_database/attackby(var/obj/O, var/mob/user)
 	. = ..()

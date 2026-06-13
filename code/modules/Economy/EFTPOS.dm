@@ -84,7 +84,7 @@
 				Scan card to reset access code <a href='?src=\ref[src];choice=reset'>\[------\]</a>"}
 		user << browse(HTML_SKELETON(dat),"window=eftpos")
 	else
-		user << browse(null,"window=eftpos")
+		CLOSE_WINDOW(user,"eftpos")
 
 /obj/item/device/eftpos/attackby(O as obj, user as mob)
 	if(istype(O, /obj/item/weapon/card))
@@ -192,4 +192,3 @@
 /obj/item/device/eftpos/emag_act(mob/user)
 	access_code = 0
 	to_chat(user, "[bicon(src)] <span class='info'>Access code reset to 0.</span>")
-	

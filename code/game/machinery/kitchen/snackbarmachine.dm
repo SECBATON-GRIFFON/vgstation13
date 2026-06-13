@@ -10,7 +10,7 @@
 /obj/machinery/chem_master/snackbar_machine/Topic(href, href_list)
 
 	if(href_list["close"])
-		usr << browse(null, "window=snackbar_machine")
+		CLOSE_WINDOW(usr,"snackbar_machine")
 		usr.unset_machine()
 		return 1
 

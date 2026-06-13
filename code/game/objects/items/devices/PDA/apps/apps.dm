@@ -68,7 +68,7 @@
 			pda_device.attack_self(usr)
 		else
 			usr.unset_machine()
-			usr << browse(null, "window=pda")
+			CLOSE_WINDOW(usr,"pda")
 	else
 		no_refresh = FALSE
 

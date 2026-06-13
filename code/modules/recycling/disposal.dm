@@ -290,7 +290,7 @@
 		to_chat(usr, "<span class='warning'>The disposal units power is disabled.</span>")
 		return
 	if(..())
-		usr << browse(null, "window=disposal")
+		CLOSE_WINDOW(usr,"disposal")
 		usr.unset_machine()
 		return 1
 	else
@@ -299,7 +299,7 @@
 
 		if(href_list["close"])
 			usr.unset_machine()
-			usr << browse(null, "window=disposal")
+			CLOSE_WINDOW(usr,"disposal")
 			return
 
 		if(href_list["pump"])

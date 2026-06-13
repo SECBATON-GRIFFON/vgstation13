@@ -49,7 +49,7 @@
 		return
 	var/mob/user = usr
 	if (!Adjacent(user) || user.incapacitated())
-		usr << browse(null, "window=orebox")
+		CLOSE_WINDOW(usr,"orebox")
 		return
 	user.set_machine(src)
 	add_fingerprint(user)

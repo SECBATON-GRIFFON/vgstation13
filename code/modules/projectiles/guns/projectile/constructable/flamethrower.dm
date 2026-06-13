@@ -204,7 +204,7 @@
 	if (..())
 		return
 	if(href_list["close"])
-		usr << browse(null, "window=flamethrower")
+		CLOSE_WINDOW(usr,"flamethrower")
 		usr.unset_machine()
 		window_open = 0
 		return

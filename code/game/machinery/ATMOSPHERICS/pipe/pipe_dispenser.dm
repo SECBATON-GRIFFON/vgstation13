@@ -116,10 +116,10 @@
 
 /obj/machinery/pipedispenser/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=pipedispenser")
+		CLOSE_WINDOW(usr,"pipedispenser")
 		return 1
 	if(!anchored)
-		usr << browse(null, "window=pipedispenser")
+		CLOSE_WINDOW(usr,"pipedispenser")
 		return 1
 	usr.set_machine(src)
 	src.add_fingerprint(usr)
@@ -180,7 +180,7 @@
 	else
 		src.stat |= MAINT
 		if (user.machine==src)
-			CLOSE_WINDOW("pipedispenser")
+			CLOSE_WINDOW(user,"pipedispenser")
 
 
 /obj/machinery/pipedispenser/disposal
@@ -256,7 +256,7 @@ Nah
 	src.add_fingerprint(usr)
 	if(href_list["dmake"])
 		if(!anchored || !usr.canmove || usr.stat || usr.restrained() || !in_range(loc, usr))
-			usr << browse(null, "window=pipedispenser")
+			CLOSE_WINDOW(usr,"pipedispenser")
 			return
 		if(!wait)
 			var/p_type = text2num(href_list["dmake"])

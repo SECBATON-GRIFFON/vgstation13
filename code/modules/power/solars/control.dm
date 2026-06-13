@@ -127,7 +127,7 @@
 	if (!src.Adjacent(user))
 		if (!issilicon(user)&&!isobserver(user))
 			user.unset_machine()
-			CLOSE_WINDOW("solcon")
+			CLOSE_WINDOW(user,"solcon")
 			return
 
 	user.set_machine(src)
@@ -171,7 +171,7 @@ Manual Tracking Direction:"}
 
 /obj/machinery/power/solar/control/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=solcon")
+		CLOSE_WINDOW(usr,"solcon")
 		usr.unset_machine()
 		return
 

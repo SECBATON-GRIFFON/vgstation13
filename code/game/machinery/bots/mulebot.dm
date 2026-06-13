@@ -492,12 +492,12 @@ var/global/mulebot_count = 0
 
 			if("close")
 				usr.unset_machine()
-				usr << browse(null,"window=mulebot")
+				CLOSE_WINDOW(usr,"mulebot")
 
 		updateDialog()
 		//src.updateUsrDialog()
 	else
-		usr << browse(null, "window=mulebot")
+		CLOSE_WINDOW(usr,"mulebot")
 		usr.unset_machine()
 	return
 

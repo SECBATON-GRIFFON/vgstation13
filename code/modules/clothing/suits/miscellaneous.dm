@@ -168,7 +168,7 @@ var/list/tag_suits_list = list()
 		return
 
 	if (href_list["edition_done"])
-		usr << browse(null,"window=laser_tag_window2;size=250x250")
+		CLOSE_WINDOW(usr,"laser_tag_window2;size=250x250")
 		return
 
 	if (href_list["delete_game"])
@@ -176,7 +176,7 @@ var/list/tag_suits_list = list()
 		if (game.owner != player)
 			return
 		qdel(game)
-		usr << browse(null,"window=laser_tag_window2;size=250x250")
+		CLOSE_WINDOW(usr,"laser_tag_window2;size=250x250")
 		return
 	// End game parametrisation
 
@@ -194,7 +194,7 @@ var/list/tag_suits_list = list()
 	if (href_list["clear_gamertag"])
 		my_laser_tag_game = null
 		player = null
-		usr << browse(null,"window=laser_tag_window;size=500x250")
+		CLOSE_WINDOW(usr,"laser_tag_window;size=500x250")
 		to_chat(usr, "<span = 'notice'>You clear your tag out of the vest and leave it to be used by someone else.</span>")
 		return
 

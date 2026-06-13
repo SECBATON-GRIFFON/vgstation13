@@ -358,7 +358,7 @@
 /obj/machinery/computer/mech_bay_power_console/Topic(href,href_list)
 	..()
 	if ((!Adjacent(usr) && !istype(usr,/mob/living/silicon/) )|| usr.incapacitated())
-		usr << browse(null, "window=mech_bay_console")
+		CLOSE_WINDOW(usr,"mech_bay_console")
 		return
 	if(href_list["device_linkage"])
 		if(recharge_floor && recharge_port)

@@ -342,7 +342,7 @@
 	if((get_dist(src, user) > 1) || (stat & (FORCEDISABLE|BROKEN|NOPOWER)))
 		if(!istype(user, /mob/living/silicon/ai))
 			user.unset_machine()
-			CLOSE_WINDOW("AMcontrol")
+			CLOSE_WINDOW(user,"AMcontrol")
 			return
 	return ui_interact(user)
 
@@ -393,11 +393,11 @@
 	//Ignore input if we are broken or guy is not touching us, AI can control from a ways away
 	if(stat & (BROKEN|NOPOWER|FORCEDISABLE))
 		usr.unset_machine()
-		usr << browse(null, "window=AMcontrol")
+		CLOSE_WINDOW(usr,"AMcontrol")
 		return
 
 	if(href_list["close"])
-		usr << browse(null, "window=AMcontrol")
+		CLOSE_WINDOW(usr,"AMcontrol")
 		usr.unset_machine()
 		return
 

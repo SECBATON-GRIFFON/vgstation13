@@ -123,7 +123,7 @@
 		onclose(user, window_id, ref)
 
 /datum/browser/proc/close()
-	CLOSE_WINDOW("[window_id]")
+	CLOSE_WINDOW(user,"[window_id]")
 
 // This will allow you to show an icon in the browse window
 // This is added to mob so that it can be used without a reference to the browser object

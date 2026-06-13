@@ -127,7 +127,7 @@
 	if(usr.stat || usr.restrained() || !in_range(loc, usr) || (!usr.canmove && !usr.locked_to))
 		//If the user is handcuffed or out of range, or if they're unable to move,
 		//but NOT if they're unable to move as a result of being buckled into something, they're unable to use the device.
-		usr << browse(null, "window=radio")
+		CLOSE_WINDOW(usr,"radio")
 		onclose(usr, "radio")
 		return
 

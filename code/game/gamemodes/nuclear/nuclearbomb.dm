@@ -273,7 +273,7 @@ var/list/nuclear_bombs = list()
 			if ((M.client && M.machine == src))
 				src.attack_hand(M)
 	else
-		usr << browse(null, "window=nuclearbomb")
+		CLOSE_WINDOW(usr,"nuclearbomb")
 		return
 	return
 

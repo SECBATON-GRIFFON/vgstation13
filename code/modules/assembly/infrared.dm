@@ -157,7 +157,7 @@
 /obj/item/device/assembly/infra/Topic(href, href_list)
 	..()
 	if(!usr.canmove || usr.stat || usr.restrained() || !in_range(loc, usr))
-		usr << browse(null, "window=infra")
+		CLOSE_WINDOW(usr,"infra")
 		onclose(usr, "infra")
 		return
 

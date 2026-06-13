@@ -278,7 +278,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 	. = ..()
 
 	if (user.lying)
-		CLOSE_WINDOW("newscaster_main;size=400x600")
+		CLOSE_WINDOW(user,"newscaster_main")
 
 	if (.)
 		return
@@ -558,9 +558,7 @@ var/list/obj/machinery/newscaster/allCasters = list() //Global list that will co
 			else
 				dat+="I'm sorry to break your immersion. This shit's bugged. Report this bug to Agouri, polyxenitopalidou@gmail.com"
 
-
-		M << browse(HTML_SKELETON(dat), "window=newscaster_main;size=400x600")
-		onclose(M, "newscaster_main")
+		NEW_BROWSER_DIM(M, "newscaster_main", "[src]", 400, 600, dat)
 
 /obj/machinery/newscaster/Topic(href, href_list)
 	if(..())

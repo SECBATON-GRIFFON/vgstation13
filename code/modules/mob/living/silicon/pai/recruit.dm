@@ -55,7 +55,7 @@ var/datum/paiController/paiController			// Global handler for pAI candidates
 			for(var/obj/item/device/paicard/p in paicard_list)
 				if(!p.pai && !pai_candidates.len)
 					p.removeNotification()
-			usr << browse(null, "window=findPai")
+			CLOSE_WINDOW(usr,"findPai")
 
 	if(href_list["new"])
 		var/datum/paiCandidate/candidate = locate(href_list["candidate"])
@@ -99,7 +99,7 @@ var/datum/paiController/paiController			// Global handler for pAI candidates
 					for(var/obj/item/device/paicard/p in paicard_list)
 						if(!p.pai)
 							p.alertUpdate()
-				usr << browse(null, "window=paiRecruit")
+				CLOSE_WINDOW(usr,"paiRecruit")
 				return
 		recruitWindow(usr)
 

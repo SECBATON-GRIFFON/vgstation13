@@ -53,7 +53,7 @@
 
 /obj/machinery/space_heater/air_conditioner/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=aircond")
+		CLOSE_WINDOW(usr,"aircond")
 		usr.unset_machine()
 		return 1
 	else

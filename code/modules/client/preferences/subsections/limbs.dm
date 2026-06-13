@@ -141,7 +141,7 @@
 	var/task = href_list["task"]
 	switch(task)
 		if("menu")
-			CLOSE_WINDOW("preferences")
+			CLOSE_WINDOW(user,"preferences")
 			return show_menu(arglist(args))
 		if("input")
 			. = handle_input(arglist(args))
@@ -152,7 +152,7 @@
 /datum/preferences_subsection/limbs/Topic(href, list/href_list)
 	. = ..()
 	if(href_list["close"])
-		usr << browse(null, "window=\ref[src]-limbs")
+		CLOSE_WINDOW(usr,"\ref[src]-limbs")
 		prefs.ShowChoices(usr)
 
 #undef LIMB_MODE_AFFECT_CHILD

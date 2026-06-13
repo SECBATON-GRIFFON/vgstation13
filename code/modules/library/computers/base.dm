@@ -23,7 +23,7 @@
 	if ((get_dist(src, user) > 1))
 		if (!issilicon(user)&&!isobserver(user))
 			user.unset_machine()
-			CLOSE_WINDOW("library")
+			CLOSE_WINDOW(user,"library")
 			return TRUE
 
 	user.set_machine(src)

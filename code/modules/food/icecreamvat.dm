@@ -118,7 +118,7 @@
 	usr.set_machine(src)
 
 	if(href_list["close"])
-		usr << browse(null,"window=cream_master")
+		CLOSE_WINDOW(usr,"cream_master")
 		usr.unset_machine()
 
 	else if(href_list["add"] && href_list["amount"] && beaker)

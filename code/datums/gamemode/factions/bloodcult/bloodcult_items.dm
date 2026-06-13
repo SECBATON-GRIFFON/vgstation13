@@ -237,7 +237,7 @@ var/list/arcane_tomes = list()
 		usr << browse(tome_text(), "window=arcanetome;size=900x600")
 
 /obj/item/weapon/tome/dropped(var/mob/user)
-	usr << browse(null, "window=arcanetome")
+	CLOSE_WINDOW(usr,"arcanetome")
 
 /obj/item/weapon/tome/attack_self(var/mob/living/user)
 	if(!iscultist(user))//Too dumb to live.
@@ -268,7 +268,7 @@ var/list/arcane_tomes = list()
 			item_state = "tome"
 			flick("tome-flickclose",src)
 			state = TOME_CLOSED
-			usr << browse(null, "window=arcanetome")
+			CLOSE_WINDOW(usr,"arcanetome")
 
 		if(iscarbon(loc))
 			var/mob/living/carbon/M = loc

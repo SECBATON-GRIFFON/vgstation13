@@ -67,7 +67,7 @@
 	var/task = href_list["task"]
 	switch(task)
 		if("menu")
-			CLOSE_WINDOW("preferences")
+			CLOSE_WINDOW(user,"preferences")
 			return show_menu(arglist(args))
 		if("input")
 			. = handle_input(arglist(args))
@@ -78,5 +78,5 @@
 /datum/preferences_subsection/organs/Topic(href, list/href_list)
 	. = ..()
 	if(href_list["close"])
-		usr << browse(null, "window=\ref[src]-organs")
+		CLOSE_WINDOW(usr,"\ref[src]-organs")
 		prefs.ShowChoices(usr)

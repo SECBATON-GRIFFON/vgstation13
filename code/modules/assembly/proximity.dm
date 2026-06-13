@@ -178,7 +178,7 @@
 	if(usr.stat || usr.restrained() || !in_range(loc, usr) || (!usr.canmove && !usr.locked_to))
 		//If the user is handcuffed or out of range, or if they're unable to move,
 		//but NOT if they're unable to move as a result of being buckled into something, they're unable to use the device.
-		usr << browse(null, "window=prox")
+		CLOSE_WINDOW(usr,"prox")
 		onclose(usr, "prox")
 		return
 
@@ -200,7 +200,7 @@
 
 	if(href_list["set_default_time"])
 		default_time = time
-	
+
 	if(href_list["toggle_mode"])
 		constant_pulse = !constant_pulse
 

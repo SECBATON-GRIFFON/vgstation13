@@ -148,7 +148,7 @@
 		if(C)
 			usr.put_in_hands(C)
 			C = null
-			usr << browse(null, "window=\ref[src]")
+			CLOSE_WINDOW(usr,"\ref[src]")
 			return
 
 	if(.)

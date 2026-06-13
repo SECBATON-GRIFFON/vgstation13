@@ -203,7 +203,7 @@ var/global/list/pillIcon2Name = list("oblong purple-pink", "oblong green-white",
 		return 1
 
 	else if(href_list["close"])
-		usr << browse(null, "window=[windowtype]")
+		CLOSE_WINDOW(usr,"[windowtype]")
 		usr.unset_machine()
 		return 1
 
