@@ -135,9 +135,7 @@
 		dat += "<B><font color=red>Unable to locate analysis pad.</font><BR></b>"
 	//
 	dat += "<HR>"
-	dat += "<A href='?src=\ref[src];refresh=1'>Refresh</A> <A href='?src=\ref[src];close=1'>Close<BR>"
-	user << browse(HTML_SKELETON(dat), "window=artharvester;size=450x500")
-	onclose(user, "artharvester")
+	VG_BROWSE_NO_REF(user, "artharvester", "[src]", 450, 500, dat)
 
 /obj/machinery/artifact_harvester/process()
 	if(stat & (NOPOWER|BROKEN|FORCEDISABLE))
@@ -394,10 +392,6 @@
 		else
 			var/message = "<b>[src]</b> states, \"Cannot dump energy. No battery inserted.\""
 			src.visible_message(message)
-
-	if(href_list["close"])
-		usr << browse(null, "window=artharvester")
-		usr.unset_machine(src)
 
 	updateDialog()
 

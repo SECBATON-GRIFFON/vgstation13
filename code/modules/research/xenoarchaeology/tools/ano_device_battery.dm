@@ -110,10 +110,8 @@ var/list/anomaly_power_utilizers = list()
 		dat += "<br>"
 
 	dat += "<hr>"
-	dat += "<a href='?src=\ref[src]'>Refresh</a> <a href='?src=\ref[src];close=1'>Close</a>"
 
-	user << browse(HTML_SKELETON(dat), "window=anodevice;size=400x500")
-	onclose(user, "anodevice")
+	VG_BROWSE_NO_REF(user, "anodevice", "[src]", 400, 500, dat)
 
 /obj/item/weapon/anodevice/process()
 	if(cooldown > 0)
@@ -264,10 +262,6 @@ var/list/anomaly_power_utilizers = list()
 		inserted_battery.update_icon()
 		inserted_battery = null
 		update_icon()
-	if(href_list["close"])
-		usr << browse(null, "window=anodevice")
-		usr.unset_machine(src)
-		return
 	src.interact(usr)
 	..()
 	updateDialog()

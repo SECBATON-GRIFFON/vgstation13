@@ -198,8 +198,7 @@
 			dat += "<font color='red'>The dart cartridge is empty!</font>"
 		dat += " \[<A href='?src=\ref[src];eject_cart=1'>Eject</A>\]"
 
-	user << browse(HTML_SKELETON(dat), "window=dartgun")
-	onclose(user, "dartgun", src)
+	VG_BROWSE_NO_REF_DIM(user, "dartgun", "[src]", dat)
 
 /obj/item/weapon/gun/dartgun/proc/check_beaker_mixing(var/obj/item/B)
 	if(!mixing || !beakers)

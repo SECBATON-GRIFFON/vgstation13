@@ -134,9 +134,7 @@
 	else
 		dat += "<br>"
 	dat += "<A href='?src=\ref[src];refresh=1'>Refresh console</A><br>"
-	dat += "<A href='?src=\ref[src];close=1'>Close console</A>"
-	user << browse(HTML_SKELETON(dat), "window=suspension;size=500x400")
-	onclose(user, "suspension")
+	VG_BROWSE_NO_REF(user, "suspension", "[src]", 500, 400, dat)
 
 /obj/machinery/suspension_gen/Topic(href, href_list)
 	if(..())
@@ -168,9 +166,6 @@
 				auth_card = null
 	else if(href_list["lock"])
 		locked = 1
-	else if(href_list["close"])
-		usr.unset_machine()
-		usr << browse(null, "window=suspension")
 
 	updateUsrDialog()
 

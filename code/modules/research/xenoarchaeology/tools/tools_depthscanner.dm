@@ -121,9 +121,7 @@
 		dat += "No entries recorded."
 	dat += "<hr>"
 	dat += "<A href='?src=\ref[src];refresh=1'>Refresh</a><br>"
-	dat += "<A href='?src=\ref[src];close=1'>Close</a><br>"
-	user << browse(HTML_SKELETON(dat),"window=depth_scanner;size=300x500")
-	onclose(user, "depth_scanner")
+	VG_BROWSE_NO_REF(user, "depth_scanner", "[src]", 300, 500, dat)
 
 /obj/item/device/depth_scanner/Topic(href, href_list)
 	..()
@@ -144,8 +142,5 @@
 			//GC will hopefully pick them up before too long
 			positive_locations = list()
 			QDEL_NULL(current)
-	else if(href_list["close"])
-		usr.unset_machine()
-		usr << browse(null, "window=depth_scanner")
 
 	updateSelfDialog()

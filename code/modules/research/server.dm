@@ -308,9 +308,8 @@
 			for(var/obj/machinery/r_n_d/server/S in servers)
 				dat += "[S.name] <A href='?src=\ref[src];send_to=[S.server_id]'> (Transfer)</A><BR>"
 			dat += "<HR><A href='?src=\ref[src];main=1'>Main Menu</A>"
-	user << browse(HTML_SKELETON_TITLE("R&D Server Control", dat), "window=server_control;size=575x400")
-	onclose(user, "server_control")
-	return
+
+	VG_BROWSE_NO_REF(user, "sever_control", "R&D Server Control", 575, 400, dat)
 
 /obj/machinery/computer/rdservercontrol/attackby(var/obj/item/weapon/D as obj, var/mob/user as mob)
 

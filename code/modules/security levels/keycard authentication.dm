@@ -104,7 +104,6 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 		dat += {"<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>
 			<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>
 			</ul>"}
-		user << browse(HTML_SKELETON(dat), "window=keycard_auth;size=500x300")
 	if(screen == 2)
 
 		dat += "Please swipe your card to authorize the following event: <b>[event]</b>"
@@ -112,9 +111,7 @@ var/global/list/obj/machinery/keycard_auth/authenticators = list()
 			dat += "<p>Given reason for ERT request: '[ert_reason]'"
 
 		dat += "<p><A href='?src=\ref[src];reset=1'>Back</A>"
-		user << browse(HTML_SKELETON(dat), "window=keycard_auth;size=500x300")
-	return
-
+	VG_BROWSE_NO_REF(user, "keycard_auth", "[src]", 500, 300, dat)
 
 /obj/machinery/keycard_auth/Topic(href, href_list)
 	if(..())
