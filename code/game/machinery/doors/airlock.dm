@@ -657,9 +657,7 @@ About the new airlock wires panel:
 		else
 			t1 += text("<A href='?src=\ref[];aiDisable=7'>Close door</a><br>\n", src)
 
-	t1 += text("<p><a href='?src=\ref[];close=1'>Close</a></p>\n", src)
-	user << browse(HTML_SKELETON(t1), "window=airlock")
-	onclose(user, "airlock")
+	NEW_BROWSER_DIM(user, "airlock", "[src]", t1)
 
 //aiDisable - 1 idscan, 2 disrupt main power, 3 disrupt backup power, 4 drop door bolts, 5 un-electrify door, 7 close door
 //aiEnable - 1 idscan, 4 raise door bolts, 5 electrify door for 30 seconds, 6 electrify door indefinitely, 7 open door
@@ -818,12 +816,6 @@ About the new airlock wires panel:
 	if(href_list["hack"])
 		hack(usr)
 		return
-
-	if(href_list["close"])
-		CLOSE_WINDOW(usr,"airlock")
-		if(usr.machine==src)
-			usr.unset_machine()
-			return
 
 	if(isAdminGhost(usr) || ((is_type_in_list(usr, remote_control_access) || (usr.mind && usr.mind.assigned_role == "AI")) && src.canAIControl() && operating != -1))
 		//AI

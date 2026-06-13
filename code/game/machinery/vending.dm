@@ -816,8 +816,7 @@ var/global/num_vending_terminals = 1
 		dat += {"<b>You have selected [currently_vending.product_name].<br>Please ensure your ID is in your ID holder or hand.</b><br>
 			<a href='byond://?src=\ref[src];buy=1'>Pay</a> |
 			<a href='byond://?src=\ref[src];cancel_buying=1'>Cancel</a>"}
-		user << browse(HTML_SKELETON(dat), "window=vending")
-		onclose(user, "")
+		NEW_BROWSER(usr, "vending", "[src]", dat)
 		return
 
 	var/dat = "<TT><center><b>[vendorname]</b></center><hr/>" //display the name, and added a horizontal rule
@@ -909,8 +908,7 @@ var/global/num_vending_terminals = 1
 		if(!account_first_linked)
 			dat += "<br><br><i>Note: Remember to slide your ID on this machine to link your account. Once this is done, sliding your ID will enable editing and loading.</i>"
 
-	user << browse(HTML_SKELETON(dat), "window=vending;size=400x[vertical]")
-	onclose(user, "vending")
+	NEW_BROWSER_DIM(usr, "vending", "[src]", 400, vertical, dat)
 
 // returns the wire panel text
 /obj/machinery/vending/proc/wires()

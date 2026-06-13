@@ -297,9 +297,7 @@ var/global/mulebot_count = 0
 		else
 			dat += "The bot is in maintenance mode and cannot be controlled.<BR>"
 
-	user << browse(HTML_SKELETON_TITLE("Mulebot [suffix ? "([suffix])" : ""]", dat), "window=mulebot;size=350x500")
-	onclose(user, "mulebot")
-	return
+	NEW_BROWSER_DIM(user, "mulebot", "Mulebot [suffix ? "([suffix])" : ""]", 350, 500, dat)
 
 /obj/machinery/bot/mulebot/return_status()
 	switch(mode)

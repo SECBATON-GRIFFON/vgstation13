@@ -282,9 +282,7 @@
 			[set_temperature]&deg;C
 			<A href='?src=\ref[src];op=temp;val=5'>+</A><BR>"}
 		user.set_machine(src)
-		user << browse(HTML_SKELETON_TITLE("Space Heater Control Panel", "<TT>[dat]</TT>"), "window=spaceheater")
-		onclose(user, "spaceheater")
-
+		NEW_BROWSER(user, "spaceheater", "Space Heater Control Panel", "<TT>[dat]</TT>")
 	else
 		on = !on
 		user.visible_message("<span class='notice'>[user] switches [on ? "on" : "off"] the [src].</span>","<span class='notice'>You switch [on ? "on" : "off"] the [src].</span>")

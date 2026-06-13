@@ -493,7 +493,7 @@
 		t += "Turrets [enabled ? "activated":"deactivated"] - <A href='?src=\ref[src];toggleOn=1'>[enabled ? "Disable":"Enable"]?</a><br>\n"
 		t += "Currently set to [lethal ? "lethal":"stun"] - <A href='?src=\ref[src];toggleLethal=1'>Change to [lethal ? "Stun":"Lethal"]?</a><br>\n"
 
-	NEW_BROWSER(M, "turretid", "[src]", t)
+	NEW_BROWSER(user, "turretid", "[src]", t)
 
 /obj/machinery/turretid/npc_tamper_act(mob/living/L)
 	enabled = rand(0, 1)

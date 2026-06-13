@@ -243,8 +243,7 @@ Nah
 <A href='?src=\ref[src];dmake=[DISP_END_CHUTE]'>Chute</A><BR>
 "}
 
-	user << browse(HTML_SKELETON_TITLE(src, "<TT>[dat]</TT>"), "window=pipedispenser")
-	return
+	NEW_BROWSER(user, "pipedispenser", "[src]", "<TT>[dat]</TT>")
 
 // 0=straight, 1=bent, 2=junction-j1, 3=junction-j2, 4=junction-y, 5=trunk
 
