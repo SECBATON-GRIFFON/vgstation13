@@ -34,7 +34,7 @@
 
 		output += "</table>"
 		qdel(select_query)
-		VG_BROWSE_DIM(src, "playerpolllist", "[src]", 500, 300, output)
+		NEW_BROWSER_DIM(src, "playerpolllist", "[src]", 500, 300, output)
 
 /mob/new_player/proc/poll_player(var/pollid = -1)
 	if(pollid == -1)
@@ -132,7 +132,7 @@
 
 				output += "</div>"
 
-				VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 250, output)
+				NEW_BROWSER_DIM(src, "playerpoll", "[src]", 500, 250, output)
 
 			//Polls with a text input
 			if("TEXT")
@@ -178,7 +178,7 @@
 				else
 					output += "[vote_text]"
 
-				VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 500, output)
+				NEW_BROWSER_DIM(src, "playerpoll", "[src]", 500, 500, output)
 
 			//Polls with a text input
 			if("NUMVAL")
@@ -262,7 +262,7 @@
 						<p><input type='submit' value='Submit'>
 						</form>"}
 					qdel(option_query)
-				VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 500, output)
+				NEW_BROWSER_DIM(src, "playerpoll", "[src]", 500, 500, output)
 			if("SELECT_ALL_THAT_APPLY")
 				var/datum/DBQuery/voted_query = SSdbcore.NewQuery("SELECT optionid FROM erro_poll_vote WHERE pollid = :id AND ckey = :ckey", list("id" = pollid, "ckey" = "[usr.ckey]"))
 				if(!voted_query.Execute())
@@ -332,7 +332,7 @@
 
 				output += "</div>"
 
-				VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 250, output)
+				NEW_BROWSER_DIM(src, "playerpoll", "[src]", 500, 250, output)
 		return
 
 /mob/new_player/proc/vote_on_poll(var/pollid = -1, var/optionid = -1, var/select_all_that_apply = 0)

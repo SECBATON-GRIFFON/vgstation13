@@ -36,8 +36,7 @@
 	user.set_machine(src)
 	update_dat()
 
-	user << browse("<TITLE>Temperature Gun Configuration</TITLE><HR>[dat]", "window=tempgun;size=510x102")
-	onclose(user, "tempgun")
+	NEW_BROWSER_DIM(user, "tempgun", "Temperature Gun Configuration", 510, 102, dat)
 
 /obj/item/weapon/gun/energy/temperature/emag_act(mob/user)
 	if(!emagged)
@@ -107,7 +106,7 @@
 			var /mob/living/carbon/M = loc
 			if (src == M.machine)
 				update_dat()
-				M << browse("<TITLE>Temperature Gun Configuration</TITLE><HR>[dat]", "window=tempgun;size=510x102")
+				NEW_BROWSER_DIM(M, "tempgun", "Temperature Gun Configuration", 510, 102, dat)
 
 
 	if(power_supply)
@@ -116,7 +115,7 @@
 	return
 
 /obj/item/weapon/gun/energy/temperature/proc/update_dat()
-	dat = ""
+	dat = "<HR>"
 	dat += "Current output temperature: "
 	dat += "<FONT color=[tempcolor]><B>[temperature]</B> ([round(temperature-T0C)]&deg;C) ([round(temperature*1.8-459.67)]&deg;F) </FONT>"
 	if(temperature > 500)

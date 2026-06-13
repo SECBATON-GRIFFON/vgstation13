@@ -258,10 +258,7 @@
 
 		dat += {"<BR><A href='?src=\ref[src];eject=1'>Eject beaker</A>[((R.total_volume&&R.reagent_list.len) ? "-- <A href='?src=\ref[src];empty_beaker=1'>Empty beaker</A>":"")]<BR>
 			<A href='?src=\ref[user];mach_close=pandemic'>Close</A>"}
-	user << browse(HTML_SKELETON_TITLE(name, dat), "window=pandemic;size=575x400")
-	onclose(user, "pandemic")
-	return
-
+	NEW_BROWSER_DIM(user, "pandemic", "[src]", 575, 460, dat)
 
 /obj/machinery/computer/pandemic/attackby(var/obj/item/I as obj, var/mob/user as mob)
 	if(..())

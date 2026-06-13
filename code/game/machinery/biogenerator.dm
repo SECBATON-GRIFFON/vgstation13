@@ -614,7 +614,7 @@
 
 				dat += {"<FONT COLOR=red>Error: No growns inside.</FONT><BR>Please, put growns into reactor.<BR>
 					<A href='?src=\ref[src];action=menu'>Return to menu</A>"}
-	VG_BROWSE(user, "biogenerator", "[src]", dat)
+	NEW_BROWSER(user, "biogenerator", "[src]", dat)
 
 /obj/machinery/biogenerator/attack_hand(mob/user as mob)
 	interact(user)

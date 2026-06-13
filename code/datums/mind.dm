@@ -195,7 +195,7 @@
 
 		if (faith.religiousLeader == src)
 			output += "You can convert people by [faith.convert_method] <br />"
-	VG_BROWSE_DIM(recipient, "memory", "Your memory", 700, 500, output)
+	NEW_BROWSER_DIM(recipient, "memory", "Your memory", 700, 500, output)
 
 /datum/mind/proc/role_panel()
 	if(!ticker || !ticker.mode)
@@ -222,7 +222,7 @@
 
 	//<a href='?src=\ref[src];obj_announce=1'>Announce objectives</a><br><br>"} TODO: make sure that works
 
-	VG_BROWSE_DIM(usr, "role_panel[src]", "[src]", 700, 500, out)
+	NEW_BROWSER_DIM(usr, "role_panel[src]", "[src]", 700, 500, out)
 
 /datum/mind/proc/role_purchase_log()
 	if(!ticker || !ticker.mode)
@@ -253,7 +253,7 @@
 				for(var/entry in W.potions_bought)
 					out += "[entry]<BR>"
 
-	VG_BROWSE_DIM(usr, "role_purchase_log[src]", "[src]", 300, 500, out)
+	NEW_BROWSER_DIM(usr, "role_purchase_log[src]", "[src]", 300, 500, out)
 
 /datum/mind/proc/get_faction_list()
 	var/list/all_factions = list()

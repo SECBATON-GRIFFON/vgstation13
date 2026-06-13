@@ -236,7 +236,7 @@ List of hard deletions:"}
 		to_chat(usr, "No garbage collector deletions this round")
 		return
 
-	VG_BROWSE(usr, "harddellogs", "[src]", jointext(L, ""))
+	NEW_BROWSER(usr, "harddellogs", "[src]", jointext(L, ""))
 
 /*
  * NEVER USE THIS FOR /atom OTHER THAN /atom/movable

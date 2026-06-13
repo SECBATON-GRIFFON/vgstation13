@@ -41,7 +41,7 @@
 	set name = "Rules"
 	set desc = "Show Server Rules."
 	set hidden = 1
-	VG_BROWSE_DIM(src, "rules", "[src]", 480, 320, file(RULES_FILE))
+	NEW_BROWSER_DIM(src, "rules", "[src]", 480, 320, file(RULES_FILE))
 #undef RULES_FILE
 
 /client/verb/hotkeys_help()

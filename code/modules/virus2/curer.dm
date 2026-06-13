@@ -63,7 +63,7 @@
 	else
 		dat = "Please insert a container."
 
-	VG_BROWSE_DIM(user, "computer", "[src]", 400, 500, dat)
+	NEW_BROWSER_DIM(user, "computer", "[src]", 400, 500, dat)
 
 /obj/machinery/computer/curer/process()
 	..()

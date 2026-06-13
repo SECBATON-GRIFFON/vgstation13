@@ -134,7 +134,7 @@
 	else
 		dat += "<br>"
 	dat += "<A href='?src=\ref[src];refresh=1'>Refresh console</A><br>"
-	VG_BROWSE_DIM(user, "suspension", "[src]", 500, 400, dat)
+	NEW_BROWSER_DIM(user, "suspension", "[src]", 500, 400, dat)
 
 /obj/machinery/suspension_gen/Topic(href, href_list)
 	if(..())

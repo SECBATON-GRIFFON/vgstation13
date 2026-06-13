@@ -331,7 +331,7 @@
 	dat += "<HR><A href='?src=\ref[src];print=1'>Print</A><BR>"
 
 	dat += text("<BR><A href='?src=\ref[];mach_close=scanconsole'>Close</A>", user)
-	VG_BROWSE_DIM(user, "scanconsole", "[src]", 430, 600, dat)
+	NEW_BROWSER_DIM(user, "scanconsole", "[src]", 430, 600, dat)
 
 /obj/machinery/bodyscanner/Topic(href, href_list)
 	if(..())

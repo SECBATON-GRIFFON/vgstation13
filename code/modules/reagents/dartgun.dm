@@ -198,7 +198,7 @@
 			dat += "<font color='red'>The dart cartridge is empty!</font>"
 		dat += " \[<A href='?src=\ref[src];eject_cart=1'>Eject</A>\]"
 
-	VG_BROWSE(user, "dartgun", "[src]", dat)
+	NEW_BROWSER(user, "dartgun", "[src]", dat)
 
 /obj/item/weapon/gun/dartgun/proc/check_beaker_mixing(var/obj/item/B)
 	if(!mixing || !beakers)

@@ -167,18 +167,10 @@ Manual Tracking Direction:"}
 			t += "<A href='?src=\ref[src];trackdir=1'>CW</A> <B>CCW</B><BR>"
 		if(1)
 			t += "<B>CW</B> <A href='?src=\ref[src];trackdir=-1'>CCW</A><BR>"
-	t += "<A href='?src=\ref[src];close=1'>Close</A></TT>"
-	user << browse(HTML_SKELETON(t), "window=solcon")
-	onclose(user, "solcon")
-	return
+	NEW_BROWSER(user, "solcon", "[src]", t)
 
 /obj/machinery/power/solar/control/Topic(href, href_list)
 	if(..())
-		usr << browse(null, "window=solcon")
-		usr.unset_machine()
-		return
-
-	if(href_list["close"] )
 		usr << browse(null, "window=solcon")
 		usr.unset_machine()
 		return
