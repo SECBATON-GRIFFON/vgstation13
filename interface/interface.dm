@@ -41,7 +41,7 @@
 	set name = "Rules"
 	set desc = "Show Server Rules."
 	set hidden = 1
-	new /datum/browser/clean/est(user, "rules", "[src]", 480, 320, ncontent = file(RULES_FILE))
+	new /datum/browser/clean/est(usr, "rules", "[src]", 480, 320, ncontent = file(RULES_FILE))
 #undef RULES_FILE
 
 /client/verb/hotkeys_help()
