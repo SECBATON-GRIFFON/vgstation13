@@ -132,7 +132,7 @@
 
 				output += "</div>"
 
-			VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 250, output)
+				VG_BROWSE_DIM(src, "playerpoll", "[src]", 500, 250, output)
 
 			//Polls with a text input
 			if("TEXT")
