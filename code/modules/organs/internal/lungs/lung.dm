@@ -121,12 +121,12 @@
 				applied_damage = COLD_GAS_DAMAGE_LEVEL_2
 			else if(breath.temperature <= owner.species.cold_level_1)
 				applied_damage = COLD_GAS_DAMAGE_LEVEL_1
-			else if(breath.temperature >= owner.species.heat_level_1)
-				applied_damage = HEAT_GAS_DAMAGE_LEVEL_1
-			else if(breath.temperature >= owner.species.heat_level_2)
-				applied_damage = HEAT_GAS_DAMAGE_LEVEL_2
 			else if(breath.temperature >= owner.species.heat_level_3)
 				applied_damage = HEAT_GAS_DAMAGE_LEVEL_3
+			else if(breath.temperature >= owner.species.heat_level_2)
+				applied_damage = HEAT_GAS_DAMAGE_LEVEL_2
+			else if(breath.temperature >= owner.species.heat_level_1)
+				applied_damage = HEAT_GAS_DAMAGE_LEVEL_1
 
 			if(breath.temperature <= owner.species.cold_level_1)
 				used_damage_type = "Cold"
