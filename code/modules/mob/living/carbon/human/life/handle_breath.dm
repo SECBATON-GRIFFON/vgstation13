@@ -47,7 +47,7 @@
 	if((status_flags & GODMODE) || (flags & INVULNERABLE))
 		return FALSE
 	var/datum/organ/internal/lungs/L = get_lungs()
-	if(!L)
+	if(!breath || (mind && mind.suiciding) || !L)
 		if(reagents?.has_any_reagents(list(INAPROVALINE,PRESLOMITE)))
 			return FALSE
 		if(mind?.suiciding)
