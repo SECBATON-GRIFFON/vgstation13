@@ -66,6 +66,11 @@
 	)
 	return smoothables
 
+/obj/structure/fence/isSmoothableNeighbor(atom/A, bordercheck)
+	if(dir == NORTH && !(A.flow_flags & ON_BORDER)) // keep it to just other fences if facing this way, looks bad otherwise
+		return FALSE
+	. = ..()
+
 /obj/structure/fence/relativewall()
 	. = ..()
 	overlays.len = 0
