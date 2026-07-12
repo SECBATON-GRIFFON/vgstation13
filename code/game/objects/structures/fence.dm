@@ -83,7 +83,7 @@
 			overlays += I
 	else if(dir == EAST || dir == WEST)
 		if(!(junction & NORTH))
-			var/image/I = image(icon,loc,"end",pixel_y = 32)
+			var/image/I = image(icon,loc,"end",pixel_y = 30)
 			overlays += I
 
 /obj/structure/fence/change_dir(new_dir, changer)
