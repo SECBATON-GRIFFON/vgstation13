@@ -172,12 +172,14 @@
 	//These atoms will appear as obstacles on holomaps
 	var/list/full_obstacles = list(
 		/obj/structure/grille,
+		/obj/structure/fence,
 		/obj/structure/window/full,
 		)
 
 	//These atoms will appear as floors on holomaps
 	var/list/full_paths = list(
 		/obj/structure/catwalk,
+		/obj/structure/fence/door,
 		)
 
 	var/datum/zLevel/Z = map.zLevels[zLevel]
