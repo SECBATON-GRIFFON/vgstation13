@@ -21,7 +21,7 @@
 	icon = 'icons/obj/structures/fence.dmi'
 	icon_state = "straight0"
 	plane = ABOVE_HUMAN_PLANE
-	layer = FENCE_BACK_LAYER
+	layer = FENCE_FRONT_LAYER
 	flow_flags = ON_BORDER
 	verb_rotates = TRUE
 	alt_click_rotates = TRUE
@@ -108,14 +108,17 @@
 /obj/structure/fence/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/post
 	icon_state = "post0"
@@ -125,14 +128,17 @@
 /obj/structure/fence/post/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/post/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/post/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/small
 	hole_size = SMALL_HOLE
@@ -140,14 +146,17 @@
 /obj/structure/fence/cut/small/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/cut/small/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/small/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/medium
 	hole_size = MEDIUM_HOLE
@@ -155,14 +164,17 @@
 /obj/structure/fence/cut/medium/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/cut/medium/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/medium/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/large
 	hole_size = LARGE_HOLE
@@ -170,14 +182,17 @@
 /obj/structure/fence/cut/large/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/cut/large/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/cut/large/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/attackby(obj/item/W, mob/user)
 	if(istype(W,/obj/item/weapon/pickaxe/drill))
@@ -375,18 +390,20 @@
 	var/open = FALSE
 	var/inverted = FALSE //for relativewalling
 
-
 /obj/structure/fence/door/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/door/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/New()
 	..()
@@ -400,14 +417,17 @@
 /obj/structure/fence/door/opened/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/door/opened/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/opened/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/emag_act(mob/user)
 	if(!emagged)
@@ -459,14 +479,17 @@
 /obj/structure/fence/door/secure/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/door/secure/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/secure/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/secure/inverted
 	inverted = TRUE
@@ -474,14 +497,17 @@
 /obj/structure/fence/door/secure/inverted/north
 	dir = NORTH
 	pixel_y = 30
+	layer = FENCE_BACK_LAYER
 
 /obj/structure/fence/door/secure/inverted/east
 	dir = EAST
 	pixel_x = 14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/secure/inverted/west
 	dir = WEST
 	pixel_x = -14
+	layer = FENCE_MID_LAYER
 
 /obj/structure/fence/door/secure/can_open(mob/user)
 	//User must be standing in the permitted direction from the door, or must have telekinesis
