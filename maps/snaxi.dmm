@@ -60473,6 +60473,7 @@
 /area/centcom/holding)
 "cAt" = (
 /obj/machinery/vending/cigarette,
+/obj/structure/fence/east,
 /turf/unsimulated/floor/grass,
 /area/centcom/holding)
 "cAu" = (
@@ -82205,6 +82206,13 @@
 /area/bridge/meeting_room{
 	name = "\improper Security Station Bridge"
 	})
+"mIG" = (
+/obj/structure/bed/chair/wood/wings{
+	dir = 8
+	},
+/obj/structure/fence/east,
+/turf/unsimulated/floor/mars/air,
+/area/centcom/holding)
 "mJx" = (
 /obj/machinery/bodyscanner/upgraded,
 /turf/simulated/floor{
@@ -210478,8 +210486,8 @@ cyv
 cyv
 cyC
 cyC
-cyv
-cyv
+mIG
+mIG
 cAt
 cAT
 cAT
@@ -210781,8 +210789,8 @@ cyx
 cyC
 czx
 czH
-czH
-czH
+cyx
+cyx
 cAU
 cBm
 cBm
