@@ -34184,6 +34184,11 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
+/obj/structure/sign/securearea{
+	desc = "A warning sign which reads 'CAUTION: ELECTRIC FENCE'";
+	icon_state = "shock";
+	name = "CAUTION: ELECTRIC FENCE"
+	},
 /turf/unsimulated/floor/planetary/path/jungle_plated,
 /area/surface/jungle/zoned/aifenced)
 "mhF" = (
@@ -40038,11 +40043,12 @@
 /area/surface/jungle/fenced)
 "oij" = (
 /obj/structure/sign/securearea{
-	name = "DANGER: BOMB RANGE";
-	desc = "A warning sign which reads 'DANGER: BOMB RANGE'."
+	desc = "A warning sign which reads 'KEEP CLEAR OF DOCKING AREA'.";
+	name = "KEEP CLEAR: DOCKING AREA";
+	icon_state = "shuttle2"
 	},
-/turf/simulated/wall/r_wall,
-/area/surface/jungle/zoned/bombrange)
+/turf/simulated/wall,
+/area/medical/storage)
 "oiw" = (
 /obj/item/weapon/storage/fancy/beer_box,
 /turf/unsimulated/floor/planetary/cave/jungle,
@@ -55346,7 +55352,7 @@
 	},
 /area/centcom/control)
 "tBv" = (
-/turf/simulated/wall/r_wall,
+/turf/unsimulated/floor/planetary/path/jungle_plated,
 /area/surface/jungle/zoned/bombrange)
 "tBG" = (
 /obj/structure/railing,
@@ -55944,14 +55950,13 @@
 	},
 /area/centcom/test)
 "tMC" = (
-/obj/structure/fence,
 /obj/structure/sign/securearea{
 	desc = "A warning sign which reads 'KEEP CLEAR OF DOCKING AREA'.";
 	name = "KEEP CLEAR: DOCKING AREA";
 	icon_state = "shuttle2"
 	},
-/turf/unsimulated/floor/planetary/concrete/jungle,
-/area/surface/jungle/fenced)
+/turf/simulated/wall,
+/area/medical/patient_room2)
 "tME" = (
 /obj/structure/flora/ausbushes/sparsegrass,
 /obj/machinery/light{
@@ -60290,16 +60295,6 @@
 	icon_state = "dark"
 	},
 /area/security/prison)
-"vpS" = (
-/obj/structure/sign/securearea{
-	desc = "A warning sign which reads 'KEEP CLEAR OF DOCKING AREA'.";
-	name = "KEEP CLEAR: DOCKING AREA";
-	icon_state = "shuttle2"
-	},
-/obj/structure/fence,
-/obj/structure/fence,
-/turf/unsimulated/floor/planetary/concrete/jungle,
-/area/surface/jungle/fenced)
 "vqh" = (
 /obj/machinery/computer/crew,
 /turf/simulated/floor/shuttle,
@@ -63552,21 +63547,6 @@
 	icon_state = "dark"
 	},
 /area/vox_trading_post/gardens)
-"wyQ" = (
-/obj/structure/sign/securearea{
-	desc = "A warning sign which reads 'CAUTION: ELECTRIC FENCE'";
-	icon_state = "shock";
-	name = "CAUTION: ELECTRIC FENCE"
-	},
-/obj/structure/cable/yellow,
-/obj/structure/cable/yellow{
-	d1 = 1;
-	d2 = 2;
-	icon_state = "1-2"
-	},
-/obj/structure/fence/east,
-/turf/unsimulated/floor/planetary/path/jungle_plated,
-/area/surface/jungle/zoned/aifenced)
 "wyR" = (
 /turf/simulated/floor{
 	icon_state = "freezerfloor"
@@ -65599,25 +65579,6 @@
 	},
 /turf/simulated/wall/r_wall,
 /area/engineering/mechanics)
-"xiD" = (
-/obj/structure/sign/securearea{
-	desc = "A warning sign which reads 'CAUTION: ELECTRIC FENCE'";
-	icon_state = "shock";
-	name = "CAUTION: ELECTRIC FENCE"
-	},
-/obj/structure/cable/yellow{
-	d2 = 2;
-	icon_state = "0-2";
-	pixel_y = 1
-	},
-/obj/structure/cable/yellow{
-	d1 = 1;
-	d2 = 2;
-	icon_state = "1-2"
-	},
-/obj/structure/fence/east,
-/turf/unsimulated/floor/planetary/path/jungle_plated,
-/area/surface/jungle/zoned/aifenced)
 "xiJ" = (
 /turf/unsimulated/floor/planetary/water/jungle,
 /area/surface/jungle/roid)
@@ -65910,6 +65871,11 @@
 	icon_state = "0-8"
 	},
 /obj/structure/fence/east,
+/obj/structure/sign/securearea{
+	desc = "A warning sign which reads 'CAUTION: ELECTRIC FENCE'";
+	icon_state = "shock";
+	name = "CAUTION: ELECTRIC FENCE"
+	},
 /turf/unsimulated/floor/planetary/path/jungle_plated,
 /area/surface/jungle/zoned/aifenced)
 "xnX" = (
@@ -121439,7 +121405,7 @@ wld
 nre
 nre
 nre
-tMC
+kSb
 aOh
 aOh
 aOh
@@ -121449,7 +121415,7 @@ aOh
 aOh
 aOh
 aOh
-vpS
+kSb
 snf
 vcQ
 lIK
@@ -126367,7 +126333,7 @@ xor
 xor
 qTn
 nre
-tMC
+fMu
 rgd
 cHX
 cHX
@@ -126377,7 +126343,7 @@ cHX
 cHX
 cHX
 iSF
-tMC
+fMu
 snf
 vcQ
 lIK
@@ -126718,7 +126684,7 @@ uJH
 uJH
 tPb
 fFT
-qqm
+oij
 qqm
 qqm
 qqm
@@ -126729,7 +126695,7 @@ vbB
 vbB
 sjp
 sjp
-sjp
+tMC
 lFu
 rNJ
 lIK
@@ -152728,7 +152694,7 @@ lIK
 mhw
 xIq
 swZ
-xiD
+swZ
 swZ
 swZ
 swZ
@@ -152736,7 +152702,7 @@ bSN
 xJI
 xJI
 xJI
-wyQ
+xJI
 xJI
 fBx
 xnL
@@ -444221,7 +444187,7 @@ pBL
 pBL
 pBL
 pBL
-oij
+wha
 fvU
 fvU
 way
@@ -462173,7 +462139,7 @@ ucA
 ucA
 ucA
 ucA
-oij
+epD
 fvU
 fvU
 fvU

@@ -20,7 +20,7 @@
 
 /obj/structure/sign/New()
 	. = ..()
-	if(locate(/obj/structure/fence) in loc)
+	if(!loc.density && (locate(/obj/structure/fence) in loc))
 		plane = ABOVE_HUMAN_PLANE
 		layer = FENCE_SIGN_LAYER
 
