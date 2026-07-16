@@ -187,6 +187,7 @@ Why is FLOAT_PLANE added to a bunch of these?
 	#define FENCE_BACK_LAYER 			3.4
 	#define FENCE_MID_LAYER 			3.5
 	#define FENCE_FRONT_LAYER 			3.6
+	#define FENCE_SIGN_LAYER 			3.7
 	#define CLOSED_CURTAIN_LAYER		4
 	#define CLOSED_FIREDOOR_LAYER		5
 	#define LIGHT_FIXTURE_LAYER			6
