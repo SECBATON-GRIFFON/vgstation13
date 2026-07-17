@@ -907,6 +907,13 @@ var/list/discounted_items_of_the_round = list()
 	discounted_cost = 12
 	jobs_with_discount = list("Geneticist", "Chief Medical Officer")
 
+/datum/uplink_item/jobspecific/medical/cloneblock
+	name = "Cloning Prevention Chip"
+	desc = "A modification chip, when placed on any cloning computer, forbids the cloning of a person by a set name. Use in hand to set the name of the person to forbid cloning. Will disguise failure to clone as mental interface failure. Comes with only one use, so choose a target wisely."
+	item = /obj/item/cloneblock
+	cost = 12
+	jobs_exclusive = list("Geneticist", "Chief Medical Officer")
+
 /datum/uplink_item/jobspecific/medical/viruscollection
 	name = "Deadly Syndrome Collection"
 	desc = "A diskette box filled with 3 random Deadly stage 4 syndromes GNA disks (the same syndrome won't show up twice) on top of a Waiting Syndrome GNA disk to help your disease spread undetected, and a GNA forging disk for masking deadly syndromes in the database."

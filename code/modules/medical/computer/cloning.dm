@@ -22,6 +22,7 @@
 	var/obj/item/weapon/disk/data/diskette = null //Mostly so the geneticist can steal everything.
 	var/loading = 0 // Nice loading text
 	var/available_species = list("Human","Tajaran","Skrell","Unathi","Grey","Plasmamen","Vox", "Insectoid")
+	var/block_cloning_name
 
 	light_color = LIGHT_COLOR_BLUE
 
@@ -119,6 +120,11 @@
 				to_chat(user, "You insert \the [W].")
 				src.updateUsrDialog()
 				return 1
+	if(istype(W, /obj/item/cloneblock) && user.drop_item(W,src))
+		var/obj/item/cloneblock/C = W
+		block_cloning_name = C.blockname
+		to_chat(user,"<span class='danger'>[src] is now blocking cloning of [block_cloning_name].</span>")
+		qdel(W)
 
 /obj/machinery/computer/cloning/emag_act(mob/user)
 	if(!emagged)
@@ -425,6 +431,9 @@
 	if(!subject.has_brain())
 		scantemp = "Error: No signs of intelligence detected." //Self explainatory
 		return
+	if(block_cloning_name && block_cloning_name == subject.real_name) //Syndie item
+		scantemp = "Error: Mental interface failure." //Keep it vague too
+		return
 	if(!subject.mind) //This human was never controlled by a player, so they can't be cloned
 		scantemp = "Error: Mental interface failure."
 		return
@@ -520,3 +529,21 @@
 			if(pod && pod.occupants.len > 0)
 				overlays += image(icon = icon, icon_state = "cloning-pod")
 				break
+
+/obj/item/cloneblock
+	name = "Cloning Prevention Chip"
+	desc = "Blocks cloning on a DNA console. Use in hand to set the person name to block."
+	inhand_states = list("left_hand" = 'icons/mob/in-hand/left/boxes_and_storage.dmi', "right_hand" = 'icons/mob/in-hand/right/boxes_and_storage.dmi')
+	icon = 'icons/obj/items_weird.dmi'
+	icon_state = "quantumrouter"
+	item_state = "box_of_doom"
+	var/blockname = "Unknown"
+
+
+/obj/item/cloneblock/examine(mob/user, size, show_name)
+	. = ..()
+	to_chat(user,"<span class='danger'>Currently blocking cloning of [blockname]</span>")
+
+/obj/item/cloneblock/attack_self(mob/user)
+	. = ..()
+	blockname = input(user,"Name to block from cloning?","Name block",blockname) as text

@@ -1152,7 +1152,6 @@
 			//src.temphtml = "Data saved."
 			return 1
 
-
 /////////////////////////// DNA MACHINES
 
 #undef MAX_RADIATION_DURATION
