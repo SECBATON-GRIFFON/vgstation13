@@ -263,6 +263,7 @@
 	color = "#FFFFFF" //rgb: 255, 255, 255
 	nutriment_factor = 0
 	glass_name = "nothing"
+	overdose_am = 50
 
 /datum/reagent/drink/nothing/on_mob_life(var/mob/living/M)
     if(ishuman(M))
@@ -276,6 +277,13 @@
                 M.heal_organ_damage(0, REM)
             if(M.getToxLoss() && prob(80))
                 M.adjustToxLoss(-REM)
+
+/datum/reagent/drink/nothing/on_overdose(var/mob/living/H)
+	if(ishuman(H))
+		var/mob/living/carbon/human/M = H
+		if(M_CLUMSY in M.mutations)
+			M.mutations.Remove(M_CLUMSY)
+			M.visible_message("<span class='notice'>\The [M] seems to get a grasp over themselves...</span>", "<span class='notice'>You have outgrown that wave of clumsiness.</span>'")
 
 /datum/reagent/drink/potato_juice
 	name = "Potato Juice"
@@ -445,6 +453,7 @@
 	adj_temp = 20
 	mug_icon_state = "tea"
 	mug_desc = "A warm mug of tea."
+	arcane_id = GRAVSINGULARITEA
 
 /datum/reagent/drink/tea/on_mob_life(var/mob/living/M)
 	if(..())
@@ -747,6 +756,7 @@
 	glass_icon_state = "bananahonkglass"
 	glass_name = "\improper Banana Honk"
 	glass_desc = "A cocktail from the clown planet."
+	arcane_id = HONKSERUM
 
 /datum/reagent/drink/silencer
 	name = "Silencer"
@@ -757,6 +767,7 @@
 	glass_icon_state = "silencerglass"
 	glass_name = "\improper Silencer"
 	glass_desc = "The mime's favorite, though you won't hear him ask for it."
+	arcane_id = HONKSERUM
 
 /datum/reagent/drink/silencer/on_mob_life(var/mob/living/M)
 	if(..())
@@ -1033,6 +1044,7 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 	mug_name = "\improper Lifeline"
 	mug_desc = "Some days, the only thing that keeps you going is cryo and caffeine."
 	color = "#390600"
+	//arcane_id = PHENOL
 
 /datum/reagent/drink/coffee/medcoffee/on_mob_life(var/mob/living/M)
 	if(..())
@@ -1154,5 +1166,5 @@ var/global/list/tonio_doesnt_remove=list("tonio", "blood")
 /datum/reagent/drink/cold/frostbite/on_mob_life(var/mob/living/M)
 	if(..())
 		return 1
-	
+
 	M.reagents.add_reagent(MINTESSENCE, 0.1)
