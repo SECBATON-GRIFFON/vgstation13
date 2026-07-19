@@ -25,7 +25,7 @@
 	max_ammo = 7
 	multiple_sprites = 1
 	mech_flags = MECH_SCAN_ILLEGAL
-	origin_tech = Tc_SYNDICATE + "=1"
+	origin_tech = Tc_COMBAT + "=1"
 
 /obj/item/ammo_storage/speedloader/a357/empty
 	starting_ammo = 0
