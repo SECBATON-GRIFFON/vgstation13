@@ -12,7 +12,7 @@
 		var/list/filtered_emotes = list()
 		for(var/e in E.emote_list)
 			E = E.emote_list[e]
-			if(E.key in filtered_emotes)
+			if("*[E.key]" in filtered_emotes)
 				continue
 			if(E.can_run_emote(src, status_check = FALSE) && findtext(E.key,act))
 				filtered_emotes += list("*[E.key]")
