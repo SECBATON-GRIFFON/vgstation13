@@ -14,7 +14,7 @@
 			E = E.emote_list[e]
 			if("*[E.key]" in filtered_emotes)
 				continue
-			if(E.can_run_emote(src, status_check = FALSE) && findtext(E.key,act))
+			if(E.can_run_emote(src, FALSE, FALSE) && findtext(E.key,act))
 				filtered_emotes += list("*[E.key]")
 		filtered_emotes = uniquenamelist(sortList(filtered_emotes))
 		if(!filtered_emotes.len)
