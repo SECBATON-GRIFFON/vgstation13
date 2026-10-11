@@ -272,6 +272,12 @@ Works together with spawning an observer, noted above.
 		ghost.key = key
 		if(ghost.client && !ghost.client.holder && !config.antag_hud_allowed)		// For new ghosts we remove the verb from even showing up if it's not allowed.
 			ghost.verbs -= /mob/dead/observer/verb/toggle_antagHUD	// Poor guys, don't know what they are missing!
+		for(var/spell/S in ghost.spell_list)
+			if(S.type == /spell/aoe_turf/boo)
+				if(isAdminGhost(ghost))
+					S.charge_cooldown_max = 0
+				S.charge_counter = ghost.mind ? ghost.mind.boo_charge_counter : 0 //Prevent re-entering body to recharge Boo!
+				S.process()
 		return ghost
 
 /*
