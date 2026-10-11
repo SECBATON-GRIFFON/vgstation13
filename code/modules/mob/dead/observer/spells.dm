@@ -53,7 +53,7 @@ var/global/list/boo_phrases_silicon=list(
 	override_base = "grey"
 	hud_state = "boo"
 
-/spell/aoe_turf/boo/New()
+/spell/aoe_turf/boo/set_holder(var/new_holder)
 	..()
 	if(isAdminGhost(holder))
 		charge_cooldown_max = 0
