@@ -83,6 +83,8 @@
 
 	var/mob_legacy_fac
 
+	var/boo_charge_counter = 0
+
 /datum/mind/New(var/key)
 	src.key = key
 

@@ -55,7 +55,12 @@ var/global/list/boo_phrases_silicon=list(
 
 /spell/aoe_turf/boo/New()
 	..()
-	take_charge(holder) //Prevent re-entering body to recharge Boo!
+	if(isAdminGhost(holder))
+		charge_cooldown_max = 0
+	if(ismob(holder))
+		var/mob/M = holder
+		charge_counter = M.mind ? M.mind.boo_charge_counter : 0 //Prevent re-entering body to recharge Boo!
+		process()
 
 /spell/aoe_turf/boo/cast(list/targets)
 	for(var/turf/T in targets)

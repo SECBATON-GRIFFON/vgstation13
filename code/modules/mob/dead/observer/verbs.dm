@@ -29,6 +29,9 @@
 		if(cultwords && !(R && R.word1 == cultwords["hell"] && R.word2 == cultwords["travel"] && R.word3 == cultwords["self"]))	//astral journeying rune
 			to_chat(usr, "<span class='warning'>The astral cord that ties your body and your spirit has been severed. You are likely to wander the realm beyond until your body is finally dead and thus reunited with you.</span>")
 			return
+	for(var/spell/S in spell_list)
+		if(S.type == /spell/aoe_turf/boo)
+			mind.boo_charge_counter = S.charge_counter
 	completely_untransmogrify()
 	mind.current.key = key
 	mind.isScrying = 0
