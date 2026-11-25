@@ -220,7 +220,8 @@
 	if(show_client_status_on_examine || isAdminGhost(user))
 		if(has_brain() && stat != DEAD && !ajourn)
 			if(!key)
-				msg += "<span class='deadsay'>[t_He] [t_is] totally catatonic. The stresses of life in deep space must have been too much for [t_him]. Any recovery is unlikely.</span>\n"
+				if(!get_component(/datum/component/ai/human_brain)) //AI-controlled NPCs aren't catatonic
+					msg += "<span class='deadsay'>[t_He] [t_is] totally catatonic. The stresses of life in deep space must have been too much for [t_him]. Any recovery is unlikely.</span>\n"
 			else if(!client)
 				msg += "[t_He] [t_has] a vacant, braindead stare...\n"
 
@@ -410,7 +411,7 @@
 		msg += "<span class='warning'><b>[src] has \a [implant] sticking out of [t_his] flesh!</span>\n"
 
 	if(!is_destroyed["head"])
-		if(getBrainLoss() >= 60)
+		if(getBrainLoss(INTELLIGENCE_L) >= 60)
 			msg += "[t_He] [t_has] a stupid expression on [t_his] face.\n"
 
 		if(distance <= 3)

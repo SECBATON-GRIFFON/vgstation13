@@ -98,6 +98,8 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 
 	var/destroy_after_marker = FALSE	//The area is deleted after its holomap marker is created. Useful for shuttle docking zones that need to remain area-free.
 
+	var/short_name
+
 /*Adding a wizard area teleport list because motherfucking lag -- Urist*/
 /*I am far too lazy to make it a proper list of areas so I'll just make it run the usual telepot routine at the start of the game*/
 var/list/teleportlocs = list()
@@ -143,6 +145,10 @@ var/global/list/adminbusteleportlocs = list()
 			adminbusteleportlocs[AR.name] = AR
 
 	sortTim(adminbusteleportlocs, /proc/cmp_text_asc)
+
+/area/proc/on_turf_removed(var/turf/T)
+
+/area/proc/on_turf_added(var/turf/T)
 
 
 /*-----------------------------------------------------------------------------*/
@@ -669,6 +675,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/asteroid					// -- TLE
 	name = "\improper Asteroid"
+	short_name = "Roid"
 	icon_state = "asteroid"
 	requires_power = 0
 	shuttle_can_crush = FALSE
@@ -880,6 +887,7 @@ var/global/list/adminbusteleportlocs = list()
 //Maintenance
 
 /area/maintenance
+	short_name = "Maint"
 	shuttle_can_crush = FALSE
 	ambient_sounds = list(
 		/datum/ambience/maint1,
@@ -1120,6 +1128,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/crew_quarters/sleep
 	name = "\improper Dormitories"
+	short_name = "Dorms"
 	icon_state = "Sleep"
 
 /area/crew_quarters/sleep_male
@@ -1375,6 +1384,7 @@ var/global/list/adminbusteleportlocs = list()
 //Solars
 
 /area/solar
+	short_name = "Solars"
 	requires_power = 0
 	holomap_color = HOLOMAP_AREACOLOR_ENGINEERING
 	shuttle_can_crush = FALSE
@@ -1590,6 +1600,10 @@ var/global/list/adminbusteleportlocs = list()
 	name = "\improper Paramedic Station"
 	icon_state = "paramedics"
 
+/area/medical/eva
+    name = "\improper Emergency Rescue Unit"
+    icon_state = "rescue_unit"
+
 //Security
 /area/security
 	holomap_color = HOLOMAP_AREACOLOR_SECURITY
@@ -1617,6 +1631,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/security/perma
 	name = "\improper Permanent Confinement"
+	short_name = "Perma"
 	icon_state = "sec_perma"
 
 /area/security/gas_chamber
@@ -1671,6 +1686,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/security/armory
 	name = "\improper Secure Armory"
+	short_name = "Armory"
 	icon_state = "Armory"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 	jammed=1
@@ -1812,6 +1828,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/science/xenobiology
 	name = "\improper Xenobiology Lab"
+	short_name = "Xenobio"
 	icon_state = "xenobio"
 
 /area/science/xenobiology/specimen_1
@@ -1883,6 +1900,7 @@ var/global/list/adminbusteleportlocs = list()
 //Storage
 
 /area/storage
+	short_name = "Storage"
 	shuttle_can_crush = FALSE
 
 /area/storage/tools
@@ -1921,6 +1939,7 @@ var/global/list/adminbusteleportlocs = list()
 
 /area/storage/nuke_storage
 	name = "\improper Vault"
+	short_name = null
 	icon_state = "nuke_storage"
 	holomap_color = HOLOMAP_AREACOLOR_COMMAND
 
@@ -2044,6 +2063,41 @@ var/global/list/adminbusteleportlocs = list()
 	holomap_draw_override = HOLOMAP_DRAW_EMPTY
 	icon_state="jungle_wild"
 	always_unpowered=TRUE
+
+/area/surface/jungle/on_turf_removed(var/turf/T)
+	var/datum/virtual_z/vz = T.get_virtual_z()
+	var/datum/climate/C = SSweather.get_climate(vz)
+	if(C)
+		C.unregister_weather_turf(T)
+
+/area/surface/jungle/on_turf_added(var/turf/T)
+	var/datum/virtual_z/vz = T.get_virtual_z()
+	var/datum/climate/C = SSweather.get_climate(vz)
+	if(C)
+		C.register_weather_turf(T)
+
+//Climates are looked up from turfs, not from src.v: one area instance can span several z-levels (the main jungle area also has turfs on the derelict), so its v is whichever level initialized last.
+/area/surface/jungle/Entered(atom/movable/Obj, atom/OldLoc)
+	. = ..()
+	if(!isliving(Obj) && !Obj.contents.len)
+		return
+	var/datum/climate/new_climate = SSweather.get_climate_from_turf(get_turf(Obj))
+	//moving between jungle areas under the same climate (e.g. into a patio, or across the surface z-levels) keeps the sound going. a different climate (e.g. going underground) still needs a change.
+	if(istype(get_area(OldLoc), /area/surface/jungle) && SSweather.get_climate_from_turf(get_turf(OldLoc)) == new_climate)
+		return
+	//Obj itself if it's a mob, plus any mobs it carries (a locker's or a mech's occupant)
+	for(var/mob/living/L in recursive_type_check(Obj, /mob/living))
+		L.update_weather_sounds(!new_climate)
+
+/area/surface/jungle/Exited(atom/movable/Obj, atom/NewLoc)
+	. = ..()
+	//moves into another jungle area are handled by its Entered(), which knows both turfs
+	if(istype(get_area(NewLoc), /area/surface/jungle))
+		return
+	if(!isliving(Obj) && !Obj.contents.len)
+		return
+	for(var/mob/living/L in recursive_type_check(Obj, /mob/living))
+		L.update_weather_sounds(TRUE)
 
 //to hide vaults on the main station z-level
 /area/surface/jungle/vault
@@ -2186,7 +2240,7 @@ var/global/list/adminbusteleportlocs = list()
 /area/surface/jungle/landing
 	name = "\improper Landing Area"
 	icon_state="jungle_landing"
-	base_turf_type=/turf/unsimulated/floor/jungle/concrete
+	base_turf_type=/turf/unsimulated/floor/planetary/concrete/jungle
 	holomap_color = HOLOMAP_AREACOLOR_ESCAPE
 
 //DJSTATION

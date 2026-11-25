@@ -43196,6 +43196,11 @@
 	name = "Trader Dock Shutters"
 	},
 /obj/structure/plasticflaps/mining,
+/obj/item/device/deskbell/signaler/trader{
+	pixel_x = 6;
+	pixel_y = 8;
+	name = "Trade Counter Bell"
+	},
 /turf/simulated/floor/vox{
 	name = "floor"
 	},
@@ -53139,9 +53144,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/central/capmaint)
 "bRR" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/effect/decal/cleanable/liquid_fuel,
 /obj/abstract/map/spawner/floorpill,
 /turf/simulated/floor/plating,
@@ -65182,9 +65185,7 @@
 /turf/simulated/wall,
 /area/engineering/lockers)
 "cnX" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layered{
 	dir = 6
 	},
@@ -73230,10 +73231,6 @@
 /obj/docking_port/destination/vox/southeast_station,
 /turf/space,
 /area)
-"cGk" = (
-/obj/effect/landmark/dungeon_area,
-/turf/space,
-/area)
 "cGl" = (
 /turf/simulated/wall/shuttle/unsmoothed{
 	dir = 1;
@@ -73948,18 +73945,14 @@
 	},
 /area/syndicate_mothership)
 "cHU" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/effect/decal/cleanable/vomit,
 /turf/unsimulated/floor{
 	icon_state = "freezerfloor"
 	},
 /area/syndicate_mothership)
 "cHV" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /turf/unsimulated/floor{
 	icon_state = "freezerfloor"
 	},
@@ -76846,14 +76839,8 @@
 /area/centcom/suppy)
 "cPM" = (
 /obj/effect/decal/cleanable/cobweb2,
-/turf/unsimulated/floor{
-	icon_state = "platingdmg1"
-	},
-/area/prison/solitary)
-"cPN" = (
-/obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "floorscorched1"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "cPO" = (
@@ -76867,18 +76854,13 @@
 /turf/unsimulated/wall,
 /area/prison/solitary)
 "cPQ" = (
-/turf/unsimulated/floor{
-	icon_state = "panelscorched"
+/turf/unsimulated/floor/scorched{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "cPR" = (
 /turf/unsimulated/floor{
 	name = "plating"
-	},
-/area/prison/solitary)
-"cPS" = (
-/turf/unsimulated/floor{
-	icon_state = "platingdmg3"
 	},
 /area/prison/solitary)
 "cPT" = (
@@ -76895,9 +76877,7 @@
 /area/prison/solitary)
 "cPV" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "floorscorched2"
-	},
+/turf/unsimulated/floor/scorched,
 /area/prison/solitary)
 "cPW" = (
 /obj/item/weapon/storage/fancy/cigarettes,
@@ -77241,19 +77221,19 @@
 /area/centcom/suppy)
 "cQT" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "platingdmg3"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "cQU" = (
-/turf/unsimulated/floor{
-	icon_state = "platingdmg1"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "cQV" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "panelscorched"
+/turf/unsimulated/floor/scorched{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "cQW" = (
@@ -77299,15 +77279,8 @@
 	icon_state = "dark neutral stripe"
 	},
 /area/centcom/suppy)
-"cRc" = (
-/turf/unsimulated/floor{
-	icon_state = "floorscorched1"
-	},
-/area/prison/solitary)
 "cRd" = (
-/turf/unsimulated/floor{
-	icon_state = "floorscorched2"
-	},
+/turf/unsimulated/floor/scorched,
 /area/prison/solitary)
 "cRe" = (
 /obj/machinery/dna_scannernew,
@@ -84824,18 +84797,6 @@
 /turf/unsimulated/floor{
 	icon_state = "redyellowfull"
 	},
-/area/centcom/holding)
-"diF" = (
-/obj/structure/fence/corner{
-	dir = 1
-	},
-/turf/unsimulated/floor/grass,
-/area/centcom/holding)
-"diG" = (
-/obj/structure/fence{
-	dir = 4
-	},
-/turf/unsimulated/floor/grass,
 /area/centcom/holding)
 "diH" = (
 /obj/structure/fence/door/opened,
@@ -104055,13 +104016,7 @@
 /turf/simulated/floor/plating,
 /area/engineering/supermatter_room)
 "uBy" = (
-/obj/machinery/planet_scanner{
-	anchored = 1;
-	icon_state = "scanner_idle"
-	},
-/obj/item/device/gps/planetary,
-/obj/item/device/gps/planetary,
-/obj/item/device/gps/planetary,
+/obj/structure/flora/pottedplant/random,
 /turf/simulated/floor{
 	dir = 8;
 	icon_state = "darkblue"
@@ -356596,7 +356551,7 @@ aaa
 aaa
 aaa
 aaa
-cGk
+aaa
 aaa
 aaa
 aaa
@@ -392863,7 +392818,7 @@ aaa
 aaa
 aaa
 cPC
-cPN
+cPV
 cQm
 cPC
 cQT
@@ -393369,7 +393324,7 @@ cPM
 cQl
 cPC
 cPU
-cRc
+cRd
 cPC
 aaa
 aaa
@@ -396377,11 +396332,11 @@ aaa
 aaa
 aaa
 cPC
-cPS
+cQU
 cQl
 cPC
 cQl
-cPS
+cQU
 cPC
 aaa
 cRv
@@ -397886,7 +397841,7 @@ cPC
 cPR
 cPU
 cPC
-cPS
+cQU
 cPR
 cPC
 aaa
@@ -399392,7 +399347,7 @@ cPC
 cPT
 cPQ
 cPC
-cPS
+cQU
 cPR
 cPC
 aaa
@@ -402402,7 +402357,7 @@ aaa
 aaa
 cPC
 cPR
-cPS
+cQU
 cPC
 cPU
 cRd
@@ -411991,7 +411946,7 @@ dhi
 dho
 dhs
 dir
-diF
+diZ
 diZ
 diZ
 djK
@@ -412493,7 +412448,7 @@ dho
 dho
 dhs
 dhm
-diG
+diZ
 dja
 dho
 djM
@@ -412995,7 +412950,7 @@ dhn
 dhi
 dhs
 dhn
-diG
+diZ
 dja
 dho
 djM
@@ -413999,7 +413954,7 @@ dhi
 dhm
 dhs
 dis
-diG
+diZ
 dhs
 dhs
 djM
@@ -414501,7 +414456,7 @@ dhq
 dho
 dhs
 dhq
-diG
+diZ
 dhs
 dhs
 djN
@@ -415003,7 +414958,7 @@ dhq
 dho
 dhs
 dhi
-diG
+diZ
 dhs
 djs
 djM
@@ -415505,7 +415460,7 @@ dhn
 dhM
 dhs
 dhq
-diG
+diZ
 djb
 dhL
 djM
@@ -416007,7 +415962,7 @@ dhp
 dhq
 dhs
 dhi
-diG
+diZ
 dhs
 djs
 djM
@@ -416509,7 +416464,7 @@ dhq
 dhm
 dhs
 dhn
-diG
+diZ
 dhs
 djs
 djM
@@ -417011,7 +416966,7 @@ dhp
 dhn
 dhs
 dhi
-diG
+diZ
 djb
 dhL
 djM
@@ -417513,7 +417468,7 @@ dhs
 dhs
 dhs
 dhi
-diG
+diZ
 dhs
 djs
 djO

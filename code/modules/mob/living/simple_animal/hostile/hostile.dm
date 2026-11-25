@@ -104,6 +104,7 @@
 		return 0
 	if(!.)
 		walk(src, 0)
+		stop_chase()
 		return 0
 	if(client && !deny_client_move)
 		return 0
@@ -122,6 +123,10 @@
 					EscapeConfinement()
 				var/new_target = FindTarget()
 				GiveTarget(new_target)
+				// Chase on the acquiring tick rather than idling a full 2s AI tick.
+				if(stance == HOSTILE_STANCE_ATTACK && !(flags & INVULNERABLE))
+					MoveToTarget()
+					DestroySurroundings()
 
 			if(HOSTILE_STANCE_ATTACK)
 				if(!(flags & INVULNERABLE))
@@ -169,15 +174,13 @@
 	return
 
 /mob/living/simple_animal/hostile/proc/isValidTarget(var/atom/A)//we should have made that proc long ago instead of expanding CanAttack()
+	if(isliving(A))
+		var/mob/living/L = A
+		if(L.pacify_aura)
+			return FALSE
 	if(istype(A,/mob/living/simple_animal))
 		var/mob/living/simple_animal/SA=A
 		if(SA.is_poisonous && avoids_poisonous )
-			return FALSE
-		if(SA.pacify_aura)
-			return FALSE
-	if(istype(A,/mob/living/complex_animal))
-		var/mob/living/complex_animal/CA=A
-		if(CA.pacify_aura)
 			return FALSE
 	return !loneliness_affected(A)
 
@@ -231,15 +234,9 @@
 			if (ref.get() == L)
 				return 0
 
-		//don't attack things which pacify (eg pillows or capybaras)
-		if(istype(L,/mob/living/simple_animal))
-			var/mob/living/simple_animal/SA = L
-			if (SA.pacify_aura)
-				return 0
-		if(istype(L,/mob/living/complex_animal))
-			var/mob/living/complex_animal/CA=L
-			if(CA.pacify_aura)
-				return 0		
+		//don't attack things which pacify (eg pillows, capybaras, or pacification beacon holders)
+		if(L.pacify_aura)
+			return 0
 		return 1
 	if(isobj(the_target))
 		//if(the_target.type in wanted_objects)
@@ -254,6 +251,8 @@
 			var/obj/machinery/door/airlock/A = the_target
 			if(!A.density || A.operating || A.locked || A.welded)
 				return 0
+			return 1
+		if(istype(the_target, /obj/structure/emergency_shield))
 			return 1
 	return 0
 
@@ -300,6 +299,7 @@
 			if(canmove && space_check())
 				if(retreat_distance != null && target_distance <= retreat_distance) //If we have a retreat distance, check if we need to run from our target
 					before_retreat()
+					stop_chase()
 					walk_away(src,target,retreat_distance,move_to_delay)
 				else
 					Goto(target,move_to_delay,minimum_distance)//Otherwise, get to our minimum distance so we chase them
@@ -318,9 +318,6 @@
 			return
 
 	LostTarget()
-
-/mob/living/simple_animal/hostile/proc/Goto(var/target, var/delay, var/minimum_distance)
-	start_walk_to(target, minimum_distance, delay)
 
 /mob/living/simple_animal/hostile/adjustBruteLoss(var/damage)
 	..(damage)
@@ -369,11 +366,13 @@
 	stance = HOSTILE_STANCE_IDLE
 	target = null
 	walk(src, 0)
+	stop_chase()
 	LoseAggro()
 
 /mob/living/simple_animal/hostile/proc/LostTarget()
 	stance = HOSTILE_STANCE_IDLE
 	walk(src, 0)
+	stop_chase()
 	LoseAggro()
 
 //////////////END HOSTILE MOB TARGETTING AND AGGRESSION////////////
@@ -381,6 +380,7 @@
 /mob/living/simple_animal/hostile/death(var/gibbed = FALSE)
 	LoseAggro()
 	walk(src, 0)
+	stop_chase()
 	if(hivelord)
 		if(src in hivelord.broods)
 			hivelord.broods.Remove(src)
@@ -412,7 +412,7 @@
 			TryToShoot(target_turf, ttarget)
 			sleep(1)
 			TryToShoot(target_turf, ttarget)
-	if(doubleshot)
+	else if(doubleshot)
 		spawn()
 			TryToShoot(target_turf, ttarget)
 			sleep(1)
@@ -490,13 +490,18 @@
 	return new projectiletype(user.loc)
 
 /mob/living/simple_animal/hostile/UnarmedAttack(var/atom/A,var/proximity,var/params)
-	if(istype(A,/mob/living/complex_animal))
+	if(istype(A,/mob/living/simple_animal/complex))
 		unarmed_attack_mob(A)
 	..()
 
 /mob/living/simple_animal/hostile/proc/DestroySurroundings()
 	if(environment_smash_flags & SMASH_LIGHT_STRUCTURES)
 		EscapeConfinement()
+		var/obj/blocker = path_barrier()
+		if(blocker)
+			hostile_interest = initial(hostile_interest)
+			UnarmedAttack(blocker, TRUE)
+			return
 		var/list/smash_dirs = list(0)
 		if(!target || !CanAttack(target))
 			smash_dirs |= alldirs //if no target, attack everywhere
@@ -515,6 +520,8 @@
 					 /obj/structure/girder,
 					 /obj/structure/rack,
 					 /obj/structure/railing,
+					 /obj/structure/emergency_shield,
+					 /obj/machinery/shieldwall,
 					 /obj/machinery/door/table,
 					 /obj/machinery/door/window,
 					 /obj/item/tape,

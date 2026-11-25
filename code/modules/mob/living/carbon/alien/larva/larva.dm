@@ -13,6 +13,7 @@
 
 	var/growth = 0
 	var/time_of_birth
+	var/stowaway = FALSE // If TRUE, evolution is restricted to Hunter only (set by odyssey_xeno ruleset)
 
 //This is fine right now, if we're adding organ specific damage this needs to be updated
 /mob/living/carbon/alien/larva/New()
@@ -146,8 +147,6 @@
 		return TRUE //under effects of time magick
 
 	return FALSE
-
-/mob/living/carbon/alien/larva/var/co2overloadtime = null
 
 // new damage icon system
 // now constructs damage icon for each organ from mask * damage field

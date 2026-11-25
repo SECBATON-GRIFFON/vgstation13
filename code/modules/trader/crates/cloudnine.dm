@@ -2,7 +2,7 @@
 	name = "Cloud IX engineering crate"
 	desc = "The Cloud IX engineering facility hangs in the atmosphere of the eponymous gas giant. But are the workers happy? Nein."
 
-//3+8+7=18
+//3+8+8=19
 var/global/list/cloudnine_stuff = list(
 	//3 of a kind
 	/obj/item/airshield_projector,/obj/item/airshield_projector,/obj/item/airshield_projector,
@@ -19,11 +19,12 @@ var/global/list/cloudnine_stuff = list(
 	/obj/item/wasteos,
 	/obj/item/weapon/storage/toolbox/master,
 	/obj/item/device/modkit/antiaxe_kit,
+	/obj/item/weapon/fuelrod/challenge,
 	)
 
 /obj/structure/closet/crate/internals/cloudnine/New()
 	..()
-	for(var/i = 1 to 6)
+	for(var/i = 1 to 7)
 		if(!cloudnine_stuff.len)
 			return
 		var/path = pick_n_take(cloudnine_stuff)
@@ -50,6 +51,7 @@ var/global/list/cloudnine_stuff = list(
 	speak_chance = 2
 	emote_hear = list("squeaks deeply")
 	var/obj/my_wheel
+	var/is_wheeling = FALSE
 
 /mob/living/simple_animal/hamster/Life()
 	if(!..())
@@ -65,16 +67,20 @@ var/global/list/cloudnine_stuff = list(
 		hamsterwheel(20)
 
 /mob/living/simple_animal/hamster/proc/hamsterwheel(var/repeat)
-	if(repeat < 1 || stat)
+	if(is_wheeling)
 		return
-	if(!my_wheel || my_wheel.loc != loc) //no longer share a tile with our wheel
-		wander = TRUE
-		my_wheel = null
-		return
-	step(src,my_wheel.dir)
-	delayNextMove(HAMSTER_MOVEDELAY)
-	sleep(HAMSTER_MOVEDELAY)
-	hamsterwheel(repeat-1)
+	is_wheeling = TRUE
+	spawn(0)
+		while(repeat > 0 && !stat)
+			if(!my_wheel || my_wheel.loc != loc) //no longer share a tile with our wheel
+				wander = TRUE
+				my_wheel = null
+				break
+			step(src,my_wheel.dir)
+			delayNextMove(HAMSTER_MOVEDELAY)
+			sleep(HAMSTER_MOVEDELAY)
+			repeat--
+		is_wheeling = FALSE
 
 /mob/living/simple_animal/hamster/attack_hand(mob/living/carbon/human/M)
 	. = ..()

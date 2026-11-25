@@ -29,7 +29,7 @@
 	var/area/A = loc
 	if (!A.dynamic_lighting)
 		return
-	if (!lighting_corners_initialised)
+	if (!lighting_corners_initialised || !corners)
 		generate_missing_corners()
 
 	new /atom/movable/lighting_overlay(src)
@@ -82,6 +82,9 @@
 		old_area.alert_holder.remove_turf(src)
 	if (new_area.alert_holder)
 		new_area.alert_holder.add_turf(src)
+		
+	old_area.on_turf_removed(src)
+	new_area.on_turf_added(src)
 
 /turf/proc/get_corners()
 	if (has_opaque_atom)

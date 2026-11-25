@@ -77,6 +77,7 @@
 		return 1
 	if(volume >= 5)
 		T.bless()
+	if(volume > 10 )
 		T.wet(800) //needs a bit more than regular water cause it's not as pure
 
 	T.clean_act(CLEANLINESS_WATER)
@@ -208,7 +209,6 @@
 	id = EXPLICITLY_INVALID_REAGENT_ID
 	reagent_state = REAGENT_STATE_GAS
 	density = 3.214
-	specheatcap = 1.34
 	color = "#E0D3D3" //rgb: 224, 211, 211
 	data = list("source" = null)
 
@@ -289,6 +289,17 @@
 	name = "Banana Incense"
 	id = INCENSE_BANANA
 	description = "This fragrance helps you be more clumsy, so you can laugh at yourself."
+
+/datum/reagent/incense/rose
+	name = "Rose Incense"
+	id = INCENSE_ROSES
+	description = "This fragrance makes you dreamy, you can't help but fall in love."
+
+/datum/reagent/incense/rose/on_mob_life(var/mob/living/M)
+	if(..())
+		return 1
+	if(prob(5))
+		to_chat(M,"<span class='warning'>[pick("They look cute...", "Men in tuxedos...", "Women in dresses...")]</span>")
 
 /datum/reagent/incense/banana/on_mob_life(var/mob/living/M)
 	if(..())

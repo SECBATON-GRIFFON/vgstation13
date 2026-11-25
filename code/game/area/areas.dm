@@ -12,6 +12,7 @@ var/area/space_area
 	var/list/obj/machinery/light_switch/lightswitches = list()
 	var/list/obj/machinery/light/lights = list()
 	var/list/area_turfs
+	var/datum/virtual_z/v
 	plane = LIGHTING_PLANE
 	layer = MAPPING_AREA_LAYER
 	var/base_turf_type = null
@@ -20,8 +21,12 @@ var/area/space_area
 	var/obj/effect/area_alert_holder/alert_holder = null
 	var/obj/effect/narration/narrator = null
 	var/holomap_draw_override = HOLOMAP_DRAW_NORMAL
-
+	var/total_floors = 0 //Total simulated floors in an area.
 	flags = CAVES_ALLOWED
+
+/// Used for shuttle overrides so we can expose planet or space turfs depending on the shuttle's location.
+/area/proc/get_base_turf_type(turf/T)
+	return base_turf_type
 
 /area/New()
 	area_turfs = list()
@@ -378,7 +383,7 @@ var/area/space_area
 /area/proc/power_change()
 	for(var/obj/machinery/M in src)	// for each machine in the area
 		M.power_change()				// reverify power status (to update icons etc.)
-	if (fire || eject || party)
+	if (fire || eject || party || radalert)
 		updateicon()
 
 /area/proc/usage(const/chan)
@@ -427,6 +432,11 @@ var/area/space_area
 
 	if(oldArea == src)
 		return 1
+	//Outdoor areas start weather sound loops in their own Entered(). Stop them here for anything that left the outdoors,
+	//because forceMove() never calls the old area's Exited().
+	if(isopensurface(oldArea) && !isopensurface(src) && (isliving(Obj) || Obj.contents.len))
+		for(var/mob/living/L in recursive_type_check(Obj, /mob/living))
+			L.update_weather_sounds(TRUE)
 	if(project_shadows)
 		Obj.update_shadow()
 	else if(istype(oldArea) && oldArea.project_shadows)
@@ -443,42 +453,41 @@ var/area/space_area
 	for(var/mob/mob_in_obj in Obj.contents)
 		if(istype(mob_in_obj))
 			INVOKE_EVENT(mob_in_obj, /event/mob_area_changed, "mob" = mob_in_obj, "newarea" = src, "oldarea" = oldArea)
-			if(planet && istype(mob_in_obj, /mob/living))
-				var/mob/living/L = mob_in_obj
-				L.register_event(/event/planet_entered, planet, "on_mob_entered")
-				L.register_event(/event/planet_exited, planet, "on_mob_exited")
-				INVOKE_EVENT(L, /event/planet_entered, L, planet)
+			if(oldArea?.v && src.v && (oldArea.v != src.v))
+				var/datum/virtual_z/old_v = oldArea.v
+				var/datum/virtual_z/new_v = src.v
+				if(istype(mob_in_obj, /mob/living))
+					var/mob/living/L = mob_in_obj
+					new_v.mob_entered(L)
+					INVOKE_EVENT(L, /event/v_transition, "user" = L, "from_v" = old_v, "to_v" = new_v)
 
 	INVOKE_EVENT(src, /event/area_entered, "enterer" = Obj)
 	var/mob/M = Obj
 	if(istype(M))
 		INVOKE_EVENT(M, /event/mob_area_changed, "mob" = M, "newarea" = src, "oldarea" = oldArea)
-		if(planet && istype(M, /mob/living))
-			var/mob/living/L = M
-			L.register_event(/event/planet_entered, planet, "on_mob_entered")
-			L.register_event(/event/planet_exited, planet, "on_mob_exited")
-			INVOKE_EVENT(L, /event/planet_entered, L, planet)
+		if(oldArea?.v && src.v && (oldArea.v != src.v))
+			var/datum/virtual_z/old_v = oldArea.v
+			var/datum/virtual_z/new_v = src.v
+			if(istype(M, /mob/living))
+				var/mob/living/L = M
+				new_v.mob_entered(L)
+				INVOKE_EVENT(L, /event/v_transition, "user" = L, "from_v" = old_v, "to_v" = new_v)
 		if(narrator)
 			narrator.Crossed(M)
 
 /area/Exited(atom/movable/Obj)
-	if(planet)
-		var/turf/T = get_turf(Obj)
-		var/area/newArea = T ? get_area(T) : null
-		if(!newArea || newArea.planet != planet)
-			Obj.planet = null
-			if(istype(Obj, /mob))
-				var/mob/M = Obj
-				INVOKE_EVENT(M, /event/planet_exited, M, planet)
-				M.unregister_event(/event/planet_entered, planet, "on_mob_entered")
-				M.unregister_event(/event/planet_exited, planet, "on_mob_exited")
-			for(var/atom/movable/thing in get_contents_in_object(Obj))
-				thing.planet = null
-				if(istype(thing, /mob))
-					var/mob/M = thing
-					INVOKE_EVENT(M, /event/planet_exited, M, planet)
-					M.unregister_event(/event/planet_entered, planet, "on_mob_entered")
-					M.unregister_event(/event/planet_exited, planet, "on_mob_exited")
+	var/turf/T = get_turf(Obj)
+	var/datum/virtual_z/new_v = T?.v
+	if(v && v != new_v)
+		if(istype(Obj, /mob/living))
+			var/mob/living/L = Obj
+			v.mob_exited(L)
+			INVOKE_EVENT(L, /event/v_transition, "user" = L, "from_v" = v, "to_v" = new_v)
+		for(var/atom/movable/thing in get_contents_in_object(Obj))
+			if(istype(thing, /mob/living))
+				var/mob/living/L = thing
+				v.mob_exited(L)
+				INVOKE_EVENT(L, /event/v_transition, "user" = L, "from_v" = v, "to_v" = new_v)
 
 	INVOKE_EVENT(src, /event/area_exited, "exiter" = Obj)
 	..()
@@ -523,7 +532,7 @@ var/area/space_area
 
 /area/proc/get_shuttle()
 	for(var/datum/shuttle/S in shuttles)
-		if(S.linked_area == src)
+		if(S.has_area(src))
 			return S
 	return null
 

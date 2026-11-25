@@ -119,6 +119,8 @@
 	switch(adjustment)
 		if (PVAR_SPAWNING)
 			holder.particles.spawning = new_value
+		if (PVAR_COUNT)
+			holder.particles.count = new_value
 		if (PVAR_POSITION)
 			holder.particles.position = new_value
 		if (PVAR_VELOCITY)
@@ -177,6 +179,8 @@ var/list/particle_string_to_type = list(
 	PS_CULT_SMOKE2 = /particles/cult_smoke/alt,
 	PS_CULT_SMOKE_BOX = /particles/cult_smoke/box,
 	PS_PILLAR_BEACON = /particles/pillar_beacon,
+	PS_OCCULT_TEST_LARGE = /particles/occult_blood_test,
+	PS_OCCULT_TEST_SMALL = /particles/occult_blood_test/small,
 	PS_CULT_HALO = /particles/cult_halo,
 	PS_SPACE_RUNES = /particles/space_runes,
 	PS_NARSIEHASRISEN1 = /particles/narsie_has_risen,
@@ -191,7 +195,8 @@ var/list/particle_string_to_type = list(
 	PS_BIBLE_PAGE = /particles/bible_page,
 	PS_SHADOW_SMOKE = /particles/cult_smoke,
 	PS_SHADOW_SMOKE2 = /particles/cult_smoke/alt,
-	PS_GAS_VENT = /particles/gas_vent
+	PS_GAS_VENT = /particles/gas_vent,
+	PS_CIG_SMOKE = /particles/cigsmoke,
 	)
 
 /particles
@@ -275,7 +280,7 @@ var/list/particle_string_to_type = list(
 
 	appearance_flags = RESET_COLOR
 	blend_mode = BLEND_ADD
-	plane = ABOVE_LIGHTING_PLANE
+	plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 
 /particles/candle_alt
 	width = 32
@@ -294,7 +299,7 @@ var/list/particle_string_to_type = list(
 
 	appearance_flags = RESET_COLOR
 	blend_mode = BLEND_ADD
-	plane = ABOVE_LIGHTING_PLANE
+	plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 
 //CULT GAUGE
 /particles/cult_gauge
@@ -367,6 +372,32 @@ var/list/particle_string_to_type = list(
 	drift = generator("box", list(-0.02,-0.02), list(0.02,0.02))
 
 	plane = ABOVE_LIGHTING_PLANE
+
+
+//OCCULT_BLOOD_TEST
+/particles/occult_blood_test
+	width = 64
+	height = 96
+	count = 0
+	spawning = 2
+
+	lifespan = 3 SECONDS
+	fade = 0.3 SECONDS
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = "occult_test_flame_large"
+	position = generator("box", list(-1,-1), list(1,1))
+	velocity = list(0,2)
+	friction = 0.3
+	drift = generator("box", list(-0.3,-0.35), list(0.3,0.35))
+
+	appearance_flags = RESET_COLOR
+	plane = ABOVE_LIGHTING_PLANE
+
+/particles/occult_blood_test/small
+	icon_state = "occult_test_flame_small"
+	velocity = list(0,1.5)
+	friction = 0.4
+	drift = generator("box", list(-0.25,-0.35), list(0.25,0.35))
 
 //CULT HALO
 /particles/cult_halo
@@ -459,6 +490,23 @@ var/list/particle_string_to_type = list(
 	drift = generator("box", list(-0.5,-0.1), list(0.5,0.1))
 	scale = list(0.5, 0.5)
 	grow = list(0.08, 0.08)
+
+/particles/cigsmoke //copied from /steam, mostly.
+	width = 64
+	height = 64
+	count = 20
+	spawning = 1
+	lifespan = 1 SECONDS
+	fade = 1 SECONDS
+	icon = 'icons/effects/effects_particles.dmi'
+	icon_state = "steam"
+	color = "#FFFFFF99"
+	position = 0
+	velocity = 1
+	scale = list(0.3, 0.3)
+	grow = list(0.05, 0.05)
+	rotation = generator("num", 0,360)
+	pixel_y=10
 
 /turf
 	var/last_dust_time = 0
@@ -559,7 +607,7 @@ var/list/particle_string_to_type = list(
 
 	appearance_flags = RESET_COLOR|RESET_ALPHA
 	blend_mode = BLEND_ADD
-	plane = ABOVE_LIGHTING_PLANE
+	plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 
 
 /particles/cross_orb
@@ -637,7 +685,7 @@ var/list/particle_string_to_type = list(
 
 	appearance_flags = RESET_COLOR
 	blend_mode = BLEND_ADD
-	plane = ABOVE_LIGHTING_PLANE
+	plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 
 /particles/ash
 	width = 64

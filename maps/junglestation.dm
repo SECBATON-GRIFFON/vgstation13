@@ -33,6 +33,7 @@
 						/datum/event/meteor_wave,/datum/event/meteor_shower,/datum/event/thing_storm/meaty_gore,/datum/event/thing_storm/blob_shower,
 						/datum/event/thing_storm/blob_storm,/datum/event/thing_storm/fireworks)
 	load_map_elements = list(
+	/datum/map_element/dungeon/mecha_graveyard
 	)
 
 	skip_hobo_shack=TRUE
@@ -45,6 +46,7 @@
 	center_y = 163
 
 /datum/map/active/New()
+	daynight_z_lvls = list(zMainStation,zAsteroid)
 	..()
 	//linking roid and station
 	zLevels[zMainStation].transition_crosswrap_z=list(zAsteroid,zAsteroid,zAsteroid,zAsteroid)
@@ -54,19 +56,24 @@
 	zLevels[zSecondunderground].transition_crosswrap_z=list(zAdditionalStationZlevel,zAdditionalStationZlevel,zAdditionalStationZlevel,zAdditionalStationZlevel)
 	world.name = "NT Colony Gamma-8"
 	station_name="NT Colony Gamma-8"
-	daynight_z_lvls=list(1,4)
-	turfs_to_regrow=list()
 
 
 /datum/map/active/map_specific_init()
+	var/datum/climate/C=SSweather.set_climate(/datum/climate/jungle, zLevel = map.zMainStation)
+	C.current_weather.timeleft = 10 MINUTES //give a 10 minute grace period of calm weather when the round starts.
+
 	generate_mapvaults()
 	//replace all the asteroid turfs that are generated randomly with the tunnel generation (i don't even know where) with the proper tiles.
 	var/num_ass_replacments=0
 	for(var/area/surface/jungle/mining/unexplored/A in areas)
 		for(var/turf/unsimulated/floor/asteroid/T in A.contents)
-			new /turf/unsimulated/floor/jungle/path(T)
+			new /turf/unsimulated/floor/planetary/path/jungle(T)
 			num_ass_replacments++
 	world.log << "replaced [num_ass_replacments] asteroid tiles to be jungle."
+	
+	//add all surface jungle turfs to weather list
+	map.zLevels[map.zMainStation].virtual_z_levels[1].register_weather_turfs(C)
+	C.add_vlevel(map.zLevels[map.zAsteroid].virtual_z_levels[1]) //the second surface z-level shares the main one's weather
 
 //partially stolen from snaxi
 /datum/map/active/generate_mapvaults()
@@ -100,7 +107,7 @@
 		if(!istype(A,/area/surface/jungle/roid/vaults))
 			return 0
 	for(var/turf/S in surroundings) //avoid nearby locations.
-		if(S.type!=/turf/unsimulated/floor/jungle/grass)
+		if(S.type!=/turf/unsimulated/floor/planetary/grass/jungle)
 			return 0
 	return 1
 
@@ -118,6 +125,8 @@
 
 
 /datum/subsystem/daynightcycle/fire(resumed = FALSE)
+	if(!currentrun)
+		currentrun = list()
 	if(world.time >= next_firetime)
 		if(lighting_update_lights_lowpriority.len) //prevent overwriting current lighting changes by not updating lighting until we're done.
 			message_admins("day/night subsystem was fired, when there are still [lighting_update_lights_lowpriority.len] unprocessed lighting updates remaining. Is the server lagging, or was it force-fired? Delaying fire for 15 seconds...")
@@ -126,7 +135,8 @@
 
 		advance_time()
 		if(!resumed)
-			currentrun = daynight_turfs.Copy()
+			for(var/datum/virtual_z/vz in daynight_v_lvls)
+				currentrun += vz.daynight_turfs.Copy()
 
 	while(currentrun.len)
 		var/turf/T = currentrun[currentrun.len]
@@ -139,9 +149,6 @@
 
 		if(MC_TICK_CHECK)
 			return
-
-		if(!resumed)
-			currentrun = daynight_turfs.Copy()
 
 
 /datum/subsystem/daynightcycle/advance_time()
@@ -265,28 +272,6 @@
 
 /datum/subsystem/daynightcycle/play_globalsound()
 	return
-
-
-/datum/subsystem/foliage_regrow
-	growth_chance=95
-	var/growth_delay=5 MINUTES
-
-
-/datum/subsystem/foliage_regrow/regrow_turf(var/turf/T)
-	if(!T)
-		return null
-	if (T.type!=/turf/unsimulated/floor/jungle/grass)
-		return null
-	if(/obj/structure/flora in T.contents)
-		return null
-	var/turf/unsimulated/floor/jungle/grass/G=T
-	if(G.regrowticks <= world.time-growth_delay)
-		var/created=G.generate_foliage()
-		if(!created)
-			turfs_to_regrow+=G
-		return created
-	else
-		turfs_to_regrow+=G
 
 
 ////////////////////////////////////////////////////////////////

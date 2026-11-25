@@ -15758,9 +15758,7 @@
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
 "aAe" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/effect/decal/cleanable/generic,
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -17014,8 +17012,7 @@
 	dir = 8
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/maintenance/fpmaint)
@@ -22733,9 +22730,7 @@
 	},
 /area/crew_quarters/sleep)
 "aPH" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /turf/simulated/floor{
 	icon_state = "freezerfloor"
 	},
@@ -22757,9 +22752,7 @@
 	},
 /area/crew_quarters/toilet)
 "aPJ" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/machinery/camera{
 	dir = 8;
 	name = "Dormitory Toilets North"
@@ -30373,8 +30366,8 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/structure/window/reinforced/tinted,
 /obj/structure/window/full/reinforced,
+/obj/structure/window/reinforced,
 /turf/simulated/floor/plating,
 /area/bridge)
 "bfn" = (
@@ -31263,12 +31256,12 @@
 	},
 /area/bridge)
 "bha" = (
-/obj/structure/window/reinforced/tinted{
-	dir = 1
-	},
 /obj/machinery/computer/bhangmeter,
-/obj/structure/window/reinforced/tinted{
-	dir = 4
+/obj/structure/window/reinforced{
+	dir = 8
+	},
+/obj/structure/window/reinforced{
+	dir = 1
 	},
 /turf/simulated/floor{
 	dir = 1;
@@ -31288,13 +31281,13 @@
 	},
 /area/bridge)
 "bhc" = (
-/obj/structure/window/reinforced/tinted{
-	dir = 8
-	},
-/obj/structure/window/reinforced/tinted{
+/obj/machinery/computer/message_monitor,
+/obj/structure/window/reinforced{
 	dir = 1
 	},
-/obj/machinery/computer/message_monitor,
+/obj/structure/window/reinforced{
+	dir = 4
+	},
 /turf/simulated/floor{
 	dir = 1;
 	icon_state = "darkblue";
@@ -32753,10 +32746,8 @@
 	},
 /area/bridge)
 "bkm" = (
-/obj/machinery/planet_scanner{
-	anchored = 1;
-	icon_state = "scanner_idle"
-	},
+/obj/structure/table,
+/obj/machinery/cell_charger,
 /turf/simulated/floor{
 	dir = 5;
 	icon_state = "vault";
@@ -48703,8 +48694,7 @@
 	dir = 4
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/science/lab)
@@ -49579,8 +49569,7 @@
 	dir = 8
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/medical/genetics)
@@ -52476,8 +52465,7 @@
 	dir = 4
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /turf/simulated/floor/plating,
 /area/medical/genetics)
@@ -55933,8 +55921,7 @@
 "cbc" = (
 /obj/structure/grille,
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/window/reinforced,
 /turf/simulated/floor/plating,
@@ -55942,8 +55929,7 @@
 "cbd" = (
 /obj/structure/grille,
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/window/reinforced{
 	dir = 4
@@ -56090,9 +56076,7 @@
 /area/maintenance/aft)
 "cbv" = (
 /obj/structure/bed/chair,
-/turf/simulated/floor/plating{
-	icon_state = "platingdmg2"
-	},
+/turf/simulated/floor/plating/damaged/broken,
 /area/maintenance/aft)
 "cbw" = (
 /obj/machinery/light/small{
@@ -59059,10 +59043,7 @@
 /area/maintenance/aft)
 "cgY" = (
 /obj/item/stack/rods,
-/turf/simulated/floor/plating{
-	icon_state = "platingdmg1";
-	tag = "icon-platingdmg1"
-	},
+/turf/simulated/floor/plating/damaged/broken,
 /area/maintenance/aft)
 "cgZ" = (
 /obj/effect/decal/cleanable/ash,
@@ -59549,8 +59530,7 @@
 	dir = 4
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/machinery/door/poddoor{
 	density = 0;
@@ -63707,14 +63687,6 @@
 	icon_state = "whitegreen"
 	},
 /area/science/hallway)
-"cpI" = (
-/obj/structure/grille,
-/obj/structure/window/reinforced{
-	dir = 1
-	},
-/obj/structure/window/reinforced,
-/turf/simulated/floor/plating,
-/area/maintenance/asmaint2)
 "cpJ" = (
 /obj/structure/grille,
 /obj/structure/window/reinforced{
@@ -63722,17 +63694,6 @@
 	},
 /obj/structure/window/reinforced{
 	dir = 1
-	},
-/obj/structure/window/reinforced,
-/turf/simulated/floor/plating,
-/area/maintenance/asmaint2)
-"cpK" = (
-/obj/structure/grille,
-/obj/structure/window/reinforced{
-	dir = 1
-	},
-/obj/structure/window/reinforced{
-	dir = 4
 	},
 /obj/structure/window/reinforced,
 /turf/simulated/floor/plating,
@@ -64287,10 +64248,7 @@
 /turf/simulated/wall/r_wall,
 /area/tcomms/storage)
 "cqR" = (
-/turf/simulated/floor/plating{
-	icon_state = "platingdmg3";
-	tag = "icon-platingdmg3"
-	},
+/turf/simulated/floor/plating/damaged/broken,
 /area/maintenance/aft)
 "cqS" = (
 /obj/structure/grille,
@@ -66173,8 +66131,7 @@
 	dir = 4
 	},
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/window/reinforced,
 /turf/simulated/floor/plating,
@@ -75697,8 +75654,7 @@
 	},
 /obj/structure/window/reinforced,
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/window/full/reinforced,
 /turf/simulated/floor/plating,
@@ -75724,8 +75680,7 @@
 	},
 /obj/structure/window/reinforced,
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/window/full/reinforced,
 /obj/structure/disposalpipe/segment,
@@ -82230,10 +82185,6 @@
 /obj/docking_port/destination/vox/south_station,
 /turf/space,
 /area)
-"cWM" = (
-/obj/effect/landmark/dungeon_area,
-/turf/space,
-/area)
 "cWN" = (
 /turf/simulated/wall/shuttle/unsmoothed{
 	dir = 1;
@@ -82912,18 +82863,14 @@
 	},
 /area/syndicate_mothership)
 "cYt" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /obj/effect/decal/cleanable/vomit,
 /turf/unsimulated/floor{
 	icon_state = "freezerfloor"
 	},
 /area/syndicate_mothership)
 "cYu" = (
-/obj/structure/wc/urinal{
-	pixel_y = 32
-	},
+/obj/structure/wc/urinal,
 /turf/unsimulated/floor{
 	icon_state = "freezerfloor"
 	},
@@ -85750,15 +85697,13 @@
 /area/centcom/suppy)
 "dgw" = (
 /obj/effect/decal/cleanable/cobweb2,
-/turf/unsimulated/floor{
-	icon_state = "platingdmg1"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "dgx" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "floorscorched1"
-	},
+/turf/unsimulated/floor/scorched,
 /area/prison/solitary)
 "dgy" = (
 /obj/structure/bed,
@@ -85771,8 +85716,8 @@
 /turf/unsimulated/wall,
 /area/prison/solitary)
 "dgA" = (
-/turf/unsimulated/floor{
-	icon_state = "panelscorched"
+/turf/unsimulated/floor/scorched{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "dgB" = (
@@ -85781,8 +85726,8 @@
 	},
 /area/prison/solitary)
 "dgC" = (
-/turf/unsimulated/floor{
-	icon_state = "platingdmg3"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "dgD" = (
@@ -85795,12 +85740,6 @@
 /obj/effect/decal/cleanable/blood,
 /turf/unsimulated/floor{
 	name = "plating"
-	},
-/area/prison/solitary)
-"dgF" = (
-/obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "floorscorched2"
 	},
 /area/prison/solitary)
 "dgG" = (
@@ -86145,19 +86084,14 @@
 /area/centcom/suppy)
 "dhD" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "platingdmg3"
-	},
-/area/prison/solitary)
-"dhE" = (
-/turf/unsimulated/floor{
-	icon_state = "platingdmg1"
+/turf/unsimulated/floor/broken{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "dhF" = (
 /obj/structure/bed,
-/turf/unsimulated/floor{
-	icon_state = "panelscorched"
+/turf/unsimulated/floor/scorched{
+	icon_state = "plating"
 	},
 /area/prison/solitary)
 "dhG" = (
@@ -86203,15 +86137,8 @@
 	icon_state = "dark neutral stripe"
 	},
 /area/centcom/suppy)
-"dhM" = (
-/turf/unsimulated/floor{
-	icon_state = "floorscorched1"
-	},
-/area/prison/solitary)
 "dhN" = (
-/turf/unsimulated/floor{
-	icon_state = "floorscorched2"
-	},
+/turf/unsimulated/floor/scorched,
 /area/prison/solitary)
 "dhO" = (
 /obj/machinery/dna_scannernew,
@@ -93837,18 +93764,6 @@
 	icon_state = "redyellowfull"
 	},
 /area/centcom/holding)
-"dzH" = (
-/obj/structure/fence/corner{
-	dir = 1
-	},
-/turf/unsimulated/floor/grass,
-/area/centcom/holding)
-"dzI" = (
-/obj/structure/fence{
-	dir = 4
-	},
-/turf/unsimulated/floor/grass,
-/area/centcom/holding)
 "dzJ" = (
 /obj/structure/fence/door/opened,
 /turf/unsimulated/floor/mars/air,
@@ -95500,8 +95415,7 @@
 "dVc" = (
 /obj/structure/window/reinforced,
 /obj/structure/window/reinforced{
-	dir = 1;
-	pixel_y = 1
+	dir = 1
 	},
 /obj/structure/grille,
 /obj/structure/window/reinforced{
@@ -110777,6 +110691,11 @@
 /obj/machinery/door/window{
 	name = "Tradeship Windoor";
 	req_one_access_txt = "140"
+	},
+/obj/item/device/deskbell/signaler/trader{
+	pixel_x = 6;
+	pixel_y = -12;
+	name = "Trade Ship Counter Bell"
 	},
 /turf/simulated/floor{
 	icon_state = "showroomfloor"
@@ -268288,7 +268207,7 @@ clc
 bRM
 cno
 coG
-cpI
+cbc
 aaa
 aaj
 aaa
@@ -268790,7 +268709,7 @@ cld
 bRM
 cnp
 coG
-cpI
+cbc
 aaa
 aaj
 aaa
@@ -269292,7 +269211,7 @@ clh
 bRM
 bYs
 coG
-cpK
+cbd
 aaa
 aaj
 aaa
@@ -271811,7 +271730,7 @@ bYs
 cvr
 crE
 cwT
-cpI
+cbc
 aaa
 aaa
 aaa
@@ -272313,7 +272232,7 @@ cur
 bym
 cvX
 cwT
-cpI
+cbc
 aaa
 aaa
 aaa
@@ -272815,7 +272734,7 @@ cus
 cvq
 cvY
 cwT
-cpK
+cbd
 aaa
 aaa
 aaa
@@ -368134,7 +368053,7 @@ aaa
 aaa
 aaa
 aaa
-cWM
+aaa
 aaa
 aaa
 aaa
@@ -404907,7 +404826,7 @@ dgw
 dgV
 dgm
 dgE
-dhM
+dhN
 dgm
 aaa
 aaa
@@ -406412,7 +406331,7 @@ dgm
 dgA
 dgB
 dgm
-dhE
+dgC
 dgB
 dgm
 aaa
@@ -411931,7 +411850,7 @@ aaa
 aaa
 aaa
 dgm
-dgF
+dgx
 dgW
 dgm
 dhG
@@ -412437,7 +412356,7 @@ dgE
 dgB
 dgm
 dgB
-dhE
+dgC
 dgm
 aaa
 aaa
@@ -423529,7 +423448,7 @@ dye
 dyk
 dyo
 dzt
-dzH
+dAb
 dAb
 dAb
 dAS
@@ -424031,7 +423950,7 @@ dyk
 dyk
 dyo
 dyi
-dzI
+dAb
 dAc
 dyk
 dAU
@@ -424533,7 +424452,7 @@ dyj
 dye
 dyo
 dyj
-dzI
+dAb
 dAc
 dyk
 dAU
@@ -425537,7 +425456,7 @@ dye
 dyi
 dyo
 dzu
-dzI
+dAb
 dyo
 dyo
 dAU
@@ -426039,7 +425958,7 @@ dym
 dyk
 dyo
 dym
-dzI
+dAb
 dyo
 dyo
 dAV
@@ -426541,7 +426460,7 @@ dym
 dyk
 dyo
 dye
-dzI
+dAb
 dyo
 dAx
 dAU
@@ -427043,7 +426962,7 @@ dyj
 dyJ
 dyo
 dym
-dzI
+dAb
 dAd
 dyI
 dAU
@@ -427545,7 +427464,7 @@ dyl
 dym
 dyo
 dye
-dzI
+dAb
 dyo
 dAx
 dAU
@@ -428047,7 +427966,7 @@ dym
 dyi
 dyo
 dyj
-dzI
+dAb
 dyo
 dAx
 dAU
@@ -428549,7 +428468,7 @@ dyl
 dyj
 dyo
 dye
-dzI
+dAb
 dAd
 dyI
 dAU
@@ -429051,7 +428970,7 @@ dyo
 dyo
 dyo
 dye
-dzI
+dAb
 dyo
 dAx
 dAW

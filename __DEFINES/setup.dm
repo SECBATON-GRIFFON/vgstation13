@@ -56,6 +56,7 @@ var/global/disable_vents     = 0
 
 #define TEMPERATURE_DAMAGE_COEFFICIENT 1.5	//This is used in handle_temperature_damage() for humans, and in reagents that affect body temperature. Temperature damage is multiplied by this amount.
 #define SPLASH_SCALD_DAMAGE_COEFFICIENT (2/3) //Reagent scalding damage via splashing is multiplied by this.
+#define BODYTEMP_DEFAULT 310.055 //98.7 F
 #define BODYTEMP_AUTORECOVERY_DIVISOR 0.5 //This is the divisor which handles how much of the temperature difference between the current body temperature and 310.15K (optimal temperature) humans auto-regenerate each tick. The higher the number, the slower the recovery. This is applied each tick, so long as the mob is alive.
 #define BODYTEMP_AUTORECOVERY_MAXIMUM 2.0 //Maximum amount of kelvin moved toward 310.15K per tick. So long as abs(310.15 - bodytemp) is more than 0.5 .
 
@@ -242,6 +243,7 @@ var/MAX_EXPLOSION_RANGE = 32
 #define PASSDOOR	(1<<6) //not just airlocks, but also firelocks, windoors etc
 #define PASSGIRDER	(1<<7)
 #define PASSRAILING (1<<8)
+#define PASSFLAPS   (1<<9)
 
 #define PASSALL		(~0) //bolt of pain
 
@@ -994,6 +996,7 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 #define SPECIES_NO_MOUTH 	(1<<13)
 //#define REQUIRE_DARK 		(1<<14)
 #define RAD_IMMUNE 			(1<<15)
+#define EMAG_CLONEABLE 		(1<<16)	//Can be selected as a species by an emagged cloning console.
 
 //Species anatomical flags.
 #define HAS_SKIN_TONE 		(1)
@@ -1388,14 +1391,14 @@ var/default_colour_matrix = list(1,0,0,0,\
 //	null << "[x][a]")
 #endif
 
-#define ASTAR_DEBUG 0
-#if ASTAR_DEBUG == 1
-#warn "Astar debug is on. Don't forget to turn it off after you've done :)"
-#define astar_debug(text) to_chat(world, text)
-#define astar_debug_mulebots(text) to_chat(world, text)
+#define PATHING_DEBUG 0
+#if PATHING_DEBUG == 1
+#warn "Pathing debug is on. Don't forget to turn it off after you've done :)"
+#define path_debug(text) to_chat(world, text)
+#define debug_mulebots(text) to_chat(world, text)
 #else
-#define astar_debug(text)
-#define astar_debug_mulebots(text)
+#define path_debug(text)
+#define debug_mulebots(text)
 #endif
 
 #define BSQL_DEBUG_CONNECTION 0
@@ -1778,6 +1781,7 @@ var/proccalls = 1
 
 //Glidesize
 #define INERTIA_MOVEDELAY 5
+#define PUSH_SWAP_GLIDE_DELAY 2
 #define FRACTIONAL_GLIDESIZES 1
 #ifdef FRACTIONAL_GLIDESIZES
 #define DELAY2GLIDESIZE(delay) (WORLD_ICON_SIZE / max(Ceiling(delay / world.tick_lag), 1))
@@ -1838,6 +1842,7 @@ var/proccalls = 1
 // Account default values
 #define DEPARTMENT_START_FUNDS 500
 #define DEPARTMENT_START_WAGE 100
+#define CYBORG_LATEJOIN_FEE 500
 
 //Staff of change
 #define SOC_CHANGETYPE_COOLDOWN 2 MINUTES
@@ -1996,6 +2001,8 @@ var/list/weekend_days = list("Friday", "Saturday", "Sunday")
 #define PS_CULT_SMOKE2		"Cult Smoke2"
 #define PS_CULT_SMOKE_BOX	"Cult Smoke Box"
 #define PS_PILLAR_BEACON	"Pillar Beacon"
+#define PS_OCCULT_TEST_LARGE "Occult Test Large"
+#define PS_OCCULT_TEST_SMALL "Occult Test Small"
 #define PS_CULT_HALO		"Cult Halo"
 #define PS_SPACE_RUNES		"Space Runes"
 #define PS_NARSIEHASRISEN1	"Nar-SieHasRisen1"
@@ -2011,9 +2018,11 @@ var/list/weekend_days = list("Friday", "Saturday", "Sunday")
 #define PS_SHADOW_SMOKE		"Shadow Smoke"
 #define PS_SHADOW_SMOKE2	"Shadow Smoke2"
 #define PS_GAS_VENT			"Gas Vent"
+#define PS_CIG_SMOKE		"Cig Smoke"
 
 //Particles variable defines
 #define PVAR_SPAWNING	"spawning"
+#define PVAR_COUNT		"count"
 #define PVAR_POSITION	"position"
 #define PVAR_VELOCITY	"velocity"
 #define PVAR_ICON_STATE	"icon_state"

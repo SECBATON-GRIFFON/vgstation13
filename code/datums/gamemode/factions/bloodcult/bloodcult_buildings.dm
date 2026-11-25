@@ -330,12 +330,13 @@
 			if (istype(blade) && !blade.shade)
 				var/icon/logo_icon = icon('icons/logos.dmi', "shade-blade")
 				for(var/mob/M in observers)
-					if(!M.client || isantagbanned(M) || jobban_isbanned(M, CULTIST) || M.client.is_afk())
+					if(!M.client || isantagbanned(M) || jobban_isbanned(M, CULTIST))
 						continue
 					if (iscultist(M))
 						var/datum/role/cultist/cultist = iscultist(M)
 						if (cultist.second_chance)
 							to_chat(M, "[bicon(logo_icon)]<span class='recruit'>\The [user] has planted a Soul Blade on an altar, opening a small crack in the veil that allows you to become the blade's resident shade. (<a href='?src=\ref[src];signup=\ref[M]'>Possess now!</a>)</span>[bicon(logo_icon)]")
+							M << sound('sound/voice/preparetofight.ogg', volume = 75)
 		return 1
 	if (istype(I, /obj/item/weapon/grab))
 		if (blade)
@@ -351,8 +352,8 @@
 			if (!do_after(user,C,15))
 				return
 			if (ishuman(C))
-				C.resting = 1
-				C.update_canmove()
+				if(!C.resting)
+					C.rest_action()
 			C.forceMove(loc)
 			qdel(G)
 			to_chat(user, "<span class='warning'>You move \the [C] on top of \the [src]</span>")
@@ -442,15 +443,18 @@
 		L.unlock_from()
 
 		if (ishuman(L) && L != user)
-			L.resting = TRUE
-			L.update_canmove()
+			if(!L.resting)
+				L.rest_action()
 
 		add_fingerprint(L)
 
 	O.forceMove(loc)
 	if(O == user)
 		to_chat(user, "<span class='warning'>You climb on top of \the [src].</span>")
-		user.resting = TRUE
+		if(isliving(user))
+			var/mob/living/L = user
+			if(!L.resting)
+				L.rest_action()
 	else
 		to_chat(user, "<span class='warning'>You move \the [O] on top of \the [src].</span>")
 	return 1
@@ -1144,7 +1148,7 @@ var/list/cult_spires = list()
 	I_base.layer = BELOW_PROJECTILE_LAYER
 	I_base.appearance_flags |= RESET_ALPHA //we don't want the stone to pulse
 	var/image/I_lave = image('icons/obj/cult_64x64.dmi',"forge-lightmask")
-	I_lave.plane = ABOVE_LIGHTING_PLANE
+	I_lave.plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 	I_lave.layer = NARSIE_GLOW
 	I_lave.blend_mode = BLEND_ADD
 	overlays += I_base
@@ -1201,7 +1205,7 @@ var/list/cult_spires = list()
 						playsound(L, 'sound/effects/forge.ogg', 50, 0, -4)
 						forging.overlays.len = 0
 						var/image/I = image('icons/obj/cult_64x64.dmi',"[forging.icon_state]-mask")
-						I.plane = ABOVE_LIGHTING_PLANE
+						I.plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 						I.layer = NARSIE_GLOW
 						I.blend_mode = BLEND_ADD
 						I.alpha = (timeleft/timetotal)*255
@@ -1246,7 +1250,7 @@ var/list/cult_spires = list()
 		I_base.layer = BELOW_PROJECTILE_LAYER
 		I_base.appearance_flags |= RESET_ALPHA //we don't want the stone to pulse
 		var/image/I_lave = image('icons/obj/cult_64x64.dmi',"forge-lightmask")
-		I_lave.plane = ABOVE_LIGHTING_PLANE
+		I_lave.plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 		I_lave.layer = NARSIE_GLOW
 		I_lave.blend_mode = BLEND_ADD
 		overlays += I_base
@@ -1351,7 +1355,7 @@ var/list/cult_spires = list()
 	..()
 	icon_state = i_forge
 	var/image/I = image('icons/obj/cult_64x64.dmi',"[i_forge]-mask")
-	I.plane = ABOVE_LIGHTING_PLANE
+	I.plane = ABOVE_LIGHTING_PLANE_ADDITIVE
 	I.layer = NARSIE_GLOW
 	I.blend_mode = BLEND_ADD
 	overlays += I

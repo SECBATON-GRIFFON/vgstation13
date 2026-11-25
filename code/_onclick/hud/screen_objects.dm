@@ -16,7 +16,7 @@
 	layer = HUD_BASE_LAYER
 	var/obj/master = null	//A reference to the object in the slot. Grabs or items, generally.
 	var/gun_click_time = -100 //I'm lazy.
-	var/globalscreen = 0 //This screen object is not unique to one screen, can be seen by many
+	var/globalscreen = 0 //This screen object is not unique to one screen, can be seen by many, prevents deletion by reset_screen()
 	appearance_flags = NO_CLIENT_COLOR
 	plane = HUD_PLANE
 
@@ -379,6 +379,11 @@
 			if(isliving(usr))
 				var/mob/living/L = usr
 				L.resist()
+
+		if("rest")
+			if(isliving(usr))
+				var/mob/living/L = usr
+				L.lay_down()
 
 		if("mov_intent")
 			if (iscarbon(usr))

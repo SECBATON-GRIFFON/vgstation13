@@ -506,7 +506,7 @@ var/list/datum/story_theme/story_themes = list()
 		return
 
 	activating = TRUE
-	var/reboot_time = rand(5, 15) MINUTES
+	var/reboot_time = (map.nameShort == "odyssey" || map.nameShort == "theseus") ? rand(2, 5) MINUTES : rand(5, 15) MINUTES
 
 	visible_message("<span class='notice'>\The [src] begins to hum as [user] initiates the boot sequence...</span>")
 	playsound(src, 'sound/machines/click.ogg', 50, 1)
@@ -526,12 +526,9 @@ var/list/datum/story_theme/story_themes = list()
 	activating = FALSE
 	icon_state = "blackbox"
 
-	var/turf/T = get_turf(src)
-	var/datum/allocation/alloc = SSmapping.get_allocation(trf = T)
-
-	if(istype(alloc))
-		if(alloc.comms_relay.activate())
-			say("PLANETARY RELAY LINK ESTABLISHED.")
+	var/datum/virtual_z/vz = get_virtual_z()
+	if(vz?.comms_relay.activate())
+		say("PLANETARY RELAY LINK ESTABLISHED.")
 
 	visible_message("<span class='notice'>\The [src] completes its boot sequence with a triumphant chime!</span>")
 	playsound(src, 'sound/machines/ping.ogg', 50, 1)
@@ -542,10 +539,6 @@ var/list/datum/story_theme/story_themes = list()
 
 /obj/machinery/old_database/proc/generate_data_disk()
 	var/turf/T = get_turf(src)
-	var/datum/allocation/alloc = SSmapping.get_allocation(trf = T)
-
-	if(istype(alloc) && alloc.placed_ruin)
-		ruin_name = alloc.placed_ruin.name
 
 	var/list/valid_techs = list(
 		list("id" = Tc_MATERIALS, "name" = "Materials Research"),
@@ -575,8 +568,9 @@ var/list/datum/story_theme/story_themes = list()
 	var/planet_desc = "an unknown world"
 	var/history_style = "standard"
 
-	if(istype(alloc) && alloc.ptype)
-		var/datum/planet_type/ptype = alloc.ptype
+	var/datum/virtual_z/vz = get_virtual_z()
+	if(vz?.planet)
+		var/datum/planet_type/ptype = vz.planet
 		planet_desc = ptype.planet_name
 		history_style = ptype.name
 

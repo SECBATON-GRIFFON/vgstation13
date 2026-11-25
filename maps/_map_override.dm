@@ -80,7 +80,19 @@
 		#define MAP_OVERRIDE 17
 	#elif MAP_OVERRIDE == 18
 		#undef MAP_OVERRIDE
-		#include "horizon.dm"
+		#include "junglestation.dm"
 		#define MAP_OVERRIDE 18
+	#elif MAP_OVERRIDE == 19
+		#undef MAP_OVERRIDE
+		#include "odyssey.dm"
+		#define MAP_OVERRIDE 19
+	#elif MAP_OVERRIDE == 20
+		#undef MAP_OVERRIDE
+		#include "theseus.dm"
+		#define MAP_OVERRIDE 20
+	#elif MAP_OVERRIDE == 21
+		#undef MAP_OVERRIDE
+		#include "cubestation.dm"
+		#define MAP_OVERRIDE 21
 	#endif
 #endif

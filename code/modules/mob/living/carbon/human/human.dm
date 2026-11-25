@@ -291,8 +291,6 @@
 		return TRUE
 	return FALSE
 
-/mob/living/carbon/human/var/co2overloadtime = null
-
 // called when something steps onto a human
 // this could be made more general, but for now just handle mulebot
 /mob/living/carbon/human/Crossed(var/atom/movable/AM)
@@ -938,6 +936,9 @@
 			decapitated = null
 
 			qdel(B)
+	else
+		for(var/damage in BBrain.specific_damages)
+			BBrain.specific_damages[damage] = 0
 
 	for(var/datum/organ/internal/I in internal_organs)
 		I.damage = 0
@@ -947,16 +948,20 @@
 
 	..()
 
-/mob/living/carbon/human/proc/is_lung_ruptured()
-	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
-	return L && L.is_bruised()
+/mob/living/carbon/proc/is_lung_ruptured()
+	return
 
-/mob/living/carbon/human/proc/rupture_lung()
+/mob/living/carbon/human/is_lung_ruptured()
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
+	return L && L.is_ruptured()
 
-	if(L && !L.is_bruised())
-		src.custom_pain("You feel a stabbing pain in your chest!", 1)
-		L.damage = L.min_bruised_damage
+/mob/living/carbon/proc/rupture_lung()
+	return
+
+/mob/living/carbon/human/rupture_lung()
+	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
+	if(L)
+		L.rupture()
 
 /*
 /mob/living/carbon/human/verb/simulate()
@@ -1781,7 +1786,7 @@ var/datum/record_organ //This is just a dummy proc, not storing any variables he
 		var/obj/item/clothing/gloves/G = gloves
 		if(!G.dexterity_check())//some gloves might make it harder to interact with complex technologies, or fit your index in a gun's trigger
 			return FALSE
-	if(getBrainLoss() >= 60)
+	if(getBrainLoss(INTELLIGENCE_L) >= 60)
 		if(!(reagents.has_reagent(METHYLIN) ||  is_dexterous))//methylin and the is_dextrous var supercede brain damage, but not uncomfortable gloves
 			return FALSE
 	return TRUE//humans are dexterous enough by default
@@ -2175,7 +2180,8 @@ var/datum/record_organ //This is just a dummy proc, not storing any variables he
 	else return image(icon = 'icons/mob/attackanims.dmi', icon_state = "default")
 
 /mob/living/carbon/human/proc/initialize_barebones_NPC_components()	//doesn't actually do anything, but contains tools needed for other types to do things
-	add_component(/datum/component/controller/movement/astar)
+	add_component(/datum/component/controller/movement/pathed)
+	zone_sel = new /obj/abstract/screen/zone_sel
 
 /mob/living/carbon/human/proc/initialize_basic_NPC_components()	//will wander around
 	initialize_barebones_NPC_components()
@@ -2249,7 +2255,7 @@ var/datum/record_organ //This is just a dummy proc, not storing any variables he
 	if (istype(gloves, /obj/item/clothing/gloves/hunter))
 		for(var/obj/item/I in held_items)
 			if (istype(I, /obj/item/weapon/gun/hookshot/whip))
-				to_chat(src, "<span class='notice'>You hold your grip onto your [I]</span>")
+				to_chat(src, "<span class='notice'>You hold your grip onto your [I.name]</span>")
 			else
 				drop_item(I, Target, force_drop = force_drop)
 	else

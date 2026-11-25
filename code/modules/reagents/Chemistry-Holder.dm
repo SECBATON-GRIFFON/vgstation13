@@ -32,7 +32,7 @@ var/const/INGEST = 2
 
 		for (var/path in typesof(/datum/reagent) - /datum/reagent)
 			var/datum/reagent/D = new path()
-			if(D.id == EXPLICITLY_INVALID_REAGENT_ID)
+			if(D.id == EXPLICITLY_INVALID_REAGENT_ID || D.id == EVEN_MORE_EXPLICITLY_INVALID_REAGENT_ID)
 				continue
 			chemical_reagents_list[D.id] = D
 
@@ -237,10 +237,10 @@ var/const/INGEST = 2
 		var/turf/T = get_turf(my_atom)
 		if(!T) //we got removed, duh
 			T = get_turf(R.my_atom)
-		minimal_investigation_log(I_CHEMS, "[whodunnit ? "[key_name(whodunnit)]" : "(N/A, last user processed: [usr.ckey])"] \
+		minimal_investigation_log(I_CHEMS, "[whodunnit ? "[key_name(whodunnit)]" : "(N/A, last user processed: [key_name(usr)])"] \
 		transferred [english_list(logged_message)] from \a [my_atom] \ref[my_atom] to \a [R.my_atom] \ref[R.my_atom].", prefix=" ([T.x],[T.y],[T.z])")
 		if(adminwarn_message.len)
-			message_admins("[whodunnit ? "[key_name_and_info(whodunnit)] " : "(unknown whodunnit, last whodunnit processed: [usr.ckey])"]\
+			message_admins("[whodunnit ? "[key_name_and_info(whodunnit)] " : "(unknown whodunnit, last whodunnit processed: [key_name(usr)])"]\
 			has transferred [english_list(adminwarn_message)] from \a [my_atom] (<A HREF='?_src_=vars;Vars=\ref[my_atom]'>VV</A>) to \a [R.my_atom] (<A HREF='?_src_=vars;Vars=\ref[R.my_atom]'>VV</A>).\
 			[whodunnit ? " [formatJumpTo(whodunnit)]" : ""]")
 
@@ -405,7 +405,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	for (var/datum/reagent/current_reagent in reagent_list)
 		if(! (current_reagent.flags & CHEMFLAG_NOTREMOVABLE))
 			var/amt = (get_reagent_amount(current_reagent.id)*transfer_frac) + transfer_flat
-			total_transfered += trans_id_to(target, current_reagent.id, amt) 
+			total_transfered += trans_id_to(target, current_reagent.id, amt)
 	return total_transfered
 
 /datum/reagents/proc/metabolize(var/mob/living/M, var/alien)
@@ -566,7 +566,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 				my_atom.visible_message("<span class='notice'>[bicon(my_atom)] The solution begins to bubble.</span>")
 				C.log_reaction(src, created_volume)
 			if(!(my_atom.flags & SILENTCONTAINER))
-				playsound(my_atom, 'sound/effects/bubbles.ogg', 80, 1)
+				playsound(my_atom, C.reaction_sound, 80, 1)
 
 		C.on_reaction(src, created_volume)
 		if(C.react_discretely)
@@ -720,7 +720,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		warning("[usr] tried to equalize the temperature of a thermally-massless mixture.")
 		return T0C+20 //Sanity but this shouldn't happen.
 
-/datum/reagents/proc/add_reagent(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20, var/temp_adj = 0, var/mob/admin, var/list/additional_data=null, var/name_override = null)
+/datum/reagents/proc/add_reagent(var/reagent, var/amount, var/list/data=null, var/reagtemp = T0C+20, var/temp_adj = null, var/mob/admin, var/list/additional_data=null, var/name_override = null)
 	if(!my_atom)
 		return 0
 	if(!amount)
@@ -739,6 +739,8 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 			R.handle_data_mix(data, amount, admin)
 			if (additional_data)
 				R.handle_additional_data(additional_data)
+			if(!isnull(temp_adj) && amount > 0) //amount can be clamped to zero or below when the holder is full
+				R.adj_temp = ((R.adj_temp * R.volume) + (temp_adj * amount)) / (R.volume + amount)
 			R.volume += amount
 			update_total()
 			handle_special_behaviours()
@@ -767,7 +769,7 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 	if (additional_data)
 		R.handle_additional_data(additional_data)
 	R.volume = amount
-	if (temp_adj)
+	if (!isnull(temp_adj))
 		R.adj_temp = temp_adj
 
 	R.on_introduced()
@@ -1070,11 +1072,11 @@ trans_to_atmos(var/datum/gas_mixture/target, var/amount=1, var/multiplier=1, var
 		else
 			switch(chem_temp)
 				if (-INFINITY to T0C)
-					R.adj_temp = -5
+					R.adj_temp = -3
 				if (T0C to (T0C+10))
 					R.adj_temp = -1.5
 				if ((T0C + 30) to STEAMTEMP)
-					R.adj_temp = chem_temp - (T0C + 30)
+					R.adj_temp = min(chem_temp - (T0C + 30), 20)
 				if (STEAMTEMP to INFINITY)
 					R.adj_temp = 20
 

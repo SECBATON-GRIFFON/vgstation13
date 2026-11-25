@@ -70,6 +70,10 @@ var/list/shuttle_log = list()
 		/datum/malfhack_ability/oneuse/emag,
 	)
 
+	// Subtypes (e.g. the Odyssey bridge console) set this to skip the
+	// zMainStation/zCentcomm distance check so they work from anywhere.
+	var/ignore_station_z_check = FALSE
+
 	// Blob stuff
 	var/defcon_1_enabled = FALSE
 	var/last_transfer_time = -1 // Game mechanics
@@ -94,7 +98,7 @@ var/list/shuttle_log = list()
 			usr.unset_machine()
 		return 1
 
-	if (!(src.z in list(map.zMainStation,map.zCentcomm)))
+	if (!ignore_station_z_check && !(src.z in list(map.zMainStation,map.zCentcomm)))
 		to_chat(usr, "<span class='danger'>Unable to establish a connection: </span>You're too far away from the station!")
 		return
 
@@ -264,7 +268,7 @@ var/list/shuttle_log = list()
 				if(response == "Yes")
 					recall_shuttle(usr)
 					if(!isobserver(usr))
-						shuttle_log += "\[[worldtime2text()]] Recalled from [get_area(usr)] ([usr.x-WORLD_X_OFFSET[usr.z]], [usr.y-WORLD_Y_OFFSET[usr.z]], [usr.z])."
+						shuttle_log += "\[[worldtime2text()]] Recalled from [get_area(usr)] ([usr.x-get_world_x_offset(usr.vz())], [usr.y-get_world_y_offset(usr.vz())], [usr.vz()])."
 					if(emergency_shuttle.online)
 						post_status("shuttle")
 			setMenuState(usr,COMM_SCREEN_MAIN)
@@ -428,7 +432,7 @@ var/list/shuttle_log = list()
 	if(..(user))
 		return
 
-	if (!(src.z in list(map.zMainStation, map.zCentcomm)))
+	if (!ignore_station_z_check && !(src.z in list(map.zMainStation, map.zCentcomm)))
 		to_chat(user, "<span class='danger'>Unable to establish a connection: </span>You're too far away from the station!")
 		return
 
@@ -497,9 +501,12 @@ var/list/shuttle_log = list()
 		shuttle["eta"]="[timeleft / 60 % 60]:[add_zero(num2text(timeleft % 60), 2)]"
 	shuttle["pos"] = emergency_shuttle.location
 	shuttle["can_recall"]=!(recall_time_limit && world.time >= recall_time_limit)
+	shuttle["call_label"] = map.shuttle_call_label
+	shuttle["cancel_label"] = map.shuttle_cancel_label
 
 	data["shuttle"]=shuttle
 
+	data["is_odyssey"] = (map.nameShort == "odyssey" || map.nameShort == "theseus")
 	data["defcon_1_enabled"] = defcon_1_enabled
 	data["last_shipment_time"] = last_shipment_time
 	data["next_shipment_time"] = next_shipment_time
@@ -607,7 +614,7 @@ var/list/shuttle_log = list()
 		justification = "#??!7E/_1$*/ARR-CON�FAIL!!*$^?" //Can happen for reasons, let's deal with it IC
 	if(!isobserver(user))
 		if (user)
-			shuttle_log += "\[[worldtime2text()]] Called from [get_area(user)] ([user.x-WORLD_X_OFFSET[user.z]], [user.y-WORLD_Y_OFFSET[user.z]], [user.z])."
+			shuttle_log += "\[[worldtime2text()]] Called from [get_area(user)] ([user.x-get_world_x_offset(user.vz())], [user.y-get_world_y_offset(user.vz())], [user.vz()])."
 		else
 			shuttle_log += "\[[worldtime2text()]] Called by game."
 	if (user)

@@ -20,6 +20,8 @@
 	rested_dizzy_reduce = 16 //This should be 15 it was reworked a little and it keeps them behaving the same as before, set to 1 if you don't want that
 	rested_jitter_reduce = 16 //Likewise
 
+	disperse_coeff = 1 //For ablatives
+
 	var/age = 30		//Player's age (pure fluff)
 	//var/b_type = "A+"	//Player's bloodtype //NOW HANDLED IN THEIR DNA
 
@@ -53,8 +55,6 @@
 	var/icon/lying_icon = null
 
 	var/special_voice = "" // For changing our voice. Used by a symptom.
-
-	var/failed_last_breath = 0 //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
 
 	var/last_dam = -1	//Used for determining if we need to process all organs or just some or even none.
 	var/list/bad_external_organs = list()// organs we check until they are good.

@@ -22,8 +22,9 @@
 	return RECYK_BIOLOGICAL
 
 /mob/Destroy() // This makes sure that mobs with clients/keys are not just deleted from the game.
-	if(planet)
-		planet.on_mob_exited(src, planet)
+	var/datum/virtual_z/vz = get_virtual_z()
+	if(vz)
+		vz.mob_exited(src)
 
 	for(var/datum/mind/mind in heard_by)
 		for(var/M in mind.heard_before)
@@ -246,6 +247,8 @@
 	if(flags & HEAR_ALWAYS)
 		virtualhearer = new /mob/virtualhearer(src)
 
+	perception_filters = new
+
 	update_colour(0)
 
 	register_event(/event/z_transition, src, nameof(src::update_multi_z_verbs()))
@@ -398,6 +401,8 @@
 			else
 				thing_to_see = locate(T_loc.x,T_loc.y,z0) // If not on the same zlevel as it, just do it on turfs, location goes there if all else fails anyways.
 			for(var/mob/virtualhearer/hearer in viewers(range, thing_to_see)) // Rest is self explanatory from here
+				if(!hearer.attached) // virtualhearer outlived its attached holopad/mob
+					continue
 				var/mob/M
 				if(istype(hearer.attached, /obj/machinery/hologram/holopad))
 					var/obj/machinery/hologram/holopad/holo = hearer.attached
@@ -1716,14 +1721,23 @@ Use this proc preferably at the end of an equipment loadout
 
 /mob/proc/Resting(amount)
 	resting = max(max(resting,amount),0)
+	if(isliving(src))
+		var/mob/living/L = src
+		L.update_rest_hud()
 	return
 
 /mob/proc/SetResting(amount)
 	resting = max(amount,0)
+	if(isliving(src))
+		var/mob/living/L = src
+		L.update_rest_hud()
 	return
 
 /mob/proc/AdjustResting(amount)
 	resting = max(resting + amount,0)
+	if(isliving(src))
+		var/mob/living/L = src
+		L.update_rest_hud()
 	return
 
 /mob/proc/get_species()
@@ -1798,14 +1812,10 @@ Use this proc preferably at the end of an equipment loadout
 	return 1
 
 // Mobs tell access what access levels it has.
-/mob/proc/GetAccess()
+/mob/GetAccess()
 	return list()
 
 /mob/proc/get_visible_id()
-	return 0
-
-// Skip over all the complex list checks.
-/mob/proc/hasFullAccess()
 	return 0
 
 /mob/proc/assess_threat()
@@ -1960,7 +1970,7 @@ Use this proc preferably at the end of an equipment loadout
 	var/init_deaf = ear_deaf
 	overlay_fullscreen("blind", /obj/abstract/screen/fullscreen/blind)
 	blinded = 1
-	eye_blind = 1
+	eye_blind = 11
 	ear_deaf = 1
 
 	..()
@@ -2204,12 +2214,7 @@ Use this proc preferably at the end of an equipment loadout
 				to_chat(src, "<span class='warning'>\The [target_implant] inside you prevents this!</span>")
 			return TRUE
 
-	for(var/mob/living/simple_animal/P in view(src))
-		if(P.isDead() || !P.pacify_aura)
-			continue
-		to_chat(src, "<span class = 'notice'>You feel some strange force in the vicinity preventing you from being violent.</span>")
-		return TRUE
-	for(var/mob/living/complex_animal/P in view(src))
+	for(var/mob/living/P in view(src))
 		if(P.isDead() || !P.pacify_aura)
 			continue
 		to_chat(src, "<span class = 'notice'>You feel some strange force in the vicinity preventing you from being violent.</span>")
@@ -2250,7 +2255,7 @@ Use this proc preferably at the end of an equipment loadout
 	if (target.isDead())
 		to_chat(src, "You cannot sense the target mind anymore, that's not good...")
 		return null
-	if(target_turf.z != our_turf.z) //Not on the same zlevel as us
+	if(target_turf.v != our_turf.v) //Not on the same vlevel as us
 		to_chat(src, "The target mind is too faint, they must be quite far from you...")
 		return null
 	if(target.stat != CONSCIOUS)

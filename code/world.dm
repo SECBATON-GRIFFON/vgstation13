@@ -23,8 +23,6 @@ var/force_restart
 
 var/savefile/panicfile
 
-var/datum/early_init/early_init_datum = new
-
 #if AUXTOOLS_DEBUGGER
 var/auxtools_path
 
@@ -38,8 +36,17 @@ var/auxtools_path
 	CRASH("auxtools not loaded")
 #endif
 
-/datum/early_init/New()
-	..()
+/world/proc/_() // Statics in procs are initialized before globals
+	var/static/_ = world.early_init()
+
+/world/proc/early_init()
+	#if TRACY_ENABLED
+	global.tracy = new
+	#if TRACY_RUN_ON_STARTUP
+	global.tracy.enable()
+	#endif
+	#endif
+
 	#if AUXTOOLS_DEBUGGER
 	auxtools_path = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	if(fexists(auxtools_path))
@@ -55,10 +62,6 @@ var/auxtools_path
 	world_startup_time = world.timeofday
 
 	src.InitTgs()
-
-	for(var/i=1, i<=map.zLevels.len, i++)
-		WORLD_X_OFFSET += rand(-50,50)
-		WORLD_Y_OFFSET += rand(-50,50)
 
 	// logs
 

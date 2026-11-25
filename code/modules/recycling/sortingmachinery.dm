@@ -58,7 +58,7 @@ var/list/tagger_locations = list()
 	if(mode)
 		dat += "<a href='?src=\ref[src];new_dest=1'>Add destination</a>"
 
-	var/datum/browser/popup = new(user, "destTagger", name, 380, 350, src)
+	var/datum/browser/popup = new(user, "destTagger", name, 450, 350, src)
 	popup.add_stylesheet("shared", 'nano/css/shared.css')
 	popup.set_content(dat)
 	popup.open()
@@ -164,11 +164,8 @@ var/list/tagger_locations = list()
 
 	//testing("[src] FUCKING BUMPED BY \a [AM]")
 
-	if(istype(AM, /obj))
+	if(isobj(AM) || ismob(AM))
 		receive_atom(AM)
-	else if(istype(AM, /mob))
-		receive_atom(AM)
-
 
 /obj/machinery/disposal/deliveryChute/conveyor_act(var/atom/movable/AM, var/obj/machinery/conveyor/CB)
 	if(istype(AM,/obj/item))
@@ -1132,6 +1129,7 @@ var/list/tagger_locations = list()
 /obj/machinery/autoprocessor/outfit
 	name = "auto outfitter"
 	desc = "Automatically applies an outfit to people inside."
+	machine_flags = SCREWTOGGLE | CROWDESTROY
 	circuitpath = /obj/item/weapon/circuitboard/autoprocessor/outfit
 
 	var/outfit_type = /datum/outfit/assistant

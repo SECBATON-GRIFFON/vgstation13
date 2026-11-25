@@ -639,10 +639,10 @@ a {
 */
 	if (ishuman(user) && !ignore_brain_damage)
 		var/mob/living/carbon/human/H = user
-		if(H.getBrainLoss() >= 60)
+		if(H.getBrainLoss(INTELLIGENCE_L) >= 60)
 			visible_message("<span class='warning'>[H] stares cluelessly at [src] and drools.</span>")
 			return 1
-		else if(prob(H.getBrainLoss()) || (H.undergoing_hypothermia() == MODERATE_HYPOTHERMIA && prob(25)))
+		else if(prob(H.getBrainLoss(INTELLIGENCE_L)) || (H.undergoing_hypothermia() == MODERATE_HYPOTHERMIA && prob(25)))
 			to_chat(user, "<span class='warning'>You momentarily forget how to use [src].</span>")
 			return 1
 
@@ -894,13 +894,14 @@ a {
 	if(component_parts)
 		if(panel_open || W.bluespace)
 			var/obj/item/weapon/circuitboard/CB = locate(/obj/item/weapon/circuitboard) in component_parts
+			var/list/sorted_parts = sortTim(W.contents.Copy(), /proc/cmp_rped_sort)
 			var/P
 			for(var/obj/item/A in component_parts)
 				for(var/D in CB.req_components)
 					if(ispath(A.type, D))
 						P = D
 						break
-				for(var/obj/item/B in W.contents)
+				for(var/obj/item/B in sorted_parts)
 					if(istype(B, P) && istype(A, P))
 						if(B.get_rating() > A.get_rating())
 							W.remove_from_storage(B, src)
@@ -908,6 +909,7 @@ a {
 							remove_part(A)
 							add_part(B)
 							B.forceMove(null)
+							sorted_parts -= B
 							to_chat(user, "<span class='notice'>[A.name] replaced with [B.name].</span>")
 							shouldplaysound = 1 //Only play the sound when parts are actually replaced!
 							break

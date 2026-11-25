@@ -19,47 +19,42 @@ var/list/precip_state_to_texture = list()
 	for(var/datum/climate/C in climates)
 		C.tick()
 
-/datum/subsystem/weather/proc/get_climate(var/z, var/datum/allocation/A = null)
-	// Try to find exact match (z-level and allocation)
+// Gets the climate from a specified virtual z-level
+/datum/subsystem/weather/proc/get_climate(var/datum/virtual_z/vz)
 	for(var/datum/climate/C in climates)
-		if(C.z == z)
-			if(A && C.allocation == A)
-				return C
-			else if(!A && !C.allocation)
-				return C
+		if(C.v == vz)
+			return C
+		if(vz in C.additional_v)
+			return C
 	return null
 
-// Get the climate for a specific turf by checking its allocation or z-level
+// Gets the climate from a specific turf
 /datum/subsystem/weather/proc/get_climate_from_turf(var/turf/T)
 	if(!T)
 		return null
+	var/datum/virtual_z/vz = T.get_virtual_z()
+	if(!vz)
+		return null
+	return get_climate(vz)
 
-	var/datum/allocation/A = SSmapping.get_allocation(trf = T)
-	if(A)
-		return get_climate(T.z, A)
-	else
-		return get_climate(T.z)
-
-// Set the climate for a specific z-level. Uses an allocation if provided.
-/datum/subsystem/weather/proc/set_climate(var/datum/climate/climate_type, var/z = 1, var/datum/allocation/A = null, var/random_start = FALSE)
-	if(A)
-		z = A.z
+// Sets a climate on a specific virtual z-level
+/datum/subsystem/weather/proc/set_climate(var/datum/climate/climate_type, var/datum/virtual_z/vz = null, var/datum/zLevel/zLevel = null, var/random_start = FALSE)
+	if(zLevel)
+		if(!istype(zLevel))
+			zLevel = map.zLevels[zLevel]
+		vz = zLevel.virtual_z_levels[1]
+	if(!vz)
+		CRASH("Failed to set climate: virtual_z was null.")
 	if(!climate_type)
 		CRASH("Failed to set climate: climate_type was null.")
-	var/datum/climate/C = new climate_type(z,A,random_start)
+	var/datum/climate/C = new climate_type(vz,random_start)
 	climates += C
 
-	// Retroactively register turfs that were created before the climate system
-	// This handles legacy maps where turfs exist before climate is set up
-	if(A && A.turfs)
-		// Use allocation's turfs list for procedurally generated planets
-		for(var/turf/unsimulated/floor/snow/S in A.turfs)
+	// Last remnant of hard-coding required to keep the snow falling in Snaxi
+	var/list/turf/turfs = vz.get_turfs()
+	if(turfs)
+		for(var/turf/unsimulated/floor/snow/S in turfs)
 			C.register_weather_turf(S)
-	else
-		// For legacy maps without allocations, scan the z-level
-		for(var/turf/unsimulated/floor/snow/S in block(locate(1, 1, z), locate(world.maxx, world.maxy, z)))
-			C.register_weather_turf(S)
-
 	return C
 
 // Restart a specific climate in case it gets corrupted
@@ -68,8 +63,8 @@ var/list/precip_state_to_texture = list()
 		return FALSE
 
 	var/climate_type = C.type
-	var/climate_z = C.z
-	var/datum/allocation/climate_allocation = C.allocation
+	var/datum/virtual_z/vz = C.v
+	var/list/datum/virtual_z/additional_v = C.additional_v.Copy()
 
 	climates -= C
 
@@ -77,19 +72,21 @@ var/list/precip_state_to_texture = list()
 	if(C.current_weather)
 		qdel(C.current_weather)
 	if(C.weather_image)
-		for(var/turf/T in C.weather_turfs)
-			T.vis_contents -= C.weather_image
+		//Removes it from every turf's vis_contents at once; doing it turf by turf takes over half a minute on a full z-level.
+		C.weather_image.vis_locs.Cut()
 		qdel(C.weather_image)
 	qdel(C)
 
-	var/datum/climate/new_climate = new climate_type(climate_z, climate_allocation, FALSE)
+	var/datum/climate/new_climate = new climate_type(vz, FALSE)
 	climates += new_climate
 
-	if(climate_allocation && climate_allocation.turfs)
-		for(var/turf/unsimulated/floor/snow/S in climate_allocation.turfs)
-			new_climate.register_weather_turf(S)
-	else
-		for(var/turf/unsimulated/floor/snow/S in block(locate(1, 1, climate_z), locate(world.maxx, world.maxy, climate_z)))
-			new_climate.register_weather_turf(S)
+	var/list/turf/turfs = vz.get_turfs()
+	if(!turfs)
+		return FALSE
+	for(var/turf/T in turfs)
+		new_climate.register_weather_turf(T)
+		
+	for(var/datum/virtual_z/a_vz in additional_v)
+		new_climate.add_vlevel(a_vz)
 
 	return TRUE

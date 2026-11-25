@@ -268,7 +268,12 @@
 
 	if(!usr)
 		return
-	do_flip()
+	if(flipped)
+		if(get_dir(loc, usr) != dir)
+			return
+		do_put()
+	else
+		do_flip()
 
 /obj/structure/table/glass/kick_act()
 	health -= 5
@@ -881,10 +886,6 @@
 			user.do_attack_animation(src, user)
 			visible_message("<span class='danger'>[user] smashes [src] apart!</span>")
 			destroy()
-	else if(istype(user,/mob/living/complex_animal))
-		user.do_attack_animation(src, user)
-		visible_message("<span class='danger'>[user] smashes [src] apart!</span>")
-		destroy()
 
 /obj/structure/rack/attack_tk() // no telehulk sorry
 	return

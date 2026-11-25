@@ -104,6 +104,8 @@
 	icon_state = "syndballoon"
 	item_state = "syndballoon"
 	w_class = W_CLASS_LARGE
+	mech_flags = MECH_SCAN_ILLEGAL
+	origin_tech = Tc_SYNDICATE + "=1"
 
 /obj/item/toy/syndicateballoon/green
     name = "green balloon"
@@ -1679,6 +1681,7 @@ var/list/living_balloons = list()
 	var/mob/living/simple_animal/hostile/balloon/B = new(get_turf(src), col, icon_state)
 	B.name = name
 	B.air_contents = air_contents
+	B.arcanetampered = arcanetampered
 	qdel(src)
 
 /*

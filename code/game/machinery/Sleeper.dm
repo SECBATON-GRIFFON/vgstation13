@@ -25,6 +25,7 @@
 	light_color = LIGHT_COLOR_CYAN
 	light_range_on = 3
 	light_power_on = 2
+	var/deff_icon = TRUE
 	var/on = FALSE
 	var/target_time = 0
 	var/setting
@@ -69,7 +70,7 @@
 
 /obj/machinery/sleeper/New()
 	..()
-	if(map.nameShort == "deff")
+	if(deff_icon && map.nameShort == "deff")
 		icon = 'maps/defficiency/medbay.dmi'
 	RefreshParts()
 
@@ -608,7 +609,8 @@
 			occupant.reagents.remove_reagents(list(STOXIN, STOXIN2, VALERENIC_ACID, CHLORALHYDRATE),1000)
 			occupant.sleeping = 0
 			occupant.paralysis = 0
-			occupant.resting = 0
+			if(occupant.resting)
+				occupant.rest_action()
 		on = FALSE
 		if(auto_eject_after)
 			go_out(ejector = user)
@@ -813,13 +815,12 @@
 	accepts_plugins = FALSE
 
 /obj/machinery/sleeper/mancrowave/New()
-	..()
 	if(Holiday == APRIL_FOOLS_DAY)
 		base_icon = "galo"
 		icon_state = "galo_open"
 		galize = 1
-	else if(map.nameShort == "deff")
-		icon = 'maps/defficiency/medbay.dmi'
+		deff_icon = FALSE
+	..()
 	update_icon()
 
 /obj/machinery/sleeper/mancrowave/go_out(var/exit = loc, var/ejector)
@@ -895,6 +896,8 @@
 	if(..())
 		return TRUE
 	if(href_list["cook"])
+		if(stat & (NOPOWER|BROKEN|FORCEDISABLE))
+			return
 		if(on)
 			to_chat(usr, "<span class='danger'>\The [src] is already turned on!</span>")
 			return
@@ -924,6 +927,8 @@
 
 /obj/machinery/sleeper/mancrowave/process()
 	..()
+	if(stat & (NOPOWER|BROKEN|FORCEDISABLE))
+		return
 	if(automatic && occupant && !on)
 		cook("Thermoregulate")
 	if(!istype(occupant,/mob/living/carbon))
@@ -981,8 +986,6 @@
 	name = "tanning bed"
 	desc = "An experimental G4L-0 model thermal homeostasis regulator. Just looking at it makes you feel unusually excited."
 	galize = 1
-
-/obj/machinery/sleeper/mancrowave/galo/New()
-	..()
+	deff_icon = FALSE
 	base_icon = "galo"
 	icon_state = "galo_open"

@@ -2,7 +2,7 @@
 	name = "baby slime"
 	desc = null
 	icon = 'icons/mob/slimes.dmi'
-	pass_flags = PASSTABLE
+	pass_flags = PASSTABLE | PASSFLAPS
 	layer = SLIME_LAYER
 	gender = NEUTER
 	update_icon = 0
@@ -457,9 +457,6 @@
 	if(timestopped)
 		return 1 //under effects of time magick
 	return 0
-
-/mob/living/carbon/slime/var/co2overloadtime = null
-
 
 /mob/living/carbon/slime/show_inv(mob/user)
 	return
