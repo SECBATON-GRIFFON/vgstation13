@@ -173,6 +173,8 @@
 	if (sub_overlays.len >= arbitrary_overlay_limit)
 		_mask = null
 		_alpha = 255
+	if (_uv || (uv && !_uv))
+		uv = _uv
 	if (!_mask && _alpha == 255)
 		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
 		for (var/obj/abstract/paint_light/PL in paintlights)
