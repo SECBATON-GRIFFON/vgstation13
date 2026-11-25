@@ -96,16 +96,16 @@
 //------------------------------------------------------
 
 //covers the whole turf with a new coat of paint, removing all paint decals in the process.
-/turf/proc/apply_paint_overlay(var/_color=COLOR_WHITE,var/_alpha=255,var/_DNA = list(),var/_nano_paint=FALSE)
+/turf/proc/apply_paint_overlay(var/_color=COLOR_WHITE,var/_alpha=255,var/_DNA = list(),var/_nano_paint=FALSE,var/_uv=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
-	paint_overlay.apply(_color,_alpha, null, SOUTH, _DNA, _nano_paint)
+	paint_overlay.apply(_color,_alpha, null, SOUTH, _DNA, _nano_paint, _uv)
 
 //applies a paint decal
-/turf/proc/apply_paint_stroke(var/_color=COLOR_WHITE,var/_alpha=255,var/_dir=SOUTH,var/_stroke_icon = "border_splatter",var/_DNA = list(),var/_nano_paint=FALSE)
+/turf/proc/apply_paint_stroke(var/_color=COLOR_WHITE,var/_alpha=255,var/_dir=SOUTH,var/_stroke_icon = "border_splatter",var/_DNA = list(),var/_nano_paint=FALSE,var/_uv=FALSE)
 	if (!paint_overlay)
 		paint_overlay=new(src)
-	paint_overlay.add_border_stroke(_color,_alpha,_dir, _stroke_icon, _DNA, _nano_paint)
+	paint_overlay.add_border_stroke(_color,_alpha,_dir, _stroke_icon, _DNA, _nano_paint, _uv)
 
 //removes the paint overlay. Keeping erase at 0 let's us re-add it later, useful when we want to preserves things paint on plating hidden by floor tiles.
 /turf/proc/remove_paint_overlay(var/erase)
@@ -132,6 +132,7 @@
 	var/list/blood_DNA = list()
 	var/arbitrary_overlay_limit = 32//figured not having a limit might be silly.
 	var/nano_paint = FALSE//if true, main_color is added to the turf's light, enabling turfs to be lit up even without a proper light source (Might have to rework that when Europa Lights come back)
+	var/uv = FALSE//if true, the overlay's alpha is affected by proximity to any UV light sources.
 	var/main_color = "#000000"
 
 	var/list/paintlights = list()//for paint masks made of nano paint
@@ -164,7 +165,7 @@
 #define PAINT_OPACITY_THRESHOLD_FOR_FOOTPRINTS_REMOVAL	200
 
 //the main proc that deals with actually adding paint on the floor
-/datum/paint_overlay/proc/apply(var/_color=COLOR_WHITE,var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
+/datum/paint_overlay/proc/apply(var/_color=COLOR_WHITE,var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE,var/_uv=FALSE)
 	my_turf.overlays -= overlay
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
@@ -220,7 +221,7 @@
 	wet_amount = _amount
 
 //Adding paint decals.
-/datum/paint_overlay/proc/add_border_stroke(var/_color=COLOR_WHITE,var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list(),var/_nano_paint=FALSE)
+/datum/paint_overlay/proc/add_border_stroke(var/_color=COLOR_WHITE,var/_alpha=255,var/_dir=SOUTH,var/stroke_icon = "border_splatter",var/list/_blood_DNA=list(),var/_nano_paint=FALSE,var/_uv=FALSE)
 	if (!overlay)
 		overlay = image('icons/turf/paint_overlays_floors.dmi',my_turf,"no_paint")
 		overlay.layer = PAINT_LAYER
@@ -232,10 +233,10 @@
 					if (lay.dir == _dir)
 						switch(lay.icon_state)
 							if ("border_roller")
-								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA,_nano_paint)
+								apply(_color,_alpha,"border_roller_progress",_dir,_blood_DNA,_nano_paint,_uv)
 								return
 							if ("border_roller_progress")
-								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)//On the third click we just apply a coat over the whole tile
+								apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint,_uv)//On the third click we just apply a coat over the whole tile
 								return
 	if (stroke_icon == "wall_side")//painting around a wall
 		if (sub_overlays.len > 0)
@@ -243,9 +244,9 @@
 			if (lay.icon == 'icons/turf/paint_masks.dmi')
 				if ((lay.color ? lay.color : "#ffffff") == copytext(_color,1,8) && lay.alpha == round(_alpha))//painting the same side twice in a row with the same paint covers the whole wall
 					if (lay.dir == _dir)
-						apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint)
+						apply(_color,_alpha,null,_dir,_blood_DNA,_nano_paint,_uv)
 						return
-	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA,_nano_paint)
+	apply(_color,_alpha,stroke_icon,_dir,_blood_DNA,_nano_paint,_uv)
 
 /datum/paint_overlay/proc/update()//updates the paint layers when floors get damaged and such
 	if (!overlay)
