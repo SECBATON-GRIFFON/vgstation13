@@ -184,8 +184,7 @@
 		uv = _uv
 	if (uv)
 		recalc_uv()
-		if(nearest_uv_dist < world.view)
-			_alpha /= nearest_uv_dist
+		_alpha /= nearest_uv_dist
 	if (!_mask && _alpha == 255)
 		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
 		for (var/obj/abstract/paint_light/PL in paintlights)
