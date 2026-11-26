@@ -43,12 +43,12 @@
 	var/current_breath_moles = 0
 	if(breath)
 		current_breath_moles = breath.total_moles
+	var/differential_damage = 0
 	// if the air pressure is below a fifth of average or above five times average
 	// and the differential between the last breath's pressure basically instantly goes to it from average
 	if((current_breath_moles - last_breath_moles < (BREATH_MOLES * 4) / 5 && current_breath_moles < BREATH_MOLES / 5) ||\
 		(current_breath_moles - last_breath_moles > BREATH_MOLES * 4 && current_breath_moles > BREATH_MOLES * 5))
-		if(prob(20))
-			L.take_damage(1,1)
+		L.take_damage(1,1)
 		if(!L.is_ruptured() && L.damage > 2)
 			var/chance_break = (L.damage / L.min_broken_damage)*100
 			if(prob(chance_break))
