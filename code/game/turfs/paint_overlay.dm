@@ -169,7 +169,7 @@
 		return
 	var/nearest_uv_dist = INFINITY
 	for(var/datum/light_source/L in my_turf.affecting_lights)
-		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_dist)
+		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_uv_dist)
 			nearest_uv_dist = get_z_dist(my_turf,L.source_turf)
 	overlay.alpha = 255 / max(nearest_uv_dist,1) // no divide by zero
 
