@@ -165,13 +165,13 @@
 #define PAINT_OPACITY_THRESHOLD_FOR_FOOTPRINTS_REMOVAL	200
 
 /datum/paint_overlay/proc/recalc_uv()
+	if(!overlay)
+		return
 	var/nearest_uv_dist = INFINITY
 	for(var/datum/light_source/L in my_turf.affecting_lights)
 		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_dist)
 			nearest_uv_dist = get_z_dist(my_turf,L.source_turf)
-	nearest_uv_dist += 1 // no divide by zero
-	if(overlay)
-		overlay.alpha = 255 / nearest_uv_dist
+	overlay.alpha = 255 / (nearest_uv_dist + 1) // no divide by zero
 
 //the main proc that deals with actually adding paint on the floor
 /datum/paint_overlay/proc/apply(var/_color=COLOR_WHITE,var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE,var/_uv=FALSE)
