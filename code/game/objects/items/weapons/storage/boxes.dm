@@ -564,6 +564,7 @@
 		/obj/item/device/radio/phone/surveillance,
 		/obj/item/device/handtv,
 		/obj/item/weapon/reagent_containers/spray/luminol,
+		/obj/item/device/flashlight/blacklight,
 		/obj/item/taperoll/police,
 	)
 
