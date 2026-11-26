@@ -133,7 +133,6 @@
 	var/arbitrary_overlay_limit = 32//figured not having a limit might be silly.
 	var/nano_paint = FALSE//if true, main_color is added to the turf's light, enabling turfs to be lit up even without a proper light source (Might have to rework that when Europa Lights come back)
 	var/uv = FALSE//if true, the overlay's alpha is affected by proximity to any UV light sources.
-	var/nearest_uv_dist = INFINITY
 	var/main_color = "#000000"
 
 	var/list/paintlights = list()//for paint masks made of nano paint
@@ -166,10 +165,13 @@
 #define PAINT_OPACITY_THRESHOLD_FOR_FOOTPRINTS_REMOVAL	200
 
 /datum/paint_overlay/proc/recalc_uv()
-	nearest_uv_dist = INFINITY
+	var/nearest_uv_dist = INFINITY
 	for(var/datum/light_source/L in my_turf.affecting_lights)
 		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_dist)
 			nearest_uv_dist = get_z_dist(my_turf,L.source_turf)
+	nearest_uv_dist += 1 // no divide by zero
+	if(overlay)
+		overlay.alpha = 255 / nearest_uv_dist
 
 //the main proc that deals with actually adding paint on the floor
 /datum/paint_overlay/proc/apply(var/_color=COLOR_WHITE,var/_alpha=255,var/_mask=null,var/_mask_dir=SOUTH,var/list/_blood_DNA=list(),var/_nano_paint=FALSE,var/_uv=FALSE)
@@ -184,7 +186,6 @@
 		uv = _uv
 	if (uv)
 		recalc_uv()
-		_alpha /= nearest_uv_dist
 	if (!_mask && _alpha == 255)
 		overlay.overlays.len = 0//we're applying a full opaque coat of paint so let's get rid of the other overlays
 		for (var/obj/abstract/paint_light/PL in paintlights)
