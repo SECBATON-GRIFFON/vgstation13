@@ -11,6 +11,7 @@ var/list/all_light_sources = list()
 	var/light_power    // Intensity of the emitter light.
 	var/light_range      // The range of the emitted light.
 	var/light_color    // The colour of the light, string, decomposed by parse_light_color()
+	var/uv_light		// If the light is UV light
 
 	// Variables for keeping track of the colour.
 	var/lum_r
@@ -31,7 +32,7 @@ var/list/all_light_sources = list()
 	var/needs_update    // Whether we are queued for an update.
 	var/destroyed       // Whether we are destroyed and need to stop emitting light.
 	var/force_update
-	
+
 	var/lowpriority=FALSE
 
 /datum/light_source/New(var/atom/owner, var/atom/top, var/lowp=FALSE)
@@ -53,6 +54,7 @@ var/list/all_light_sources = list()
 	light_power = source_atom.light_power
 	light_range = source_atom.light_range
 	light_color = source_atom.light_color
+	uv_light = source_atom.uv_light
 
 	parse_light_color()
 
