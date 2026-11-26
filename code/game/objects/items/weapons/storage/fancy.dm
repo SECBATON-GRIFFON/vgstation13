@@ -270,6 +270,8 @@
 	if (empty)
 		return
 	new /obj/item/device/flashlight/pen/uv(src)
+	for(var/obj/item/toy/crayon/crayon in contents)
+		crayon.uv = TRUE
 
 /*
  * Match Box

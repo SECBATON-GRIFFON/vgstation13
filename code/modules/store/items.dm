@@ -158,7 +158,7 @@
 	name = "UV Crayons"
 	desc = "Let security know how they're doing by scrawling covert notes all over their hallways."
 	typepath = /obj/item/weapon/storage/fancy/crayons/uv
-	cost = 15
+	cost = 30
 	category = "Toys"
 
 /datum/storeitem/beachball

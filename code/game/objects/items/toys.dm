@@ -603,6 +603,7 @@
 	var/colourName = "red" //for updateIcon purposes
 	var/style_type = /datum/writing_style/crayon
 	var/datum/writing_style/style
+	var/uv = FALSE
 
 /obj/item/toy/crayon/New()
 	..()
