@@ -955,7 +955,7 @@
 	var/datum/organ/internal/lungs/L = internal_organs_by_name["lungs"]
 	return L && L.is_ruptured()
 
-/mob/living/carbon/proc/rupture_lung()
+/*/mob/living/carbon/proc/rupture_lung()
 	return
 
 /mob/living/carbon/human/rupture_lung()
@@ -963,7 +963,6 @@
 	if(L)
 		L.rupture()
 
-/*
 /mob/living/carbon/human/verb/simulate()
 	set name = "sim"
 	//set background = 1

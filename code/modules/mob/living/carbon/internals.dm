@@ -5,6 +5,7 @@
 	var/pressure_alert = FALSE
 	var/temperature_alert = TEMP_ALARM_SAFE
 	var/failed_last_breath = FALSE //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
+	var/last_breath_moles = 0
 	var/safe_oxygen_min = 16 // Minimum safe partial pressure of O2, in kPa
 	var/co2overloadtime = null
 	//var/safe_oxygen_max = 140 // Maximum safe partial pressure of O2, in kPa (Not used for now)
