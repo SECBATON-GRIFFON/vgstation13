@@ -21,6 +21,7 @@
 	var/sound_on = 'sound/items/flashlight_on.ogg'
 	var/sound_off = 'sound/items/flashlight_off.ogg'
 	var/flickering = FALSE
+	var/uv_on = FALSE
 
 	health = 30
 	breakable_flags = BREAKABLE_ALL
@@ -50,7 +51,7 @@
 /obj/item/device/flashlight/proc/update_brightness(var/mob/user = null, var/playsound = 1)
 	if(on)
 		icon_state = "[initial(icon_state)]-on"
-		set_light(range_on, brightness_on)
+		set_light(range_on, brightness_on, uv = uv_on)
 		if(playsound && has_sound)
 			if(get_turf(src))
 				playsound(src, sound_on, 50, 1)
@@ -162,6 +163,11 @@
 	has_sound = 0
 
 	health = 10
+
+/obj/item/device/flashlight/pen/uv
+	name = "ultraviolet penlight"
+	desc = "A pen-sized ultraviolet light."
+	uv_on = TRUE
 
 /obj/item/device/flashlight/tactical
 	name = "tactical light"
@@ -498,3 +504,8 @@ var/list/obj/item/device/flashlight/lamp/lamps = list()
 	if(is_holder_of(user, src)) //If you hold it
 		to_chat(user, "Charges: <span class='bad'>[charge_current]/4</span>") //Shows you in red how many charges are left out of how many
 		to_chat(user, "Timer: <span class='good'>[charge_seconds]/30</span>") //Shows you in green the timer until 30 seconds
+
+/obj/item/device/flashlight/blacklight
+	name = "blacklight"
+	desc = "A hand-held ultraviolet blacklight."
+	uv_on = TRUE

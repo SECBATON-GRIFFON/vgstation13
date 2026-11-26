@@ -154,6 +154,13 @@
 	cost = 15
 	category = "Toys"
 
+/datum/storeitem/uvcrayons
+	name = "UV Crayons"
+	desc = "Let security know how they're doing by scrawling covert notes all over their hallways."
+	typepath = /obj/item/weapon/storage/fancy/crayons/uv
+	cost = 15
+	category = "Toys"
+
 /datum/storeitem/beachball
 	name = "Beach Ball"
 	desc = "Summer up your office with this cheap vinyl beachball made by prisoners!"

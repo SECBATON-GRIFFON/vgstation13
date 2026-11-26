@@ -257,6 +257,20 @@
 				return
 	. = ..()
 
+/obj/item/weapon/storage/fancy/crayons/uv
+	name = "box of ultraviolet crayons"
+	desc = "A box of ultraviolet crayons for all your concealed rune drawing needs."
+	can_only_hold = list(
+		"/obj/item/toy/crayon",
+		"/obj/item/device/flashlight/pen/uv"
+	)
+
+/obj/item/weapon/storage/fancy/crayons/uv/New()
+	..()
+	if (empty)
+		return
+	new /obj/item/device/flashlight/pen/uv(src)
+
 /*
  * Match Box
  */
