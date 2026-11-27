@@ -10,12 +10,16 @@
 	persistence_type = null //todo
 	var/mainColour = "#FFFFFF"
 	var/shadeColour = "#000000"
+	var/uv = FALSE
 
-/obj/effect/decal/cleanable/crayon/New(loc,age,icon_state,color = "#FFFFFF",dir,pixel_x,pixel_y,shade = "#000000",var/type = "rune")
+/obj/effect/decal/cleanable/crayon/New(loc,age,icon_state,color = "#FFFFFF",dir,pixel_x,pixel_y,shade = "#000000",var/type = "rune",_uv=FALSE)
 	..()
 
 	src.mainColour = color
 	src.shadeColour = shade
+	uv = _uv
+	if (uv)
+		recalc_uv()
 	name = type
 
 	add_hiddenprint(usr)
@@ -58,6 +62,13 @@
 								src.pixel_y = min(src.pixel_y, type == 0)
 			src.pixel_x += x_offset
 			src.pixel_y += y_offset
+
+/obj/effect/decal/cleanable/crayon/proc/recalc_uv()
+	var/nearest_uv_dist = INFINITY
+	for(var/datum/light_source/L in my_turf.affecting_lights)
+		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_uv_dist)
+			nearest_uv_dist = get_z_dist(my_turf,L.source_turf)
+	alpha = 255 / max(nearest_uv_dist,1) // no divide by zero
 
 /obj/effect/decal/cleanable/crayon/update_icon()
 	overlays.Cut()

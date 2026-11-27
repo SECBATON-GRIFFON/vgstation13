@@ -201,9 +201,9 @@ var/global/list/all_graffitis = list(
 
 		if(instant || do_after(user,target, drawtime))
 			if(drawtype == "text")
-				new /obj/effect/decal/cleanable/crayon/text(target, size = fontsize, fontname = clumsy_check(user) ? "Comic Sans MS" : "DK Cool Crayon", color = mainColour, type = preference, pixel_x = pix_x, pixel_y = pix_y)
+				new /obj/effect/decal/cleanable/crayon/text(target, size = fontsize, fontname = clumsy_check(user) ? "Comic Sans MS" : "DK Cool Crayon", color = mainColour, type = preference, pixel_x = pix_x, pixel_y = pix_y, _uv = uv)
 			else
-				new /obj/effect/decal/cleanable/crayon(target, color = mainColour, shade = shadeColour, type = drawtype, pixel_x = pix_x, pixel_y = pix_y)
+				new /obj/effect/decal/cleanable/crayon(target, color = mainColour, shade = shadeColour, type = drawtype, pixel_x = pix_x, pixel_y = pix_y, _uv = uv)
 
 			to_chat(user, "You finish drawing.")
 			target.add_fingerprint(user)		// Adds their fingerprints to the floor the crayon is drawn on.
