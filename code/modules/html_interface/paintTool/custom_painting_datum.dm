@@ -20,6 +20,7 @@
 	var/list/nano_palette = list()
 	var/base_color
 	var/nano_paint = FALSE
+	var/uv_paint = FALSE
 	var/polarized = FALSE
 	var/list/components = list()
 
@@ -159,7 +160,9 @@
 
 	// Secondary luminous bitmap for when working with nano-paint
 	var/list/nanomap = list()
+	var/list/uvmap = list()
 	var/has_nano_paint = FALSE
+	var/has_uv = FALSE
 
 	// Color that shows up on creation or after cleaning
 	var/base_color = "#ffffff"
@@ -220,7 +223,7 @@
 		var/num = pick(list_of_numbers)
 		var/actual_num = text2num(num)
 		list_of_numbers -= num
-		pixels_to_shift[num] = list(bitmap[actual_num], nanomap[actual_num])//saving pixel data and location before smearing
+		pixels_to_shift[num] = list(bitmap[actual_num], nanomap[actual_num], uvmap[actual_num])//saving pixel data and location before smearing
 
 	for (var/index in pixels_to_shift)
 		var/list/colors_to_move = pixels_to_shift[index]
@@ -233,20 +236,24 @@
 				colors_to_move = list(base_color, "#000000")
 			bitmap[new_index] = colors_to_move[1]
 			nanomap[new_index] = colors_to_move[2]
+			uvmap[new_index] = colors_to_move[3]
 
 /datum/custom_painting/proc/bucket_fill(var/color,var/nanopaint=PAINTLIGHT_NONE)
 	bitmap = list()
 	nanomap = list()
+	uvmap = list()
 	if (nanopaint != PAINTLIGHT_NONE)
 		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
 			bitmap += color
 			if (uppertext(color) == "#FFFFFF")
 				color = "#FEFEFE"//workaround because white nano paint doesn't glow up for some reason
 			nanomap += color
+			uvmap += "#000000"
 	else
 		for (var/i = 0, i < bitmap_height * bitmap_width, i++)
 			bitmap += color
 			nanomap += "#000000"
+			uvmap += "#000000"
 
 
 /datum/custom_painting/proc/blank_contents()
@@ -261,6 +268,9 @@
 		if (b != base_color)
 			return FALSE
 	for (var/b in nanomap)
+		if (b != "#000000")
+			return FALSE
+	for (var/b in uvmap)
 		if (b != "#000000")
 			return FALSE
 
@@ -375,6 +385,9 @@
 		nanomap = splittext(url_decode(href_list["nanomap"]), ",")
 		for (var/i = 1; i <= nanomap.len; i++)
 			nanomap[i] = sanitize_hexcolor(nanomap[i])
+		uvmap = splittext(url_decode(href_list["uvmap"]), ",")
+		for (var/i = 1; i <= uvmap.len; i++)
+			uvmap[i] = sanitize_hexcolor(uvmap[i])
 
 		if (copy == PAINTING_OC_COPY)
 			copy = PAINTING_OC_MODIFIED_COPY
@@ -429,6 +442,25 @@
 
 	return image(ico)
 
+/datum/custom_painting/proc/render_uvmap(icon/ico, offset_x = src.offset_x, offset_y = src.offset_y)
+	var/x
+	var/y
+	has_uv = FALSE
+	for (var/pixel = 0; pixel < uvmap.len; pixel++)
+		x = pixel % bitmap_width
+		y = (pixel - x)/bitmap_width
+
+		//for DrawBox, (x:1,y:1) is the lower left corner. On bitmap, (x:0,y:0) is the upper left
+		x = 1 + offset_x + x
+		y = offset_y + bitmap_height - y
+
+		ico.DrawBox(uvmap[pixel + 1], x, y)
+
+		if (uvmap[pixel + 1] != "#000000")
+			has_uv = TRUE
+
+	return image(ico)
+
 /datum/custom_painting/proc/get_components()
 	var/mats = ""
 
@@ -473,6 +505,7 @@
 		painting.base_color,
 		painting.bitmap,
 		painting.nanomap,
+		painting.uvmap,
 		painting.components,
 	)
 	return json_encode(L)
@@ -485,7 +518,9 @@
 	if (L.len > 6)//post Paint & Linen update
 		var/list/nanomap_to_copy = L[7]
 		painting.nanomap = nanomap_to_copy.Copy()
-		var/list/components_to_copy = L[8]
+		var/list/uvmap_to_copy = L[8]
+		painting.uvmap = uvmap_to_copy.Copy()
+		var/list/components_to_copy = L[9]
 		painting.components = components_to_copy.Copy()
 	painting.title = title
 	painting.author = author
