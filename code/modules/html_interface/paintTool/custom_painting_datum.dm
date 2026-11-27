@@ -18,6 +18,7 @@
 	var/max_strength = 1
 	var/list/palette = list() // List of colors that will be made available while painting
 	var/list/nano_palette = list()
+	var/list/uv_palette = list()
 	var/base_color
 	var/nano_paint = FALSE
 	var/uv_paint = FALSE
@@ -37,6 +38,7 @@
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += p.colour_rgb
 		nano_palette += "#161616"
+		uv_palette += "#161616"
 		base_color = p.colour_rgb
 		components = list("pen ink")
 
@@ -57,9 +59,12 @@
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += c.mainColour
 		nano_palette += "#161616"
+		uv_palette += "#161616"
 		palette += c.shadeColour
 		nano_palette += "#161616"
+		uv_palette += "#161616"
 		base_color = c.mainColour
+		uv_paint = c.uv
 
 	// Painting with hair dye sprays
 	if (istype(held_item, /obj/item/weapon/hair_dye))
@@ -69,6 +74,7 @@
 		min_strength = PENCIL_STRENGTH_MIN
 		palette += rgb(h.color_r, h.color_g, h.color_b)
 		nano_palette += "#161616"
+		uv_palette += "#161616"
 		base_color = rgb(h.color_r, h.color_g, h.color_b)
 
 	// Painting with a brush
@@ -88,6 +94,7 @@
 						nano_palette += "#999999"
 					if (PAINTLIGHT_FULL)
 						nano_palette += "#FFFFFF"
+				uv_palette += "#161616"
 
 		if (b.paint_color)
 			max_strength = BRUSH_STRENGTH_MAX
@@ -103,8 +110,10 @@
 						nano_palette += "#999999"
 					if (PAINTLIGHT_FULL)
 						nano_palette += "#FFFFFF"
+			uv_palette += "#161616"
 			base_color = b.paint_color
 			nano_paint = b.nano_paint
+			uv_paint = b.uv_paint
 
 	// Wearing polarized glasses
 	polarized = FALSE
@@ -135,8 +144,10 @@
 	dupe.min_strength = src.min_strength
 	dupe.palette = src.palette
 	dupe.nano_palette = src.nano_palette
+	dupe.uv_palette = src.uv_palette
 	dupe.base_color = src.base_color
 	dupe.nano_paint = src.nano_paint
+	dupe.uv_paint = src.uv_paint
 	dupe.components = src.components.Copy()
 	dupe.tag = "\ref[dupe]"
 	return dupe

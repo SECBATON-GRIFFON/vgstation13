@@ -36,6 +36,7 @@
 	// Paint brush stuff
 	var/paint_color = null
 	var/nano_paint = PAINTLIGHT_NONE
+	var/uv_paint = FALSE
 	var/list/blood_data = list("wet paint" = "paint")
 	var/list/component = list()
 	var/list/component_alt = list()
