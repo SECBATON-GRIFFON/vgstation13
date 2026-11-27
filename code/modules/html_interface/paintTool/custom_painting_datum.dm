@@ -346,6 +346,12 @@
 		interface.show(user)
 		interface.callJavaScript("initCanvas", list(paint_init_inputs,canvas_init_inputs), user)
 
+/datum/custom_painting/proc/recalc_uv()
+	var/nearest_uv_dist = INFINITY
+	for(var/datum/light_source/L in my_turf.affecting_lights)
+		if(L.uv_light && get_z_dist(my_turf,L.source_turf) < nearest_uv_dist)
+			nearest_uv_dist = get_z_dist(my_turf,L.source_turf)
+	//alpha = 255 / max(nearest_uv_dist,1) // no divide by zero
 
 /datum/custom_painting/Topic(href, href_list)
 	// Handle multipart href

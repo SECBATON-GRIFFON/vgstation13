@@ -376,9 +376,11 @@ var/list/all_light_sources = list()
 		effect_str -= C
 
 /datum/light_source/proc/recalc_uv_objects(list/turf/updated_turfs)
-	for(var/turf/T in updated_turfs)
+	for(var/turf/simulated/T in updated_turfs)
 		if(T.paint_overlay)
-			T.recalc_uv()
+			T.paint_overlay.recalc_uv()
+		if(T.advanced_graffiti)
+			T.advanced_graffiti.recalc_uv()
 		for(var/obj/effect/decal/cleanable/crayon/C in T)
 			C.recalc_uv()
 
