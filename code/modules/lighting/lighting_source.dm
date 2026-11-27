@@ -290,6 +290,9 @@ var/list/all_light_sources = list()
 	T.affecting_lights += src
 	affecting_turfs    += T
 
+	if(uv_light)
+		recalc_uv_objects(list(T))
+
 /datum/light_source/proc/remove_lum()
 	applied = FALSE
 
@@ -298,6 +301,9 @@ var/list/all_light_sources = list()
 			T.affecting_lights = list()
 		else
 			T.affecting_lights -= src
+
+	if(uv_light)
+		recalc_uv_objects(affecting_turfs)
 
 	affecting_turfs.Cut()
 
@@ -344,11 +350,17 @@ var/list/all_light_sources = list()
 		else
 			T.affecting_lights += src
 
+	if(uv_light)
+		recalc_uv_objects(L)
+
 	L = affecting_turfs - turfs // Now-gone turfs, remove us from the affecting lights.
 	affecting_turfs -= L
 	for (var/turf/T in L)
 		if(T.affecting_lights)
 			T.affecting_lights.Remove(src)
+
+	if(uv_light)
+		recalc_uv_objects(L)
 
 	for (var/datum/lighting_corner/C in corners - effect_str) // New corners
 		C.affecting += src
@@ -362,6 +374,13 @@ var/list/all_light_sources = list()
 		REMOVE_CORNER(C)
 		C.affecting -= src
 		effect_str -= C
+
+/datum/light_source/proc/recalc_uv_objects(list/turf/updated_turfs)
+	for(var/turf/T in updated_turfs)
+		if(T.paint_overlay)
+			T.recalc_uv()
+		for(var/obj/effect/decal/cleanable/crayon/C in T)
+			C.recalc_uv()
 
 #undef effect_update
 #undef LUM_FALLOFF
